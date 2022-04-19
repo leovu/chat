@@ -95,7 +95,7 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen> with AutomaticKee
                     children: [
                       InkWell(
                         onTap: () {
-                          Navigator.of(context).pop();
+                          Navigator.of(ChatConnection.buildContext).pop();
                         },
                         child: SizedBox(
                             width:30.0,

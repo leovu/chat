@@ -94,7 +94,7 @@ class _ContactsScreenState extends State<ContactsScreen> with AutomaticKeepAlive
                     children: [
                       InkWell(
                         onTap: () {
-                          Navigator.of(context).pop();
+                          Navigator.of(ChatConnection.buildContext).pop();
                         },
                         child: SizedBox(
                             width:30.0,

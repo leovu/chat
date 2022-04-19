@@ -21,6 +21,7 @@ class ChatConnection {
   static late String appIcon;
   static String? roomId;
   static User? user;
+  static late BuildContext buildContext;
   static Future<bool>init(String email,String password) async {
     HttpOverrides.global = MyHttpOverrides();
     ResponseData responseData = await connection.post('api/login', {'email':email,'password':password});

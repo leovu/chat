@@ -6,7 +6,6 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter/material.dart';
 import 'chat_screen/home_screen.dart';
 import 'connection/chat_connection.dart';
-import 'package:overlay_support/overlay_support.dart';
 
 class Chat {
   static const MethodChannel _channel = MethodChannel('chat');
@@ -19,6 +18,7 @@ class Chat {
       if(domain != null) {
         HTTPConnection.domain = domain;
       }
+      ChatConnection.buildContext = context;
       ChatConnection.init(email, password).then((value) => Navigator.of(context,rootNavigator: true).push(
         MaterialPageRoute(builder: (context) => AppChat(email: email,password: password,))
       ));
@@ -38,11 +38,6 @@ class AppChat extends StatelessWidget {
         statusBarBrightness: Brightness.dark,
       ));
     }
-    return const OverlaySupport.global(
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: HomeScreen(),
-      ),
-    );
+    return const HomeScreen();
   }
 }
