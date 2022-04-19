@@ -83,7 +83,7 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
     if(ChatConnection.roomId == null) {
       ChatConnection.showNotification('${notificationData['message']['author']['firstName']} ${notificationData['message']['author']['lastName']}',
           notificationData['message']['content'],
-          notificationData, 'assets/icon-app.png', _notificationHandler);
+          notificationData, ChatConnection.appIcon, _notificationHandler);
       try{
         ChatConnection.refreshRoom.call();
         ChatConnection.refreshFavorites.call();
