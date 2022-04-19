@@ -5,7 +5,7 @@ Chat Plugin
 ## Getting Started
 
 ## Flutter
-    Chat.open(BuildContext,email,password,domain:domain);
+    Chat.open(BuildContext,email,password,appIcon,domain:domain);
 ## Android:
 Manfifest:
 
