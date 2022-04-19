@@ -80,8 +80,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
   Widget build(BuildContext context) {
     super.build(context);
     widget.builder.call(context, _getRooms);
-    return roomListVisible != null ?
-      GestureDetector(
+    return GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: Scaffold(
           body: SafeArea(
@@ -181,7 +180,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                   ],
                 ),
                 Expanded(
-                  child: SmartRefresher(
+                  child: roomListVisible != null ? SmartRefresher(
                     enablePullDown: true,
                     enablePullUp: false,
                     controller: _refreshController,
@@ -236,12 +235,12 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                                     child: _room(roomListVisible!.rooms![position], position == roomListVisible!.rooms!.length-1))),
                           );
                         }),
-                  ),
+                  ) : Container(),
                 )
               ],),
             ),
         ),
-      ) : Container();
+      );
   }
   void _removeRoom(String roomId) {
     ChatConnection.removeRoom(roomId).then((value) {

@@ -143,9 +143,8 @@ class ChatConnection {
   static reconnect() {
     streamSocket.socket.connect();
   }
-  static dispose({bool isPaused=false}) {
+  static dispose() {
     streamSocket.socket.disconnect();
-    if(!isPaused) streamSocket.dispose();
   }
   static void showNotification(
       String notificationTitle,

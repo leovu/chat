@@ -13,12 +13,13 @@ class Chat {
     final String? version = await _channel.invokeMethod('getPlatformVersion');
     return version;
   }
-  static open(BuildContext context, String email, String password, {String? domain}) async {
+  static open(BuildContext context, String email, String password, String appIcon, {String? domain}) async {
     initializeDateFormatting().then((_) async {
       if(domain != null) {
         HTTPConnection.domain = domain;
       }
       ChatConnection.buildContext = context;
+      ChatConnection.appIcon = appIcon;
       ChatConnection.init(email, password).then((value) => Navigator.of(context,rootNavigator: true).push(
         MaterialPageRoute(builder: (context) => AppChat(email: email,password: password,))
       ));

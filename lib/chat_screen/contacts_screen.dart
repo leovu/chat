@@ -76,8 +76,7 @@ class _ContactsScreenState extends State<ContactsScreen> with AutomaticKeepAlive
   Widget build(BuildContext context) {
     widget.builder.call(context, _getContacts);
     super.build(context);
-    return contactsListVisible != null ?
-    GestureDetector(
+    return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
         body: SafeArea(
@@ -162,7 +161,7 @@ class _ContactsScreenState extends State<ContactsScreen> with AutomaticKeepAlive
               ],
             ),
             Expanded(
-              child: SmartRefresher(
+              child: contactsListVisible != null ? SmartRefresher(
                 enablePullDown: true,
                 enablePullUp: false,
                 controller: _refreshController,
@@ -187,12 +186,12 @@ class _ContactsScreenState extends State<ContactsScreen> with AutomaticKeepAlive
                           },
                           child: _contacts(contactsListVisible!.users![position], position == contactsListVisible!.users!.length-1));
                     }),
-              ),
+              ) : Container(),
             )
           ],),
         ),
       ),
-    ) : Container();
+    );
   }
   Widget _contacts(People data, bool isLast) {
     return Padding(
