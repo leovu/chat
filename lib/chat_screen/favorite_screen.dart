@@ -77,8 +77,7 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen> with AutomaticKee
   Widget build(BuildContext context) {
     super.build(context);
     widget.builder.call(context, _getRooms);
-    return roomListVisible != null ?
-    GestureDetector(
+    return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
         body: SafeArea(
@@ -163,7 +162,7 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen> with AutomaticKee
               ],
             ),
             Expanded(
-              child: SmartRefresher(
+              child: roomListVisible != null ? SmartRefresher(
                 enablePullDown: true,
                 enablePullUp: false,
                 controller: _refreshController,
@@ -189,12 +188,12 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen> with AutomaticKee
                             child: _room(roomListVisible!.rooms![position], position == roomListVisible!.rooms!.length-1)),
                       );
                     }),
-              ),
+              ) : Container(),
             )
           ],),
         ),
       ),
-    ) : Container();
+    );
   }
   Widget _room(Rooms data, bool isLast) {
     People info = getPeople(data.people);

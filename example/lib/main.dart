@@ -57,7 +57,7 @@ class _MyAppState extends State<MyApp> {
       ),
       body: Center(
         child: InkWell(
-            onTap: () => Chat.open(context,'leovu0703vn@gmail.com', 'long0703'),
+            onTap: () => Chat.open(context,'leovu0703vn@gmail.com', 'long0703', 'iconApp'),
             child: Text('Running on: $_platformVersion\n')),
       ),
     );

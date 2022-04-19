@@ -26,7 +26,7 @@ abstract class AppLifeCycle<T extends StatefulWidget> extends State<T>
         ChatConnection.reconnect();
         break;
       case AppLifecycleState.paused:
-        ChatConnection.dispose(isPaused: true);
+        ChatConnection.dispose();
         break;
       default: break;
     }
