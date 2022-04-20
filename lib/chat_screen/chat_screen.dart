@@ -1,11 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/connection/chat_connection.dart';
+import 'package:chat/connection/http_connection.dart';
 import 'package:chat/data_model/chat_message.dart' as c;
 import 'package:chat/data_model/room.dart' as r;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:chat/chat_ui/flutter_chat_ui.dart';
+import 'package:flutter_chat_types/flutter_chat_types.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mime/mime.dart';
 import 'package:open_file/open_file.dart';
@@ -14,7 +17,7 @@ import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:chat/connection/app_lifecycle.dart';
-import 'package:flutter_chat_types/src/message.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 class ChatScreen extends StatefulWidget {
   final Function? callback;
@@ -29,6 +32,14 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   List<types.Message> _messages = [];
   final _user = types.User(id: ChatConnection.user!.id);
   c.ChatMessage? data;
+  bool _isSearchMessage = false;
+  final _focusSearch = FocusNode();
+  final _controllerSearch = TextEditingController();
+  final ItemScrollController itemScrollController = ItemScrollController();
+  final ItemPositionsListener itemPositionsListener = ItemPositionsListener.create();
+  List<int> _listIdSearch = [];
+  int currentIndexSearch = 0;
+  Map<String,int> listIdMessages = {};
   @override
   void initState() {
     super.initState();
@@ -36,13 +47,22 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     ChatConnection.listenChat(_refreshMessage);
   }
 
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    itemPositionsListener.itemPositions.removeListener(() {});
+  }
+
   void _addMessage(types.Message message,{String? text}) async {
     if(message.type.name == 'text') {
       await ChatConnection.sendChat(text,data?.room,ChatConnection.user!.id);
     }
-    setState(() {
-      _messages.insert(0, message);
-    });
+    if(mounted) {
+      setState(() {
+        _messages.insert(0, message);
+      });
+    }
   }
 
   void _handleAttachmentPressed() {
@@ -53,11 +73,6 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
           icon: Icons.photo,
           label: 'Photo',
           key: 'Photo',
-        ),
-        const SheetAction(
-          icon: Icons.camera_alt,
-          label: 'Camera',
-          key: 'Camera',
         ),
         const SheetAction(
           icon: Icons.file_copy,
@@ -74,8 +89,6 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         ? _handleImageSelection()
         : value == 'File'
         ? _handleFileSelection()
-        : value == 'Camera'
-        ? _handleImageSelection(isCamera: true)
         : {});
   }
   void _handleFileSelection() async {
@@ -101,21 +114,23 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         File file = File(result.files.single.path!);
         _addMessage(message);
         ChatConnection.uploadFile(file,data?.room,ChatConnection.user!.id).then((r) {
-          setState(() {
-            int index = _messages.indexWhere((element) => element.id==id);
-            Status s = !r ? Status.error : Status.sent;
-            _messages[index] = types.FileMessage(
-              author: _user,
-              createdAt: DateTime.now().millisecondsSinceEpoch,
-              id: const Uuid().v4(),
-              mimeType: lookupMimeType(result.files.single.path!),
-              name: result.files.single.name,
-              size: result.files.single.size,
-              uri: result.files.single.path!,
-              showStatus: true,
-              status: s,
-            );
-          });
+          if(mounted) {
+            setState(() {
+              int index = _messages.indexWhere((element) => element.id==id);
+              Status s = !r ? Status.error : Status.sent;
+              _messages[index] = types.FileMessage(
+                author: _user,
+                createdAt: DateTime.now().millisecondsSinceEpoch,
+                id: id,
+                mimeType: lookupMimeType(result.files.single.path!),
+                name: result.files.single.name,
+                size: result.files.single.size,
+                uri: result.files.single.path!,
+                showStatus: true,
+                status: s,
+              );
+            });
+          }
         });
       }
     }catch(_){
@@ -135,11 +150,11 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       );
     }
   }
-  void _handleImageSelection({bool isCamera=false}) async {
+  void _handleImageSelection() async {
     final result = await ImagePicker().pickImage(
       imageQuality: 70,
       maxWidth: 1440,
-      source: !isCamera ? ImageSource.gallery : ImageSource.camera,
+      source: ImageSource.gallery,
     );
     if (result != null) {
       final bytes = await result.readAsBytes();
@@ -173,7 +188,54 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
           showStatus: true,
           status: s,
         );
-        setState(() {});
+        if(mounted) {
+          setState(() {});
+        }
+      });
+    }
+  }
+
+  void _handleCameraSelection() async {
+    final result = await ImagePicker().pickImage(
+      imageQuality: 70,
+      maxWidth: 1440,
+      source: ImageSource.camera,
+    );
+    if (result != null) {
+      final bytes = await result.readAsBytes();
+      final image = await decodeImageFromList(bytes);
+      String id = const Uuid().v4();
+      final message = types.ImageMessage(
+        author: _user,
+        createdAt: DateTime.now().millisecondsSinceEpoch,
+        height: image.height.toDouble(),
+        id: id,
+        name: result.name,
+        size: bytes.length,
+        uri: result.path,
+        width: image.width.toDouble(),
+        showStatus: true,
+        status: Status.sending,
+      );
+      _addMessage(message);
+      ChatConnection.uploadImage(result,data?.room,ChatConnection.user!.id).then((r) {
+        Status s = !r ? Status.error : Status.sent;
+        int index = _messages.indexWhere((element) => element.id==id);
+        _messages[index] = types.ImageMessage(
+          author: _user,
+          createdAt: DateTime.now().millisecondsSinceEpoch,
+          height: image.height.toDouble(),
+          id: id,
+          name: result.name,
+          size: bytes.length,
+          uri: result.path,
+          width: image.width.toDouble(),
+          showStatus: true,
+          status: s,
+        );
+        if(mounted) {
+          setState(() {});
+        }
       });
     }
   }
@@ -192,9 +254,11 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     final updatedMessage = _messages[index].copyWith(previewData: previewData);
 
     WidgetsBinding.instance?.addPostFrameCallback((_) {
-      setState(() {
-        _messages[index] = updatedMessage;
-      });
+      if(mounted) {
+        setState(() {
+          _messages[index] = updatedMessage;
+        });
+      }
     });
   }
 
@@ -218,12 +282,16 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
           final values = (messages)
               .map((e) => types.Message.fromJson(e.toMessageJson()))
               .toList();
-          setState(() {
-            _messages = values;
-          });
+          if(mounted) {
+            setState(() {
+              _messages = values;
+            });
+          }
         }
       }
-      setState(() {});
+      if(mounted) {
+        setState(() {});
+      }
     });
   }
   _refreshMessage(dynamic cData) async {
@@ -238,12 +306,16 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
           final values = (messages)
               .map((e) => types.Message.fromJson(e.toMessageJson()))
               .toList();
-          setState(() {
-            _messages = values;
-          });
+          if(mounted) {
+            setState(() {
+              _messages = values;
+            });
+          }
         }
       }
-      setState(() {});
+      if(mounted) {
+        setState(() {});
+      }
       Map<String,dynamic> notificationData = json.decode(json.encode(cData)) as Map<String, dynamic>;
       if(ChatConnection.roomId != null && ChatConnection.roomId != notificationData['room']['_id']) {
         ChatConnection.showNotification('${notificationData['message']['author']['firstName']} ${notificationData['message']['author']['lastName']}',
@@ -266,8 +338,6 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   }
   @override
   Widget build(BuildContext context) {
-    r.People info = getPeople(widget.data.people);
-    bool f = isFavorite(widget.data.people,widget.data.sId);
     return WillPopScope(
       onWillPop: () async {
         ChatConnection.roomId = null;
@@ -275,61 +345,300 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         return true;
       },
       child: Scaffold(
-        appBar: AppBar(
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(
-                f ? Icons.star : Icons.star_border,
-                color: const Color(0xFFE5B80B),
-              ),
-              onPressed: () async {
-                bool result = await ChatConnection.toggleFavorites(widget.data.sId);
-                if(result) {
-                  setState(() {
-                    toggleFavorite(widget.data.people,widget.data.sId);
-                  });
-                }
-              },
-            )
-          ],
-          title: SizedBox(
-            height: !widget.data.isGroup! ?25.0 : 50.0,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Expanded(child: AutoSizeText(!widget.data.isGroup! ?
-                '${info.firstName} ${info.lastName}' : widget.data.title ??
-                    'Group with ${info.firstName} ${info.lastName}',
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(color: Colors.black,fontWeight: FontWeight.bold),)),
-                if (widget.data.isGroup!) Padding(
-                  padding: const EdgeInsets.only(bottom: 3.0),
-                  child: AutoSizeText('${widget.data.people!.length-1} members',
-                    style: const TextStyle(color: Colors.black,fontSize: 15),),
-                )
-              ],
-            ),
-          ),
-          backgroundColor: Colors.white,
-          iconTheme: const IconThemeData(
-          color: Colors.black, //change your color here
-        ),),
+        appBar: !_isSearchMessage ? _defaultAppbar() : _searchAppBar(),
         body: SafeArea(
           bottom: false,
-          child: Chat(
-            messages: _messages,
-            showUserAvatars: true,
-            showUserNames: true,
-            onAttachmentPressed: _handleAttachmentPressed,
-            onMessageTap: _handleMessageTap,
-            onPreviewDataFetched: _handlePreviewDataFetched,
-            onSendPressed: _handleSendPressed,
-            user: _user,
+          child: Column(
+            children: [
+              Expanded(child: Chat(
+                messages: _messages,
+                showUserAvatars: true,
+                showUserNames: true,
+                onAttachmentPressed: _handleAttachmentPressed,
+                onMessageTap: _handleMessageTap,
+                onPreviewDataFetched: _handlePreviewDataFetched,
+                onCameraPressed: _handleCameraSelection,
+                onSendPressed: _handleSendPressed,
+                user: _user,
+                isSearchChat: _isSearchMessage,
+                scrollPhysics: const ClampingScrollPhysics(),
+                itemPositionsListener: itemPositionsListener,
+                itemScrollController: itemScrollController,
+                listIdMessages: listIdMessages,
+                searchController: _controllerSearch,
+              )),
+              _resultSearchChat()
+            ],
           ),
         ),
       ),
     );
+  }
+  Widget _resultSearchChat() {
+    return Visibility(
+        visible: _isSearchMessage,
+        child: Container(
+          color: Colors.grey.shade200,
+          child: Padding(
+            padding: const EdgeInsets.only(top: 2.0),
+            child: Container(
+              color: Colors.white,
+              child: Padding(
+                padding: const EdgeInsets.only(bottom:15.0,left: 10.0,right: 10.0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        if(_listIdSearch.isNotEmpty && currentIndexSearch > 0) {
+                          currentIndexSearch -= 1;
+                          scroll(_listIdSearch[currentIndexSearch]);
+                          setState(() {});
+                        }
+                      },
+                      child: SizedBox(
+                          width: 30.0,
+                          child: Icon(Icons.arrow_drop_down,
+                              color: currentIndexSearch > 0 ? const Color(0xFF787878) : const Color(0xFF787878).withAlpha(60))),
+                    ),
+                    InkWell(
+                      onTap: () {
+                        if(_listIdSearch.isNotEmpty && currentIndexSearch < _listIdSearch.length-1) {
+                          currentIndexSearch += 1;
+                          scroll(_listIdSearch[currentIndexSearch]);
+                          setState(() {});
+                        }
+                      },
+                      child: SizedBox(
+                          width: 30.0,child: Icon(Icons.arrow_drop_up,
+                        color: currentIndexSearch < _listIdSearch.length-1 ? const Color(0xFF787878) : const Color(0xFF787878).withAlpha(60))),
+                    ),
+                    Expanded(child: Container(),),
+                    AutoSizeText('${_listIdSearch.isEmpty ? 0 : currentIndexSearch+1}/${_listIdSearch.length} results'),
+                    Expanded(child: Container(),),
+                    const SizedBox(
+                      width: 30.0,),
+                    const SizedBox(
+                      width: 30.0,)
+                  ],
+                ),
+              ),
+            ),
+          ),
+        )
+    );
+  }
+  AppBar _searchAppBar() {
+    return AppBar(
+        actions: <Widget>[
+          Padding(
+            padding: const EdgeInsets.only(right: 10.0),
+            child: TextButton(
+              onPressed: () {
+                setState(() {
+                  _controllerSearch.text = '';
+                  setState(() {
+                    _listIdSearch = [];
+                    currentIndexSearch = 0;
+                    _isSearchMessage = !_isSearchMessage;
+                  });
+                });
+              }, child: const Text('Cancel',style: TextStyle(color: Color(0xFF787878)),),
+            ),
+          ),
+        ],
+      backgroundColor: Colors.white,
+      title: Container(
+        width: double.infinity,
+        height: 40,
+        decoration: BoxDecoration(
+            color: const Color(0xFFE7EAEF), borderRadius: BorderRadius.circular(5)),
+        child: Row(
+          children: [
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              child: Center(
+                child: Icon(
+                  Icons.search,
+                  color: Color(0xFF787878),
+                ),
+              ),
+            ),
+            Expanded(child: TextField(
+              focusNode: _focusSearch,
+              controller: _controllerSearch,
+              onChanged: (_) {
+                if(mounted) {
+                  searchChat();
+                  if(_listIdSearch.isNotEmpty) {
+                    scroll(_listIdSearch.first);
+                  }
+                  setState(() {});
+                }
+                else {
+                  WidgetsBinding.instance?.addPostFrameCallback((_) {
+                    searchChat();
+                    if(_listIdSearch.isNotEmpty) {
+                      scroll(_listIdSearch.first);
+                      setState(() {});
+                    }
+                  });
+                }
+              },
+              decoration: const InputDecoration.collapsed(
+                hintText: 'Find in chat',
+              ),
+            )),
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(5),
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  child: Center(
+                    child: Icon(
+                      Icons.close,
+                      color: Color(0xFF787878),
+                    ),
+                  ),
+                ),
+                onTap: (){
+                  _controllerSearch.text = '';
+                  setState(() {
+                    _listIdSearch = [];
+                    currentIndexSearch = 0;
+                  });
+                },
+              ),
+            )
+          ],
+        ),
+      ),
+        centerTitle: false,
+        leadingWidth: 0
+    );
+  }
+  void scroll(int index) {
+    itemScrollController.scrollTo(
+        index: index,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.linear);
+  }
+  void searchChat() {
+    _listIdSearch = [];
+    currentIndexSearch = 0;
+    try{
+      if(data != null) {
+        _messages.asMap().forEach((index, element) {
+          if(element.type == types.MessageType.text) {
+            String id = element.id;
+            var message = element as types.TextMessage;
+            List<String> contents = message.text.toLowerCase().split(' ');
+            if(contents.contains(_controllerSearch.value.text.toLowerCase())) {
+              int? index = listIdMessages[id];
+              if(index != null) {
+                _listIdSearch.add(index);
+              }
+            }
+          }
+        });
+        if(_listIdSearch.isNotEmpty) {
+          _listIdSearch.sort();
+        }
+      }
+    }catch(_) {}
+  }
+  AppBar _defaultAppbar() {
+    r.People info = getPeople(widget.data.people);
+    bool f = isFavorite(widget.data.people,widget.data.sId);
+    return AppBar(
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(
+              Icons.search,
+              color: Color(0xFF787878),
+            ),
+            onPressed: () {
+              setState(() {
+                _isSearchMessage = !_isSearchMessage;
+                if(_isSearchMessage) {
+                  _focusSearch.requestFocus();
+                }
+              });
+            },
+          ),
+          IconButton(
+            icon: Icon(
+              f ? Icons.star : Icons.star_border,
+              color: const Color(0xFFE5B80B),
+            ),
+            onPressed: () async {
+              bool result = await ChatConnection.toggleFavorites(widget.data.sId);
+              if(result) {
+                if(mounted) {
+                  setState(() {
+                    toggleFavorite(widget.data.people,widget.data.sId);
+                  });
+                }
+              }
+            },
+          )
+        ],
+        title: SizedBox(
+          height: 50.0,
+          child: Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: InkWell(
+                  child: Icon(Platform.isIOS ? Icons.arrow_back_ios : Icons.arrow_back, color: Colors.black),
+                  onTap: () => Navigator.of(context).pop(),
+                ),
+              ),
+              Padding(padding: const EdgeInsets.only(top: 10.0,bottom: 10.0),
+                  child: info.picture == null ? CircleAvatar(
+                    radius: 15.0,
+                    child: Text(info.getAvatarName()),
+                  ) : CircleAvatar(
+                    radius: 15.0,
+                    backgroundImage:
+                    CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${info.picture!.shieldedID}/256'),
+                    backgroundColor: Colors.transparent,
+                  )),
+              Padding(
+                padding: const EdgeInsets.only(left: 10.0),
+                child: SizedBox(
+                  height: !widget.data.isGroup! ?25.0 : 50.0,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      AutoSizeText(!widget.data.isGroup! ?
+                      '${info.firstName} ${info.lastName}' : widget.data.title ??
+                          'Group with ${info.firstName} ${info.lastName}',
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(color: Colors.black,fontWeight: FontWeight.bold,fontSize: 16),),
+                      if (widget.data.isGroup!) Padding(
+                        padding: const EdgeInsets.only(bottom: 3.0),
+                        child: AutoSizeText('${widget.data.people!.length-1} members',
+                          style: const TextStyle(color: Colors.black,fontSize: 12),),
+                      )
+                    ],
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
+        leading: Container(),
+        backgroundColor: Colors.white,
+        iconTheme: const IconThemeData(
+          color: Colors.black,
+        ),
+        centerTitle: false,
+        titleSpacing: 0,
+        leadingWidth: 0);
   }
   r.People getPeople(List<r.People>? people) {
     return people!.first.sId != ChatConnection.user!.id ? people.first : people.last;

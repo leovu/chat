@@ -5,6 +5,7 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:chat/chat_ui/widgets/inherited_l10n.dart';
 import 'package:intl/intl.dart';
 import 'package:photo_view/photo_view_gallery.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../chat_l10n.dart';
 import '../chat_theme.dart';
@@ -23,6 +24,9 @@ import 'message.dart';
 
 /// Entry widget, represents the complete chat. If you wrap it in [SafeArea] and
 /// it should be full screen, set [SafeArea]'s `bottom` to `false`.
+
+typedef ChatEmojiBuilder = void Function(void Function() hideEmoji);
+
 class Chat extends StatefulWidget {
   /// Creates a chat widget
   const Chat({
@@ -46,6 +50,7 @@ class Chat extends StatefulWidget {
     this.l10n = const ChatL10nEn(),
     required this.messages,
     this.onAttachmentPressed,
+    this.onCameraPressed,
     this.onAvatarTap,
     this.onBackgroundTap,
     this.onEndReached,
@@ -69,6 +74,11 @@ class Chat extends StatefulWidget {
     this.timeFormat,
     this.usePreviewData = true,
     required this.user,
+    this.isSearchChat = false,
+    required this.itemPositionsListener,
+    required this.itemScrollController,
+    required this.listIdMessages,
+    required this.searchController,
   }) : super(key: key);
 
   /// See [Message.bubbleBuilder]
@@ -82,8 +92,10 @@ class Chat extends StatefulWidget {
   /// a channel view.
   final Widget? customBottomWidget;
 
+  final TextEditingController searchController;
+
   /// If [dateFormat], [dateLocale] and/or [timeFormat] is not enough to
-  /// customize date headers in your case, use this to return an arbitrary
+  /// customize date headers in your case, use rn an arbitrary
   /// string based on a [DateTime] of a particular message. Can be helpful to
   /// return "Today" if [DateTime] is today. IMPORTANT: this will replace
   /// all default date headers, so you must handle all cases yourself, like
@@ -157,6 +169,9 @@ class Chat extends StatefulWidget {
   /// See [Input.onAttachmentPressed]
   final void Function()? onAttachmentPressed;
 
+  /// See [Input.onAttachmentPressed]
+  final void Function()?  onCameraPressed;
+
   /// See [Message.onAvatarTap]
   final void Function(types.User)? onAvatarTap;
 
@@ -203,12 +218,15 @@ class Chat extends StatefulWidget {
 
   /// See [ChatList.scrollPhysics]
   final ScrollPhysics? scrollPhysics;
+  final ItemScrollController itemScrollController;
+  final ItemPositionsListener itemPositionsListener;
 
   /// See [Input.sendButtonVisibilityMode]
   final SendButtonVisibilityMode sendButtonVisibilityMode;
 
   /// See [Message.showUserAvatars]
   final bool showUserAvatars;
+  final Map<String,int> listIdMessages;
 
   /// Show user names for received messages. Useful for a group chat. Will be
   /// shown only on text messages.
@@ -239,6 +257,8 @@ class Chat extends StatefulWidget {
   /// See [InheritedUser.user]
   final types.User user;
 
+  final bool isSearchChat;
+
   @override
   _ChatState createState() => _ChatState();
 }
@@ -249,6 +269,7 @@ class _ChatState extends State<Chat> {
   List<PreviewImage> _gallery = [];
   int _imageViewIndex = 0;
   bool _isImageViewVisible = false;
+  late void Function() hideEmoji;
 
   @override
   void initState() {
@@ -271,8 +292,20 @@ class _ChatState extends State<Chat> {
         dateLocale: widget.dateLocale,
         groupMessagesThreshold: widget.groupMessagesThreshold,
         showUserNames: widget.showUserNames,
-        timeFormat: widget.timeFormat,
+        timeFormat: widget.timeFormat
       );
+
+      for (var i = 0; i < _chatMessages.length; i++) {
+        if (_chatMessages[i] is DateHeader) {
+        } else if (_chatMessages[i] is MessageSpacer) {
+        } else {
+          final map = _chatMessages[i] as Map<String, Object>;
+          final message = map['message']! as types.Message;
+          if(message.type == types.MessageType.text) {
+            widget.listIdMessages[message.id] = i;
+          }
+        }
+      }
 
       _chatMessages = result[0] as List<Object>;
       _gallery = result[1] as List<PreviewImage>;
@@ -364,10 +397,10 @@ class _ChatState extends State<Chat> {
           widget.showUserAvatars && message.author.id != widget.user.id
               ? min(constraints.maxWidth * 0.72, 440).floor()
               : min(constraints.maxWidth * 0.78, 440).floor();
-
       return Message(
         key: ValueKey(message.id),
         bubbleBuilder: widget.bubbleBuilder,
+        searchController: widget.searchController,
         customMessageBuilder: widget.customMessageBuilder,
         emojiEnlargementBehavior: widget.emojiEnlargementBehavior,
         fileMessageBuilder: widget.fileMessageBuilder,
@@ -451,6 +484,7 @@ class _ChatState extends State<Chat> {
                           : GestureDetector(
                               onTap: () {
                                 FocusManager.instance.primaryFocus?.unfocus();
+                                hideEmoji.call();
                                 widget.onBackgroundTap?.call();
                               },
                               child: LayoutBuilder(
@@ -459,26 +493,31 @@ class _ChatState extends State<Chat> {
                                     ChatList(
                                   isLastPage: widget.isLastPage,
                                   itemBuilder: (item, index) =>
-                                      _messageBuilder(item, constraints),
+                                        _messageBuilder(item, constraints),
                                   items: _chatMessages,
                                   onEndReached: widget.onEndReached,
                                   onEndReachedThreshold:
-                                      widget.onEndReachedThreshold,
+                                        widget.onEndReachedThreshold,
                                   scrollPhysics: widget.scrollPhysics,
+                                          itemScrollController: widget.itemScrollController,
+                                          itemPositionsListener: widget.itemPositionsListener
                                 ),
                               ),
                             ),
                     ),
-                    widget.customBottomWidget ??
+                    !widget.isSearchChat ? widget.customBottomWidget ??
                         Input(
                           isAttachmentUploading: widget.isAttachmentUploading,
                           onAttachmentPressed: widget.onAttachmentPressed,
+                          onCameraPressed: widget.onCameraPressed,
                           onSendPressed: widget.onSendPressed,
                           onTextChanged: widget.onTextChanged,
                           onTextFieldTap: widget.onTextFieldTap,
                           sendButtonVisibilityMode:
                               widget.sendButtonVisibilityMode,
-                        ),
+                          builder: (void Function() method) {
+                              hideEmoji = method;
+                      },) : Container(),
                   ],
                 ),
               ),

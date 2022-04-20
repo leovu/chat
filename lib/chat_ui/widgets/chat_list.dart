@@ -1,8 +1,8 @@
 import 'package:diffutil_dart/diffutil.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-import 'inherited_chat_theme.dart';
 import 'inherited_user.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 /// Animated list which handles automatic animations and pagination
 class ChatList extends StatefulWidget {
@@ -15,6 +15,8 @@ class ChatList extends StatefulWidget {
     this.onEndReached,
     this.onEndReachedThreshold,
     this.scrollPhysics,
+    required this.itemScrollController,
+    required this.itemPositionsListener
   }) : super(key: key);
 
   /// Used for pagination (infinite scroll) together with [onEndReached].
@@ -42,6 +44,9 @@ class ChatList extends StatefulWidget {
   /// Determines the physics of the scroll view
   final ScrollPhysics? scrollPhysics;
 
+  final ItemScrollController itemScrollController;
+  final ItemPositionsListener itemPositionsListener;
+
   @override
   _ChatListState createState() => _ChatListState();
 }
@@ -53,14 +58,6 @@ class _ChatListState extends State<ChatList>
   final GlobalKey<SliverAnimatedListState> _listKey =
       GlobalKey<SliverAnimatedListState>();
   late List<Object> _oldData = List.from(widget.items);
-  final _scrollController = ScrollController();
-
-  late final AnimationController _controller = AnimationController(vsync: this);
-
-  late final Animation<double> _animation = CurvedAnimation(
-    curve: Curves.easeOutQuad,
-    parent: _controller,
-  );
 
   @override
   void initState() {
@@ -79,9 +76,6 @@ class _ChatListState extends State<ChatList>
   @override
   void dispose() {
     super.dispose();
-
-    _controller.dispose();
-    _scrollController.dispose();
   }
 
   void _calculateDiffs(List<Object> oldList) async {
@@ -122,15 +116,10 @@ class _ChatListState extends State<ChatList>
     _oldData = List.from(widget.items);
   }
 
-  Widget _newMessageBuilder(int index, Animation<double> animation) {
+  Widget _newMessageBuilder(int index) {
     try {
       final item = _oldData[index];
-
-      return SizeTransition(
-        axisAlignment: -1,
-        sizeFactor: animation.drive(CurveTween(curve: Curves.easeOutQuad)),
-        child: widget.itemBuilder(item, index),
-      );
+      return widget.itemBuilder(item, index);
     } catch (e) {
       return const SizedBox();
     }
@@ -157,22 +146,15 @@ class _ChatListState extends State<ChatList>
       if (oldItem is Map<String, Object> && item is Map<String, Object>) {
         final oldMessage = oldItem['message']! as types.Message;
         final message = item['message']! as types.Message;
-
         // Compare items to fire only on newly added messages
         if (oldMessage != message) {
           // Run only for sent message
           if (message.author.id == InheritedUser.of(context).user.id) {
             // Delay to give some time for Flutter to calculate new
             // size after new message was added
-            Future.delayed(const Duration(milliseconds: 100), () {
-              if (_scrollController.hasClients) {
-                _scrollController.animateTo(
-                  0,
-                  duration: const Duration(milliseconds: 200),
-                  curve: Curves.easeInQuad,
-                );
-              }
-            });
+            widget.itemScrollController.scrollTo(index: 0,
+                duration: const Duration(milliseconds: 500),
+                curve: Curves.linear);
           }
         }
       }
@@ -188,79 +170,29 @@ class _ChatListState extends State<ChatList>
         if (widget.onEndReached == null || widget.isLastPage == true) {
           return false;
         }
-
         if (notification.metrics.pixels >=
             (notification.metrics.maxScrollExtent *
                 (widget.onEndReachedThreshold ?? 0.75))) {
           if (widget.items.isEmpty || _isNextPageLoading) return false;
-
-          _controller.duration = const Duration();
-          _controller.forward();
-
           setState(() {
             _isNextPageLoading = true;
           });
 
           widget.onEndReached!().whenComplete(() {
-            _controller.duration = const Duration(milliseconds: 300);
-            _controller.reverse();
-
             setState(() {
               _isNextPageLoading = false;
             });
           });
         }
-
         return false;
       },
-      child: CustomScrollView(
-        controller: _scrollController,
+      child: ScrollablePositionedList.builder(
+        itemCount: widget.items.length,
+        itemScrollController: widget.itemScrollController,
+        itemPositionsListener: widget.itemPositionsListener,
         physics: widget.scrollPhysics,
         reverse: true,
-        slivers: [
-          SliverPadding(
-            padding: const EdgeInsets.only(bottom: 4),
-            sliver: SliverAnimatedList(
-              initialItemCount: widget.items.length,
-              key: _listKey,
-              itemBuilder: (_, index, animation) =>
-                  _newMessageBuilder(index, animation),
-            ),
-          ),
-          SliverPadding(
-            padding: const EdgeInsets.only(
-              top: 16,
-            ),
-            sliver: SliverToBoxAdapter(
-              child: SizeTransition(
-                axisAlignment: 1,
-                sizeFactor: _animation,
-                child: Center(
-                  child: Container(
-                    alignment: Alignment.center,
-                    height: 32,
-                    width: 32,
-                    child: SizedBox(
-                      height: 16,
-                      width: 16,
-                      child: _isNextPageLoading
-                          ? CircularProgressIndicator(
-                              backgroundColor: Colors.transparent,
-                              strokeWidth: 1.5,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                InheritedChatTheme.of(context)
-                                    .theme
-                                    .primaryColor,
-                              ),
-                            )
-                          : null,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
+        itemBuilder: (context, index) =>_newMessageBuilder(index)
       ),
     );
   }

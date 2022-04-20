@@ -121,7 +121,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                                   widget.openCreateChatRoom!();
                                 }
                               },
-                                child: const Icon(Icons.edit,size: 25.0,color: Colors.grey,),)),
+                                child: Image.asset('assets/icon-edit.png',package: 'chat',),)),
                         )
                       ],
                     ),

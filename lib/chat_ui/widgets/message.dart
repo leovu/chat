@@ -40,6 +40,7 @@ class Message extends StatelessWidget {
     required this.showUserAvatars,
     this.textMessageBuilder,
     required this.usePreviewData,
+    required this.searchController
   }) : super(key: key);
 
   /// Customize the default bubble using this function. `child` is a content
@@ -120,6 +121,8 @@ class Message extends StatelessWidget {
   /// Show user avatars for received messages. Useful for a group chat.
   final bool showUserAvatars;
 
+  final TextEditingController searchController;
+
   /// Build a text message inside predefined bubble.
   final Widget Function(
     types.TextMessage, {
@@ -181,6 +184,7 @@ class Message extends StatelessWidget {
         : enlargeEmojis && hideBackgroundOnEmojiMessages
             ? _messageBuilder()
             : Container(
+                key: key,
                 decoration: BoxDecoration(
                   borderRadius: borderRadius,
                   color: !currentUserIsAuthor ||
@@ -227,6 +231,7 @@ class Message extends StatelessWidget {
                 onPreviewDataFetched: onPreviewDataFetched,
                 showName: showName,
                 usePreviewData: usePreviewData,
+                searchController: searchController,
               );
       default:
         return const SizedBox();

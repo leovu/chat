@@ -8,23 +8,24 @@ class AttachmentButton extends StatelessWidget {
   const AttachmentButton({
     Key? key,
     this.onPressed,
+    required this.image,
+
   }) : super(key: key);
 
   /// Callback for attachment button tap event
   final void Function()? onPressed;
+  final String image;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       height: 24,
-      margin: const EdgeInsets.only(right: 16),
       width: 24,
       child: IconButton(
         icon: InheritedChatTheme.of(context).theme.attachmentButtonIcon != null
             ? InheritedChatTheme.of(context).theme.attachmentButtonIcon!
             : Image.asset(
-                'assets/icon-attachment.png',
-                color: InheritedChatTheme.of(context).theme.inputTextColor,
+                image,
                 package: 'chat',
               ),
         onPressed: onPressed,

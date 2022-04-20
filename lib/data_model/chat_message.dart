@@ -234,7 +234,8 @@ class Messages {
     final Map<String, dynamic> data = <String, dynamic>{};
     if (author != null) {
       data['author'] = {
-        'firstName':author!.firstName,
+        'firstName': author!.firstName,
+        'lastName': author!.lastName,
         'id':author!.sId,
         'imageUrl':author!.picture != null ? '${HTTPConnection.domain}api/images/${author!.picture!.shieldedID}/256' : null,
       };

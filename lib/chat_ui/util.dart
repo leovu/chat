@@ -95,7 +95,7 @@ List<Object> calculateChatMessages(
   String? dateLocale,
   required int groupMessagesThreshold,
   required bool showUserNames,
-  DateFormat? timeFormat,
+  DateFormat? timeFormat
 }) {
   final chatMessages = <Object>[];
   final gallery = <PreviewImage>[];
@@ -153,7 +153,6 @@ List<Object> calculateChatMessages(
       nextMessageInGroup = nextMessageSameAuthor &&
           nextMessage.createdAt! - message.createdAt! <= groupMessagesThreshold;
     }
-
     if (isFirst && messageHasCreatedAt) {
       chatMessages.insert(
         0,

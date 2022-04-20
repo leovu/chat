@@ -8,6 +8,7 @@ void main() {
   runApp(const OverlaySupport.global(
     child: MaterialApp(
       title: 'Navigation Basics',
+      debugShowCheckedModeBanner: false,
       home: MyApp(),
     ),
   ));

@@ -18,6 +18,7 @@ class TextMessage extends StatelessWidget {
     this.onPreviewDataFetched,
     required this.usePreviewData,
     required this.showName,
+    required this.searchController
   }) : super(key: key);
 
   /// See [Message.emojiEnlargementBehavior]
@@ -38,6 +39,8 @@ class TextMessage extends StatelessWidget {
 
   /// Enables link (URL) preview
   final bool usePreviewData;
+
+  final TextEditingController searchController;
 
   void _onPreviewDataFetched(types.PreviewData previewData) {
     if (message.previewData == null) {
@@ -72,7 +75,6 @@ class TextMessage extends StatelessWidget {
     final color = getUserAvatarNameColor(message.author,
         InheritedChatTheme.of(context).theme.userAvatarNameColors);
     final name = getUserName(message.author);
-
     return LinkPreview(
       enableAnimation: true,
       header: showName ? name : null,
@@ -105,7 +107,7 @@ class TextMessage extends StatelessWidget {
     final color =
         getUserAvatarNameColor(message.author, theme.userAvatarNameColors);
     final name = getUserName(message.author);
-
+    List<String> contents = message.text.split(' ');
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -119,19 +121,61 @@ class TextMessage extends StatelessWidget {
               style: theme.userNameTextStyle.copyWith(color: color),
             ),
           ),
-        SelectableText(
-          message.text,
-          style: user.id == message.author.id
-              ? enlargeEmojis
-                  ? theme.sentEmojiMessageTextStyle
-                  : theme.sentMessageBodyTextStyle
-              : enlargeEmojis
-                  ? theme.receivedEmojiMessageTextStyle
-                  : theme.receivedMessageBodyTextStyle,
-          textWidthBasis: TextWidthBasis.longestLine,
+        SelectableText.rich(
+          TextSpan(
+            children: contentMessage(contents, user, context, color, enlargeEmojis),
+          ),
         ),
       ],
     );
+  }
+
+  List<InlineSpan> contentMessage(List<String> contents,
+      types.User user,
+      BuildContext context,
+      Color color,
+      bool enlargeEmojis,) {
+    final theme = InheritedChatTheme.of(context).theme;
+    List<InlineSpan> arr = [];
+    for (int i = 0; i < contents.length; i++) {
+      var element = contents[i];
+      if(element.toLowerCase() == searchController.value.text.toLowerCase()) {
+        arr.add(TextSpan(
+            text: element,
+            style:
+            TextStyle(
+              color: const Color(0xffffffff),
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              height: 1.5,
+              background: Paint()
+                ..color = Colors.redAccent,
+            )));
+      }
+      else {
+        arr.add(TextSpan(
+            text: element,
+            style: user.id == message.author.id
+                ? enlargeEmojis
+                ? theme.sentEmojiMessageTextStyle
+                : theme.sentMessageBodyTextStyle
+                : enlargeEmojis
+                ? theme.receivedEmojiMessageTextStyle
+                : theme.receivedMessageBodyTextStyle));
+      }
+      if(i < contents.length-1) {
+        arr.add(TextSpan(
+            text: ' ',
+            style: user.id == message.author.id
+                ? enlargeEmojis
+                ? theme.sentEmojiMessageTextStyle
+                : theme.sentMessageBodyTextStyle
+                : enlargeEmojis
+                ? theme.receivedEmojiMessageTextStyle
+                : theme.receivedMessageBodyTextStyle));
+      }
+    }
+    return arr;
   }
 
   @override
