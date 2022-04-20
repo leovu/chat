@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-
+import 'package:overlay_support/overlay_support.dart';
 import 'package:flutter/services.dart';
 import 'package:chat/chat.dart';
 
 void main() {
-  runApp(const MaterialApp(
-    title: 'Navigation Basics',
-    home: MyApp(),
+  runApp(const OverlaySupport.global(
+    child: MaterialApp(
+      title: 'Navigation Basics',
+      home: MyApp(),
+    ),
   ));
 }
 
@@ -57,7 +59,7 @@ class _MyAppState extends State<MyApp> {
       ),
       body: Center(
         child: InkWell(
-            onTap: () => Chat.open(context,'leovu0703vn@gmail.com', 'long0703', 'iconApp'),
+            onTap: () => Chat.open(context,'leovu0703vn@gmail.com', 'long0703', 'assets/icon-app.png'),
             child: Text('Running on: $_platformVersion\n')),
       ),
     );

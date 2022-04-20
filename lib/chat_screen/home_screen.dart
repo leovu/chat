@@ -27,7 +27,7 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
   void dispose() {
     // TODO: implement dispose
     super.dispose();
-    ChatConnection.dispose();
+    ChatConnection.dispose(isDispose: true);
   }
   @override
   Widget build(BuildContext context) {
