@@ -16,13 +16,14 @@ class ChatConnection {
   static late void Function() refreshRoom;
   static late void Function() refreshContact;
   static late void Function() refreshFavorites;
-  static StreamSocket streamSocket = StreamSocket();
+  static late StreamSocket streamSocket;
   static HTTPConnection connection = HTTPConnection();
   static late String appIcon;
   static String? roomId;
   static User? user;
   static late BuildContext buildContext;
   static Future<bool>init(String email,String password) async {
+    streamSocket = StreamSocket();
     HttpOverrides.global = MyHttpOverrides();
     ResponseData responseData = await connection.post('api/login', {'email':email,'password':password});
     if(responseData.isSuccess) {
