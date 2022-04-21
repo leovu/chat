@@ -250,7 +250,7 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
                     people.add(ChatConnection.user!.id);
                     r.Rooms? rooms = await ChatConnection.createGroup(_controllerGroupName.text,people);
                     await Navigator.of(context,rootNavigator: true).pushReplacement(
-                      MaterialPageRoute(builder: (context) => ChatScreen(data: rooms!)),
+                      MaterialPageRoute(builder: (context) => ChatScreen(data: rooms!),settings:const RouteSettings(name: 'chat_screen')),
                     );
                     try{
                       ChatConnection.refreshRoom.call();

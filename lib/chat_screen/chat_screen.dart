@@ -333,7 +333,8 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     try{
       r.Room? room = await ChatConnection.roomList();
       r.Rooms? rooms = room?.rooms?.firstWhere((element) => element.sId == message['room']['_id']);
-      Navigator.of(context,rootNavigator: true).pushReplacement(MaterialPageRoute(builder: (context) => ChatScreen(data: rooms!)),);
+      Navigator.of(context).popUntil((route) => route.settings.name == "chat_screen");
+      Navigator.of(context,rootNavigator: true).pushReplacement(MaterialPageRoute(builder: (context) => ChatScreen(data: rooms!),settings:const RouteSettings(name: 'chat_screen')),);
       try{
         ChatConnection.refreshRoom.call();
         ChatConnection.refreshContact.call();

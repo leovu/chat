@@ -98,7 +98,7 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
     try{
       r.Rooms? rooms = room?.rooms?.firstWhere((element) => element.sId == message['room']['_id']);
       await Navigator.of(context,rootNavigator: true).push(
-        MaterialPageRoute(builder: (context) => ChatScreen(data: rooms!)),
+        MaterialPageRoute(builder: (context) => ChatScreen(data: rooms!),settings:const RouteSettings(name: 'chat_screen')),
       );
     }catch(_){}
     try{

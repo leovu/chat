@@ -178,7 +178,7 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen> with AutomaticKee
                         child: InkWell(
                             onTap: () async {
                               await Navigator.of(context,rootNavigator: true).push(
-                                MaterialPageRoute(builder: (context) => ChatScreen(data: roomListVisible!.rooms![position])),
+                                MaterialPageRoute(builder: (context) => ChatScreen(data: roomListVisible!.rooms![position]),settings:const RouteSettings(name: 'chat_screen')),
                               );
                               if(widget.homeCallback != null) {
                                 widget.homeCallback!();

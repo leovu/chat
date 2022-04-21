@@ -176,7 +176,7 @@ class _ContactsScreenState extends State<ContactsScreen> with AutomaticKeepAlive
                           onTap: () async {
                             r.Rooms? rooms = await ChatConnection.createRoom(contactsListVisible!.users![position].sId);
                             await Navigator.of(context,rootNavigator: true).push(
-                              MaterialPageRoute(builder: (context) => ChatScreen(data: rooms!)),
+                              MaterialPageRoute(builder: (context) => ChatScreen(data: rooms!),settings:const RouteSettings(name: 'chat_screen')),
                             );
                             _getContacts();
                             try{
