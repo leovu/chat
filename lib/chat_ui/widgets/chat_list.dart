@@ -1,3 +1,4 @@
+import 'package:chat/connection/chat_connection.dart';
 import 'package:diffutil_dart/diffutil.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
@@ -16,7 +17,8 @@ class ChatList extends StatefulWidget {
     this.onEndReachedThreshold,
     this.scrollPhysics,
     required this.itemScrollController,
-    required this.itemPositionsListener
+    required this.itemPositionsListener,
+    this.loadMore
   }) : super(key: key);
 
   /// Used for pagination (infinite scroll) together with [onEndReached].
@@ -46,6 +48,8 @@ class ChatList extends StatefulWidget {
 
   final ItemScrollController itemScrollController;
   final ItemPositionsListener itemPositionsListener;
+
+  final Function? loadMore;
 
   @override
   _ChatListState createState() => _ChatListState();
@@ -167,6 +171,14 @@ class _ChatListState extends State<ChatList>
   Widget build(BuildContext context) {
     return NotificationListener<ScrollNotification>(
       onNotification: (notification) {
+        double progress = notification.metrics.pixels /
+            notification.metrics.maxScrollExtent;
+        if(progress >= 0.75) {
+          if(widget.loadMore != null && !ChatConnection.isLoadMore) {
+            ChatConnection.isLoadMore = true;
+            widget.loadMore!();
+          }
+        }
         if (widget.onEndReached == null || widget.isLastPage == true) {
           return false;
         }

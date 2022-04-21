@@ -79,6 +79,7 @@ class Chat extends StatefulWidget {
     required this.itemScrollController,
     required this.listIdMessages,
     required this.searchController,
+    this.loadMore,
   }) : super(key: key);
 
   /// See [Message.bubbleBuilder]
@@ -92,6 +93,7 @@ class Chat extends StatefulWidget {
   /// a channel view.
   final Widget? customBottomWidget;
 
+  final Function? loadMore;
   final TextEditingController searchController;
 
   /// If [dateFormat], [dateLocale] and/or [timeFormat] is not enough to
@@ -500,7 +502,8 @@ class _ChatState extends State<Chat> {
                                         widget.onEndReachedThreshold,
                                   scrollPhysics: widget.scrollPhysics,
                                           itemScrollController: widget.itemScrollController,
-                                          itemPositionsListener: widget.itemPositionsListener
+                                          itemPositionsListener: widget.itemPositionsListener,
+                                      loadMore: widget.loadMore,
                                 ),
                               ),
                             ),

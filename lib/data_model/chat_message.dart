@@ -210,7 +210,9 @@ class Messages {
     date = json['date'];
     iV = json['__v'];
     type = json['type'];
-    file = json['file'] != null ? Picture.fromJson(json['file']) : null;
+    try{
+      file = json['file'] != null ? Picture.fromJson(json['file']) : null;
+    }catch(_){}
   }
 
   Map<String, dynamic> toJson() {

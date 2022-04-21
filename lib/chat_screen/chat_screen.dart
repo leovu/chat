@@ -52,6 +52,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     // TODO: implement dispose
     super.dispose();
     itemPositionsListener.itemPositions.removeListener(() {});
+    ChatConnection.isLoadMore = false;
   }
 
   void _addMessage(types.Message message,{String? text}) async {
@@ -366,6 +367,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                 itemScrollController: itemScrollController,
                 listIdMessages: listIdMessages,
                 searchController: _controllerSearch,
+                loadMore: loadMore,
               )),
               _resultSearchChat()
             ],
@@ -373,6 +375,29 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         ),
       ),
     );
+  }
+  void loadMore() async {
+    List<c.Messages>? value = await ChatConnection.loadMoreMessageRoom(ChatConnection.roomId!,_messages.last.id);
+    if(value != null) {
+      List<c.Messages>? messages = value;
+      if(messages.isNotEmpty) {
+        final values = (messages)
+            .map((e) => types.Message.fromJson(e.toMessageJson()))
+            .toList();
+        if(mounted) {
+          setState(() {
+            _messages.addAll(values);
+            Future.delayed(const Duration(seconds: 2)).then((value) => ChatConnection.isLoadMore = false);
+          });
+        }
+      }
+      else {
+        ChatConnection.isLoadMore = false;
+      }
+    }
+    else {
+      ChatConnection.isLoadMore = false;
+    }
   }
   Widget _resultSearchChat() {
     return Visibility(

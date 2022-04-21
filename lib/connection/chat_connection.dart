@@ -22,6 +22,7 @@ class ChatConnection {
   static String? roomId;
   static User? user;
   static late BuildContext buildContext;
+  static bool isLoadMore = false;
   static Future<bool>init(String email,String password) async {
     HttpOverrides.global = MyHttpOverrides();
     ResponseData responseData = await connection.post('api/login', {'email':email,'password':password});
@@ -73,6 +74,15 @@ class ChatConnection {
         streamSocket.joinRoom(id);
       }
       return c.ChatMessage.fromJson(responseData.data);
+    }
+    return null;
+  }
+  static Future<List<c.Messages>?>loadMoreMessageRoom(String id , String firstMessageID) async {
+    ResponseData responseData = await connection.post('api/messages/more', {'roomID':id, 'firstMessageID':firstMessageID});
+    if(responseData.isSuccess) {
+      List<dynamic> json = responseData.data['messages'];
+      List<c.Messages>? data = json.reversed.map((e) => c.Messages.fromJson(e)).toList();
+      return data;
     }
     return null;
   }
