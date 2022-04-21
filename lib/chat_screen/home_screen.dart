@@ -81,7 +81,10 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
   _getRooms(dynamic data) {
     Map<String,dynamic> notificationData = json.decode(json.encode(data)) as Map<String, dynamic>;
     if(ChatConnection.roomId == null) {
-      ChatConnection.showNotification('${notificationData['message']['author']['firstName']} ${notificationData['message']['author']['lastName']}',
+      ChatConnection.showNotification(
+          notificationData['room']['isGroup'] == true ?
+          '${notificationData['room']['title']}'
+          : '${notificationData['message']['author']['firstName']} ${notificationData['message']['author']['lastName']}',
           notificationData['message']['content'],
           notificationData, ChatConnection.appIcon, _notificationHandler);
       try{

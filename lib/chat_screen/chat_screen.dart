@@ -53,6 +53,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     super.dispose();
     itemPositionsListener.itemPositions.removeListener(() {});
     ChatConnection.isLoadMore = false;
+    ChatConnection.roomId = null;
   }
 
   void _addMessage(types.Message message,{String? text}) async {
@@ -319,7 +320,10 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       }
       Map<String,dynamic> notificationData = json.decode(json.encode(cData)) as Map<String, dynamic>;
       if(ChatConnection.roomId != null && ChatConnection.roomId != notificationData['room']['_id']) {
-        ChatConnection.showNotification('${notificationData['message']['author']['firstName']} ${notificationData['message']['author']['lastName']}',
+        ChatConnection.showNotification(
+            notificationData['room']['isGroup'] == true ?
+            '${notificationData['room']['title']}'
+            : '${notificationData['message']['author']['firstName']} ${notificationData['message']['author']['lastName']}',
             notificationData['message']['content'],
             notificationData, ChatConnection.appIcon, _notificationHandler);
       }
