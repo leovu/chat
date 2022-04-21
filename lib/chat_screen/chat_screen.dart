@@ -585,6 +585,26 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     return AppBar(
         actions: <Widget>[
           IconButton(
+            visualDensity: const VisualDensity(horizontal: -4.0, vertical: -4.0),
+            padding: EdgeInsets.zero,
+            icon: Icon(
+              f ? Icons.star : Icons.star_border,
+              color: const Color(0xFFE5B80B),
+            ),
+            onPressed: () async {
+              bool result = await ChatConnection.toggleFavorites(widget.data.sId);
+              if(result) {
+                if(mounted) {
+                  setState(() {
+                    toggleFavorite(widget.data.people,widget.data.sId);
+                  });
+                }
+              }
+            },
+          ),
+          IconButton(
+            visualDensity: const VisualDensity(horizontal: -4.0, vertical: -4.0),
+            padding: EdgeInsets.zero,
             icon: const Icon(
               Icons.search,
               color: Color(0xFF787878),
@@ -599,19 +619,14 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
             },
           ),
           IconButton(
-            icon: Icon(
-              f ? Icons.star : Icons.star_border,
-              color: const Color(0xFFE5B80B),
+            visualDensity: const VisualDensity(horizontal: -4.0, vertical: -4.0),
+            padding: EdgeInsets.zero,
+            icon: const Icon(
+              Icons.info,
+              color: Color(0xFF787878),
             ),
-            onPressed: () async {
-              bool result = await ChatConnection.toggleFavorites(widget.data.sId);
-              if(result) {
-                if(mounted) {
-                  setState(() {
-                    toggleFavorite(widget.data.people,widget.data.sId);
-                  });
-                }
-              }
+            onPressed: () {
+
             },
           )
         ],
