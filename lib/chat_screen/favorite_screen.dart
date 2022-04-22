@@ -211,7 +211,9 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen> with AutomaticKee
                 children: [
                   info.picture == null ? CircleAvatar(
                     radius: 25.0,
-                    child: Text(info.getAvatarName()),
+                    child: Text(!data.isGroup! ?
+                    info.getAvatarName() :
+                    data.getAvatarGroupName()),
                   ) : CircleAvatar(
                     radius: 25.0,
                     backgroundImage:

@@ -60,7 +60,7 @@ class _MyAppState extends State<MyApp> {
       ),
       body: Center(
         child: InkWell(
-            onTap: () => Chat.open(context,'leovu0703vn@gmail.com', 'long0703', 'assets/icon-app.png'),
+            onTap: () => Chat.open(context,'leovu0703vn@gmail.com', 'long0703', 'assets/icon-app.png', domain: 'https://chat-stag-new.epoints.vn/'),
             child: Text('Running on: $_platformVersion\n')),
       ),
     );

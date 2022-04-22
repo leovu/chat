@@ -83,6 +83,24 @@ class Rooms {
     data['lastUpdate'] = lastUpdate;
     return data;
   }
+
+  String getAvatarGroupName() {
+    String avatarName = '';
+    try{
+      if(title != '' && title != null) {
+        List<String> _arr = title!.split(' ');
+        if(_arr.length > 1) {
+          avatarName += _arr[0][0];
+          avatarName += _arr[1][0];
+        }
+        else {
+          avatarName += title![0];
+          avatarName += title![1];
+        }
+      }
+    }catch(_){}
+    return avatarName;
+  }
 }
 
 class People {

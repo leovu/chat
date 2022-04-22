@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:chat/chat_screen/conversation_information_screen.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/data_model/chat_message.dart' as c;
@@ -626,7 +627,9 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
               color: Color(0xFF787878),
             ),
             onPressed: () {
-
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => ConversationInformationScreen(roomData: widget.data,chatMessage: data),
+                  settings:const RouteSettings(name: 'conversation_information_screen')));
             },
           )
         ],
@@ -644,7 +647,10 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
               Padding(padding: const EdgeInsets.only(top: 10.0,bottom: 10.0),
                   child: info.picture == null ? CircleAvatar(
                     radius: 15.0,
-                    child: Text(info.getAvatarName()),
+                    child: Text(
+                        !widget.data.isGroup! ?
+                        info.getAvatarName() :
+                        widget.data.getAvatarGroupName()),
                   ) : CircleAvatar(
                     radius: 15.0,
                     backgroundImage:

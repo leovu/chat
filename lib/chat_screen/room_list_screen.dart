@@ -243,11 +243,46 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
       );
   }
   void _removeRoom(String roomId) {
-    ChatConnection.removeRoom(roomId).then((value) {
-      if (value) {
-        _getRooms();
-      }
-    });
+    showDialog(
+      context: context,
+      builder: (cxt) => AlertDialog(
+        title: const Text('Delete the conversation'),
+        content: const Text('Are you sure you want to delete this conversation?'),
+        actions: [
+          ElevatedButton(
+              onPressed: () {
+                ChatConnection.removeRoom(roomId).then((value) {
+                  Navigator.of(cxt).pop();
+                  if (value) {
+                    _getRooms();
+                  }
+                  else {
+                    showDialog(
+                      context: context,
+                      builder: (cxxt) => AlertDialog(
+                        title: const Text('Warning'),
+                        content: const Text('Get file error!'),
+                        actions: [
+                          ElevatedButton(
+                              onPressed: () {
+                                Navigator.pop(cxxt);
+                              },
+                              child: const Text('Accept'))
+                        ],
+                      ),
+                    );
+                  }
+                });
+              },
+              child: const Text('Delete')),
+          ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('Cancel')),
+        ],
+      ),
+    );
   }
   Widget _room(Rooms data, bool isLast) {
     People info = getPeople(data.people);
@@ -265,7 +300,10 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                 children: [
                   info.picture == null ? CircleAvatar(
                     radius: 25.0,
-                    child: Text(info.getAvatarName()),
+                    child: Text(
+                        !data.isGroup! ?
+                        info.getAvatarName() :
+                        data.getAvatarGroupName()),
                   ) : CircleAvatar(
                     radius: 25.0,
                     backgroundImage:

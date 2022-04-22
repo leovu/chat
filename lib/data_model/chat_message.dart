@@ -239,7 +239,7 @@ class Messages {
         'firstName': author!.firstName,
         'lastName': author!.lastName,
         'id':author!.sId,
-        'imageUrl':author!.picture != null ? '${HTTPConnection.domain}api/images/${author!.picture!.shieldedID}/256' : null,
+        'imageUrl':author!.picture != null ? '${HTTPConnection.domain}api/images/${author!.picture!.shieldedID}/512' : null,
       };
     }
     if(date != null) {
