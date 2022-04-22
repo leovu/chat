@@ -183,6 +183,7 @@ class Picture {
 
 class Messages {
   String? sId;
+  Replies? replies;
   String? room;
   Author? author;
   String? content;
@@ -193,6 +194,7 @@ class Messages {
 
   Messages(
       {sId,
+        replies,
         room,
         author,
         content,
@@ -203,6 +205,7 @@ class Messages {
 
   Messages.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
+    replies = json['replies'] != null ? Replies.fromJson(json['replies']) : null;
     room = json['room'];
     author =
     json['author'] != null ? Author.fromJson(json['author']) : null;
@@ -218,6 +221,9 @@ class Messages {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['_id'] = sId;
+    if (replies != null) {
+      data['replies'] = replies!.toJson();
+    }
     data['room'] = room;
     if (author != null) {
       data['author'] = author!.toJson();
@@ -268,6 +274,41 @@ class Messages {
       data['text'] = content;
     }
     data['status'] = iV == 0 ? 'sent' : 'seen';
+    if(replies != null) {
+      Map<String,dynamic> json = {};
+      json = {
+        'author' : {
+          'firstName': replies?.author?.firstName,
+          'lastName': replies?.author?.lastName,
+          'id':replies?.author?.sId,
+          'imageUrl':replies?.author?.picture != null ? '${HTTPConnection.domain}api/images/${replies?.author?.picture!.shieldedID}/512' : null,
+        },
+      };
+      json['id'] = replies!.sId!;
+      final format = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z");
+      final dt = format.parse(replies!.date!, true);
+      json['createdAt'] = dt.toUtc().millisecondsSinceEpoch;
+      if(replies?.type == 'file' && replies?.file != null) {
+        json['size'] = 0;
+        json['type'] = 'file';
+        final mimeType = lookupMimeType(replies!.file!.name!);
+        json['mimeType'] = mimeType;
+        json['size'] = replies!.file!.size;
+        json['name'] = replies!.file!.name;
+        json['uri'] = '${HTTPConnection.domain}api/files/${replies!.file!.shieldedID}';
+      }
+      else if(type == 'image') {
+        json['size'] = 0;
+        json['type'] = 'image';
+        json['name'] = 'image';
+        json['uri'] = '${HTTPConnection.domain}api/images/$content';
+      }
+      else {
+        json['type'] = 'text';
+        json['text'] = content;
+      }
+      data['repliedMessage'] = json;
+    }
     return data;
   }
 }
@@ -334,14 +375,13 @@ class Images {
   String? date;
   int? iV;
 
-  Images(
-      {sId,
-        room,
-        author,
-        content,
-        type,
-        date,
-        iV});
+  Images({sId,
+    room,
+    author,
+    content,
+    type,
+    date,
+    iV});
 
   Images.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
@@ -365,6 +405,72 @@ class Images {
     data['type'] = type;
     data['date'] = date;
     data['__v'] = iV;
+    return data;
+  }
+}
+
+class Replies {
+  String? sId;
+  int? recall;
+  int? edit;
+  int? reactionTotal;
+  int? seen;
+  String? room;
+  Author? author;
+  String? content;
+  String? date;
+  int? iV;
+  String? type;
+  Picture? file;
+
+  Replies(
+      {sId,
+        recall,
+        edit,
+        reactionTotal,
+        seen,
+        room,
+        author,
+        content,
+        date,
+        iV,
+        type,
+        file});
+
+  Replies.fromJson(Map<String, dynamic> json) {
+    sId = json['_id'];
+    recall = json['recall'];
+    edit = json['edit'];
+    reactionTotal = json['reaction_total'];
+    seen = json['seen'];
+    room = json['room'];
+    author =
+    json['author'] != null ? Author.fromJson(json['author']) : null;
+    content = json['content'];
+    date = json['date'];
+    iV = json['__v'];
+    type = json['type'];
+    file = json['file'] != null ? Picture.fromJson(json['file']) : null;
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['_id'] = sId;
+    data['recall'] = recall;
+    data['edit'] = edit;
+    data['reaction_total'] = reactionTotal;
+    data['seen'] = seen;
+    data['room'] = room;
+    if (author != null) {
+      data['author'] = author!.toJson();
+    }
+    data['content'] = content;
+    data['date'] = date;
+    data['__v'] = iV;
+    data['type'] = type;
+    if (file != null) {
+      data['file'] = file!.toJson();
+    }
     return data;
   }
 }

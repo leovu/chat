@@ -1,12 +1,13 @@
 import 'dart:math';
 
+import 'package:chat/chat_ui/widgets/inherited_replied_message.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:chat/chat_ui/widgets/inherited_l10n.dart';
 import 'package:intl/intl.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-
+import 'package:swipeable_tile/swipeable_tile.dart';
 import '../chat_l10n.dart';
 import '../chat_theme.dart';
 import '../conditional/conditional.dart';
@@ -79,6 +80,7 @@ class Chat extends StatefulWidget {
     required this.itemScrollController,
     required this.listIdMessages,
     required this.searchController,
+    required this.focusSearch,
     this.loadMore,
   }) : super(key: key);
 
@@ -95,6 +97,7 @@ class Chat extends StatefulWidget {
 
   final Function? loadMore;
   final TextEditingController searchController;
+  final Function focusSearch;
 
   /// If [dateFormat], [dateLocale] and/or [timeFormat] is not enough to
   /// customize date headers in your case, use rn an arbitrary
@@ -210,7 +213,8 @@ class Chat extends StatefulWidget {
       onPreviewDataFetched;
 
   /// See [Input.onSendPressed]
-  final void Function(types.PartialText) onSendPressed;
+  final void Function(types.PartialText, {types.Message? repliedMessage})
+  onSendPressed;
 
   /// See [Input.onTextChanged]
   final void Function(String)? onTextChanged;
@@ -272,6 +276,7 @@ class _ChatState extends State<Chat> {
   int _imageViewIndex = 0;
   bool _isImageViewVisible = false;
   late void Function() hideEmoji;
+  types.Message? _repliedMessage;
 
   @override
   void initState() {
@@ -432,8 +437,17 @@ class _ChatState extends State<Chat> {
         showUserAvatars: widget.showUserAvatars,
         textMessageBuilder: widget.textMessageBuilder,
         usePreviewData: widget.usePreviewData,
+        focusSearch: widget.focusSearch,
+        replySwipeDirection: message.author.id != widget.user.id ? SwipeDirection.startToEnd : SwipeDirection.endToStart,
+        onMessageReply: _onMessageReply,
       );
     }
+  }
+
+  void _onMessageReply(BuildContext context, types.Message? message) {
+    setState(() {
+      _repliedMessage = message?.copyWith();
+    });
   }
 
   void _onCloseGalleryPressed() {
@@ -464,68 +478,85 @@ class _ChatState extends State<Chat> {
     widget.onPreviewDataFetched?.call(message, previewData);
   }
 
+  void _onSendPressed(types.PartialText message, {types.Message? repliedMessage}) {
+    setState(() {
+      _repliedMessage = null;
+    });
+    widget.onSendPressed(message, repliedMessage: repliedMessage);
+  }
+
+  void _onCancelReplyPressed() {
+    setState(() {
+      _repliedMessage = null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return InheritedUser(
       user: widget.user,
-      child: InheritedChatTheme(
-        theme: widget.theme,
-        child: InheritedL10n(
-          l10n: widget.l10n,
-          child: Stack(
-            children: [
-              Container(
-                color: widget.theme.backgroundColor,
-                child: Column(
-                  children: [
-                    Flexible(
-                      child: widget.messages.isEmpty
-                          ? SizedBox.expand(
-                              child: _emptyStateBuilder(),
-                            )
-                          : GestureDetector(
-                              onTap: () {
-                                FocusManager.instance.primaryFocus?.unfocus();
-                                hideEmoji.call();
-                                widget.onBackgroundTap?.call();
-                              },
-                              child: LayoutBuilder(
-                                builder: (BuildContext context,
-                                        BoxConstraints constraints) =>
-                                    ChatList(
-                                  isLastPage: widget.isLastPage,
-                                  itemBuilder: (item, index) =>
-                                        _messageBuilder(item, constraints),
-                                  items: _chatMessages,
-                                  onEndReached: widget.onEndReached,
-                                  onEndReachedThreshold:
-                                        widget.onEndReachedThreshold,
-                                  scrollPhysics: widget.scrollPhysics,
-                                          itemScrollController: widget.itemScrollController,
-                                          itemPositionsListener: widget.itemPositionsListener,
-                                      loadMore: widget.loadMore,
+      child: InheritedRepliedMessage(
+        repliedMessage: _repliedMessage,
+        child: InheritedChatTheme(
+          theme: widget.theme,
+          child: InheritedL10n(
+            l10n: widget.l10n,
+            child: Stack(
+              children: [
+                Container(
+                  color: widget.theme.backgroundColor,
+                  child: Column(
+                    children: [
+                      Flexible(
+                        child: widget.messages.isEmpty
+                            ? SizedBox.expand(
+                                child: _emptyStateBuilder(),
+                              )
+                            : GestureDetector(
+                                onTap: () {
+                                  FocusManager.instance.primaryFocus?.unfocus();
+                                  hideEmoji.call();
+                                  widget.onBackgroundTap?.call();
+                                },
+                                child: LayoutBuilder(
+                                  builder: (BuildContext context,
+                                          BoxConstraints constraints) =>
+                                      ChatList(
+                                    isLastPage: widget.isLastPage,
+                                    itemBuilder: (item, index) =>
+                                          _messageBuilder(item, constraints),
+                                    items: _chatMessages,
+                                    onEndReached: widget.onEndReached,
+                                    onEndReachedThreshold:
+                                          widget.onEndReachedThreshold,
+                                    scrollPhysics: widget.scrollPhysics,
+                                            itemScrollController: widget.itemScrollController,
+                                            itemPositionsListener: widget.itemPositionsListener,
+                                        loadMore: widget.loadMore,
+                                  ),
                                 ),
                               ),
-                            ),
-                    ),
-                    !widget.isSearchChat ? widget.customBottomWidget ??
-                        Input(
-                          isAttachmentUploading: widget.isAttachmentUploading,
-                          onAttachmentPressed: widget.onAttachmentPressed,
-                          onCameraPressed: widget.onCameraPressed,
-                          onSendPressed: widget.onSendPressed,
-                          onTextChanged: widget.onTextChanged,
-                          onTextFieldTap: widget.onTextFieldTap,
-                          sendButtonVisibilityMode:
-                              widget.sendButtonVisibilityMode,
-                          builder: (void Function() method) {
-                              hideEmoji = method;
-                      },) : Container(),
-                  ],
+                      ),
+                      !widget.isSearchChat ? widget.customBottomWidget ??
+                          Input(
+                            isAttachmentUploading: widget.isAttachmentUploading,
+                            onAttachmentPressed: widget.onAttachmentPressed,
+                            onCameraPressed: widget.onCameraPressed,
+                            onTextChanged: widget.onTextChanged,
+                            onTextFieldTap: widget.onTextFieldTap,
+                            sendButtonVisibilityMode:
+                                widget.sendButtonVisibilityMode,
+                            onCancelReplyPressed: _onCancelReplyPressed,
+                            onSendPressed: _onSendPressed,
+                            builder: (void Function() method) {
+                                hideEmoji = method;
+                        },) : Container(),
+                    ],
+                  ),
                 ),
-              ),
-              if (_isImageViewVisible) _imageGalleryBuilder(),
-            ],
+                if (_isImageViewVisible) _imageGalleryBuilder(),
+              ],
+            ),
           ),
         ),
       ),

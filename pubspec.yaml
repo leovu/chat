@@ -36,6 +36,7 @@ dependencies:
   flutter_slidable: ^1.2.0
   emoji_picker_flutter: ^1.1.2
   scrollable_positioned_list: ^0.2.3
+  swipeable_tile: ^1.0.0+6
 
 dependency_overrides:
   photo_view:
@@ -80,6 +81,7 @@ flutter:
     - assets/icon-error.png
     - assets/icon-seen.png
     - assets/icon-send.png
+    - assets/icon-reply.png
     - assets/2.0x/icon-attachment.png
     - assets/2.0x/icon-delivered.png
     - assets/2.0x/icon-document.png
@@ -92,7 +94,6 @@ flutter:
     - assets/3.0x/icon-error.png
     - assets/3.0x/icon-seen.png
     - assets/3.0x/icon-send.png
-    - assets/icon-app.png
   #
   # For details regarding assets in packages, see
   # https://flutter.dev/assets-and-images/#from-packages

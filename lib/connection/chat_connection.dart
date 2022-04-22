@@ -89,12 +89,16 @@ class ChatConnection {
   static void listenChat(Function callback) {
     streamSocket.listenChat(callback);
   }
-  static Future<void>sendChat(String? message, c.Room? room, String authorId) async {
-    ResponseData responseData = await connection.post('api/message', {
+  static Future<void>sendChat(String? message, c.Room? room, String authorId, {String? reppliedMessageId}) async {
+    Map<String,dynamic> json = {
       'authorID': authorId,
       'content': message,
       'contentType': "text",
-      'roomID': room?.sId});
+      'roomID': room?.sId};
+    if(reppliedMessageId != null) {
+      json['replies'] = reppliedMessageId;
+    }
+    ResponseData responseData = await connection.post('api/message', json);
     if(responseData.isSuccess) {
       streamSocket.sendMessage(message, room);
     }

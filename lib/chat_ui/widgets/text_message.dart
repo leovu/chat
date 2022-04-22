@@ -1,3 +1,4 @@
+import 'package:chat/chat_ui/widgets/replied_message.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_link_previewer/flutter_link_previewer.dart'
@@ -6,7 +7,6 @@ import '../models/emoji_enlargement_behavior.dart';
 import '../util.dart';
 import 'inherited_chat_theme.dart';
 import 'inherited_user.dart';
-
 /// A class that represents text message widget with optional link preview
 class TextMessage extends StatelessWidget {
   /// Creates a text message widget from a [types.TextMessage] class
@@ -18,7 +18,8 @@ class TextMessage extends StatelessWidget {
     this.onPreviewDataFetched,
     required this.usePreviewData,
     required this.showName,
-    required this.searchController
+    required this.searchController,
+    required this.showUserNameForRepliedMessage,
   }) : super(key: key);
 
   /// See [Message.emojiEnlargementBehavior]
@@ -41,6 +42,9 @@ class TextMessage extends StatelessWidget {
   final bool usePreviewData;
 
   final TextEditingController searchController;
+
+  /// Show user name for replied message.
+  final bool showUserNameForRepliedMessage;
 
   void _onPreviewDataFetched(types.PreviewData previewData) {
     if (message.previewData == null) {
@@ -111,6 +115,12 @@ class TextMessage extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        if (message.repliedMessage != null)
+          RepliedMessage(
+            messageAuthorId: message.author.id,
+            repliedMessage: message.repliedMessage,
+            showUserNames: showUserNameForRepliedMessage,
+          ),
         if (showName)
           Padding(
             padding: const EdgeInsets.only(bottom: 6),

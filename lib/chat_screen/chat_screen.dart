@@ -7,6 +7,7 @@ import 'package:chat/connection/http_connection.dart';
 import 'package:chat/data_model/chat_message.dart' as c;
 import 'package:chat/data_model/room.dart' as r;
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:chat/chat_ui/flutter_chat_ui.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart';
@@ -57,9 +58,9 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     ChatConnection.roomId = null;
   }
 
-  void _addMessage(types.Message message,{String? text}) async {
+  void _addMessage(types.Message message,{String? text, String? repliedMessageId}) async {
     if(message.type.name == 'text') {
-      await ChatConnection.sendChat(text,data?.room,ChatConnection.user!.id);
+      await ChatConnection.sendChat(text,data?.room,ChatConnection.user!.id,reppliedMessageId: repliedMessageId);
     }
     if(mounted) {
       setState(() {
@@ -265,14 +266,15 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     });
   }
 
-  void _handleSendPressed(types.PartialText message) {
+  void _handleSendPressed(types.PartialText message, {types.Message? repliedMessage}) {
     final textMessage = types.TextMessage(
       author: _user,
       createdAt: DateTime.now().millisecondsSinceEpoch,
       id: const Uuid().v4(),
       text: message.text,
+      repliedMessage: repliedMessage
     );
-    _addMessage(textMessage,text: message.text);
+    _addMessage(textMessage,text: message.text, repliedMessageId: repliedMessage?.id);
   }
 
   _loadMessages() async {
@@ -373,6 +375,9 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                 itemScrollController: itemScrollController,
                 listIdMessages: listIdMessages,
                 searchController: _controllerSearch,
+                focusSearch: (){
+                  _focusSearch.requestFocus();
+                },
                 loadMore: loadMore,
               )),
               _resultSearchChat()
