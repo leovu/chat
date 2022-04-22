@@ -3,6 +3,8 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 
 class DetailGroupImageScreen extends StatefulWidget {
+  const DetailGroupImageScreen({Key? key}) : super(key: key);
+
   @override
   _State createState() => _State();
 }

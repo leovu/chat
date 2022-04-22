@@ -1,11 +1,8 @@
 import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:chat/chat_ui/conditional/conditional.dart';
-import 'package:chat/common/theme.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/search/by_sender_screen.dart';
-import 'package:chat/search/search_screen.dart';
-import 'package:chat/widget/search_text_field.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/data_model/chat_message.dart' as c;
@@ -87,7 +84,7 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                               const Icon(Icons.people, color: Colors.black),
                               () {
                                 Navigator.of(context).push(
-                                    MaterialPageRoute(builder: (context) => BySenderResultScreen()));
+                                    MaterialPageRoute(builder: (context) => const BySenderResultScreen()));
                               }),
                           _buildSearchChip(
                               'By time',
@@ -257,8 +254,9 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
             margin: const EdgeInsets.only(left: 16.0, right: 16.0),
             height: 15.0,
             width: 15.0,
-            child: type == 1 ? const Icon(Icons.people, color: AppColors.grey500Color,) : (type == 2? const Icon(Icons.access_alarm, color: AppColors.grey500Color,) :
-            const Icon(Icons.video_call_outlined, color: AppColors.grey500Color,)),
+            child: type == 1 ? Icon(Icons.people, color: Colors.grey.shade500,) :
+            (type == 2? Icon(Icons.access_alarm, color: Colors.grey.shade500,) :
+            Icon(Icons.video_call_outlined, color: Colors.grey.shade500,)),
           ),
           Expanded(
             child: Column(
@@ -267,12 +265,12 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
               children: [
                 Text(
                   title,
-                  style: const TextStyle(fontSize: 15.0, fontWeight: FontWeight.normal, color: AppColors.tabInActiveColor),
+                  style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.normal, color: Colors.grey.shade400),
                 ),
                 Container(
                   margin: const EdgeInsets.only(top: 16.0),
                   height: 1,
-                  color: AppColors.tabInActiveColor,
+                  color: Colors.grey.shade200,
                 )
               ],
             ),
@@ -283,7 +281,6 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
   }
 
   _showBottomDialog() {
-    FocusScope.of(context).requestFocus(_searchNode);
     showModalBottomSheet(
         context: context,
         isDismissible: true,
@@ -292,36 +289,86 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
         builder: (BuildContext bc) {
           return Column(
             children: [
-              Container(height: 20.0,),
+              Container(height: MediaQuery.of(context).viewPadding.top,color: Colors.white,),
               Container(
-                color: AppColors.white,
+                color: Colors.white,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Expanded(child: CustomSearchTextField(_searchNode, _searchController, "Tìm ảnh, bộ sưu tạp, files, links")),
-                          InkWell(
-                            onTap: ()=> Navigator.of(context).pop(),
-                              child: Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 8.0),
-                            child: const Text(
-                              "Hủy",
-                              style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.w400, color: AppColors.grey500Color),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(child: Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Container(
+                            width: double.infinity,
+                            height: 40,
+                            decoration: BoxDecoration(
+                                color: Colors.black.withAlpha(10), borderRadius: BorderRadius.circular(5)),
+                            child: Row(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                                  child: Center(
+                                    child: Icon(
+                                      Icons.search,
+                                      color: Colors.grey.shade500,
+                                    ),
+                                  ),
+                                ),
+                                Expanded(child: TextField(
+                                  focusNode: _searchNode,
+                                  controller: _searchController,
+                                  onChanged: (_) {},
+                                  decoration: const InputDecoration.collapsed(
+                                    hintText: 'Find images, files, links',
+                                  ),
+                                )),
+                                Material(
+                                  color: Colors.transparent,
+                                  child: InkWell(
+                                    borderRadius: BorderRadius.circular(5),
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                                      child: Center(
+                                        child: Icon(
+                                          Icons.close,
+                                          color: Colors.grey.shade500,
+                                        ),
+                                      ),
+                                    ),
+                                    onTap: (){
+                                      _searchController.text = '';
+                                      FocusManager.instance.primaryFocus?.unfocus();
+                                    },
+                                  ),
+                                )
+                              ],
                             ),
-                          ))
-                        ],
-                      ),
+                          ),
+                        )),
+                        InkWell(
+                            onTap: ()=> Navigator.of(context).pop(),
+                            child: Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 8.0),
+                              child: Text(
+                                "Hủy",
+                                style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.w400, color: Colors.grey.shade500),
+                              ),
+                            ))
+                      ],
+                    ),
                     searchOptionItem("By sender", 1),
                     searchOptionItem("By time", 2),
                   ],
                 ),
               ),
-              InkWell(
-                onTap: ()=> Navigator.of(context).pop(),
-                  child: Expanded(child: Container()))
+              Container(height: 20.0,color: Colors.white,),
+              Expanded(child: InkWell(onTap: () {
+                _searchController.text = '';
+                Navigator.of(context).pop();
+              } ,))
             ],
           );
         });

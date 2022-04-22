@@ -1,8 +1,3 @@
-/*
-* Created by: nguyenan
-* Created at: 2022/04/22 2:57 PM
-*/
-import 'package:chat/common/theme.dart';
 import 'package:chat/search/detail_group_image_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -14,12 +9,12 @@ class GroupImageItem extends StatelessWidget {
     return InkWell(
       onTap: (){
         Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => DetailGroupImageScreen()));
+            MaterialPageRoute(builder: (context) => const DetailGroupImageScreen()));
       },
       child: Container(
         margin: const EdgeInsets.only(left: 8.0, bottom: 8.0),
         decoration: BoxDecoration(
-          border: Border.all(color: AppColors.shadowColor.withOpacity(0.6)),
+          border: Border.all(color: Colors.grey.withOpacity(0.6)),
           borderRadius: BorderRadius.circular(8.0)
         ),
         child: Column(
@@ -30,7 +25,7 @@ class GroupImageItem extends StatelessWidget {
               width: MediaQuery.of(context).size.width / 2 - 16.0,
               height: MediaQuery.of(context).size.width / 4,
               decoration: const BoxDecoration(
-                color: AppColors.greenLightColor,
+                color: Colors.lightGreen,
                   borderRadius: BorderRadius.only(
                     topRight: Radius.circular(8.0),
                     topLeft: Radius.circular(8.0),
@@ -44,14 +39,14 @@ class GroupImageItem extends StatelessWidget {
               margin: const EdgeInsets.all(8.0),
               child: const Text(
                 'An An',
-                style: TextStyle(fontSize: 15.0, color: AppColors.dark, fontWeight: FontWeight.w400),
+                style: TextStyle(fontSize: 15.0, color: Colors.black, fontWeight: FontWeight.w400),
               ),
             ),
             Container(
               margin: const EdgeInsets.only(left: 8.0, bottom: 8.0),
-              child: const Text(
+              child: Text(
                 '26 photos',
-                style: TextStyle(fontSize: 14.0, color: AppColors.grey600Color, fontWeight: FontWeight.normal),
+                style: TextStyle(fontSize: 14.0, color: Colors.grey.shade600, fontWeight: FontWeight.normal),
               ),
             ),
           ],

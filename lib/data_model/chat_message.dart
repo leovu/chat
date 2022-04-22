@@ -345,8 +345,10 @@ class Author {
     phone = json['phone'];
     lastName = json['lastName'];
     lastOnline = json['lastOnline'];
-    picture =
-    json['picture'] != null ? Picture.fromJson(json['picture']) : null;
+    try {
+      picture =
+      json['picture'] != null ? Picture.fromJson(json['picture']) : null;
+    }catch(_) {}
   }
 
   Map<String, dynamic> toJson() {

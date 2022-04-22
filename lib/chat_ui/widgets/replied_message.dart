@@ -1,4 +1,3 @@
-import 'package:chat/connection/chat_connection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:chat/chat_ui/widgets/inherited_user.dart';
