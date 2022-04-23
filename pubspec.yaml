@@ -42,7 +42,7 @@ dependency_overrides:
   photo_view:
     git:
       url: https://github.com/bluefireteam/photo_view
-      ref: 8156907eecfa812b181a5a729d790f6d399f311b
+      ref: 23063d535909027b8e198c2cffa83bf8f0480c96
 
 dev_dependencies:
   flutter_test:
