@@ -654,32 +654,38 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                     child: Text(
                         !widget.data.isGroup! ?
                         info.getAvatarName() :
-                        widget.data.getAvatarGroupName()),
+                        widget.data.getAvatarGroupName(),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,),
                   ) : CircleAvatar(
                     radius: 15.0,
                     backgroundImage:
                     CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${info.picture!.shieldedID}/256'),
                     backgroundColor: Colors.transparent,
                   )),
-              Padding(
-                padding: const EdgeInsets.only(left: 10.0),
-                child: SizedBox(
-                  height: !widget.data.isGroup! ?25.0 : 50.0,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      AutoSizeText(!widget.data.isGroup! ?
-                      '${info.firstName} ${info.lastName}' : widget.data.title ??
-                          'Group with ${info.firstName} ${info.lastName}',
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(color: Colors.black,fontWeight: FontWeight.bold,fontSize: 16),),
-                      if (widget.data.isGroup!) Padding(
-                        padding: const EdgeInsets.only(bottom: 3.0),
-                        child: AutoSizeText('${widget.data.people!.length-1} members',
-                          style: const TextStyle(color: Colors.black,fontSize: 12),),
-                      )
-                    ],
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 10.0),
+                  child: SizedBox(
+                    height: !widget.data.isGroup! ?25.0 : 50.0,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: AutoSizeText(!widget.data.isGroup! ?
+                          '${info.firstName} ${info.lastName}' : widget.data.title ??
+                              'Group with ${info.firstName} ${info.lastName}',
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(color: Colors.black,fontWeight: FontWeight.bold,fontSize: 16),),
+                        ),
+                        if (widget.data.isGroup!) Padding(
+                          padding: const EdgeInsets.only(bottom: 3.0),
+                          child: AutoSizeText('${widget.data.people!.length-1} members',
+                            style: const TextStyle(color: Colors.black,fontSize: 12),),
+                        )
+                      ],
+                    ),
                   ),
                 ),
               )
