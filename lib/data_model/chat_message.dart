@@ -220,7 +220,9 @@ class Messages {
 
   Messages.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
-    replies = json['replies'] != null ? Replies.fromJson(json['replies']) : null;
+    try{
+      replies = json['replies'] != null ? Replies.fromJson(json['replies']) : null;
+    }catch(_){}
     room = json['room'];
     author =
     json['author'] != null ? Author.fromJson(json['author']) : null;

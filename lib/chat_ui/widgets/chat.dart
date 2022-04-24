@@ -327,9 +327,7 @@ class _ChatState extends State<Chat> {
         } else {
           final map = _chatMessages[i] as Map<String, Object>;
           final message = map['message']! as types.Message;
-          if(message.type == types.MessageType.text) {
-            widget.listIdMessages[message.id] = i;
-          }
+          widget.listIdMessages[message.id] = i;
         }
       }
 

@@ -450,9 +450,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       child: Scaffold(
         floatingActionButton: newMessage ? FloatingActionButton(
           onPressed: () {
-            itemScrollController.scrollTo(index: 0,
-                duration: const Duration(milliseconds: 500),
-                curve: Curves.linear);
+            itemScrollController.jumpTo(index: 0);
           },
           child: !widget.data.isGroup! ? info.picture == null ? CircleAvatar(
             radius: 20.0,
@@ -500,26 +498,34 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                         padding: EdgeInsets.only(right: 8.0),
                         child: Icon(Icons.chat_outlined,color: Color(0xff5686E1),),
                       ),
-                      Expanded(child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          AutoSizeText('${data?.room?.pinMessage?.author?.firstName} ${data?.room?.pinMessage?.author?.lastName}',
-                            style: const TextStyle(fontWeight: FontWeight.w600,color: Color(0xff5686E1)),),
-                          data?.room?.pinMessage?.type == 'image'
-                              ? SizedBox(
-                            height: MediaQuery.of(context).size.width*0.15,
-                            width: MediaQuery.of(context).size.width*0.15,
-                            child: Padding(
-                              padding: const EdgeInsets.all(3.0),
-                              child: CachedNetworkImage(
-                                fit: BoxFit.cover,
-                              imageUrl: '${HTTPConnection.domain}api/images/${data?.room?.pinMessage?.content}/256',
-                              placeholder: (context, url) => const CupertinoActivityIndicator(),
-                              errorWidget: (context, url, error) => const Icon(Icons.error),
-                          ),
-                            ),)
-                         : AutoSizeText('${data?.room?.pinMessage?.content}',style: TextStyle(color: Colors.grey.shade400),),
-                        ],
+                      Expanded(child: InkWell(
+                        onTap: (){
+                            try{
+                              int? index = listIdMessages[data?.room?.pinMessage?.sId]!;
+                              scroll(index);
+                            }catch(_){}
+                          },
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            AutoSizeText('${data?.room?.pinMessage?.author?.firstName} ${data?.room?.pinMessage?.author?.lastName}',
+                              style: const TextStyle(fontWeight: FontWeight.w600,color: Color(0xff5686E1)),),
+                            data?.room?.pinMessage?.type == 'image'
+                                ? SizedBox(
+                              height: MediaQuery.of(context).size.width*0.15,
+                              width: MediaQuery.of(context).size.width*0.15,
+                              child: Padding(
+                                padding: const EdgeInsets.all(3.0),
+                                child: CachedNetworkImage(
+                                  fit: BoxFit.cover,
+                                imageUrl: '${HTTPConnection.domain}api/images/${data?.room?.pinMessage?.content}/256',
+                                placeholder: (context, url) => const CupertinoActivityIndicator(),
+                                errorWidget: (context, url, error) => const Icon(Icons.error),
+                            ),
+                              ),)
+                           : AutoSizeText('${data?.room?.pinMessage?.content}',style: TextStyle(color: Colors.grey.shade400),),
+                          ],
+                        ),
                       )),
                       Container(
                         margin: const EdgeInsets.only(left: 16),
