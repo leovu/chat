@@ -1,4 +1,5 @@
 import 'package:chat/connection/http_connection.dart';
+import 'package:email_validator/email_validator.dart';
 import 'package:intl/intl.dart';
 import 'package:mime/mime.dart';
 
@@ -29,6 +30,7 @@ class Room {
   String? lastMessage;
   List<Messages>? messages;
   List<Images>? images;
+  PinMessage? pinMessage;
 
   Room(
       {sId,
@@ -38,7 +40,8 @@ class Room {
         lastAuthor,
         lastMessage,
         messages,
-        images});
+        images,
+        pinMessage});
 
   Room.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
@@ -70,6 +73,11 @@ class Room {
         }
       });
     }
+    try{
+      pinMessage = json['pinMessage'] != null
+          ? PinMessage.fromJson(json['pinMessage'])
+          : null;
+    }catch(_){}
   }
 
   Map<String, dynamic> toJson() {
@@ -87,6 +95,9 @@ class Room {
     }
     if (images != null) {
       data['images'] = images!.map((v) => v.toJson()).toList();
+    }
+    if (pinMessage != null) {
+      data['pinMessage'] = pinMessage!.toJson();
     }
     return data;
   }
@@ -478,6 +489,63 @@ class Replies {
     if (file != null) {
       data['file'] = file!.toJson();
     }
+    return data;
+  }
+}
+
+class PinMessage {
+  int? recall;
+  int? edit;
+  int? seen;
+  String? sId;
+  String? room;
+  Author? author;
+  String? content;
+  String? date;
+  int? iV;
+  String? type;
+
+  PinMessage(
+      {
+        recall,
+        edit,
+        seen,
+        sId,
+        room,
+        author,
+        content,
+        date,
+        iV,
+        type});
+
+  PinMessage.fromJson(Map<String, dynamic> json) {
+    recall = json['recall'];
+    edit = json['edit'];
+    seen = json['seen'];
+    sId = json['_id'];
+    room = json['room'];
+    author =
+    json['author'] != null ? Author.fromJson(json['author']) : null;
+    content = json['content'];
+    date = json['date'];
+    iV = json['__v'];
+    type = json['type'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['recall'] = recall;
+    data['edit'] = edit;
+    data['seen'] = seen;
+    data['_id'] = sId;
+    data['room'] = room;
+    if (author != null) {
+      data['author'] = author!.toJson();
+    }
+    data['content'] = content;
+    data['date'] = date;
+    data['__v'] = iV;
+    data['type'] = type;
     return data;
   }
 }

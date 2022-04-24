@@ -7,6 +7,7 @@ import 'package:chat/connection/http_connection.dart';
 import 'package:chat/data_model/chat_message.dart' as c;
 import 'package:chat/data_model/room.dart' as r;
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:chat/chat_ui/flutter_chat_ui.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart';
@@ -277,6 +278,11 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
             label: 'Recall',
             key: 'Recall',
           ),
+          const SheetAction(
+            icon: Icons.replay_30_outlined,
+            label: 'Pin Message',
+            key: 'Pin Message',
+          ),
           if(Platform.isAndroid) const SheetAction(
               icon: Icons.cancel,
               label: 'Cancel',
@@ -287,14 +293,25 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
           ? chatController.reply(message)
           : value == 'Recall'
           ? recall(message,mess)
+          : value == 'Pin Message'
+          ? pinMesage(message,mess)
           : value == 'Forward'
           ? {}
           : {});
     }
   }
 
+  void pinMesage(types.Message message, c.Messages? value) async {
+    bool result = await ChatConnection.pinMessage(value!.sId, data?.room);
+    if(result) {
+      setState(() {
+        data?.room?.pinMessage = c.PinMessage.fromJson(value.toJson());
+      });
+    }
+  }
+
   void recall(types.Message message, c.Messages? value) async {
-    bool result = await ChatConnection.recall(value, ChatConnection.roomId);
+    bool result = await ChatConnection.recall(value, data?.room);
     if(result) {
       setState(() {
         if(message is types.ImageMessage) {
@@ -429,7 +446,63 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         body: SafeArea(
           bottom: false,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if(data?.room?.pinMessage != null)
+                Container(
+                  color: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 15.0),
+                  child:
+                  Row(
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.only(right: 8.0),
+                        child: Icon(Icons.chat_outlined,color: Color(0xff5686E1),),
+                      ),
+                      Expanded(child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          AutoSizeText('${data?.room?.pinMessage?.author?.firstName} ${data?.room?.pinMessage?.author?.lastName}',
+                            style: const TextStyle(fontWeight: FontWeight.w600,color: Color(0xff5686E1)),),
+                          data?.room?.pinMessage?.type == 'image'
+                              ? SizedBox(
+                            height: MediaQuery.of(context).size.width*0.15,
+                            width: MediaQuery.of(context).size.width*0.15,
+                            child: Padding(
+                              padding: const EdgeInsets.all(3.0),
+                              child: CachedNetworkImage(
+                                fit: BoxFit.cover,
+                              imageUrl: '${HTTPConnection.domain}api/images/${data?.room?.pinMessage?.content}/256',
+                              placeholder: (context, url) => const CupertinoActivityIndicator(),
+                              errorWidget: (context, url, error) => const Icon(Icons.error),
+                          ),
+                            ),)
+                         : AutoSizeText('${data?.room?.pinMessage?.content}',style: TextStyle(color: Colors.grey.shade400),),
+                        ],
+                      )),
+                      Container(
+                        margin: const EdgeInsets.only(left: 16),
+                        height: 30,
+                        width: 30,
+                        child: IconButton(
+                          icon: const Icon(
+                            Icons.close,
+                            color: Colors.grey,
+                            size: 20.0,
+                          ),
+                          onPressed: () async {
+                            setState(() {
+                              data?.room?.pinMessage = null;
+                            });
+                            await ChatConnection.pinMessage(null,data?.room);
+                          },
+                          padding: EdgeInsets.zero,
+                        ),
+                      )
+                    ],
+                  )
+                ),
+              if(data?.room?.pinMessage != null) Container(height: 2.0,color: Colors.grey.shade300,),
               Expanded(child: Chat(
                 messages: _messages,
                 showUserAvatars: true,

@@ -116,9 +116,19 @@ class ChatConnection {
     }
     return;
   }
-  static Future<bool>recall(c.Messages? value, String? roomId) async{
-    ResponseData responseData = await connection.post('api/message/update', {'data':value?.content, 'messageId':value?.sId, 'roomId': roomId,'type':'recall'});
+  static Future<bool>recall(c.Messages? value, c.Room? room) async{
+    ResponseData responseData = await connection.post('api/message/update', {'data':value?.content, 'messageId':value?.sId, 'roomId': room!.sId,'type':'recall'});
     if(responseData.isSuccess) {
+      streamSocket.sendMessage(value?.content, room);
+      return true;
+    }
+    return false;
+  }
+  static Future<bool>pinMessage(String? data, c.Room? room) async {
+    ResponseData responseData = await connection.post('api/group/update',
+        {'data':data, 'field': 'pinMessage', 'roomId': room?.sId,'type':'single-data'});
+    if(responseData.isSuccess) {
+      streamSocket.sendMessage(data, room);
       return true;
     }
     return false;
