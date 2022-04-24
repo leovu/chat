@@ -1,13 +1,19 @@
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:chat/chat_screen/add_member_group_screen.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/data_model/room.dart' as r;
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 
-class ChatGroupMembersScreen extends StatelessWidget {
+class ChatGroupMembersScreen extends StatefulWidget {
   final r.Rooms roomData;
   const ChatGroupMembersScreen({Key? key, required this.roomData}) : super(key: key);
+  @override
+  _ChatGroupMembersScreenState createState() => _ChatGroupMembersScreenState();
+}
+
+class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -24,6 +30,17 @@ class ChatGroupMembersScreen extends StatelessWidget {
                 color: Colors.black),
             onTap: () => Navigator.of(context).pop(),
           ),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: SizedBox(width:30.0,height: 30.0,
+                  child: InkWell(onTap: () async {
+                    await Navigator.of(context).push(MaterialPageRoute(builder:  (context) => AddMemberGroupScreen(roomData: widget.roomData,)));
+                    setState(() {});
+                  },
+                    child: Image.asset('assets/icon-edit.png',package: 'chat',),)),
+            )
+          ],
           backgroundColor: Colors.white,
           iconTheme: const IconThemeData(
             color: Colors.black,
@@ -35,7 +52,7 @@ class ChatGroupMembersScreen extends StatelessWidget {
             children: [
               Padding(
                 padding: const EdgeInsets.only(left:15.0,top: 10.0,bottom: 10.0),
-                child: Text('List of members (${roomData.people?.length})',style: const TextStyle(
+                child: Text('List of members (${widget.roomData.people?.length})',style: const TextStyle(
                   fontWeight: FontWeight.w600,
                   fontSize: 15
                 ),),
@@ -45,14 +62,14 @@ class ChatGroupMembersScreen extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 5.0),
                 keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                 itemBuilder: _itemBuilder,
-                itemCount: roomData.people?.length,),)
+                itemCount: widget.roomData.people?.length,),)
             ],
           )
         ));
   }
   Widget _itemBuilder(BuildContext context, int index) {
-    final data = roomData.people![index];
-    bool isLast = index == (roomData.people?.length ?? 1)-1;
+    final data = widget.roomData.people![index];
+    bool isLast = index == (widget.roomData.people?.length ?? 1)-1;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0),
       child: Column(

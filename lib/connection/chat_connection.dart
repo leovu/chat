@@ -208,6 +208,13 @@ class ChatConnection {
     }
     return null;
   }
+  static Future<bool>addMemberGroup(List<String> people, String roomId) async {
+    ResponseData responseData = await connection.post('api/group/update', {'data': people, 'type': 'people', 'roomId' : roomId});
+    if(responseData.isSuccess) {
+      return responseData.isSuccess;
+    }
+    return false;
+  }
   static Future<ct.Contacts?>contactsList() async {
     ResponseData responseData = await connection.post('api/search', {'limit':500,'search':''});
     if(responseData.isSuccess) {

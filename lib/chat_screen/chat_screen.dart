@@ -777,10 +777,11 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
               Icons.info,
               color: Color(0xFF787878),
             ),
-            onPressed: () {
-              Navigator.of(context).push(
+            onPressed: () async{
+              await Navigator.of(context).push(
                 MaterialPageRoute(builder: (context) => ConversationInformationScreen(roomData: widget.data,chatMessage: data),
                   settings:const RouteSettings(name: 'conversation_information_screen')));
+              setState(() {});
             },
           )
         ],
