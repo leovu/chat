@@ -796,18 +796,25 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                 ),
               ),
               Padding(padding: const EdgeInsets.only(top: 10.0,bottom: 10.0),
-                  child: info.picture == null ? CircleAvatar(
+                  child: !widget.data.isGroup! ? info.picture == null ? CircleAvatar(
                     radius: 15.0,
                     child: Text(
-                        !widget.data.isGroup! ?
-                        info.getAvatarName() :
-                        widget.data.getAvatarGroupName(),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,),
+                        info.getAvatarName(),
+                        style: const TextStyle(color: Colors.white),),
                   ) : CircleAvatar(
                     radius: 15.0,
                     backgroundImage:
                     CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${info.picture!.shieldedID}/256'),
+                    backgroundColor: Colors.transparent,
+                  ) : widget.data.picture == null ? CircleAvatar(
+                    radius: 15.0,
+                    child: Text(
+                        widget.data.getAvatarGroupName(),
+                        style: const TextStyle(color: Colors.white),),
+                  ) : CircleAvatar(
+                    radius: 15.0,
+                    backgroundImage:
+                    CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${widget.data.picture!.shieldedID}/256'),
                     backgroundColor: Colors.transparent,
                   )),
               Expanded(

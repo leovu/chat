@@ -38,20 +38,32 @@ class _ConversationInformationScreenState extends State<ConversationInformationS
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 17.0),
-            child: Center(child: info.picture == null ? CircleAvatar(
+            child: Center(child:
+            !widget.roomData.isGroup! ? info.picture == null ? CircleAvatar(
               radius: MediaQuery.of(context).size.width * 0.125,
-              child: AutoSizeText(
-                !widget.roomData.isGroup! ?
-                info.getAvatarName() :
-                widget.roomData.getAvatarGroupName(),
-                maxLines: 1,
-                textScaleFactor: 1.75),
+              child: Text(
+                  info.getAvatarName(),
+                  style: const TextStyle(color: Colors.white),
+                  maxLines: 1,
+                  textScaleFactor: 1.75),
             ) : CircleAvatar(
               radius: MediaQuery.of(context).size.width * 0.125,
               backgroundImage:
               CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${info.picture!.shieldedID}/256'),
               backgroundColor: Colors.transparent,
-            ),),
+            ) : widget.roomData.picture == null ? CircleAvatar(
+              radius: MediaQuery.of(context).size.width * 0.125,
+              child: Text(
+                  widget.roomData.getAvatarGroupName(),
+                  maxLines: 1,
+                  style: const TextStyle(color: Colors.white),
+                  textScaleFactor: 1.75),
+            ) : CircleAvatar(
+              radius: MediaQuery.of(context).size.width * 0.125,
+              backgroundImage:
+              CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${widget.roomData.picture!.shieldedID}/256'),
+              backgroundColor: Colors.transparent,
+            )),
           ),
           Padding(
             padding: const EdgeInsets.only(top: 10.0),

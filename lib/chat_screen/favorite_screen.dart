@@ -34,6 +34,7 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen> with AutomaticKee
 
   void _onRefresh() async{
     await Future.delayed(const Duration(milliseconds: 1000));
+    await _getRooms();
     _refreshController.refreshCompleted();
   }
 
@@ -43,11 +44,18 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen> with AutomaticKee
     _refreshController.loadComplete();
   }
   _getRooms() async {
-    WidgetsBinding.instance?.addPostFrameCallback((_) async {
+    if(mounted) {
       roomListData = await ChatConnection.favoritesList();
       _getRoomVisible();
       setState(() {});
-    });
+    }
+    else {
+      WidgetsBinding.instance?.addPostFrameCallback((_) async {
+        roomListData = await ChatConnection.favoritesList();
+        _getRoomVisible();
+        setState(() {});
+      });
+    }
   }
 
   _getRoomVisible() {
@@ -209,15 +217,25 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen> with AutomaticKee
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  info.picture == null ? CircleAvatar(
+                  !data.isGroup! ? info.picture == null ? CircleAvatar(
                     radius: 25.0,
-                    child: Text(!data.isGroup! ?
-                    info.getAvatarName() :
-                    data.getAvatarGroupName()),
+                    child: Text(
+                        info.getAvatarName(),
+                      style: const TextStyle(color: Colors.white),),
                   ) : CircleAvatar(
                     radius: 25.0,
                     backgroundImage:
                     CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${info.picture!.shieldedID}/256'),
+                    backgroundColor: Colors.transparent,
+                  ) : data.picture == null ? CircleAvatar(
+                    radius: 25.0,
+                    child: Text(
+                        data.getAvatarGroupName(),
+                      style: const TextStyle(color: Colors.white),),
+                  ) : CircleAvatar(
+                    radius: 25.0,
+                    backgroundImage:
+                    CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${data.picture!.shieldedID}/256'),
                     backgroundColor: Colors.transparent,
                   ),
                   Expanded(child: Container(

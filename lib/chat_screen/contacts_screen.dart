@@ -36,6 +36,7 @@ class _ContactsScreenState extends State<ContactsScreen> with AutomaticKeepAlive
 
   void _onRefresh() async{
     await Future.delayed(const Duration(milliseconds: 1000));
+    await _getContacts();
     _refreshController.refreshCompleted();
   }
 
@@ -45,9 +46,18 @@ class _ContactsScreenState extends State<ContactsScreen> with AutomaticKeepAlive
     _refreshController.loadComplete();
   }
   _getContacts() async {
-    contactsListData = await ChatConnection.contactsList();
-    _getContactsVisible();
-    setState(() {});
+    if(mounted) {
+      contactsListData = await ChatConnection.contactsList();
+      _getContactsVisible();
+      setState(() {});
+    }
+    else {
+      WidgetsBinding.instance?.addPostFrameCallback((_) async {
+        contactsListData = await ChatConnection.contactsList();
+        _getContactsVisible();
+        setState(() {});
+      });
+    }
   }
 
   _getContactsVisible() {

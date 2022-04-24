@@ -65,6 +65,10 @@ class Rooms {
           : null;
     }catch(_){}
     lastUpdate = json['lastUpdate'];
+    try {
+      picture =
+      json['picture'] != null ? Picture.fromJson(json['picture']) : null;
+    }catch(_) {}
   }
 
   Map<String, dynamic> toJson() {
@@ -81,6 +85,7 @@ class Rooms {
       data['lastMessage'] = lastMessage!.toJson();
     }
     data['lastUpdate'] = lastUpdate;
+    data['picture'] = picture;
     return data;
   }
 
