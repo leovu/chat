@@ -41,6 +41,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   List<int> _listIdSearch = [];
   int currentIndexSearch = 0;
   Map<String,int> listIdMessages = {};
+  final ChatController chatController = ChatController();
   @override
   void initState() {
     super.initState();
@@ -57,14 +58,17 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     ChatConnection.roomId = null;
   }
 
-  void _addMessage(types.Message message,{String? text, String? repliedMessageId}) async {
-    if(message.type.name == 'text') {
-      await ChatConnection.sendChat(text,data?.room,ChatConnection.user!.id,reppliedMessageId: repliedMessageId);
-    }
+  void _addMessage(types.Message message, String id,{String? text, String? repliedMessageId}) async {
     if(mounted) {
       setState(() {
         _messages.insert(0, message);
       });
+    }
+    if(message.type.name == 'text') {
+      await ChatConnection.sendChat(data,_messages,id,text,data?.room,ChatConnection.user!.id,reppliedMessageId: repliedMessageId);
+      if(mounted) {
+        setState(() {});
+      }
     }
   }
 
@@ -115,8 +119,8 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
           status: Status.sending,
         );
         File file = File(result.files.single.path!);
-        _addMessage(message);
-        ChatConnection.uploadFile(file,data?.room,ChatConnection.user!.id).then((r) {
+        _addMessage(message,id);
+        ChatConnection.uploadFile(data,_messages,id,file,data?.room,ChatConnection.user!.id).then((r) {
           if(mounted) {
             setState(() {
               int index = _messages.indexWhere((element) => element.id==id);
@@ -175,8 +179,8 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         showStatus: true,
         status: Status.sending,
       );
-      _addMessage(message);
-      ChatConnection.uploadImage(result,data?.room,ChatConnection.user!.id).then((r) {
+      _addMessage(message,id);
+      ChatConnection.uploadImage(data,_messages,id,result,data?.room,ChatConnection.user!.id).then((r) {
         Status s = !r ? Status.error : Status.sent;
         int index = _messages.indexWhere((element) => element.id==id);
         _messages[index] = types.ImageMessage(
@@ -220,8 +224,8 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         showStatus: true,
         status: Status.sending,
       );
-      _addMessage(message);
-      ChatConnection.uploadImage(result,data?.room,ChatConnection.user!.id).then((r) {
+      _addMessage(message,id);
+      ChatConnection.uploadImage(data,_messages,id,result,data?.room,ChatConnection.user!.id).then((r) {
         Status s = !r ? Status.error : Status.sent;
         int index = _messages.indexWhere((element) => element.id==id);
         _messages[index] = types.ImageMessage(
@@ -249,6 +253,73 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     }
   }
 
+  void _handleMessageLongPress(BuildContext context, types.Message message) async {
+    if(message is types.TextMessage || message is types.ImageMessage) {
+      if(message is types.TextMessage && message.text == 'Message recalled') {
+        return;
+      }
+      c.Messages? mess = data?.room?.messages?.firstWhere((e) => e.sId == message.id);
+      showModalActionSheet<String>(
+        context: context,
+        actions: [
+          const SheetAction(
+            icon: Icons.reply,
+            label: 'Reply',
+            key: 'Reply',
+          ),
+          const SheetAction(
+            icon: Icons.reply,
+            label: 'Forward',
+            key: 'Forward',
+          ),
+          if(mess?.author?.sId == ChatConnection.user?.id) const SheetAction(
+            icon: Icons.replay_30_outlined,
+            label: 'Recall',
+            key: 'Recall',
+          ),
+          if(Platform.isAndroid) const SheetAction(
+              icon: Icons.cancel,
+              label: 'Cancel',
+              key: 'Cancel',
+              isDestructiveAction: true),
+        ],
+      ).then((value) => value == 'Reply'
+          ? chatController.reply(message)
+          : value == 'Recall'
+          ? recall(message,mess)
+          : value == 'Forward'
+          ? {}
+          : {});
+    }
+  }
+
+  void recall(types.Message message, c.Messages? value) async {
+    bool result = await ChatConnection.recall(value, ChatConnection.roomId);
+    if(result) {
+      setState(() {
+        if(message is types.ImageMessage) {
+          data?.room?.messages?.remove(value);
+          _messages.remove(message);
+        }
+        else if(message is types.TextMessage) {
+          value?.content = 'Message recalled recalled';
+          int index = _messages.indexOf(message);
+          final textMessage = types.TextMessage(
+              author: _user,
+              createdAt: DateTime.now().millisecondsSinceEpoch,
+              id: message.id,
+              text: 'Message recalled recalled'
+          );
+          _messages[index] = textMessage;
+        }
+      });
+    }
+  }
+
+  void forwward() {
+
+  }
+
   void _handlePreviewDataFetched(
       types.TextMessage message,
       types.PreviewData previewData,
@@ -266,14 +337,15 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   }
 
   void _handleSendPressed(types.PartialText message, {types.Message? repliedMessage}) {
+    String id = const Uuid().v4();
     final textMessage = types.TextMessage(
       author: _user,
       createdAt: DateTime.now().millisecondsSinceEpoch,
-      id: const Uuid().v4(),
+      id: id,
       text: message.text,
       repliedMessage: repliedMessage
     );
-    _addMessage(textMessage,text: message.text, repliedMessageId: repliedMessage?.id);
+    _addMessage(textMessage,id,text: message.text, repliedMessageId: repliedMessage?.id);
   }
 
   _loadMessages() async {
@@ -364,6 +436,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                 showUserNames: true,
                 onAttachmentPressed: _handleAttachmentPressed,
                 onMessageTap: _handleMessageTap,
+                onMessageLongPress: _handleMessageLongPress,
                 onPreviewDataFetched: _handlePreviewDataFetched,
                 onCameraPressed: _handleCameraSelection,
                 onSendPressed: _handleSendPressed,
@@ -374,6 +447,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                 itemScrollController: itemScrollController,
                 listIdMessages: listIdMessages,
                 searchController: _controllerSearch,
+                chatController: chatController,
                 focusSearch: (){
                   _focusSearch.requestFocus();
                 },

@@ -11,6 +11,7 @@ import 'package:chat/data_model/room.dart' as r;
 import 'package:image_picker/image_picker.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:flutter_beep/flutter_beep.dart';
+import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 
 class ChatConnection {
   static late void Function() refreshRoom;
@@ -89,7 +90,7 @@ class ChatConnection {
   static void listenChat(Function callback) {
     streamSocket.listenChat(callback);
   }
-  static Future<void>sendChat(String? message, c.Room? room, String authorId, {String? reppliedMessageId}) async {
+  static Future<void>sendChat(c.ChatMessage? data,List<types.Message> listMessage,String id,String? message, c.Room? room, String authorId, {String? reppliedMessageId}) async {
     Map<String,dynamic> json = {
       'authorID': authorId,
       'content': message,
@@ -101,10 +102,28 @@ class ChatConnection {
     ResponseData responseData = await connection.post('api/message', json);
     if(responseData.isSuccess) {
       streamSocket.sendMessage(message, room);
+      types.Message val = listMessage.firstWhere((element) => element.id == id);
+      int index = listMessage.indexOf(val);
+      c.Messages valueResponse =  c.Messages.fromJson(responseData.data['message']);
+      listMessage[index] = types.TextMessage(
+          author: listMessage[index].author,
+          createdAt: listMessage[index].createdAt,
+          id: valueResponse.sId!,
+          text: (listMessage[index] as types.TextMessage).text,
+          repliedMessage: listMessage[index].repliedMessage
+      );
+      data?.room?.messages?.insert(0,valueResponse);
     }
     return;
   }
-  static Future<bool>uploadImage(XFile image, c.Room? room, String authorId)  async {
+  static Future<bool>recall(c.Messages? value, String? roomId) async{
+    ResponseData responseData = await connection.post('api/message/update', {'data':value?.content, 'messageId':value?.sId, 'roomId': roomId,'type':'recall'});
+    if(responseData.isSuccess) {
+      return true;
+    }
+    return false;
+  }
+  static Future<bool>uploadImage(c.ChatMessage? data,List<types.Message> listMessage,String id,  XFile image, c.Room? room, String authorId)  async {
     ResponseData response = await connection.upload('api/upload', convertToFile(image),isImage: true);
     if(response.isSuccess) {
       ResponseData responseData = await connection.post('api/message', {
@@ -114,12 +133,29 @@ class ChatConnection {
         'roomID': room?.sId});
       if(responseData.isSuccess) {
         streamSocket.sendMessage(response.data['image']['shieldedID'], room);
+        types.Message val = listMessage.firstWhere((element) => element.id == id);
+        int index = listMessage.indexOf(val);
+        c.Messages valueResponse =  c.Messages.fromJson(responseData.data['message']);
+        listMessage[index] = types.ImageMessage(
+            author: listMessage[index].author,
+            createdAt: listMessage[index].createdAt,
+            id: valueResponse.sId!,
+            height: (listMessage[index] as types.ImageMessage).height,
+            name: (listMessage[index] as types.ImageMessage).name,
+            size: (listMessage[index] as types.ImageMessage).size,
+            uri: (listMessage[index] as types.ImageMessage).uri,
+            width: (listMessage[index] as types.ImageMessage).width,
+            showStatus: true,
+            status: (listMessage[index] as types.ImageMessage).status,
+            repliedMessage: listMessage[index].repliedMessage
+        );
+        data?.room?.messages?.insert(0,valueResponse);
       }
       return responseData.isSuccess;
     }
     return response.isSuccess;
   }
-  static Future<bool>uploadFile(File file, c.Room? room, String authorId)  async {
+  static Future<bool>uploadFile(c.ChatMessage? data,List<types.Message> listMessage,String id, File file, c.Room? room, String authorId)  async {
     ResponseData response = await connection.upload('api/upload/file', file, isImage: false);
     if(response.isSuccess) {
       ResponseData responseData = await connection.post('api/message', {
@@ -130,6 +166,22 @@ class ChatConnection {
         'roomID': room?.sId});
       if(responseData.isSuccess) {
         streamSocket.sendMessage(response.data['file']['shieldedID'], room);
+        types.Message val = listMessage.firstWhere((element) => element.id == id);
+        int index = listMessage.indexOf(val);
+        c.Messages valueResponse =  c.Messages.fromJson(responseData.data['message']);
+        listMessage[index] = types.FileMessage(
+            author: listMessage[index].author,
+            createdAt: listMessage[index].createdAt,
+            id: valueResponse.sId!,
+            mimeType: (listMessage[index] as types.FileMessage).mimeType,
+            name: (listMessage[index] as types.FileMessage).name,
+            size: (listMessage[index] as types.FileMessage).size,
+            uri: (listMessage[index] as types.FileMessage).uri,
+            showStatus: true,
+            status: (listMessage[index] as types.FileMessage).status,
+            repliedMessage: listMessage[index].repliedMessage
+        );
+        data?.room?.messages?.insert(0,valueResponse);
       }
       return responseData.isSuccess;
     }

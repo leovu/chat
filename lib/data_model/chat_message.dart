@@ -273,7 +273,7 @@ class Messages {
       data['type'] = 'text';
       data['text'] = content;
     }
-    data['status'] = iV == 0 ? 'sent' : 'seen';
+    // data['status'] = 'delivered';
     if(replies != null) {
       Map<String,dynamic> json = {};
       json = {

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:chat/connection/http_connection.dart';
 import 'package:chat/data_model/user.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:chat/data_model/chat_message.dart' as c;
@@ -14,7 +15,7 @@ class StreamSocket {
   }
   String? id () {return socket.id;}
   void connectAndListen(StreamSocket streamSocket, User user) {
-    socket = IO.io('https://chat-stag.epoints.vn',
+    socket = IO.io(HTTPConnection.domain,
         IO.OptionBuilder().setTransports(['websocket'])
             .build());
     socket.onConnectError((data) {});

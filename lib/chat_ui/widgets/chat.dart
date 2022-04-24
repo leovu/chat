@@ -28,6 +28,10 @@ import 'message.dart';
 
 typedef ChatEmojiBuilder = void Function(void Function() hideEmoji);
 
+class ChatController {
+  late void Function(types.Message? message) reply;
+}
+
 class Chat extends StatefulWidget {
   /// Creates a chat widget
   const Chat({
@@ -82,6 +86,7 @@ class Chat extends StatefulWidget {
     required this.searchController,
     required this.focusSearch,
     this.loadMore,
+    required this.chatController,
   }) : super(key: key);
 
   /// See [Message.bubbleBuilder]
@@ -94,6 +99,8 @@ class Chat extends StatefulWidget {
   /// Allows you to replace the default Input widget e.g. if you want to create
   /// a channel view.
   final Widget? customBottomWidget;
+
+  final ChatController chatController;
 
   final Function? loadMore;
   final TextEditingController searchController;
@@ -266,7 +273,7 @@ class Chat extends StatefulWidget {
   final bool isSearchChat;
 
   @override
-  _ChatState createState() => _ChatState();
+  _ChatState createState() => _ChatState(chatController);
 }
 
 /// [Chat] widget state
@@ -278,6 +285,15 @@ class _ChatState extends State<Chat> {
   late void Function() hideEmoji;
   types.Message? _repliedMessage;
 
+  _ChatState(ChatController _controller) {
+    _controller.reply = reply;
+  }
+
+  void reply(types.Message? message) {
+    setState(() {
+      _repliedMessage = message?.copyWith();
+    });
+  }
   @override
   void initState() {
     super.initState();
