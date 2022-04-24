@@ -55,14 +55,19 @@ class Room {
     if (json['messages'] != null) {
       messages = <Messages>[];
       json['messages'].forEach((v) {
-        messages!.add(Messages.fromJson(v));
+        if(v['content'] == 'Message recalled' && v['type'] == 'image') {}
+        else {
+          messages!.add(Messages.fromJson(v));
+        }
       });
       messages = messages?.reversed.toList();
     }
     if (json['images'] != null) {
       images = <Images>[];
       json['images'].forEach((v) {
-        images!.add(Images.fromJson(v));
+        if(v['content'] != 'Message recalled') {
+          images!.add(Images.fromJson(v));
+        }
       });
     }
   }

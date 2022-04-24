@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:chat/chat_screen/chat_group_members_screen.dart';
 import 'package:chat/chat_screen/conversation_file_screen.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';
@@ -71,7 +72,10 @@ class _ConversationInformationScreenState extends State<ConversationInformationS
                 const EdgeInsets.only(left: 50.0, right: 50.0,top: 13.0),child:
                   Container(height: 1.0,color: const Color(0xFFE5E5E5),),),
                 if(widget.roomData.isGroup!)
-                  _section(const Icon(Icons.group,color: Color(0xff5686E1),size: 35,),'View members',() {}),
+                  _section(const Icon(Icons.group,color: Color(0xff5686E1),size: 35,),'View members',() {
+                    Navigator.of(context).push(
+                        MaterialPageRoute(builder: (context) => ChatGroupMembersScreen(roomData: widget.roomData)));
+                  }),
                 // if(!widget.roomData.isGroup!)
                   Padding(padding:
                 const EdgeInsets.only(left: 50.0, right: 50.0,top: 13.0),child:
