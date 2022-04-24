@@ -48,8 +48,7 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
     return Scaffold(
       appBar: AppBar(
         title: const AutoSizeText(
-          // 'File, images, link are sent',
-          'Images are sent',
+          'File, images, link are sent',
           style: TextStyle(
               color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
         ),
@@ -310,6 +309,8 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
 
   int searchType = 0;
   _showBottomDialog() {
+    DateTime? startDate;
+    DateTime? endDate;
     showModalBottomSheet(
         context: context,
         isDismissible: true,
@@ -435,22 +436,22 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                               });
                             },
                             child: searchOptionItem("By time", 2)),
-                      if (searchType == 1) InkWell(
-                        onTap: () {
-                          final format2 = DateFormat("dd/MM/yyyy");
-                          String formattedDate = format2.format(DateTime.now().toUtc().add(const Duration(hours: 7)));
-                          Navigator.of(context).pop();
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => ByTimeResultScreen(
-                                roomData: widget.roomData,
-                                chatMessage: widget.chatMessage,
-                                search: formattedDate,
-                                title: 'Today',
-                              )));
-                          _searchController.text = '';
-                          searchType = 0;
-                        },
-                          child: searchOptionItem("Today", 4, dateType: true)),
+                      // if (searchType == 1) InkWell(
+                      //   onTap: () {
+                      //     final format2 = DateFormat("dd/MM/yyyy");
+                      //     String formattedDate = format2.format(DateTime.now().toUtc().add(const Duration(hours: 7)));
+                      //     Navigator.of(context).pop();
+                      //     Navigator.of(context).push(MaterialPageRoute(
+                      //         builder: (context) => ByTimeResultScreen(
+                      //           roomData: widget.roomData,
+                      //           chatMessage: widget.chatMessage,
+                      //           search: formattedDate,
+                      //           title: 'Today',
+                      //         )));
+                      //     _searchController.text = '';
+                      //     searchType = 0;
+                      //   },
+                      //     child: searchOptionItem("Today", 4, dateType: true)),
                       if (searchType == 1) InkWell(
                           onTap: () {
                             final format2 = DateFormat("dd/MM/yyyy");
@@ -466,24 +467,24 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                             _searchController.text = '';
                             searchType = 0;
                           },child: searchOptionItem("Yesterday", 4, dateType: true)),
-                      if (searchType == 1) InkWell(
-                          onTap: () {
-                            final format2 = DateFormat("dd/MM/yyyy");
-                            DateTime thisWeekFirstDay = firstDateOfTheThisWeek(DateTime.now());
-                            DateTime thisWeekLastDay = lastDateOfTheThisWeek(thisWeekFirstDay);
-                            String formattedDate1 = format2.format(thisWeekFirstDay.toUtc().add(const Duration(hours: 7)));
-                            String formattedDate2 = format2.format(thisWeekLastDay.toUtc().add(const Duration(hours: 7)));
-                            Navigator.of(context).pop();
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => ByTimeResultScreen(
-                                  roomData: widget.roomData,
-                                  chatMessage: widget.chatMessage,
-                                  search: '$formattedDate1-$formattedDate2',
-                                  title: 'This week',
-                                )));
-                            _searchController.text = '';
-                            searchType = 0;
-                          },child: searchOptionItem("This week", 4, dateType: true)),
+                      // if (searchType == 1) InkWell(
+                      //     onTap: () {
+                      //       final format2 = DateFormat("dd/MM/yyyy");
+                      //       DateTime thisWeekFirstDay = firstDateOfTheThisWeek(DateTime.now());
+                      //       DateTime thisWeekLastDay = lastDateOfTheThisWeek(thisWeekFirstDay);
+                      //       String formattedDate1 = format2.format(thisWeekFirstDay.toUtc().add(const Duration(hours: 7)));
+                      //       String formattedDate2 = format2.format(thisWeekLastDay.toUtc().add(const Duration(hours: 7)));
+                      //       Navigator.of(context).pop();
+                      //       Navigator.of(context).push(MaterialPageRoute(
+                      //           builder: (context) => ByTimeResultScreen(
+                      //             roomData: widget.roomData,
+                      //             chatMessage: widget.chatMessage,
+                      //             search: '$formattedDate1-$formattedDate2',
+                      //             title: 'This week',
+                      //           )));
+                      //       _searchController.text = '';
+                      //       searchType = 0;
+                      //     },child: searchOptionItem("This week", 4, dateType: true)),
                       if (searchType == 1) InkWell(
                           onTap: () {
                             final format2 = DateFormat("dd/MM/yyyy");
@@ -502,24 +503,24 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                             _searchController.text = '';
                             searchType = 0;
                           },child: searchOptionItem("Last week", 4, dateType: true)),
-                      if (searchType == 1) InkWell(
-                          onTap: () {
-                            final format2 = DateFormat("dd/MM/yyyy");
-                            DateTime firstDayOfMonth = firstDayCurrentMonth(DateTime.now());
-                            DateTime lastDayOfMonth = lastDayCurrentMonth(DateTime.now());
-                            String formattedDate1 = format2.format(firstDayOfMonth.toUtc().add(const Duration(hours: 7)));
-                            String formattedDate2 = format2.format(lastDayOfMonth.toUtc().add(const Duration(hours: 7)));
-                            Navigator.of(context).pop();
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => ByTimeResultScreen(
-                                  roomData: widget.roomData,
-                                  chatMessage: widget.chatMessage,
-                                  search: '$formattedDate1-$formattedDate2',
-                                  title: 'This month',
-                                )));
-                            _searchController.text = '';
-                            searchType = 0;
-                          },child: searchOptionItem("This month", 4, dateType: true)),
+                      // if (searchType == 1) InkWell(
+                      //     onTap: () {
+                      //       final format2 = DateFormat("dd/MM/yyyy");
+                      //       DateTime firstDayOfMonth = firstDayCurrentMonth(DateTime.now());
+                      //       DateTime lastDayOfMonth = lastDayCurrentMonth(DateTime.now());
+                      //       String formattedDate1 = format2.format(firstDayOfMonth.toUtc().add(const Duration(hours: 7)));
+                      //       String formattedDate2 = format2.format(lastDayOfMonth.toUtc().add(const Duration(hours: 7)));
+                      //       Navigator.of(context).pop();
+                      //       Navigator.of(context).push(MaterialPageRoute(
+                      //           builder: (context) => ByTimeResultScreen(
+                      //             roomData: widget.roomData,
+                      //             chatMessage: widget.chatMessage,
+                      //             search: '$formattedDate1-$formattedDate2',
+                      //             title: 'This month',
+                      //           )));
+                      //       _searchController.text = '';
+                      //       searchType = 0;
+                      //     },child: searchOptionItem("This month", 4, dateType: true)),
                       if (searchType == 1) InkWell(
                           onTap: () {
                             final format2 = DateFormat("dd/MM/yyyy");
@@ -538,11 +539,34 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                             _searchController.text = '';
                             searchType = 0;
                           },child: searchOptionItem("Last month", 4, dateType: true)),
+                      if (searchType == 1) InkWell(
+                          onTap: () async {
+                            DateTimeRange? range = await showDateRangePicker(context: context,
+                                firstDate: DateTime(1990, 1, 1),
+                                lastDate: DateTime.now(),
+                                currentDate: DateTime.now(),
+                                locale: const Locale('en', ''));
+                            if(range != null) {
+                              final format2 = DateFormat("dd/MM/yyyy");
+                              String formattedDate1 = format2.format(range.start.toUtc().add(const Duration(hours: 7)));
+                              String formattedDate2 = format2.format(range.end.toUtc().add(const Duration(hours: 7)));
+                              Navigator.of(context).pop();
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => ByTimeResultScreen(
+                                    roomData: widget.roomData,
+                                    chatMessage: widget.chatMessage,
+                                    search: '$formattedDate1-$formattedDate2',
+                                    title: 'Custom',
+                                  )));
+                              _searchController.text = '';
+                              searchType = 0;
+                            }
+                          },child: searchOptionItem("Custom", 4, dateType: true)),
                     ],
                   ),
                 ),
                 Container(
-                  height: 20.0,
+                  height: 10.0,
                   color: Colors.white,
                 ),
                 Expanded(child: InkWell(

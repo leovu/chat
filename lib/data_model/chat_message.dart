@@ -1,5 +1,4 @@
 import 'package:chat/connection/http_connection.dart';
-import 'package:email_validator/email_validator.dart';
 import 'package:intl/intl.dart';
 import 'package:mime/mime.dart';
 
