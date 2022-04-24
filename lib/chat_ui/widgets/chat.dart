@@ -87,6 +87,7 @@ class Chat extends StatefulWidget {
     required this.focusSearch,
     this.loadMore,
     required this.chatController,
+    required this.progressUpdate,
   }) : super(key: key);
 
   /// See [Message.bubbleBuilder]
@@ -125,6 +126,8 @@ class Chat extends StatefulWidget {
   /// make sure you initialize your [DateFormat] with a locale. See [customDateHeaderText]
   /// for more customization.
   final DateFormat? dateFormat;
+
+  final Function(double progress) progressUpdate;
 
   /// Time (in ms) between two messages when we will render a date header.
   /// Default value is 15 minutes, 900000 ms. When time between two messages
@@ -549,6 +552,7 @@ class _ChatState extends State<Chat> {
                                             itemScrollController: widget.itemScrollController,
                                             itemPositionsListener: widget.itemPositionsListener,
                                         loadMore: widget.loadMore,
+                                        progressUpdate: widget.progressUpdate,
                                   ),
                                 ),
                               ),

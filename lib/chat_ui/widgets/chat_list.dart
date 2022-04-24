@@ -18,6 +18,7 @@ class ChatList extends StatefulWidget {
     this.scrollPhysics,
     required this.itemScrollController,
     required this.itemPositionsListener,
+    required this.progressUpdate,
     this.loadMore
   }) : super(key: key);
 
@@ -25,6 +26,8 @@ class ChatList extends StatefulWidget {
   /// When true, indicates that there are no more pages to load and
   /// pagination will not be triggered.
   final bool? isLastPage;
+
+  final Function(double progress) progressUpdate;
 
   /// Items to build
   final List<Object> items;
@@ -173,6 +176,7 @@ class _ChatListState extends State<ChatList>
       onNotification: (notification) {
         double progress = notification.metrics.pixels /
             notification.metrics.maxScrollExtent;
+        widget.progressUpdate(progress);
         if(progress >= 0.75) {
           if(widget.loadMore != null && !ChatConnection.isLoadMore) {
             ChatConnection.isLoadMore = true;

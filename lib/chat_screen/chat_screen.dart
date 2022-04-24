@@ -43,6 +43,8 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   int currentIndexSearch = 0;
   Map<String,int> listIdMessages = {};
   final ChatController chatController = ChatController();
+  bool newMessage = false;
+  double progress = 0;
   @override
   void initState() {
     super.initState();
@@ -407,6 +409,9 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         }
       }
       if(mounted) {
+        if(progress >= 0.15) {
+          newMessage = true;
+        }
         setState(() {});
       }
       Map<String,dynamic> notificationData = json.decode(json.encode(cData)) as Map<String, dynamic>;
@@ -435,6 +440,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   }
   @override
   Widget build(BuildContext context) {
+    r.People info = getPeople(widget.data.people);
     return WillPopScope(
       onWillPop: () async {
         ChatConnection.roomId = null;
@@ -442,6 +448,41 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         return true;
       },
       child: Scaffold(
+        floatingActionButton: newMessage ? FloatingActionButton(
+          onPressed: () {
+            itemScrollController.scrollTo(index: 0,
+                duration: const Duration(milliseconds: 500),
+                curve: Curves.linear);
+          },
+          child: !widget.data.isGroup! ? info.picture == null ? CircleAvatar(
+            radius: 20.0,
+            child: Text(
+              info.getAvatarName(),
+              style: const TextStyle(color: Colors.white),),
+          ) : CircleAvatar(
+            radius: 20.0,
+            backgroundImage:
+            CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${info.picture!.shieldedID}/256'),
+            backgroundColor: Colors.transparent,
+          ) : widget.data.picture == null ? CircleAvatar(
+            radius: 20.0,
+            child: Text(
+              widget.data.getAvatarGroupName(),
+              style: const TextStyle(color: Colors.white),),
+          ) : CircleAvatar(
+            radius: 20.0,
+            backgroundImage:
+            CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${widget.data.picture!.shieldedID}/256'),
+            backgroundColor: Colors.transparent,
+          ),
+          mini: true,
+          foregroundColor: Colors.transparent,
+          backgroundColor: Colors.transparent,
+          focusColor: Colors.transparent,
+          hoverColor: Colors.transparent,
+        ) : null,
+        floatingActionButtonLocation:
+        FloatingActionButtonLocation.centerFloat,
         appBar: !_isSearchMessage ? _defaultAppbar() : _searchAppBar(),
         body: SafeArea(
           bottom: false,
@@ -505,6 +546,14 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
               if(data?.room?.pinMessage != null) Container(height: 2.0,color: Colors.grey.shade300,),
               Expanded(child: Chat(
                 messages: _messages,
+                progressUpdate: (value) {
+                  progress = value;
+                  if(progress < 0.1 && newMessage) {
+                    setState(() {
+                      newMessage = false;
+                    });
+                  }
+                },
                 showUserAvatars: true,
                 showUserNames: true,
                 onAttachmentPressed: _handleAttachmentPressed,
