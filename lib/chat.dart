@@ -14,16 +14,35 @@ class Chat {
     return version;
   }
   static open(BuildContext context, String email, String password, String appIcon, {String? domain}) async {
-    initializeDateFormatting().then((_) async {
-      if(domain != null) {
-        HTTPConnection.domain = domain;
-      }
-      ChatConnection.buildContext = context;
-      ChatConnection.appIcon = appIcon;
-      ChatConnection.init(email, password).then((value) => Navigator.of(context,rootNavigator: true).push(
-        MaterialPageRoute(builder: (context) => AppChat(email: email,password: password,))
-      ));
-    });
+    await initializeDateFormatting();
+    if(domain != null) {
+      HTTPConnection.domain = domain;
+    }
+    ChatConnection.buildContext = context;
+    ChatConnection.appIcon = appIcon;
+    bool result = await ChatConnection.init(email, password);
+    if(result) {
+      Navigator.of(context,rootNavigator: true).push(
+          MaterialPageRoute(builder: (context) => AppChat(email: email,password: password)));
+    }else {
+      loginError(context);
+    }
+  }
+  static void loginError(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Warning'),
+        content: const Text('Account login error!'),
+        actions: [
+          ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('Accept'))
+        ],
+      ),
+    );
   }
 }
 
