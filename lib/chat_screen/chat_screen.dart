@@ -448,36 +448,39 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         return true;
       },
       child: Scaffold(
-        floatingActionButton: newMessage ? FloatingActionButton(
-          onPressed: () {
-            itemScrollController.jumpTo(index: 0);
-          },
-          child: !widget.data.isGroup! ? info.picture == null ? CircleAvatar(
-            radius: 20.0,
-            child: Text(
-              info.getAvatarName(),
-              style: const TextStyle(color: Colors.white),),
-          ) : CircleAvatar(
-            radius: 20.0,
-            backgroundImage:
-            CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${info.picture!.shieldedID}/256'),
+        floatingActionButton: newMessage ? Padding(
+          padding: EdgeInsets.only(bottom: (MediaQuery.of(context).size.height + MediaQuery.of(context).viewPadding.bottom)*0.03),
+          child: FloatingActionButton(
+            onPressed: () {
+              itemScrollController.jumpTo(index: 0);
+            },
+            child: !widget.data.isGroup! ? info.picture == null ? CircleAvatar(
+              radius: 18.0,
+              child: Text(
+                info.getAvatarName(),
+                style: const TextStyle(color: Colors.white),),
+            ) : CircleAvatar(
+              radius: 18.0,
+              backgroundImage:
+              CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${info.picture!.shieldedID}/256'),
+              backgroundColor: Colors.transparent,
+            ) : widget.data.picture == null ? CircleAvatar(
+              radius: 18.0,
+              child: Text(
+                widget.data.getAvatarGroupName(),
+                style: const TextStyle(color: Colors.white),),
+            ) : CircleAvatar(
+              radius: 18.0,
+              backgroundImage:
+              CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${widget.data.picture!.shieldedID}/256'),
+              backgroundColor: Colors.transparent,
+            ),
+            mini: true,
+            foregroundColor: Colors.transparent,
             backgroundColor: Colors.transparent,
-          ) : widget.data.picture == null ? CircleAvatar(
-            radius: 20.0,
-            child: Text(
-              widget.data.getAvatarGroupName(),
-              style: const TextStyle(color: Colors.white),),
-          ) : CircleAvatar(
-            radius: 20.0,
-            backgroundImage:
-            CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${widget.data.picture!.shieldedID}/256'),
-            backgroundColor: Colors.transparent,
+            focusColor: Colors.transparent,
+            hoverColor: Colors.transparent,
           ),
-          mini: true,
-          foregroundColor: Colors.transparent,
-          backgroundColor: Colors.transparent,
-          focusColor: Colors.transparent,
-          hoverColor: Colors.transparent,
         ) : null,
         floatingActionButtonLocation:
         FloatingActionButtonLocation.centerFloat,
