@@ -116,6 +116,14 @@ class ChatConnection {
     }
     return;
   }
+  static Future<void>updateChat(String data,String? messageId,c.Room? room) async {
+    ResponseData responseData = await connection.post('api/message/update',
+        {'data': data, 'messageId': messageId, 'type': "edit", 'roomId': room!.sId});
+    if(responseData.isSuccess) {
+      streamSocket.sendMessage(data, room);
+    }
+    return;
+  }
   static Future<bool>recall(c.Messages? value, c.Room? room) async{
     ResponseData responseData = await connection.post('api/message/update', {'data':value?.content, 'messageId':value?.sId, 'roomId': room!.sId,'type':'recall'});
     if(responseData.isSuccess) {

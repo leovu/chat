@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:chat/chat_ui/widgets/inherited_replied_message.dart';
+import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:chat/chat_ui/widgets/inherited_l10n.dart';
@@ -22,6 +23,7 @@ import 'inherited_chat_theme.dart';
 import 'inherited_user.dart';
 import 'input.dart';
 import 'message.dart';
+import 'package:chat/data_model/chat_message.dart' as c;
 
 /// Entry widget, represents the complete chat. If you wrap it in [SafeArea] and
 /// it should be full screen, set [SafeArea]'s `bottom` to `false`.
@@ -30,6 +32,7 @@ typedef ChatEmojiBuilder = void Function(void Function() hideEmoji);
 
 class ChatController {
   late void Function(types.Message? message) reply;
+  late void Function(types.Message? message,c.Messages? value) edit;
 }
 
 class Chat extends StatefulWidget {
@@ -84,10 +87,10 @@ class Chat extends StatefulWidget {
     required this.itemScrollController,
     required this.listIdMessages,
     required this.searchController,
-    required this.focusSearch,
     this.loadMore,
     required this.chatController,
     required this.progressUpdate,
+    required this.builder,
   }) : super(key: key);
 
   /// See [Message.bubbleBuilder]
@@ -103,9 +106,10 @@ class Chat extends StatefulWidget {
 
   final ChatController chatController;
 
+  final InputBuilder builder;
+
   final Function? loadMore;
   final TextEditingController searchController;
-  final Function focusSearch;
 
   /// If [dateFormat], [dateLocale] and/or [timeFormat] is not enough to
   /// customize date headers in your case, use rn an arbitrary
@@ -223,7 +227,7 @@ class Chat extends StatefulWidget {
       onPreviewDataFetched;
 
   /// See [Input.onSendPressed]
-  final void Function(types.PartialText, {types.Message? repliedMessage})
+  final void Function(types.PartialText, {types.Message? repliedMessage, types.TextMessage? isEdit})
   onSendPressed;
 
   /// See [Input.onTextChanged]
@@ -287,9 +291,11 @@ class _ChatState extends State<Chat> {
   bool _isImageViewVisible = false;
   late void Function() hideEmoji;
   types.Message? _repliedMessage;
+  late Function({types.TextMessage? editContent}) requestFocusTextField;
 
   _ChatState(ChatController _controller) {
     _controller.reply = reply;
+    _controller.edit = edit;
   }
 
   void reply(types.Message? message) {
@@ -297,6 +303,10 @@ class _ChatState extends State<Chat> {
       _repliedMessage = message?.copyWith();
     });
   }
+  void edit(types.Message? message,c.Messages? value) {
+    requestFocusTextField(editContent: (message as types.TextMessage));
+  }
+
   @override
   void initState() {
     super.initState();
@@ -320,7 +330,8 @@ class _ChatState extends State<Chat> {
         showUserNames: widget.showUserNames,
         timeFormat: widget.timeFormat
       );
-
+      _chatMessages = result[0] as List<Object>;
+      _gallery = result[1] as List<PreviewImage>;
       for (var i = 0; i < _chatMessages.length; i++) {
         if (_chatMessages[i] is DateHeader) {
         } else if (_chatMessages[i] is MessageSpacer) {
@@ -330,9 +341,6 @@ class _ChatState extends State<Chat> {
           widget.listIdMessages[message.id] = i;
         }
       }
-
-      _chatMessages = result[0] as List<Object>;
-      _gallery = result[1] as List<PreviewImage>;
     }
   }
 
@@ -454,9 +462,9 @@ class _ChatState extends State<Chat> {
         showUserAvatars: widget.showUserAvatars,
         textMessageBuilder: widget.textMessageBuilder,
         usePreviewData: widget.usePreviewData,
-        focusSearch: widget.focusSearch,
         replySwipeDirection: message.author.id != widget.user.id ? SwipeDirection.startToEnd : SwipeDirection.endToStart,
         onMessageReply: _onMessageReply,
+        focusSearch: requestFocusTextField,
       );
     }
   }
@@ -495,11 +503,11 @@ class _ChatState extends State<Chat> {
     widget.onPreviewDataFetched?.call(message, previewData);
   }
 
-  void _onSendPressed(types.PartialText message, {types.Message? repliedMessage}) {
+  void _onSendPressed(types.PartialText message, {types.Message? repliedMessage, types.TextMessage? isEdit}) {
     setState(() {
       _repliedMessage = null;
     });
-    widget.onSendPressed(message, repliedMessage: repliedMessage);
+    widget.onSendPressed(message, repliedMessage: repliedMessage, isEdit:isEdit);
   }
 
   void _onCancelReplyPressed() {
@@ -566,6 +574,9 @@ class _ChatState extends State<Chat> {
                                 widget.sendButtonVisibilityMode,
                             onCancelReplyPressed: _onCancelReplyPressed,
                             onSendPressed: _onSendPressed,
+                            inputBuilder: (BuildContext context, void Function({types.TextMessage? editContent}) method) {
+                              requestFocusTextField = method;
+                            },
                             builder: (void Function() method) {
                                 hideEmoji = method;
                         },) : Container(),

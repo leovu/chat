@@ -45,6 +45,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   final ChatController chatController = ChatController();
   bool newMessage = false;
   double progress = 0;
+  late void Function() focusTextField;
   @override
   void initState() {
     super.initState();
@@ -61,16 +62,36 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     ChatConnection.roomId = null;
   }
 
-  void _addMessage(types.Message message, String id,{String? text, String? repliedMessageId}) async {
-    if(mounted) {
-      setState(() {
-        _messages.insert(0, message);
-      });
-    }
-    if(message.type.name == 'text') {
-      await ChatConnection.sendChat(data,_messages,id,text,data?.room,ChatConnection.user!.id,reppliedMessageId: repliedMessageId);
+  void _addMessage(types.Message message, String id,{String? text, String? repliedMessageId,types.TextMessage? isEdit}) async {
+    if(isEdit!=null) {
+      types.Message ms = _messages.firstWhere((element) => element.id == isEdit.id);
+      final textMessage = types.TextMessage(
+          author: _user,
+          createdAt: ms.createdAt,
+          id: ms.id,
+          text: (message as types.TextMessage).text,
+          repliedMessage: isEdit.repliedMessage
+      );
+      int index = _messages.indexOf(ms);
+      _messages[index] = textMessage;
       if(mounted) {
         setState(() {});
+        int? index = listIdMessages[ms.id]!;
+        scroll(index);
+      }
+      await ChatConnection.updateChat(message.text,ms.id,data?.room);
+    }
+    else {
+      if(mounted) {
+        setState(() {
+          _messages.insert(0, message);
+        });
+      }
+      if(message.type.name == 'text') {
+        await ChatConnection.sendChat(data,_messages,id,text,data?.room,ChatConnection.user!.id,reppliedMessageId: repliedMessageId);
+        if(mounted) {
+          setState(() {});
+        }
       }
     }
   }
@@ -270,15 +291,20 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
             label: 'Reply',
             key: 'Reply',
           ),
-          const SheetAction(
-            icon: Icons.reply,
-            label: 'Forward',
-            key: 'Forward',
-          ),
+          // const SheetAction(
+          //   icon: Icons.forward,
+          //   label: 'Forward',
+          //   key: 'Forward',
+          // ),
           if(mess?.author?.sId == ChatConnection.user?.id) const SheetAction(
             icon: Icons.replay_30_outlined,
             label: 'Recall',
             key: 'Recall',
+          ),
+          if(mess?.author?.sId == ChatConnection.user?.id && message.type.name == 'text') const SheetAction(
+            icon: Icons.replay_30_outlined,
+            label: 'Edit',
+            key: 'Edit',
           ),
           const SheetAction(
             icon: Icons.replay_30_outlined,
@@ -299,6 +325,8 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
           ? pinMesage(message,mess)
           : value == 'Forward'
           ? {}
+          : value == 'Edit'
+          ? chatController.edit(message,mess)
           : {});
     }
   }
@@ -321,13 +349,13 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
           _messages.remove(message);
         }
         else if(message is types.TextMessage) {
-          value?.content = 'Message recalled recalled';
+          value?.content = 'Message recalled';
           int index = _messages.indexOf(message);
           final textMessage = types.TextMessage(
               author: _user,
               createdAt: DateTime.now().millisecondsSinceEpoch,
               id: message.id,
-              text: 'Message recalled recalled'
+              text: 'Message recalled'
           );
           _messages[index] = textMessage;
         }
@@ -355,7 +383,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     });
   }
 
-  void _handleSendPressed(types.PartialText message, {types.Message? repliedMessage}) {
+  void _handleSendPressed(types.PartialText message, {types.Message? repliedMessage,types.TextMessage? isEdit}) {
     String id = const Uuid().v4();
     final textMessage = types.TextMessage(
       author: _user,
@@ -364,7 +392,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       text: message.text,
       repliedMessage: repliedMessage
     );
-    _addMessage(textMessage,id,text: message.text, repliedMessageId: repliedMessage?.id);
+    _addMessage(textMessage,id,text: message.text, repliedMessageId: repliedMessage?.id, isEdit: isEdit);
   }
 
   _loadMessages() async {
@@ -579,10 +607,10 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                 listIdMessages: listIdMessages,
                 searchController: _controllerSearch,
                 chatController: chatController,
-                focusSearch: (){
-                  _focusSearch.requestFocus();
-                },
                 loadMore: loadMore,
+                builder: (BuildContext context, void Function() method) {
+                  focusTextField = method;
+                },
               )),
               _resultSearchChat()
             ],
@@ -596,6 +624,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     if(value != null) {
       List<c.Messages>? messages = value;
       if(messages.isNotEmpty) {
+        data?.room?.messages?.addAll(messages);
         final values = (messages)
             .map((e) => types.Message.fromJson(e.toMessageJson()))
             .toList();

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:chat/chat_ui/widgets/inherited_replied_message.dart';
+import 'package:chat/chat_ui/widgets/remove_edit_button.dart';
 import 'package:chat/chat_ui/widgets/replied_message.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
@@ -20,7 +21,7 @@ class NewLineIntent extends Intent {
 class SendMessageIntent extends Intent {
   const SendMessageIntent();
 }
-
+typedef InputBuilder = void Function(BuildContext context, void Function({types.TextMessage? editContent}) focusTextField);
 /// A class that represents bottom bar widget with a text field, attachment and
 /// send buttons inside. By default hides send button when text field is empty.
 class Input extends StatefulWidget {
@@ -36,9 +37,11 @@ class Input extends StatefulWidget {
     required this.sendButtonVisibilityMode,
     required this.builder,
     required this.onCancelReplyPressed,
+    required this.inputBuilder,
   }) : super(key: key);
 
   final ChatEmojiBuilder builder;
+  final InputBuilder inputBuilder;
   /// See [AttachmentButton.onPressed]
   final void Function()? onAttachmentPressed;
   final void Function()? onCameraPressed;
@@ -63,7 +66,7 @@ class Input extends StatefulWidget {
 
   /// Will be called on [SendButton] tap. Has [types.PartialText] which can
   /// be transformed to [types.TextMessage] and added to the messages list.
-  final void Function(types.PartialText, {types.Message? repliedMessage})
+  final void Function(types.PartialText, {types.Message? repliedMessage , types.TextMessage? isEdit})
   onSendPressed;
 
   /// See [RepliedMessage.onCancelReplyPressed]
@@ -78,7 +81,9 @@ class _InputState extends State<Input> {
   final _inputFocusNode = FocusNode();
   bool _sendButtonVisible = false;
   bool _emojiShowing = false;
+  bool _isEdit = false;
   final _textController = TextEditingController();
+  types.TextMessage? editContent;
 
   @override
   void initState() {
@@ -114,7 +119,7 @@ class _InputState extends State<Input> {
     if (trimmedText != '') {
       final _partialText = types.PartialText(text: trimmedText);
       widget.onSendPressed(_partialText,repliedMessage: InheritedRepliedMessage.of(context)
-          .repliedMessage);
+          .repliedMessage,isEdit: editContent);
       _textController.clear();
     }
   }
@@ -124,7 +129,6 @@ class _InputState extends State<Input> {
       _sendButtonVisible = _textController.text.trim() != '';
     });
   }
-
   Widget _inputBuilder() {
     final _query = MediaQuery.of(context);
     final _safeAreaInsets = kIsWeb
@@ -135,7 +139,6 @@ class _InputState extends State<Input> {
             _query.padding.right,
             (_query.viewInsets.bottom + _query.padding.bottom) * 0.4,
           );
-
     return Focus(
       autofocus: true,
       child: Padding(
@@ -244,6 +247,18 @@ class _InputState extends State<Input> {
                               ),
                             ),
                           Visibility(
+                            visible: _isEdit,
+                            child: RemoveEditButton(
+                              onPressed: (){
+                                _isEdit = false;
+                                _textController.text = '';
+                                if(!_isEdit) {
+                                  editContent = null;
+                                }
+                              },
+                            ),
+                          ),
+                          Visibility(
                             visible: _sendButtonVisible,
                             child: SendButton(
                               onPressed: _handleSendPressed,
@@ -331,26 +346,36 @@ class _InputState extends State<Input> {
           children: [
             Expanded(
                 child: AttachmentButton(
-              onPressed: widget.onCameraPressed,
-              image: 'assets/icon-camera.png',
-            )),
+                  onPressed: widget.onCameraPressed,
+                  image: 'assets/icon-camera.png',
+                )),
             Container(
               width: 10.0,
             ),
             Expanded(
                 child: AttachmentButton(
-              onPressed: widget.onAttachmentPressed,
-              image: 'assets/icon-chat-add.png',
-            ))
+                  onPressed: widget.onAttachmentPressed,
+                  image: 'assets/icon-chat-add.png',
+                ))
           ],
         ),
       );
     }
   }
 
+  void requestFocus({types.TextMessage? editContent}) {
+    if(editContent != null) {
+      this.editContent = editContent;
+      _textController.text = editContent.text;
+      _isEdit = true;
+    }
+    _inputFocusNode.requestFocus();
+  }
+
   @override
   Widget build(BuildContext context) {
     widget.builder.call(hideEmoji);
+    widget.inputBuilder.call(context, requestFocus);
     final isAndroid = Theme.of(context).platform == TargetPlatform.android;
     final isIOS = Theme.of(context).platform == TargetPlatform.iOS;
     return GestureDetector(
