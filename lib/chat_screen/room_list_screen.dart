@@ -37,6 +37,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
 
   void _onRefresh() async{
     await Future.delayed(const Duration(milliseconds: 1000));
+    await _getRooms();
     _refreshController.refreshCompleted();
   }
 
@@ -395,9 +396,9 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                         ),
                         Container(height: 5.0,),
                         Expanded(child: AutoSizeText(
-                          author != null ?
-                          '$author: ${(data.lastMessage?.type == 'image' ? 'Sent a picture' :data.lastMessage?.type == 'file' ? 'Sent a file' :data.lastMessage?.content ?? '')}'
-                          : '',
+                          '$author${(data.lastMessage?.type == 'image' ? 'Sent a picture' :
+                          data.lastMessage?.type == 'file' ? 'Sent a file' :
+                          data.lastMessage?.content ?? '')}',
                           overflow: TextOverflow.ellipsis,))
                       ],
                     ),
@@ -422,9 +423,9 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
     People? p;
     try {
       p = people?.firstWhere((element) => element.sId == author);
-      return p!.sId != ChatConnection.user!.id ? p.firstName : 'You';
+      return (p!.sId != ChatConnection.user!.id ? p.firstName : 'You')! + ': ';
     }catch(_){
-      return null;
+      return '';
     }
   }
   @override

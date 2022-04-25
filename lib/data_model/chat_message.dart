@@ -53,7 +53,9 @@ class Room {
     isGroup = json['isGroup'];
     lastUpdate = json['lastUpdate'];
     lastAuthor = json['lastAuthor'];
-    lastMessage = json['lastMessage'];
+    try {
+      lastMessage = json['lastMessage'];
+    }catch(_) {}
     if (json['messages'] != null) {
       messages = <Messages>[];
       json['messages'].forEach((v) {
@@ -322,7 +324,7 @@ class Messages {
       }
       else {
         json['type'] = 'text';
-        json['text'] = content;
+        json['text'] = replies!.content;
       }
       data['repliedMessage'] = json;
     }

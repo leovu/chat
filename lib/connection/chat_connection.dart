@@ -90,7 +90,8 @@ class ChatConnection {
   static void listenChat(Function callback) {
     streamSocket.listenChat(callback);
   }
-  static Future<void>sendChat(c.ChatMessage? data,List<types.Message> listMessage,String id,String? message, c.Room? room, String authorId, {String? reppliedMessageId}) async {
+  static Future<void>sendChat(c.ChatMessage? data,List<types.Message> listMessage,String id,
+      String? message, c.Room? room, String authorId, {String? reppliedMessageId}) async {
     Map<String,dynamic> json = {
       'authorID': authorId,
       'content': message,
@@ -115,6 +116,18 @@ class ChatConnection {
       data?.room?.messages?.insert(0,valueResponse);
     }
     return;
+  }
+  static Future<bool>forwardMessage(String? message, c.Room? room, String authorId, String? reppliedMessageId) async {
+    ResponseData responseData = await connection.post('api/message', {
+      'authorID': authorId,
+      'content': message,
+      'contentType': "text",
+      'roomID': room?.sId,
+      'replies': reppliedMessageId});
+    if(responseData.isSuccess) {
+      streamSocket.sendMessage(message, room);
+    }
+    return responseData.isSuccess;
   }
   static Future<void>updateChat(String data,String? messageId,c.Room? room) async {
     ResponseData responseData = await connection.post('api/message/update',

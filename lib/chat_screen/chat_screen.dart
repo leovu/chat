@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/chat_screen/conversation_information_screen.dart';
+import 'package:chat/chat_screen/forward_screen.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/data_model/chat_message.dart' as c;
@@ -291,11 +292,11 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
             label: 'Reply',
             key: 'Reply',
           ),
-          // const SheetAction(
-          //   icon: Icons.forward,
-          //   label: 'Forward',
-          //   key: 'Forward',
-          // ),
+          const SheetAction(
+            icon: Icons.forward,
+            label: 'Forward',
+            key: 'Forward',
+          ),
           if(mess?.author?.sId == ChatConnection.user?.id) const SheetAction(
             icon: Icons.replay_30_outlined,
             label: 'Recall',
@@ -324,7 +325,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
           : value == 'Pin Message'
           ? pinMesage(message,mess)
           : value == 'Forward'
-          ? {}
+          ? forward(message,mess)
           : value == 'Edit'
           ? chatController.edit(message,mess)
           : {});
@@ -363,8 +364,14 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     }
   }
 
-  void forwward() {
-
+  void forward(types.Message message, c.Messages? value) async {
+    bool? result = await Navigator.of(context).push(
+        MaterialPageRoute(builder: (context) => ForwardScreen(message: message,value: value),
+            settings:const RouteSettings(name: 'forward_screen')));
+    if(result != null && result) {
+      await _loadMessages();
+      itemScrollController.jumpTo(index: 0);
+    }
   }
 
   void _handlePreviewDataFetched(
@@ -554,7 +561,10 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                                 errorWidget: (context, url, error) => const Icon(Icons.error),
                             ),
                               ),)
-                           : AutoSizeText('${data?.room?.pinMessage?.content}',style: TextStyle(color: Colors.grey.shade400),),
+                           : AutoSizeText('${data?.room?.pinMessage?.content}',
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(color: Colors.grey.shade400),),
                           ],
                         ),
                       )),
