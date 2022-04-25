@@ -88,14 +88,15 @@ class _ConversationInformationScreenState extends State<ConversationInformationS
                     Navigator.of(context).push(
                         MaterialPageRoute(builder: (context) => ChatGroupMembersScreen(roomData: widget.roomData)));
                   }),
-                // if(!widget.roomData.isGroup!)
                   Padding(padding:
                 const EdgeInsets.only(left: 50.0, right: 50.0,top: 13.0),child:
                 Container(height: 1.0,color: const Color(0xFFE5E5E5),),),
-                // if(!widget.roomData.isGroup!)
-                  _section(const Icon(Icons.delete,color: Colors.red,size: 35,),'Delete the conversation',() {
+                !widget.roomData.isGroup! ?
+                _section(const Icon(Icons.delete,color: Colors.red,size: 35,),'Delete the conversation',() {
                     _removeRoom(widget.roomData.sId!);
-                  },textColor: Colors.red),
+                  },textColor: Colors.red) : _section(const Icon(Icons.delete,color: Colors.red,size: 35,),'Leave the conversation',() {
+                  _leaveRoom(widget.roomData.sId!);
+                },textColor: Colors.red),
               ],
             ),
           )
@@ -136,6 +137,52 @@ class _ConversationInformationScreenState extends State<ConversationInformationS
       ),
     );
   }
+  void _leaveRoom(String roomId) {
+    showDialog(
+      context: context,
+      builder: (cxt) => AlertDialog(
+        title: const Text('Leave the conversation'),
+        content: const Text('Are you sure you want to leave this conversation?'),
+        actions: [
+          ElevatedButton(
+              onPressed: () async {
+                bool value = await ChatConnection.leaveRoom(roomId,ChatConnection.user?.id);
+                Navigator.of(cxt).pop();
+                if (value) {
+                  try {
+                    ChatConnection.refreshRoom.call();
+                    ChatConnection.refreshFavorites.call();
+                  }catch(_){}
+                  Navigator.of(context).popUntil((route) => route.settings.name == "chat_screen");
+                  Navigator.of(context).pop();
+                }
+                else {
+                  showDialog(
+                    context: context,
+                    builder: (cxxt) => AlertDialog(
+                      title: const Text('Warning'),
+                      content: const Text('Leave room error!'),
+                      actions: [
+                        ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(cxxt);
+                            },
+                            child: const Text('Accept'))
+                      ],
+                    ),
+                  );
+                }
+              },
+              child: const Text('Leave')),
+          ElevatedButton(
+              onPressed: () {
+                Navigator.pop(cxt);
+              },
+              child: const Text('Cancel')),
+        ],
+      ),
+    );
+  }
   void _removeRoom(String roomId) {
     showDialog(
       context: context,
@@ -156,7 +203,7 @@ class _ConversationInformationScreenState extends State<ConversationInformationS
                       context: context,
                       builder: (cxxt) => AlertDialog(
                         title: const Text('Warning'),
-                        content: const Text('Get file error!'),
+                        content: const Text('Remove room error!'),
                         actions: [
                           ElevatedButton(
                               onPressed: () {
@@ -172,7 +219,7 @@ class _ConversationInformationScreenState extends State<ConversationInformationS
               child: const Text('Delete')),
           ElevatedButton(
               onPressed: () {
-                Navigator.pop(context);
+                Navigator.pop(cxt);
               },
               child: const Text('Cancel')),
         ],

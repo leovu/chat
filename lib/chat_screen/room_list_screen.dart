@@ -216,7 +216,12 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                                             showModalActionSheet<String>(
                                               context: context,
                                               actions: [
-                                                const SheetAction(
+                                                if (roomListVisible!.rooms![position].isGroup!) const SheetAction(
+                                                  icon: Icons.remove_circle,
+                                                  label: 'Leave',
+                                                  key: 'Leave',
+                                                ),
+                                                if (!roomListVisible!.rooms![position].isGroup!) const SheetAction(
                                                   icon: Icons.remove_circle,
                                                   label: 'Delete',
                                                   key: 'Delete',
@@ -229,13 +234,15 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                                               ],
                                             ).then((value) => value == 'Delete'
                                                 ? _removeRoom(roomListVisible!.rooms![position].sId!)
+                                                : value == 'Leave'
+                                                ? _leaveRoom(roomListVisible!.rooms![position].sId!)
                                                 : (){});
                                           },
                                           autoClose: true,
                                           backgroundColor: const Color(0xFFFE4A49),
                                           foregroundColor: Colors.white,
                                           icon: Icons.delete,
-                                          label: 'Delete',
+                                          label: !roomListVisible!.rooms![position].isGroup! ? 'Delete' : 'Leave',
                                         ),
                                       ],
                                     ),
@@ -248,6 +255,51 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
             ),
         ),
       );
+  }
+  void _leaveRoom(String roomId) {
+    showDialog(
+      context: context,
+      builder: (cxt) => AlertDialog(
+        title: const Text('Leave the conversation'),
+        content: const Text('Are you sure you want to leave this conversation?'),
+        actions: [
+          ElevatedButton(
+              onPressed: () async {
+                bool value = await ChatConnection.leaveRoom(roomId,ChatConnection.user?.id);
+                Navigator.of(cxt).pop();
+                if (value) {
+                  try {
+                    ChatConnection.refreshRoom.call();
+                    ChatConnection.refreshFavorites.call();
+                  }catch(_){}
+                  _getRooms();
+                }
+                else {
+                  showDialog(
+                    context: context,
+                    builder: (cxxt) => AlertDialog(
+                      title: const Text('Warning'),
+                      content: const Text('Leave room error!'),
+                      actions: [
+                        ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(cxxt);
+                            },
+                            child: const Text('Accept'))
+                      ],
+                    ),
+                  );
+                }
+              },
+              child: const Text('Leave')),
+          ElevatedButton(
+              onPressed: () {
+                Navigator.pop(cxt);
+              },
+              child: const Text('Cancel')),
+        ],
+      ),
+    );
   }
   void _removeRoom(String roomId) {
     showDialog(
@@ -268,7 +320,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                       context: context,
                       builder: (cxxt) => AlertDialog(
                         title: const Text('Warning'),
-                        content: const Text('Get file error!'),
+                        content: const Text('Remove room error!'),
                         actions: [
                           ElevatedButton(
                               onPressed: () {
@@ -284,7 +336,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
               child: const Text('Delete')),
           ElevatedButton(
               onPressed: () {
-                Navigator.pop(context);
+                Navigator.pop(cxt);
               },
               child: const Text('Cancel')),
         ],

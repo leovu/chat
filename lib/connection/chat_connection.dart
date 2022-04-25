@@ -201,6 +201,10 @@ class ChatConnection {
     ResponseData responseData = await connection.post('api/room/remove', {'id':roomId});
     return responseData.isSuccess;
   }
+  static Future<bool>leaveRoom(String roomId, String? userId) async {
+    ResponseData responseData = await connection.post('api/group/update', {'data': userId, 'type': 'remove-people', 'roomId' : roomId});
+    return responseData.isSuccess;
+  }
   static Future<r.Rooms?>createGroup(String title ,List<String> people) async {
     ResponseData responseData = await connection.post('api/group/create', {'title':title, 'people': people});
     if(responseData.isSuccess) {
@@ -209,7 +213,7 @@ class ChatConnection {
     return null;
   }
   static Future<bool>addMemberGroup(List<String> people, String roomId) async {
-    ResponseData responseData = await connection.post('api/group/update', {'data': people, 'type': 'people', 'roomId' : roomId});
+    ResponseData responseData = await connection.post('api/group/update', {'data': people, 'type': 'add-people', 'roomId' : roomId});
     if(responseData.isSuccess) {
       return responseData.isSuccess;
     }

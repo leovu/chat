@@ -22,7 +22,7 @@ class Chat {
     ChatConnection.appIcon = appIcon;
     bool result = await ChatConnection.init(email, password);
     if(result) {
-      Navigator.of(context,rootNavigator: true).push(
+      await Navigator.of(context,rootNavigator: true).push(
           MaterialPageRoute(builder: (context) => AppChat(email: email,password: password)));
     }else {
       loginError(context);
