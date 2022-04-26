@@ -934,7 +934,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                         ),
                         if (widget.data.isGroup!) Padding(
                           padding: const EdgeInsets.only(bottom: 3.0),
-                          child: AutoSizeText('${widget.data.people!.length-1} members',
+                          child: AutoSizeText('${widget.data.people!.length} members',
                             style: const TextStyle(color: Colors.black,fontSize: 12),),
                         )
                       ],

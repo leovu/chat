@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:chat/chat_screen/home_screen.dart';
+import 'package:chat/chat_ui/vietnamese_text.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/chat_screen/chat_screen.dart';
 import 'package:chat/data_model/room.dart';
@@ -62,13 +63,13 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
   }
 
   _getRoomVisible() {
-    String val = _controllerSearch.value.text.toLowerCase();
+    String val = _controllerSearch.value.text.toLowerCase().removeAccents();
     if(val != '') {
-      roomListVisible!.rooms = roomListVisible!.rooms!.where((element) {
+      roomListVisible!.rooms = roomListData!.rooms!.where((element) {
         try {
           People p = element.people!.firstWhere((e) => e.sId != ChatConnection.user!.id);
           if(!element.isGroup! ?
-          ('${p.firstName} ${p.lastName}'.toLowerCase()).contains(val) : element.title!.toLowerCase().contains(val)) {
+          ('${p.firstName} ${p.lastName}'.toLowerCase().removeAccents()).contains(val) : element.title!.toLowerCase().contains(val)) {
             return true;
           }
           return false;
@@ -177,7 +178,9 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                                 onTap: (){
                                   _controllerSearch.text = '';
                                   FocusManager.instance.primaryFocus?.unfocus();
-                                  _getRoomVisible();
+                                  setState(() {
+                                    _getRoomVisible();
+                                  });
                                 },
                               ),
                             )

@@ -41,6 +41,9 @@ class ChatConnection {
     return responseData.isSuccess;
   }
   static bool checkConnected() {
+    if(streamSocket.socket == null) {
+      return false;
+    }
     return streamSocket.checkConnected();
   }
   static Future<bool>register(String username,String email,String firstName,
@@ -255,11 +258,11 @@ class ChatConnection {
   }
   static File convertToFile(XFile xFile) => File(xFile.path);
   static reconnect() {
-    streamSocket.socket.connect();
+    streamSocket.socket!.connect();
   }
   static dispose({bool isDispose = false}) {
     if(!isDispose) {
-      streamSocket.socket.disconnect();
+      streamSocket.socket!.disconnect();
     }
     else {
       streamSocket.dispose();

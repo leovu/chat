@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:chat/chat_screen/home_screen.dart';
+import 'package:chat/chat_ui/vietnamese_text.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/chat_screen/chat_screen.dart';
 import 'package:chat/data_model/room.dart';
@@ -59,13 +60,13 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen> with AutomaticKee
   }
 
   _getRoomVisible() {
-    String val = _controllerSearch.value.text.toLowerCase();
+    String val = _controllerSearch.value.text.toLowerCase().removeAccents();
     if(val != '') {
-      roomListVisible!.rooms = roomListVisible!.rooms!.where((element) {
+      roomListVisible!.rooms = roomListData!.rooms!.where((element) {
         try {
           People p = element.people!.firstWhere((e) => e.sId != ChatConnection.user!.id);
           if(!element.isGroup! ?
-          ('${p.firstName} ${p.lastName}'.toLowerCase()).contains(val) : element.title!.toLowerCase().contains(val)) {
+          ('${p.firstName} ${p.lastName}'.toLowerCase().removeAccents()).contains(val) : element.title!.toLowerCase().contains(val)) {
             return true;
           }
           return false;
@@ -159,7 +160,9 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen> with AutomaticKee
                             onTap: (){
                               _controllerSearch.text = '';
                               FocusManager.instance.primaryFocus?.unfocus();
-                              _getRoomVisible();
+                              setState(() {
+                                _getRoomVisible();
+                              });
                             },
                           ),
                         )
@@ -245,14 +248,19 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen> with AutomaticKee
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
-                          child: AutoSizeText(!data.isGroup! ?
-                          '${info.firstName} ${info.lastName}' : data.title ?? 'Group ${info.firstName} ${info.lastName}'),
+                            child: Row(
+                              children: [
+                                Expanded(child: AutoSizeText(!data.isGroup! ?
+                                '${info.firstName} ${info.lastName}' : data.title ?? 'Group ${info.firstName} ${info.lastName}',overflow: TextOverflow.ellipsis),),
+                                AutoSizeText(data.lastMessage?.lastMessageDate() ?? '',style: const TextStyle(fontSize: 11,color: Colors.grey),)
+                              ],
+                            )
                         ),
                         Container(height: 5.0,),
                         Expanded(child: AutoSizeText(
-                          author != null ?
-                          '$author: ${(data.lastMessage?.type == 'image' ? 'Sent a picture' :data.lastMessage?.type == 'file' ? 'Sent a file' :data.lastMessage?.content ?? '')}'
-                              : '',
+                          '$author${(data.lastMessage?.type == 'image' ? 'Sent a picture' :
+                          data.lastMessage?.type == 'file' ? 'Sent a file' :
+                          data.lastMessage?.content ?? '')}',
                           overflow: TextOverflow.ellipsis,))
                       ],
                     ),
@@ -277,9 +285,9 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen> with AutomaticKee
     People? p;
     try {
       p = people?.firstWhere((element) => element.sId == author);
-      return p!.sId != ChatConnection.user!.id ? p.firstName : 'You';
+      return (p!.sId != ChatConnection.user!.id ? p.firstName : 'You')! + ': ';
     }catch(_){
-      return null;
+      return '';
     }
   }
   @override

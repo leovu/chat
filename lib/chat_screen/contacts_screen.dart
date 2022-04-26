@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:chat/chat_screen/home_screen.dart';
+import 'package:chat/chat_ui/vietnamese_text.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/data_model/contact.dart';
@@ -61,12 +62,12 @@ class _ContactsScreenState extends State<ContactsScreen> with AutomaticKeepAlive
   }
 
   _getContactsVisible() {
-    String val = _controllerSearch.value.text.toLowerCase();
+    String val = _controllerSearch.value.text.toLowerCase().removeAccents();
     if(val != '') {
-      contactsListVisible!.users = contactsListVisible!.users!.where((element) {
+      contactsListVisible!.users = contactsListData!.users!.where((element) {
         try {
           if(
-          ('${element.firstName} ${element.lastName}'.toLowerCase()).contains(val)) {
+          ('${element.firstName} ${element.lastName}'.toLowerCase().removeAccents()).contains(val)) {
             return true;
           }
           return false;
@@ -160,7 +161,9 @@ class _ContactsScreenState extends State<ContactsScreen> with AutomaticKeepAlive
                             onTap: (){
                               _controllerSearch.text = '';
                               FocusManager.instance.primaryFocus?.unfocus();
-                              _getContactsVisible();
+                              setState(() {
+                                _getContactsVisible();
+                              });
                             },
                           ),
                         )
