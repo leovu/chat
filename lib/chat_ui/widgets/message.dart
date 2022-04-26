@@ -418,6 +418,15 @@ class Message extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             if (!_currentUserIsAuthor && showUserAvatars) _avatarBuilder(context),
+            if(message.remoteId != null && message.remoteId == '1' && _currentUserIsAuthor)
+              const SizedBox(
+                height: 30.0,
+                child: Padding(
+                  padding: EdgeInsets.only(right: 3.0),
+                  child: Icon(Icons.edit_outlined,color: Colors.black,size: 15.0,
+                  ),
+                ),
+              ),
             ConstrainedBox(
               constraints: BoxConstraints(
                 maxWidth: messageWidth.toDouble(),
@@ -465,6 +474,15 @@ class Message extends StatelessWidget {
                   child: _statusBuilder(context),
                 )
                     : null,
+              ),
+            if(message.remoteId != null && message.remoteId == '1' && !_currentUserIsAuthor)
+              const SizedBox(
+                height: 30.0,
+                child: Padding(
+                  padding: EdgeInsets.only(left: 3.0),
+                  child: Icon(Icons.edit_outlined,color: Colors.black,size: 15.0,
+                  ),
+                ),
               ),
           ],
         ),

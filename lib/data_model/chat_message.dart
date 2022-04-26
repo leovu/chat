@@ -208,6 +208,7 @@ class Messages {
   int? iV;
   String? type;
   Picture? file;
+  int? edit;
 
   Messages(
       {sId,
@@ -218,7 +219,8 @@ class Messages {
         date,
         iV,
         type,
-        file});
+        file,
+        edit});
 
   Messages.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
@@ -232,6 +234,7 @@ class Messages {
     date = json['date'];
     iV = json['__v'];
     type = json['type'];
+    edit = json['edit'];
     try{
       file = json['file'] != null ? Picture.fromJson(json['file']) : null;
     }catch(_){}
@@ -254,11 +257,15 @@ class Messages {
     if (file != null) {
       data['file'] = file!.toJson();
     }
+    data['edit'] = edit;
     return data;
   }
 
   Map<String, dynamic> toMessageJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
+    if(edit != null){
+      data['remoteId'] = '$edit';
+    }
     if (author != null) {
       data['author'] = {
         'firstName': author!.firstName,
