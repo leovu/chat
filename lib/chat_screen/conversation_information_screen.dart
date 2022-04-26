@@ -91,12 +91,20 @@ class _ConversationInformationScreenState extends State<ConversationInformationS
                   Padding(padding:
                 const EdgeInsets.only(left: 50.0, right: 50.0,top: 13.0),child:
                 Container(height: 1.0,color: const Color(0xFFE5E5E5),),),
-                !widget.roomData.isGroup! ?
-                _section(const Icon(Icons.delete,color: Colors.red,size: 35,),'Delete the conversation',() {
-                    _removeRoom(widget.roomData.sId!);
-                  },textColor: Colors.red) : _section(const Icon(Icons.delete,color: Colors.red,size: 35,),'Leave the conversation',() {
+                _section(const Icon(Icons.remove_circle,color: Color(0xff5686E1),size: 35,),'Leave the conversation',() {
                   _leaveRoom(widget.roomData.sId!);
-                },textColor: Colors.red),
+                },textColor: Colors.black),
+                if(!widget.roomData.isGroup! ||
+                    (widget.roomData.owner == ChatConnection.user!.id &&
+                        widget.roomData.isGroup!))Padding(padding:
+                    const EdgeInsets.only(left: 50.0, right: 50.0,top: 13.0),child:
+                    Container(height: 1.0,color: const Color(0xFFE5E5E5),),),
+                  if(!widget.roomData.isGroup! ||
+                      (widget.roomData.owner == ChatConnection.user!.id &&
+                          widget.roomData.isGroup!))
+                    _section(const Icon(Icons.delete,color: Colors.red,size: 35,),'Delete the conversation',() {
+                  _removeRoom(widget.roomData.sId!);
+                },textColor: Colors.red)
               ],
             ),
           )

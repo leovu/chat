@@ -1,6 +1,9 @@
 import 'dart:io';
+import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/chat_screen/add_member_group_screen.dart';
+import 'package:chat/chat_screen/chat_screen.dart';
+import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/data_model/room.dart' as r;
 import 'package:auto_size_text/auto_size_text.dart';
@@ -67,6 +70,32 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
           )
         ));
   }
+  void sendMessage(r.People people) async {
+    r.Room? roomListData = await ChatConnection.roomList();
+    r.Rooms? val;
+    if(roomListData?.rooms != null) {
+      for (var value in roomListData!.rooms!) {
+        if(!value.isGroup!) {
+          r.People? result = value.people?.firstWhere((e) => e.sId == people.sId);
+          if(result != null) {
+            val = value;
+            break;
+          }
+        }
+      }
+    }
+    if(val != null) {
+      Navigator.of(context).popUntil((route) => route.settings.name == "chat_screen");
+      Navigator.of(context,rootNavigator: true).pushReplacement(MaterialPageRoute(builder: (context) => ChatScreen(data: val!),settings:const RouteSettings(name: 'chat_screen')),);
+    }
+  }
+  void removeMember(r.People people) async {
+    bool value = await ChatConnection.leaveRoom(widget.roomData.sId!,people.sId);
+    if(value) {
+      widget.roomData.people?.remove(people);
+      setState(() {});
+    }
+  }
   Widget _itemBuilder(BuildContext context, int index) {
     final data = widget.roomData.people![index];
     bool isLast = index == (widget.roomData.people?.length ?? 1)-1;
@@ -74,7 +103,42 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
       padding: const EdgeInsets.symmetric(vertical: 5.0),
       child: Column(
         children: [
-          SizedBox(
+          InkWell(
+            onTap: () {
+              if(data.sId != ChatConnection.user!.id) {
+                showModalActionSheet<String>(
+                  context: context,
+                  actions: [
+                    const SheetAction(
+                      icon: Icons.chat,
+                      label: 'Send message',
+                      key: 'Chat',
+                    ),
+                    if(widget.roomData.owner == ChatConnection.user!.id &&
+                        widget.roomData.isGroup!) const SheetAction(
+                      icon: Icons.delete,
+                      label: 'Remove from group',
+                      key: 'Delete',
+                    ),
+                    if(Platform.isAndroid) const SheetAction(
+                        icon: Icons.cancel,
+                        label: 'Cancel',
+                        key: 'Cancel',
+                        isDestructiveAction: true),
+                  ],
+                ).then((value) {
+                  if(value == 'Chat') {
+                    sendMessage(data);
+                  }
+                  else if(value == 'Delete') {
+                    removeMember(data);
+                  }
+                  else {
+
+                  }
+                });
+              }
+            },
             child: SizedBox(
               height: 50.0,
               child: Padding(
