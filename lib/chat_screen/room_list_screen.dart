@@ -81,7 +81,9 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
     else {
       roomListVisible = Room();
       roomListVisible?.limit = roomListData?.limit;
-      roomListVisible?.rooms = <Rooms>[...roomListData!.rooms!.toList()];
+      try{
+        roomListVisible?.rooms = <Rooms>[...roomListData!.rooms!.toList()];
+      }catch(_) {}
     }
   }
 
@@ -191,7 +193,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                   ],
                 ),
                 Expanded(
-                  child: roomListVisible != null ? SmartRefresher(
+                  child: roomListVisible?.rooms != null ? SmartRefresher(
                     enablePullDown: true,
                     enablePullUp: false,
                     controller: _refreshController,
@@ -220,16 +222,48 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                                             showModalActionSheet<String>(
                                               context: context,
                                               actions: [
-                                                if (roomListVisible!.rooms![position].isGroup!) const SheetAction(
+                                                if (roomListVisible!.rooms![position].isGroup!)
+                                                  const SheetAction(
                                                   icon: Icons.remove_circle,
                                                   label: 'Leave',
                                                   key: 'Leave',
                                                 ),
+                                                if(Platform.isAndroid) const SheetAction(
+                                                    icon: Icons.cancel,
+                                                    label: 'Cancel',
+                                                    key: 'Cancel',
+                                                    isDestructiveAction: true)
+                                              ],
+                                            ).then((value) => value == 'Leave'
+                                                ? _leaveRoom(roomListVisible!.rooms![position].sId!)
+                                                : (){});
+                                          },
+                                          autoClose: true,
+                                          backgroundColor: Colors.blue,
+                                          foregroundColor: Colors.white,
+                                          icon: Icons.remove_circle,
+                                          label: 'Leave',
+                                        ),
+                                        if(!roomListVisible!.rooms![position].isGroup! ||
+                                            (roomListVisible!.rooms![position].owner == ChatConnection.user!.id &&
+                                                roomListVisible!.rooms![position].isGroup!))
+                                          SlidableAction(
+                                          onPressed: (cxt) {
+                                            showModalActionSheet<String>(
+                                              context: context,
+                                              actions: [
                                                 if (!roomListVisible!.rooms![position].isGroup!) const SheetAction(
                                                   icon: Icons.remove_circle,
                                                   label: 'Delete',
                                                   key: 'Delete',
                                                 ),
+                                                if (roomListVisible!.rooms![position].isGroup!
+                                                    && roomListVisible!.rooms![position].owner == ChatConnection.user!.id)
+                                                  const SheetAction(
+                                                    icon: Icons.remove_circle,
+                                                    label: 'Delete',
+                                                    key: 'Delete',
+                                                  ),
                                                 if(Platform.isAndroid) const SheetAction(
                                                     icon: Icons.cancel,
                                                     label: 'Cancel',
@@ -238,15 +272,13 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                                               ],
                                             ).then((value) => value == 'Delete'
                                                 ? _removeRoom(roomListVisible!.rooms![position].sId!)
-                                                : value == 'Leave'
-                                                ? _leaveRoom(roomListVisible!.rooms![position].sId!)
                                                 : (){});
                                           },
                                           autoClose: true,
                                           backgroundColor: const Color(0xFFFE4A49),
                                           foregroundColor: Colors.white,
                                           icon: Icons.delete,
-                                          label: !roomListVisible!.rooms![position].isGroup! ? 'Delete' : 'Leave',
+                                          label: 'Delete',
                                         ),
                                       ],
                                     ),

@@ -33,6 +33,7 @@ class Rooms {
   String? title;
   int? iV;
   String? lastAuthor;
+  String? owner;
   LastMessage? lastMessage;
   String? lastUpdate;
   Picture? picture;
@@ -45,7 +46,8 @@ class Rooms {
         iV,
         lastAuthor,
         lastMessage,
-        lastUpdate});
+        lastUpdate,
+        owner});
 
   Rooms.fromJson(Map<String, dynamic> json) {
     if (json['people'] != null) {
@@ -59,6 +61,7 @@ class Rooms {
     title = json['title'];
     iV = json['__v'];
     lastAuthor = json['lastAuthor'];
+    owner = json['owner'];
     try{
       lastMessage = json['lastMessage'] != null
           ? LastMessage.fromJson(json['lastMessage'])
@@ -86,6 +89,7 @@ class Rooms {
     }
     data['lastUpdate'] = lastUpdate;
     data['picture'] = picture;
+    data['owner'] = owner;
     return data;
   }
 

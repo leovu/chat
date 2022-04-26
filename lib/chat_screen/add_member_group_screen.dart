@@ -61,7 +61,9 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
       contactsListVisible = Contacts();
       contactsListVisible?.limit = contactsListData?.limit;
       contactsListVisible?.search = contactsListData?.search;
-      contactsListVisible?.users = <r.People>[...contactsListData!.users!.toList()];
+      try {
+        contactsListVisible?.users = <r.People>[...contactsListData!.users!.toList()];
+      }catch(_) {}
     }
   }
   @override

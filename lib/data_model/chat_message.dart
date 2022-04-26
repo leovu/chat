@@ -24,6 +24,7 @@ class Room {
   String? sId;
   List<People>? people;
   bool? isGroup;
+  String? owner;
   String? lastUpdate;
   String? lastAuthor;
   String? lastMessage;
@@ -40,7 +41,8 @@ class Room {
         lastMessage,
         messages,
         images,
-        pinMessage});
+        pinMessage,
+        owner});
 
   Room.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
@@ -53,6 +55,7 @@ class Room {
     isGroup = json['isGroup'];
     lastUpdate = json['lastUpdate'];
     lastAuthor = json['lastAuthor'];
+    owner = json['owner'];
     try {
       lastMessage = json['lastMessage'];
     }catch(_) {}
@@ -91,6 +94,7 @@ class Room {
     data['lastUpdate'] = lastUpdate;
     data['lastAuthor'] = lastAuthor;
     data['lastMessage'] = lastMessage;
+    data['owner'] = owner;
     if (messages != null) {
       data['messages'] = messages!.map((v) => v.toJson()).toList();
     }

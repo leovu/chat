@@ -78,7 +78,9 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen> with AutomaticKee
     else {
       roomListVisible = Room();
       roomListVisible?.limit = roomListData?.limit;
-      roomListVisible?.rooms = <Rooms>[...roomListData!.rooms!.toList()];
+      try{
+        roomListVisible?.rooms = <Rooms>[...roomListData!.rooms!.toList()];
+      }catch(_) {}
     }
   }
 
@@ -173,7 +175,7 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen> with AutomaticKee
               ],
             ),
             Expanded(
-              child: roomListVisible != null ? SmartRefresher(
+              child: roomListVisible?.rooms != null ? SmartRefresher(
                 enablePullDown: true,
                 enablePullUp: false,
                 controller: _refreshController,

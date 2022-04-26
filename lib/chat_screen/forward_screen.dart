@@ -74,7 +74,9 @@ class ForwardScreenState extends State<ForwardScreen> {
     else {
       roomListVisible = Room();
       roomListVisible?.limit = roomListData?.limit;
-      roomListVisible?.rooms = <Rooms>[...roomListData!.rooms!.toList()];
+      try{
+        roomListVisible?.rooms = <Rooms>[...roomListData!.rooms!.toList()];
+      }catch(_) {}
     }
   }
 

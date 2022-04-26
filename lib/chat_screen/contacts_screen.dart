@@ -80,7 +80,9 @@ class _ContactsScreenState extends State<ContactsScreen> with AutomaticKeepAlive
       contactsListVisible = Contacts();
       contactsListVisible?.limit = contactsListData?.limit;
       contactsListVisible?.search = contactsListData?.search;
-      contactsListVisible?.users = <r.People>[...contactsListData!.users!.toList()];
+      try{
+        contactsListVisible?.users = <r.People>[...contactsListData!.users!.toList()];
+      }catch(_) {}
     }
   }
   @override
@@ -174,7 +176,7 @@ class _ContactsScreenState extends State<ContactsScreen> with AutomaticKeepAlive
               ],
             ),
             Expanded(
-              child: contactsListVisible != null ? SmartRefresher(
+              child: contactsListVisible?.users != null ? SmartRefresher(
                 enablePullDown: true,
                 enablePullUp: false,
                 controller: _refreshController,
