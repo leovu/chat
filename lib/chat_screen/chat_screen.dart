@@ -72,7 +72,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
           createdAt: ms.createdAt,
           id: ms.id,
           text: (message as types.TextMessage).text,
-          repliedMessage: isEdit.repliedMessage
+          repliedMessage: isEdit.repliedMessage ?? ms.repliedMessage
       );
       int index = _messages.indexOf(ms);
       _messages[index] = textMessage;
@@ -81,7 +81,8 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         int? index = listIdMessages[ms.id]!;
         scroll(index);
       }
-      await ChatConnection.updateChat(message.text,ms.id,data?.room);
+      String? reppliedMessageId = (isEdit.repliedMessage ?? ms.repliedMessage)?.id;
+      await ChatConnection.updateChat(message.text,ms.id,data?.room,reppliedMessageId: reppliedMessageId);
     }
     else {
       if(mounted) {

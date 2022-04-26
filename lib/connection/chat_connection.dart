@@ -138,9 +138,12 @@ class ChatConnection {
     }
     return responseData.isSuccess;
   }
-  static Future<void>updateChat(String data,String? messageId,c.Room? room) async {
-    ResponseData responseData = await connection.post('api/message/update',
-        {'data': data, 'messageId': messageId, 'type': "edit", 'roomId': room!.sId});
+  static Future<void>updateChat(String data,String? messageId,c.Room? room, {String? reppliedMessageId}) async {
+    Map<String,dynamic> json = {'data': data, 'messageId': messageId, 'type': "edit", 'roomId': room!.sId};
+    if(reppliedMessageId != null) {
+      json['replies'] = reppliedMessageId;
+    }
+    ResponseData responseData = await connection.post('api/message/update', json);
     if(responseData.isSuccess) {
       streamSocket.sendMessage(data, room);
     }
