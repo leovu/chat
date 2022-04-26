@@ -309,8 +309,6 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
 
   int searchType = 0;
   _showBottomDialog() {
-    DateTime? startDate;
-    DateTime? endDate;
     showModalBottomSheet(
         context: context,
         isDismissible: true,

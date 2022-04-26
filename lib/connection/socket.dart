@@ -30,6 +30,9 @@ class StreamSocket {
       socket.emit('authenticate',{'token':user.token});
     });
   }
+  bool checkConnected() {
+    return socket.connected;
+  }
   void sendMessage(String? message, c.Room? room){
     socket.emit('message-in',{'status': 200, 'message':message, 'room':room?.toJson()});
   }

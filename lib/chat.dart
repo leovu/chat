@@ -13,20 +13,45 @@ class Chat {
     final String? version = await _channel.invokeMethod('getPlatformVersion');
     return version;
   }
-  static open(BuildContext context, String email, String password, String appIcon, {String? domain}) async {
+  static Future<bool>connectSocket(BuildContext context, String email, String password, String appIcon, {String? domain}) async {
+    ChatConnection.buildContext = context;
+    ChatConnection.appIcon = appIcon;
+    bool result = await ChatConnection.init(email, password);
+    return result;
+  }
+  static disconnectSocket() {
+    ChatConnection.dispose(isDispose: true);
+  }
+  static open(BuildContext context, String email, String password, String appIcon, {String? domain, Map<String, dynamic>? notificationData}) async {
     await initializeDateFormatting();
     if(domain != null) {
       HTTPConnection.domain = domain;
     }
     ChatConnection.buildContext = context;
     ChatConnection.appIcon = appIcon;
-    bool result = await ChatConnection.init(email, password);
+    bool result = false;
+    if(notificationData != null) {
+      ChatConnection.initialData = notificationData;
+    }
+    if(!ChatConnection.checkConnected()) {
+      result = await connectSocket(context,email,password,appIcon,domain:domain);
+    }
     if(result) {
       await Navigator.of(context,rootNavigator: true).push(
           MaterialPageRoute(builder: (context) => AppChat(email: email,password: password)));
     }else {
       loginError(context);
     }
+  }
+  static openNotification(Map<String, dynamic> notificationData) {
+    try{
+      if(ChatConnection.roomId != null) {
+        ChatConnection.homeScreenNotificationHandler(notificationData);
+      }
+      else {
+        ChatConnection.chatScreenNotificationHandler(notificationData);
+      }
+    }catch(_){}
   }
   static void loginError(BuildContext context) {
     showDialog(

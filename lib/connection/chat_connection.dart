@@ -24,6 +24,9 @@ class ChatConnection {
   static User? user;
   static late BuildContext buildContext;
   static bool isLoadMore = false;
+  static Map<String, dynamic>? initialData;
+  static late Function(Map<String, dynamic> message) homeScreenNotificationHandler;
+  static late Function(Map<String, dynamic> message) chatScreenNotificationHandler;
   static Future<bool>init(String email,String password) async {
     HttpOverrides.global = MyHttpOverrides();
     ResponseData responseData = await connection.post('api/login', {'email':email,'password':password});
@@ -36,6 +39,9 @@ class ChatConnection {
       streamSocket.connectAndListen(streamSocket,user!);
     }
     return responseData.isSuccess;
+  }
+  static bool checkConnected() {
+    return streamSocket.checkConnected();
   }
   static Future<bool>register(String username,String email,String firstName,
       String lastName,String password,String repeatPassword) async{

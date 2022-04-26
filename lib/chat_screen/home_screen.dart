@@ -21,7 +21,15 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    ChatConnection.homeScreenNotificationHandler = _notificationHandler;
     ChatConnection.listenChat(_getRooms);
+    WidgetsBinding.instance?.addPostFrameCallback((_) async {
+      if(ChatConnection.initialData != null) {
+        await Future.delayed(const Duration(seconds: 1));
+        _notificationHandler(Map.from(ChatConnection.initialData!));
+        ChatConnection.initialData = null;
+      }
+    });
   }
   @override
   void dispose() {

@@ -50,6 +50,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   @override
   void initState() {
     super.initState();
+    ChatConnection.chatScreenNotificationHandler = _notificationHandler;
     _loadMessages();
     ChatConnection.listenChat(_refreshMessage);
   }
