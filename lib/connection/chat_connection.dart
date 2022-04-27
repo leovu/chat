@@ -230,6 +230,10 @@ class ChatConnection {
     }
     return response.isSuccess;
   }
+  static Future<bool>updateRoomName(String roomId,String data) async {
+    ResponseData responseData = await connection.post('api/group/update', {'data':data,'roomId':roomId,'type':'title'});
+    return responseData.isSuccess;
+  }
   static Future<bool>removeRoom(String roomId) async {
     ResponseData responseData = await connection.post('api/room/remove', {'id':roomId});
     return responseData.isSuccess;

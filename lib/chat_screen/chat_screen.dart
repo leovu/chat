@@ -926,16 +926,16 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Expanded(
-                          child: AutoSizeText(!widget.data.isGroup! ?
-                          '${info.firstName} ${info.lastName}' : widget.data.title ??
-                              'Group with ${info.firstName} ${info.lastName}',
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(color: Colors.black,fontWeight: FontWeight.bold,fontSize: 16),),
-                        ),
+                        AutoSizeText(!widget.data.isGroup! ?
+                        '${info.firstName} ${info.lastName}' : widget.data.title ??
+                            'Group with ${info.firstName} ${info.lastName}',
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          style: const TextStyle(color: Colors.black,fontWeight: FontWeight.bold,fontSize: 16),),
                         if (widget.data.isGroup!) Padding(
                           padding: const EdgeInsets.only(bottom: 3.0),
                           child: AutoSizeText('${widget.data.people!.length} members',
+                            maxLines: 1,
                             style: const TextStyle(color: Colors.black,fontSize: 12),),
                         )
                       ],
