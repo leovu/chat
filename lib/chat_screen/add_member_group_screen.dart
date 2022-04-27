@@ -24,7 +24,9 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance?.addPostFrameCallback((_) async {
-      await _getContacts();
+      if(mounted) {
+        await _getContacts();
+      }
     });
 
   }
@@ -69,169 +71,138 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    return contactsListVisible != null ?
-    GestureDetector(
-      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-      child: Scaffold(
-        body: SafeArea(
-          child: Column(children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Stack(
-                  children: [
-                    Container(
-                      height: 30.0,
-                      margin: const EdgeInsets.symmetric(horizontal: 10.0,vertical: 5.0),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          InkWell(
-                            onTap: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: SizedBox(
-                                width:30.0,
-                                child: Icon(Platform.isIOS ? Icons.arrow_back_ios : Icons.arrow_back, color: Colors.black)),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const Center(
-                      child:
-                      Padding(
-                        padding: EdgeInsets.only(bottom: 3.0,left: 10.0,right: 10.0,top: 2.0),
-                        child: Text('Add Members',style: TextStyle(fontSize: 22.0,color: Colors.black)),
-                      ),
-                    )
-                  ],
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10.0,vertical: 10.0),
-                  child: Container(
-                    width: double.infinity,
-                    height: 40,
-                    decoration: BoxDecoration(
-                        color: const Color(0xFFE7EAEF), borderRadius: BorderRadius.circular(5)),
-                    child: Row(
-                      children: [
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 10),
-                          child: Center(
-                            child: Icon(
-                              Icons.search,
+    return Container(
+      color: Colors.white,
+      child: GestureDetector(
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        child: Scaffold(
+          body: SafeArea(
+            child: Column(children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Stack(
+                    children: [
+                      Container(
+                        height: 30.0,
+                        margin: const EdgeInsets.symmetric(horizontal: 10.0,vertical: 5.0),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            InkWell(
+                              onTap: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: SizedBox(
+                                  width:30.0,
+                                  child: Icon(Platform.isIOS ? Icons.arrow_back_ios : Icons.arrow_back, color: Colors.black)),
                             ),
-                          ),
+                          ],
                         ),
-                        Expanded(child: TextField(
-                          focusNode: _focusSearch,
-                          controller: _controllerSearch,
-                          onChanged: (_) {
-                            setState(() {
-                              _getContactsVisible();
-                            });
-                          },
-                          decoration: const InputDecoration.collapsed(
-                            hintText: 'Search',
-                          ),
-                        )),
-                        Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(5),
-                            child: const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 10),
-                              child: Center(
-                                child: Icon(
-                                  Icons.close,
-                                ),
+                      ),
+                      const Center(
+                        child:
+                        Padding(
+                          padding: EdgeInsets.only(bottom: 3.0,left: 10.0,right: 10.0,top: 2.0),
+                          child: Text('Add Members',style: TextStyle(fontSize: 22.0,color: Colors.black)),
+                        ),
+                      )
+                    ],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10.0,vertical: 10.0),
+                    child: Container(
+                      width: double.infinity,
+                      height: 40,
+                      decoration: BoxDecoration(
+                          color: const Color(0xFFE7EAEF), borderRadius: BorderRadius.circular(5)),
+                      child: Row(
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 10),
+                            child: Center(
+                              child: Icon(
+                                Icons.search,
                               ),
                             ),
-                            onTap: (){
-                              _controllerSearch.text = '';
-                              FocusManager.instance.primaryFocus?.unfocus();
-                              _getContactsVisible();
-                            },
                           ),
-                        )
-                      ],
-                    ),
-                  ),
-                )
-              ],
-            ),
-            Expanded(
-              child: ListView.builder(
-                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                  itemCount: contactsListVisible!.users?.length,
-                  itemBuilder: (BuildContext context, int position) {
-                    return InkWell(
-                        onTap: () async {
-                          setState(() {
-                            if(contactsListVisible!.users![position].isSelected != null) {
-                              contactsListVisible!.users![position].isSelected = !contactsListVisible!.users![position].isSelected!;
-                            }
-                            else {
-                              contactsListVisible!.users![position].isSelected = true;
-                            }
-                          });
-                        },
-                        child: _contacts(contactsListVisible!.users![position], position == contactsListVisible!.users!.length-1));
-                  }),
-            ),
-            isSelectedMember(contactsListVisible?.users) ? SizedBox(
-              height: 49.0,
-              width: MediaQuery.of(context).size.width*0.85,
-              child: MaterialButton(
-                color: const Color(0xFF5686E1),
-                onPressed: () async {
-                  List<String> people = [];
-                  try{
-                    contactsListData?.users?.forEach((element) {
-                      if(element.isSelected != null && element.isSelected == true) {
-                        people.add(element.sId!);
-                      }
-                    });
-                  }catch(_){}
-                  if(people.isEmpty) {
-                    showDialog(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: const Text('Warning'),
-                        content: const Text('Select at least one user'),
-                        actions: [
-                          ElevatedButton(
-                              onPressed: () {
-                                Navigator.pop(context);
+                          Expanded(child: TextField(
+                            focusNode: _focusSearch,
+                            controller: _controllerSearch,
+                            onChanged: (_) {
+                              setState(() {
+                                _getContactsVisible();
+                              });
+                            },
+                            decoration: const InputDecoration.collapsed(
+                              hintText: 'Search',
+                            ),
+                          )),
+                          Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(5),
+                              child: const Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 10),
+                                child: Center(
+                                  child: Icon(
+                                    Icons.close,
+                                  ),
+                                ),
+                              ),
+                              onTap: (){
+                                _controllerSearch.text = '';
+                                FocusManager.instance.primaryFocus?.unfocus();
+                                _getContactsVisible();
                               },
-                              child: const Text('Accept'))
+                            ),
+                          )
                         ],
                       ),
-                    );
-                  }
-                  else {
-                    bool result = await ChatConnection.addMemberGroup(people,widget.roomData.sId!);
-                    if(result) {
-                      try{
-                        contactsListData?.users?.forEach((element) {
-                          if(element.isSelected != null && element.isSelected == true) {
-                            widget.roomData.people?.add(element);
-                          }
-                        });
-                      }catch(_){}
-                      Navigator.of(context).pop();
-                      try{
-                        ChatConnection.refreshRoom.call();
-                        ChatConnection.refreshFavorites.call();
-                      }catch(_){}
-                    }
-                    else {
+                    ),
+                  )
+                ],
+              ),
+              Expanded(
+                child: contactsListVisible != null ? ListView.builder(
+                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                    itemCount: contactsListVisible!.users?.length,
+                    itemBuilder: (BuildContext context, int position) {
+                      return InkWell(
+                          onTap: () async {
+                            setState(() {
+                              if(contactsListVisible!.users![position].isSelected != null) {
+                                contactsListVisible!.users![position].isSelected = !contactsListVisible!.users![position].isSelected!;
+                              }
+                              else {
+                                contactsListVisible!.users![position].isSelected = true;
+                              }
+                            });
+                          },
+                          child: _contacts(contactsListVisible!.users![position], position == contactsListVisible!.users!.length-1));
+                    }) : Container(),
+              ),
+              contactsListVisible != null && isSelectedMember(contactsListVisible?.users) ? SizedBox(
+                height: 49.0,
+                width: MediaQuery.of(context).size.width*0.85,
+                child: MaterialButton(
+                  color: const Color(0xFF5686E1),
+                  onPressed: () async {
+                    List<String> people = [];
+                    try{
+                      contactsListData?.users?.forEach((element) {
+                        if(element.isSelected != null && element.isSelected == true) {
+                          people.add(element.sId!);
+                        }
+                      });
+                    }catch(_){}
+                    if(people.isEmpty) {
                       showDialog(
                         context: context,
                         builder: (context) => AlertDialog(
                           title: const Text('Warning'),
-                          content: const Text('Add members failed'),
+                          content: const Text('Select at least one user'),
                           actions: [
                             ElevatedButton(
                                 onPressed: () {
@@ -242,18 +213,51 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                         ),
                       );
                     }
-                  }
-                },
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
+                    else {
+                      bool result = await ChatConnection.addMemberGroup(people,widget.roomData.sId!);
+                      if(result) {
+                        try{
+                          contactsListData?.users?.forEach((element) {
+                            if(element.isSelected != null && element.isSelected == true) {
+                              widget.roomData.people?.add(element);
+                            }
+                          });
+                        }catch(_){}
+                        Navigator.of(context).pop();
+                        try{
+                          ChatConnection.refreshRoom.call();
+                          ChatConnection.refreshFavorites.call();
+                        }catch(_){}
+                      }
+                      else {
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('Warning'),
+                            content: const Text('Add members failed'),
+                            actions: [
+                              ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: const Text('Accept'))
+                            ],
+                          ),
+                        );
+                      }
+                    }
+                  },
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  child: const Text('Add members',style: TextStyle(color: Colors.white, fontSize: 16,fontWeight: FontWeight.w600),),
                 ),
-                child: const Text('Add members',style: TextStyle(color: Colors.white, fontSize: 16,fontWeight: FontWeight.w600),),
-              ),
-            ) : Container()
-          ],),
+              ) : Container()
+            ],),
+          ),
         ),
       ),
-    ) : Container();
+    );
   }
   bool isSelectedMember(List<People>? data) {
     try {

@@ -272,6 +272,7 @@ class ChatConnection {
       streamSocket.socket!.disconnect();
     }
     else {
+      streamSocket.socket!.disconnect();
       streamSocket.dispose();
     }
   }

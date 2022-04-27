@@ -63,7 +63,8 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    return contactsListVisible != null ?
+    return Container(color: Colors.white,
+    child:
     GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
@@ -184,7 +185,7 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
               ],
             ),
             Expanded(
-              child: ListView.builder(
+              child: contactsListVisible != null ? ListView.builder(
                   keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                   itemCount: contactsListVisible!.users?.length,
                   itemBuilder: (BuildContext context, int position) {
@@ -200,9 +201,9 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
                           });
                         },
                         child: _contacts(contactsListVisible!.users![position], position == contactsListVisible!.users!.length-1));
-                  }),
+                  }) : Container(),
             ),
-            isSelectedMember(contactsListVisible?.users) ? SizedBox(
+            contactsListVisible != null && isSelectedMember(contactsListVisible?.users) ? SizedBox(
               height: 49.0,
               width: MediaQuery.of(context).size.width*0.85,
               child: MaterialButton(
@@ -269,7 +270,7 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
           ],),
         ),
       ),
-    ) : Container();
+    ));
   }
   bool isSelectedMember(List<People>? data) {
     try {

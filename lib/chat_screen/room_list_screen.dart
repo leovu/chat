@@ -217,7 +217,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                                     endActionPane: ActionPane(
                                       motion: const StretchMotion(),
                                       children: [
-                                        SlidableAction(
+                                        if(roomListVisible!.rooms![position].isGroup!) SlidableAction(
                                           onPressed: (cxt) {
                                             showModalActionSheet<String>(
                                               context: context,
@@ -244,9 +244,8 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                                           icon: Icons.remove_circle,
                                           label: 'Leave',
                                         ),
-                                        if(!roomListVisible!.rooms![position].isGroup! ||
-                                            (roomListVisible!.rooms![position].owner == ChatConnection.user!.id &&
-                                                roomListVisible!.rooms![position].isGroup!))
+                                        if(roomListVisible!.rooms![position].owner == ChatConnection.user!.id &&
+                                                roomListVisible!.rooms![position].isGroup! || !roomListVisible!.rooms![position].isGroup!)
                                           SlidableAction(
                                           onPressed: (cxt) {
                                             showModalActionSheet<String>(
@@ -271,7 +270,9 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                                                     isDestructiveAction: true)
                                               ],
                                             ).then((value) => value == 'Delete'
+                                                ? roomListVisible!.rooms![position].isGroup!
                                                 ? _removeRoom(roomListVisible!.rooms![position].sId!)
+                                                : _leaveRoom(roomListVisible!.rooms![position].sId!)
                                                 : (){});
                                           },
                                           autoClose: true,
