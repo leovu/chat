@@ -399,9 +399,9 @@
     },
     {
       "name": "permission",
-      "rootUri": "file:///Users/longvu/Downloads/flutter/.pub-cache/git/permission-9722d0f5a1b0086f3f56a1002fce914ae02118a7/",
+      "rootUri": "file:///Users/longvu/Downloads/flutter/.pub-cache/git/permission-ea2e40a68c175d392544485b9f3a05dfbcafa189/",
       "packageUri": "lib/",
-      "languageVersion": "2.7"
+      "languageVersion": "2.16"
     },
     {
       "name": "photo_view",
@@ -662,7 +662,7 @@
       "languageVersion": "2.16"
     }
   ],
-  "generated": "2022-04-28T04:43:37.867368Z",
+  "generated": "2022-04-28T06:01:12.313853Z",
   "generator": "pub",
   "generatorVersion": "2.16.1"
 }

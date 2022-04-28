@@ -40,7 +40,7 @@ dependencies:
   permission:
     git:
       url: https://github.com/leovu/permission.git
-      ref: 0.0.4
+      ref: 0.0.7
 
 dependency_overrides:
   photo_view:
