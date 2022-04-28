@@ -15,12 +15,14 @@ import 'package:flutter_chat_types/flutter_chat_types.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mime/mime.dart';
 import 'package:open_file/open_file.dart';
+import 'package:permission/permission.dart';
 import 'package:uuid/uuid.dart';
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:chat/connection/app_lifecycle.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+
 
 class ChatScreen extends StatefulWidget {
   final Function? callback;
@@ -126,6 +128,30 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         : {});
   }
   void _handleFileSelection() async {
+    bool permission = await PermissionRequest.request(PermissionRequestType.STORAGE, onDontAskAgain: (){
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Request permissions'),
+          content: const Text('Select Settings, go to App info, tap Permissions, turn on permission and re-enter this screen to use permission'),
+          actions: [
+            ElevatedButton(
+                onPressed: () {
+                  PermissionRequest.openSetting();
+                },
+                child: const Text('Open setting')),
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('Cancel')),
+          ],
+        ),
+      );
+    });
+    if(!permission) {
+      return;
+    }
     try {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.any,
@@ -185,6 +211,30 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     }
   }
   void _handleImageSelection() async {
+    bool permission = await PermissionRequest.request(PermissionRequestType.STORAGE, onDontAskAgain: (){
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Request permissions'),
+          content: const Text('Select Settings, go to App info, tap Permissions, turn on permission and re-enter this screen to use permission'),
+          actions: [
+            ElevatedButton(
+                onPressed: () {
+                  PermissionRequest.openSetting();
+                },
+                child: const Text('Open setting')),
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('Cancel')),
+          ],
+        ),
+      );
+    });
+    if(!permission) {
+      return;
+    }
     final result = await ImagePicker().pickImage(
       imageQuality: 70,
       maxWidth: 1440,
@@ -230,6 +280,30 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   }
 
   void _handleCameraSelection() async {
+    bool permission = await PermissionRequest.request(PermissionRequestType.CAMERA, onDontAskAgain: (){
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Request permissions'),
+          content: const Text('Select Settings, go to App info, tap Permissions, turn on permission and re-enter this screen to use permission'),
+          actions: [
+            ElevatedButton(
+                onPressed: () {
+                  PermissionRequest.openSetting();
+                },
+                child: const Text('Open setting')),
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('Cancel')),
+          ],
+        ),
+      );
+    });
+    if(!permission) {
+      return;
+    }
     final result = await ImagePicker().pickImage(
       imageQuality: 70,
       maxWidth: 1440,
@@ -455,7 +529,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       if(ChatConnection.roomId != null && ChatConnection.roomId != notificationData['room']['_id']) {
         ChatConnection.showNotification(
             notificationData['room']['isGroup'] == true ?
-            '${notificationData['room']['title']}'
+            '${notificationData['message']['author']['firstName']} ${notificationData['message']['author']['lastName']} in ${notificationData['room']['title']}'
             : '${notificationData['message']['author']['firstName']} ${notificationData['message']['author']['lastName']}',
             notificationData['message']['content'],
             notificationData, ChatConnection.appIcon, _notificationHandler);

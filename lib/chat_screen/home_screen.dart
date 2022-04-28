@@ -91,7 +91,7 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
     if(ChatConnection.roomId == null) {
       ChatConnection.showNotification(
           notificationData['room']['isGroup'] == true ?
-          '${notificationData['room']['title']}'
+          '${notificationData['message']['author']['firstName']} ${notificationData['message']['author']['lastName']} in ${notificationData['room']['title']}'
           : '${notificationData['message']['author']['firstName']} ${notificationData['message']['author']['lastName']}',
           notificationData['message']['content'],
           notificationData, ChatConnection.appIcon, _notificationHandler);

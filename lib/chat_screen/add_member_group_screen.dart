@@ -183,58 +183,28 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                           child: _contacts(contactsListVisible!.users![position], position == contactsListVisible!.users!.length-1));
                     }) : Container(),
               ),
-              contactsListVisible != null && isSelectedMember(contactsListVisible?.users) ? SizedBox(
-                height: 49.0,
-                width: MediaQuery.of(context).size.width*0.85,
-                child: MaterialButton(
-                  color: const Color(0xFF5686E1),
-                  onPressed: () async {
-                    List<String> people = [];
-                    try{
-                      contactsListData?.users?.forEach((element) {
-                        if(element.isSelected != null && element.isSelected == true) {
-                          people.add(element.sId!);
-                        }
-                      });
-                    }catch(_){}
-                    if(people.isEmpty) {
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text('Warning'),
-                          content: const Text('Select at least one user'),
-                          actions: [
-                            ElevatedButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                                child: const Text('Accept'))
-                          ],
-                        ),
-                      );
-                    }
-                    else {
-                      bool result = await ChatConnection.addMemberGroup(people,widget.roomData.sId!);
-                      if(result) {
-                        try{
-                          contactsListData?.users?.forEach((element) {
-                            if(element.isSelected != null && element.isSelected == true) {
-                              widget.roomData.people?.add(element);
-                            }
-                          });
-                        }catch(_){}
-                        Navigator.of(context).pop();
-                        try{
-                          ChatConnection.refreshRoom.call();
-                          ChatConnection.refreshFavorites.call();
-                        }catch(_){}
-                      }
-                      else {
+              contactsListVisible != null && isSelectedMember(contactsListVisible?.users) ? Padding(
+                padding: const EdgeInsets.only(bottom: 15.0),
+                child: SizedBox(
+                  height: 49.0,
+                  width: MediaQuery.of(context).size.width*0.85,
+                  child: MaterialButton(
+                    color: const Color(0xFF5686E1),
+                    onPressed: () async {
+                      List<String> people = [];
+                      try{
+                        contactsListData?.users?.forEach((element) {
+                          if(element.isSelected != null && element.isSelected == true) {
+                            people.add(element.sId!);
+                          }
+                        });
+                      }catch(_){}
+                      if(people.isEmpty) {
                         showDialog(
                           context: context,
                           builder: (context) => AlertDialog(
                             title: const Text('Warning'),
-                            content: const Text('Add members failed'),
+                            content: const Text('Select at least one user'),
                             actions: [
                               ElevatedButton(
                                   onPressed: () {
@@ -245,12 +215,45 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                           ),
                         );
                       }
-                    }
-                  },
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
+                      else {
+                        bool result = await ChatConnection.addMemberGroup(people,widget.roomData.sId!);
+                        if(result) {
+                          try{
+                            contactsListData?.users?.forEach((element) {
+                              if(element.isSelected != null && element.isSelected == true) {
+                                widget.roomData.people?.add(element);
+                              }
+                            });
+                          }catch(_){}
+                          Navigator.of(context).pop();
+                          try{
+                            ChatConnection.refreshRoom.call();
+                            ChatConnection.refreshFavorites.call();
+                          }catch(_){}
+                        }
+                        else {
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text('Warning'),
+                              content: const Text('Add members failed'),
+                              actions: [
+                                ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text('Accept'))
+                              ],
+                            ),
+                          );
+                        }
+                      }
+                    },
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    child: const Text('Add members',style: TextStyle(color: Colors.white, fontSize: 16,fontWeight: FontWeight.w600),),
                   ),
-                  child: const Text('Add members',style: TextStyle(color: Colors.white, fontSize: 16,fontWeight: FontWeight.w600),),
                 ),
               ) : Container()
             ],),

@@ -203,68 +203,71 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
                         child: _contacts(contactsListVisible!.users![position], position == contactsListVisible!.users!.length-1));
                   }) : Container(),
             ),
-            contactsListVisible != null && isSelectedMember(contactsListVisible?.users) ? SizedBox(
-              height: 49.0,
-              width: MediaQuery.of(context).size.width*0.85,
-              child: MaterialButton(
-                color: const Color(0xFF5686E1),
-                onPressed: () async {
-                  List<String> people = [];
-                  try{
-                    contactsListData?.users?.forEach((element) {
-                      if(element.isSelected != null && element.isSelected == true) {
-                        people.add(element.sId!);
-                      }
-                    });
-                  }catch(_){}
-                  if(people.isEmpty) {
-                    showDialog(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: const Text('Warning'),
-                        content: const Text('Select at least one user'),
-                        actions: [
-                          ElevatedButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              child: const Text('Accept'))
-                        ],
-                      ),
-                    );
-                  }
-                  else if(_controllerGroupName.value.text == '') {
-                    showDialog(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: const Text('Warning'),
-                        content: const Text('Must have group name'),
-                        actions: [
-                          ElevatedButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              child: const Text('Accept'))
-                        ],
-                      ),
-                    );
-                  }
-                  else {
-                    people.add(ChatConnection.user!.id);
-                    r.Rooms? rooms = await ChatConnection.createGroup(_controllerGroupName.text,people);
-                    await Navigator.of(context,rootNavigator: true).pushReplacement(
-                      MaterialPageRoute(builder: (context) => ChatScreen(data: rooms!),settings:const RouteSettings(name: 'chat_screen')),
-                    );
+            contactsListVisible != null && isSelectedMember(contactsListVisible?.users) ? Padding(
+              padding: const EdgeInsets.only(bottom: 15.0),
+              child: SizedBox(
+                height: 49.0,
+                width: MediaQuery.of(context).size.width*0.85,
+                child: MaterialButton(
+                  color: const Color(0xFF5686E1),
+                  onPressed: () async {
+                    List<String> people = [];
                     try{
-                      ChatConnection.refreshRoom.call();
-                      ChatConnection.refreshFavorites.call();
+                      contactsListData?.users?.forEach((element) {
+                        if(element.isSelected != null && element.isSelected == true) {
+                          people.add(element.sId!);
+                        }
+                      });
                     }catch(_){}
-                  }
-                },
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
+                    if(people.isEmpty) {
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Warning'),
+                          content: const Text('Select at least one user'),
+                          actions: [
+                            ElevatedButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: const Text('Accept'))
+                          ],
+                        ),
+                      );
+                    }
+                    else if(_controllerGroupName.value.text == '') {
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Warning'),
+                          content: const Text('Must have group name'),
+                          actions: [
+                            ElevatedButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: const Text('Accept'))
+                          ],
+                        ),
+                      );
+                    }
+                    else {
+                      people.add(ChatConnection.user!.id);
+                      r.Rooms? rooms = await ChatConnection.createGroup(_controllerGroupName.text,people);
+                      await Navigator.of(context,rootNavigator: true).pushReplacement(
+                        MaterialPageRoute(builder: (context) => ChatScreen(data: rooms!),settings:const RouteSettings(name: 'chat_screen')),
+                      );
+                      try{
+                        ChatConnection.refreshRoom.call();
+                        ChatConnection.refreshFavorites.call();
+                      }catch(_){}
+                    }
+                  },
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  child: const Text('Create Group',style: TextStyle(color: Colors.white, fontSize: 16,fontWeight: FontWeight.w600),),
                 ),
-                child: const Text('Create Group',style: TextStyle(color: Colors.white, fontSize: 16,fontWeight: FontWeight.w600),),
               ),
             ) : Container()
           ],),
