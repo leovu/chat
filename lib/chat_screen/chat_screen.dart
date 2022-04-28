@@ -128,7 +128,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         : {});
   }
   void _handleFileSelection() async {
-    bool permission = await PermissionRequest.request(PermissionRequestType.STORAGE, onDontAskAgain: (){
+    bool permission = await PermissionRequest.request(PermissionRequestType.STORAGE, (){
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -211,7 +211,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     }
   }
   void _handleImageSelection() async {
-    bool permission = await PermissionRequest.request(PermissionRequestType.STORAGE, onDontAskAgain: (){
+    bool permission = await PermissionRequest.request(PermissionRequestType.STORAGE, (){
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -280,7 +280,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   }
 
   void _handleCameraSelection() async {
-    bool permission = await PermissionRequest.request(PermissionRequestType.CAMERA, onDontAskAgain: (){
+    bool permission = await PermissionRequest.request(PermissionRequestType.CAMERA, (){
       showDialog(
         context: context,
         builder: (context) => AlertDialog(

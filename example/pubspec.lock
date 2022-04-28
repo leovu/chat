@@ -476,7 +476,7 @@ packages:
     description:
       path: "."
       ref: "0.0.4"
-      resolved-ref: fe5de3c555bffc5aed641295fe3e314409a70522
+      resolved-ref: "9722d0f5a1b0086f3f56a1002fce914ae02118a7"
       url: "https://github.com/leovu/permission.git"
     source: git
     version: "0.0.1"
