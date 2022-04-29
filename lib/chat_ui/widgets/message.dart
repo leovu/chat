@@ -152,7 +152,6 @@ class Message extends StatelessWidget {
     );
     final hasImage = message.author.imageUrl != null;
     final initials = getUserInitials(message.author);
-
     return showAvatar
         ? Container(
             margin: const EdgeInsets.only(right: 8),
@@ -417,7 +416,7 @@ class Message extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.end,
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (!_currentUserIsAuthor && showUserAvatars) _avatarBuilder(context),
+            if (!_currentUserIsAuthor && showUserAvatars)  Padding(padding: const EdgeInsets.only(top: 5.0),child: _avatarBuilder(context),),
             if(message.remoteId != null && message.remoteId == '1' && _currentUserIsAuthor)
               const SizedBox(
                 height: 30.0,

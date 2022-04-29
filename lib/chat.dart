@@ -29,13 +29,10 @@ class Chat {
     }
     ChatConnection.buildContext = context;
     ChatConnection.appIcon = appIcon;
-    bool result = false;
     if(notificationData != null) {
       ChatConnection.initialData = notificationData;
     }
-    if(!ChatConnection.checkConnected()) {
-      result = await connectSocket(context,email,password,appIcon,domain:domain);
-    }
+    bool result = await connectSocket(context,email,password,appIcon,domain:domain);
     if(result) {
       await Navigator.of(context,rootNavigator: true).push(
           MaterialPageRoute(builder: (context) => AppChat(email: email,password: password)));

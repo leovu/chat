@@ -242,8 +242,8 @@ class ChatConnection {
     ResponseData responseData = await connection.post('api/group/update', {'data': userId, 'type': 'remove-people', 'roomId' : roomId});
     return responseData.isSuccess;
   }
-  static Future<r.Rooms?>createGroup(String title ,List<String> people) async {
-    ResponseData responseData = await connection.post('api/group/create', {'title':title, 'people': people});
+  static Future<r.Rooms?>createGroup(String title ,List<String> people, String owner) async {
+    ResponseData responseData = await connection.post('api/group/create', {'title':title, 'people': people, 'owner':owner});
     if(responseData.isSuccess) {
       return r.Rooms.fromJson(responseData.data);
     }
