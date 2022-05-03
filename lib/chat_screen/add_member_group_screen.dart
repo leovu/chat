@@ -4,6 +4,7 @@ import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/data_model/contact.dart';
 import 'package:chat/data_model/room.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/data_model/room.dart' as r;
 import 'package:auto_size_text/auto_size_text.dart';
@@ -20,12 +21,14 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
   final _controllerSearch = TextEditingController();
   Contacts? contactsListVisible;
   Contacts? contactsListData;
+  bool isInitScreen = true;
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance?.addPostFrameCallback((_) async {
       if(mounted) {
         await _getContacts();
+        isInitScreen = false;
       }
     });
 
@@ -165,7 +168,9 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                 ],
               ),
               Expanded(
-                child: contactsListVisible != null ? ListView.builder(
+                child:
+                isInitScreen ? Center(child: Platform.isAndroid ? const CircularProgressIndicator() : const CupertinoActivityIndicator()) :
+                contactsListVisible != null ? ListView.builder(
                     keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                     itemCount: contactsListVisible!.users?.length,
                     itemBuilder: (BuildContext context, int position) {

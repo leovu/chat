@@ -7,6 +7,7 @@ import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/data_model/contact.dart';
 import 'package:chat/data_model/room.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/data_model/room.dart' as r;
 import 'chat_screen.dart';
@@ -25,13 +26,12 @@ class _ContactsScreenState extends State<ContactsScreen> with AutomaticKeepAlive
 
   Contacts? contactsListVisible;
   Contacts? contactsListData;
+  bool isInitScreen = true;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance?.addPostFrameCallback((_) async {
-      await _getContacts();
-    });
+    _getContacts();
   }
   final RefreshController _refreshController = RefreshController(initialRefresh: false);
 
@@ -50,12 +50,14 @@ class _ContactsScreenState extends State<ContactsScreen> with AutomaticKeepAlive
     if(mounted) {
       contactsListData = await ChatConnection.contactsList();
       _getContactsVisible();
+      isInitScreen = false;
       setState(() {});
     }
     else {
       WidgetsBinding.instance?.addPostFrameCallback((_) async {
         contactsListData = await ChatConnection.contactsList();
         _getContactsVisible();
+        isInitScreen = false;
         setState(() {});
       });
     }
@@ -176,7 +178,9 @@ class _ContactsScreenState extends State<ContactsScreen> with AutomaticKeepAlive
               ],
             ),
             Expanded(
-              child: contactsListVisible?.users != null ? SmartRefresher(
+              child:
+              isInitScreen ? Center(child: Platform.isAndroid ? const CircularProgressIndicator() : const CupertinoActivityIndicator()) :
+              contactsListVisible?.users != null ? SmartRefresher(
                 enablePullDown: true,
                 enablePullUp: false,
                 controller: _refreshController,

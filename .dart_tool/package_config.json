@@ -98,6 +98,12 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "dio",
+      "rootUri": "file:///Users/longvu/Downloads/flutter/.pub-cache/hosted/pub.dartlang.org/dio-4.0.6",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "email_validator",
       "rootUri": "file:///Users/longvu/Downloads/flutter/.pub-cache/hosted/pub.dartlang.org/email_validator-2.0.1",
       "packageUri": "lib/",
@@ -168,6 +174,18 @@
       "rootUri": "file:///Users/longvu/Downloads/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_chat_types-3.3.4",
       "packageUri": "lib/",
       "languageVersion": "2.16"
+    },
+    {
+      "name": "flutter_file_dialog",
+      "rootUri": "file:///Users/longvu/Downloads/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_file_dialog-2.3.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "flutter_file_view",
+      "rootUri": "file:///Users/longvu/Downloads/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_file_view-2.0.5",
+      "packageUri": "lib/",
+      "languageVersion": "2.14"
     },
     {
       "name": "flutter_link_previewer",
@@ -662,7 +680,7 @@
       "languageVersion": "2.16"
     }
   ],
-  "generated": "2022-04-28T06:01:12.313853Z",
+  "generated": "2022-05-03T12:30:37.056637Z",
   "generator": "pub",
   "generatorVersion": "2.16.1"
 }

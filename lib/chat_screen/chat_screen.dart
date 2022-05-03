@@ -3,7 +3,10 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/chat_screen/conversation_information_screen.dart';
 import 'package:chat/chat_screen/forward_screen.dart';
+import 'package:chat/chat_screen/local_file_view_page.dart';
+import 'package:chat/chat_ui/conditional/conditional.dart';
 import 'package:chat/connection/chat_connection.dart';
+import 'package:chat/connection/download.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/data_model/chat_message.dart' as c;
 import 'package:chat/data_model/room.dart' as r;
@@ -22,7 +25,7 @@ import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:chat/connection/app_lifecycle.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-
+import 'package:photo_view/photo_view_gallery.dart';
 
 class ChatScreen extends StatefulWidget {
   final Function? callback;
@@ -49,6 +52,9 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   bool newMessage = false;
   double progress = 0;
   late void Function() focusTextField;
+  bool isInitScreen = true;
+  bool _isImageViewVisible = false;
+  String? imageViewed;
   @override
   void initState() {
     super.initState();
@@ -350,7 +356,26 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
 
   void _handleMessageTap(BuildContext context, types.Message message) async {
     if (message is types.FileMessage) {
-      await OpenFile.open(message.uri);
+      String? result = await download(context,message.uri,'${message.createdAt}_${message.name}');
+      if(result != null) {
+        List<String> documentFilesType = ['docx', 'doc', 'xlsx', 'xls', 'pptx', 'ppt', 'pdf', 'txt'];
+        List<String> imageFilesType = ['png', 'jpg', 'jpeg', 'tiff','webp'];
+        final mimeType = message.name.split('.').last;
+        if(documentFilesType.contains(mimeType)) {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) {
+            return LocalFileViewerPage(filePath: result,title: message.name,);
+          }));
+        }
+        else if(imageFilesType.contains(mimeType)) {
+          setState(() {
+            _isImageViewVisible = true;
+            imageViewed = result;
+          });
+        }
+        else {
+          await OpenFile.open(result);
+        }
+      }
     }
   }
 
@@ -482,6 +507,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     WidgetsBinding.instance?.addPostFrameCallback((_) async {
       ChatConnection.roomId = widget.data.sId!;
       data = await ChatConnection.joinRoom(widget.data.sId!);
+      isInitScreen = false;
       if(data != null) {
         List<c.Messages>? messages = data?.room?.messages;
         if(messages != null) {
@@ -506,6 +532,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         widget.callback!();
       }
       data = await ChatConnection.joinRoom(widget.data.sId!,refresh: true);
+      isInitScreen = false;
       if(data != null) {
         List<c.Messages>? messages = data?.room?.messages;
         if(messages != null) {
@@ -596,7 +623,10 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         floatingActionButtonLocation:
         FloatingActionButtonLocation.centerFloat,
         appBar: !_isSearchMessage ? _defaultAppbar() : _searchAppBar(),
-        body: SafeArea(
+        body:
+        _isImageViewVisible
+            ? _imageGalleryBuilder()
+            : SafeArea(
           bottom: false,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -667,7 +697,9 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                   )
                 ),
               if(data?.room?.pinMessage != null) Container(height: 2.0,color: Colors.grey.shade300,),
-              Expanded(child: Chat(
+              Expanded(child:
+              isInitScreen ? Center(child: Platform.isAndroid ? const CircularProgressIndicator() : const CupertinoActivityIndicator()) :
+              Chat(
                 messages: _messages,
                 progressUpdate: (value) {
                   progress = value;
@@ -1061,5 +1093,67 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       }catch(_){}
     }catch(_){
     }
+  }
+  Widget _imageGalleryBuilder() {
+    return imageViewed != null
+        ? Dismissible(
+      key: const Key('photo_view_gallery'),
+      direction: DismissDirection.down,
+      onDismissed: (direction) => _onCloseGalleryPressed(),
+      child: Stack(
+        children: [
+          PhotoViewGallery.builder(
+            builder: (BuildContext context, int index) =>
+                PhotoViewGalleryPageOptions(
+                  imageProvider: Conditional().getProvider(imageViewed!),
+                ),
+            itemCount: 1,
+            loadingBuilder: (context, event) =>
+                _imageGalleryLoadingBuilder(context, event),
+            onPageChanged: _onPageChanged,
+            pageController: PageController(initialPage: 0),
+            scrollPhysics: const ClampingScrollPhysics(),
+          ),
+          Positioned(
+            right: 16,
+            top: 56,
+            child: CloseButton(
+              color: Colors.white,
+              onPressed: _onCloseGalleryPressed,
+            ),
+          ),
+        ],
+      ),
+    )
+        : Container();
+  }
+
+  void _onCloseGalleryPressed() {
+    try{
+      setState(() {
+        _isImageViewVisible = false;
+      });
+    }catch(_) {}
+  }
+
+  void _onPageChanged(int index) {
+    setState(() {});
+  }
+
+  Widget _imageGalleryLoadingBuilder(
+      BuildContext context,
+      ImageChunkEvent? event,
+      ) {
+    return Center(
+      child: SizedBox(
+        width: 20,
+        height: 20,
+        child: CircularProgressIndicator(
+          value: event == null || event.expectedTotalBytes == null
+              ? 0
+              : event.cumulativeBytesLoaded / event.expectedTotalBytes!,
+        ),
+      ),
+    );
   }
 }

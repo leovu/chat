@@ -37,6 +37,9 @@ dependencies:
   emoji_picker_flutter: ^1.1.2
   scrollable_positioned_list: ^0.2.3
   swipeable_tile: ^1.0.0+6
+  flutter_file_dialog: ^2.3.0
+  dio: ^4.0.6
+  flutter_file_view: ^2.0.5
   permission:
     git:
       url: https://github.com/leovu/permission.git

@@ -316,7 +316,8 @@ class Message extends StatelessWidget {
                 emojiEnlargementBehavior, message as types.TextMessage);
     final _messageBorderRadius =
         InheritedChatTheme.of(context).theme.messageBorderRadius;
-    final _borderRadius = BorderRadiusDirectional.only(
+    BorderRadiusDirectional _borderRadius = _currentUserIsAuthor
+        ? BorderRadiusDirectional.only(
       bottomEnd: Radius.circular(
         _currentUserIsAuthor
             ? roundBorder
@@ -329,6 +330,13 @@ class Message extends StatelessWidget {
       ),
       topEnd: Radius.circular(_messageBorderRadius),
       topStart: Radius.circular(_messageBorderRadius),
+    ) : BorderRadiusDirectional.only(
+      bottomEnd: Radius.circular(_messageBorderRadius),
+      bottomStart: Radius.circular(_messageBorderRadius),
+      topEnd: Radius.circular(_messageBorderRadius),
+      topStart: Radius.circular(!showAvatar
+          ? _messageBorderRadius
+          : 0),
     );
     return SwipeableTile.swipeToTigger(
       behavior: HitTestBehavior.translucent,
@@ -413,7 +421,7 @@ class Message extends StatelessWidget {
           start: 20 + (kIsWeb ? 0 : _query.padding.left),
         ),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
             if (!_currentUserIsAuthor && showUserAvatars)  Padding(padding: const EdgeInsets.only(top: 5.0),child: _avatarBuilder(context),),

@@ -65,5 +65,6 @@
     <string>$(PRODUCT_NAME) cần bạn chấp nhận cho truy cập thư viện ảnh để thêm ảnh profile hoặc cho upload ảnh.</string>
     <key>NSAppleMusicUsageDescription</key>
     <string>$(PRODUCT_NAME) cần bạn chấp nhận cho truy cập thư viện audio để thêm audio.</string>
+    <key>io.flutter.embedded_views_preview</key><true/>
 </dict>
 </plist>

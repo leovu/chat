@@ -72,3 +72,30 @@ InfoPlist:
     <key>NSAppleMusicUsageDescription</key>
     <string>$(PRODUCT_NAME) cần bạn chấp nhận cho truy cập thư viện audio để thêm audio.</string>
 
+
+### iOS
+
+Make sure you add the following key to `Info.plist` for iOS
+
+```
+<key>io.flutter.embedded_views_preview</key><true/>
+```
+
+### Android
+
+Android P Unable to download kernel Solution
+
+Add a piece of code in label `application` on `AndroidManifst.xml` file
+
+```
+android:networkSecurityConfig="@xml/network_security_config"
+```
+
+Add a file named `network_security_config.xml` in `res/xml` directory, The content of the file is
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>
+```

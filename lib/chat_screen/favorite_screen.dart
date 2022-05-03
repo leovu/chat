@@ -5,6 +5,7 @@ import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/chat_screen/chat_screen.dart';
 import 'package:chat/data_model/room.dart';
 import 'package:chat/connection/http_connection.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:auto_size_text/auto_size_text.dart';
@@ -25,6 +26,7 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen> with AutomaticKee
 
   Room? roomListVisible;
   Room? roomListData;
+  bool isInitScreen = true;
 
   @override
   void initState() {
@@ -48,12 +50,14 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen> with AutomaticKee
     if(mounted) {
       roomListData = await ChatConnection.favoritesList();
       _getRoomVisible();
+      isInitScreen = false;
       setState(() {});
     }
     else {
       WidgetsBinding.instance?.addPostFrameCallback((_) async {
         roomListData = await ChatConnection.favoritesList();
         _getRoomVisible();
+        isInitScreen = false;
         setState(() {});
       });
     }
@@ -175,7 +179,9 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen> with AutomaticKee
               ],
             ),
             Expanded(
-              child: roomListVisible?.rooms != null ? SmartRefresher(
+              child:
+              isInitScreen ? Center(child: Platform.isAndroid ? const CircularProgressIndicator() : const CupertinoActivityIndicator()) :
+              roomListVisible?.rooms != null ? SmartRefresher(
                 enablePullDown: true,
                 enablePullUp: false,
                 controller: _refreshController,
