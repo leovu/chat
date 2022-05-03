@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/chat_screen/conversation_information_screen.dart';
 import 'package:chat/chat_screen/forward_screen.dart';
 import 'package:chat/chat_screen/local_file_view_page.dart';
+import 'package:chat/chat_screen/media_screen.dart';
 import 'package:chat/chat_ui/conditional/conditional.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/download.dart';
@@ -355,15 +356,30 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   }
 
   void _handleMessageTap(BuildContext context, types.Message message) async {
-    if (message is types.FileMessage) {
+    if (message is types.FileMessage
+        && message.status != Status.sending
+        && message.status != Status.error)
+    {
       String? result = await download(context,message.uri,'${message.createdAt}_${message.name}');
       if(result != null) {
         List<String> documentFilesType = ['docx', 'doc', 'xlsx', 'xls', 'pptx', 'ppt', 'pdf', 'txt'];
         List<String> imageFilesType = ['png', 'jpg', 'jpeg', 'tiff','webp'];
-        final mimeType = message.name.split('.').last;
+        List<String> videoFilesType = ['mp4', 'mov', 'wmv', 'avi'];
+        List<String> audioFilesType = ['wav', 'mp3'];
+        final mimeType = message.name.split('.').last.toLowerCase();
         if(documentFilesType.contains(mimeType)) {
           Navigator.of(context).push(MaterialPageRoute(builder: (ctx) {
             return LocalFileViewerPage(filePath: result,title: message.name,);
+          }));
+        }
+        else if(audioFilesType.contains(mimeType)) {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) {
+            return MediaScreen(filePath: result,title: message.name,type: 'audio',);
+          }));
+        }
+        else if(videoFilesType.contains(mimeType)) {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) {
+            return MediaScreen(filePath: result,title: message.name,type: 'video',);
           }));
         }
         else if(imageFilesType.contains(mimeType)) {

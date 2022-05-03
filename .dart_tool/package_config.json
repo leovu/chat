@@ -20,6 +20,12 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "audioplayers",
+      "rootUri": "file:///Users/longvu/Downloads/flutter/.pub-cache/hosted/pub.dartlang.org/audioplayers-0.20.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "auto_size_text",
       "rootUri": "file:///Users/longvu/Downloads/flutter/.pub-cache/hosted/pub.dartlang.org/auto_size_text-3.0.0",
       "packageUri": "lib/",
@@ -656,6 +662,36 @@
       "languageVersion": "2.14"
     },
     {
+      "name": "video_player",
+      "rootUri": "file:///Users/longvu/Downloads/flutter/.pub-cache/hosted/pub.dartlang.org/video_player-2.4.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.14"
+    },
+    {
+      "name": "video_player_android",
+      "rootUri": "file:///Users/longvu/Downloads/flutter/.pub-cache/hosted/pub.dartlang.org/video_player_android-2.3.2",
+      "packageUri": "lib/",
+      "languageVersion": "2.14"
+    },
+    {
+      "name": "video_player_avfoundation",
+      "rootUri": "file:///Users/longvu/Downloads/flutter/.pub-cache/hosted/pub.dartlang.org/video_player_avfoundation-2.3.3",
+      "packageUri": "lib/",
+      "languageVersion": "2.14"
+    },
+    {
+      "name": "video_player_platform_interface",
+      "rootUri": "file:///Users/longvu/Downloads/flutter/.pub-cache/hosted/pub.dartlang.org/video_player_platform_interface-5.1.2",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "video_player_web",
+      "rootUri": "file:///Users/longvu/Downloads/flutter/.pub-cache/hosted/pub.dartlang.org/video_player_web-2.0.8",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "visibility_detector",
       "rootUri": "file:///Users/longvu/Downloads/flutter/.pub-cache/hosted/pub.dartlang.org/visibility_detector-0.2.2",
       "packageUri": "lib/",
@@ -680,7 +716,7 @@
       "languageVersion": "2.16"
     }
   ],
-  "generated": "2022-05-03T12:30:37.056637Z",
+  "generated": "2022-05-03T16:29:33.474643Z",
   "generator": "pub",
   "generatorVersion": "2.16.1"
 }
