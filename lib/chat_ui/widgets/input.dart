@@ -166,6 +166,7 @@ class _InputState extends State<Input> {
                   child: Column(
                     children: [
                       Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Expanded(
                             child: Container(
@@ -177,6 +178,7 @@ class _InputState extends State<Input> {
                               child: Padding(
                                 padding: const EdgeInsets.all(3.0),
                                 child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
                                     Padding(
                                       padding: const EdgeInsets.only(right: 3.0),
@@ -199,38 +201,41 @@ class _InputState extends State<Input> {
                                       ),
                                     ),
                                     Expanded(
-                                        child: TextField(
-                                          controller: _textController,
-                                          cursorColor: InheritedChatTheme.of(context)
-                                              .theme
-                                              .inputTextCursorColor,
-                                          decoration: InheritedChatTheme.of(context)
-                                              .theme
-                                              .inputTextDecoration
-                                              .copyWith(
-                                            hintStyle: InheritedChatTheme.of(context)
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(bottom: 6.0),
+                                          child: TextField(
+                                            controller: _textController,
+                                            cursorColor: InheritedChatTheme.of(context)
+                                                .theme
+                                                .inputTextCursorColor,
+                                            decoration: InheritedChatTheme.of(context)
+                                                .theme
+                                                .inputTextDecoration
+                                                .copyWith(
+                                              hintStyle: InheritedChatTheme.of(context)
+                                                  .theme
+                                                  .inputTextStyle
+                                                  .copyWith(
+                                                color:
+                                                Colors.black.withOpacity(0.2),
+                                              ),
+                                              hintText: 'Write a message...',
+                                            ),
+                                            focusNode: _inputFocusNode,
+                                            keyboardType: TextInputType.multiline,
+                                            maxLines: 5,
+                                            minLines: 1,
+                                            onChanged: widget.onTextChanged,
+                                            onTap: widget.onTextFieldTap,
+                                            style: InheritedChatTheme.of(context)
                                                 .theme
                                                 .inputTextStyle
                                                 .copyWith(
-                                              color:
-                                              Colors.black.withOpacity(0.2),
+                                              color: Colors.black,
                                             ),
-                                            hintText: 'Write a message...',
+                                            textCapitalization:
+                                            TextCapitalization.sentences,
                                           ),
-                                          focusNode: _inputFocusNode,
-                                          keyboardType: TextInputType.multiline,
-                                          maxLines: 5,
-                                          minLines: 1,
-                                          onChanged: widget.onTextChanged,
-                                          onTap: widget.onTextFieldTap,
-                                          style: InheritedChatTheme.of(context)
-                                              .theme
-                                              .inputTextStyle
-                                              .copyWith(
-                                            color: Colors.black,
-                                          ),
-                                          textCapitalization:
-                                          TextCapitalization.sentences,
                                         ))
                                   ],
                                 ),
