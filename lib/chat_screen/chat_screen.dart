@@ -547,7 +547,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         List<c.Messages>? messages = data?.room?.messages;
         if(messages != null) {
           final values = (messages)
-              .map((e) => types.Message.fromJson(e.toMessageJson()))
+              .map((e) => types.Message.fromJson(e.toMessageJson(messageSeen: data?.room?.messageSeen)))
               .toList();
           if(mounted) {
             setState(() {
@@ -572,7 +572,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         List<c.Messages>? messages = data?.room?.messages;
         if(messages != null) {
           final values = (messages)
-              .map((e) => types.Message.fromJson(e.toMessageJson()))
+              .map((e) => types.Message.fromJson(e.toMessageJson(messageSeen: data?.room?.messageSeen)))
               .toList();
           if(mounted) {
             setState(() {
@@ -779,7 +779,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       if(messages.isNotEmpty) {
         data?.room?.messages?.addAll(messages);
         final values = (messages)
-            .map((e) => types.Message.fromJson(e.toMessageJson()))
+            .map((e) => types.Message.fromJson(e.toMessageJson(messageSeen: data?.room?.messageSeen)))
             .toList();
         if(mounted) {
           setState(() {

@@ -427,6 +427,20 @@ class _ChatState extends State<Chat> {
           widget.showUserAvatars && message.author.id != widget.user.id
               ? min(constraints.maxWidth * 0.72, 440).floor()
               : min(constraints.maxWidth * 0.78, 440).floor();
+      final metadata = message.metadata;
+      List<c.Author?>? seenPeople;
+      if(metadata != null) {
+        List<Map<String,dynamic>>? list = metadata['messageSeen'];
+        if(list != null) {
+          List<c.MessageSeen> messageSeen = list.map((e) => c.MessageSeen.fromJson(e)).toList();
+          seenPeople = [];
+          for (var e in messageSeen) {
+            if(e.message == message.id) {
+              seenPeople.add(e.author);
+            }
+          }
+        }
+      }
       return Message(
         key: ValueKey(message.id),
         bubbleBuilder: widget.bubbleBuilder,
@@ -438,6 +452,7 @@ class _ChatState extends State<Chat> {
         imageMessageBuilder: widget.imageMessageBuilder,
         message: message,
         messageWidth: _messageWidth,
+        seenPeople: seenPeople,
         onAvatarTap: widget.onAvatarTap,
         onMessageDoubleTap: widget.onMessageDoubleTap,
         onMessageLongPress: widget.onMessageLongPress,
@@ -448,7 +463,6 @@ class _ChatState extends State<Chat> {
               widget.disableImageGallery != true) {
             _onImagePressed(tappedMessage);
           }
-
           widget.onMessageTap?.call(context, tappedMessage);
         },
         onMessageVisibilityChanged: widget.onMessageVisibilityChanged,

@@ -29,6 +29,7 @@ class Room {
   String? lastAuthor;
   String? lastMessage;
   List<Messages>? messages;
+  List<MessageSeen>? messageSeen;
   List<Images>? images;
   PinMessage? pinMessage;
 
@@ -42,7 +43,8 @@ class Room {
         messages,
         images,
         pinMessage,
-        owner});
+        owner,
+        messageSeen});
 
   Room.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
@@ -52,6 +54,14 @@ class Room {
         people!.add(People.fromJson(v));
       });
     }
+    try{
+      if (json['messageSeen'] != null) {
+        messageSeen = <MessageSeen>[];
+        json['messageSeen'].forEach((v) {
+          messageSeen!.add(MessageSeen.fromJson(v));
+        });
+      }
+    }catch(_){}
     isGroup = json['isGroup'];
     lastUpdate = json['lastUpdate'];
     lastAuthor = json['lastAuthor'];
@@ -265,8 +275,13 @@ class Messages {
     return data;
   }
 
-  Map<String, dynamic> toMessageJson() {
+  Map<String, dynamic> toMessageJson({List<MessageSeen>? messageSeen}) {
     final Map<String, dynamic> data = <String, dynamic>{};
+    if(messageSeen != null) {
+      data['metadata'] = {
+        'messageSeen': messageSeen.map((e) => e.toJson()).toList()
+      };
+    }
     if(edit != null){
       data['remoteId'] = '$edit';
     }
@@ -343,6 +358,37 @@ class Messages {
   }
 }
 
+class MessageSeen {
+  String? sId;
+  Author? author;
+  String? room;
+  int? iV;
+  String? message;
+
+  MessageSeen({this.sId, this.author, this.room, this.iV, this.message});
+
+  MessageSeen.fromJson(Map<String, dynamic> json) {
+    sId = json['_id'];
+    author =
+    json['author'] != null ? Author.fromJson(json['author']) : null;
+    room = json['room'];
+    iV = json['__v'];
+    message = json['message'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['_id'] = sId;
+    if (author != null) {
+      data['author'] = author!.toJson();
+    }
+    data['room'] = room;
+    data['__v'] = iV;
+    data['message'] = message;
+    return data;
+  }
+}
+
 class Author {
   String? sId;
   String? level;
@@ -395,6 +441,17 @@ class Author {
       data['picture'] = picture!.toJson();
     }
     return data;
+  }
+
+  String getAvatarName() {
+    String avatarName = '';
+    if(firstName != '' && firstName != null) {
+      avatarName += firstName![0];
+    }
+    if(lastName != '' && lastName != null) {
+      avatarName += lastName![0];
+    }
+    return avatarName;
   }
 }
 

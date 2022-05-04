@@ -1,3 +1,6 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:chat/connection/http_connection.dart';
+import 'package:chat/data_model/contact.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
@@ -11,6 +14,7 @@ import 'inherited_chat_theme.dart';
 import 'inherited_user.dart';
 import 'text_message.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:chat/data_model/chat_message.dart' as c;
 
 /// Base widget for all message types in the chat. Renders bubbles around
 /// messages and status. Sets maximum width for a message for
@@ -46,6 +50,7 @@ class Message extends StatelessWidget {
     required this.focusSearch,
     required this.replySwipeDirection,
     required this.onMessageReply,
+    this.seenPeople,
   }) : super(key: key);
 
   /// Customize the default bubble using this function. `child` is a content
@@ -144,6 +149,8 @@ class Message extends StatelessWidget {
 
   /// See [TextMessage.usePreviewData]
   final bool usePreviewData;
+
+  final List<c.Author?>? seenPeople;
 
   Widget _avatarBuilder(BuildContext context) {
     final color = getUserAvatarNameColor(
@@ -338,162 +345,212 @@ class Message extends StatelessWidget {
           ? _messageBorderRadius
           : 0),
     );
-    return SwipeableTile.swipeToTigger(
-      behavior: HitTestBehavior.translucent,
-      isEelevated: false,
-      color: InheritedChatTheme.of(context).theme.backgroundColor,
-      swipeThreshold: 0.3,
-      direction: replySwipeDirection,
-      onSwiped: (_) {
-        onMessageReply(context, message);
-        focusSearch();
-      },
-      backgroundBuilder: (
-          _,
-          SwipeDirection direction,
-          AnimationController progress,
-          ) {
-        bool vibrated = false;
-        return AnimatedBuilder(
-          animation: progress,
-          builder: (_, __) {
-            if (progress.value > 0.9999 && !vibrated) {
-              HapticFeedback.vibrate();
-              vibrated = true;
-            } else if (progress.value < 0.9999) {
-              vibrated = false;
-            }
-            return Container(
-              alignment: replySwipeDirection == SwipeDirection.endToStart
-                  ? Alignment.centerRight
-                  : Alignment.centerLeft,
-              child: Padding(
-                padding: replySwipeDirection == SwipeDirection.endToStart
-                    ? const EdgeInsets.only(right: 32.0)
-                    : const EdgeInsets.only(left: 32.0),
-                child: Transform.scale(
-                  scale: Tween<double>(
-                    begin: 0.0,
-                    end: 1.2,
-                  )
-                      .animate(
-                    CurvedAnimation(
-                      parent: progress,
-                      curve: const Interval(0.3, 1.0, curve: Curves.linear),
-                    ),
-                  )
-                      .value,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: InheritedChatTheme.of(context)
-                          .theme
-                          .receivedMessageDocumentIconColor
-                          .withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    height: 24,
-                    width: 24,
-                    child:
-                    InheritedChatTheme.of(context).theme.replyIcon != null
-                        ? InheritedChatTheme.of(context).theme.replyIcon!
-                        : Image.asset(
-                      'assets/icon-reply.png',
-                      color: InheritedChatTheme.of(context)
-                          .theme
-                          .receivedMessageDocumentIconColor,
-                      package: 'chat',
+    return Column(
+      children: [
+          SwipeableTile.swipeToTigger(
+          behavior: HitTestBehavior.translucent,
+          isEelevated: false,
+          color: InheritedChatTheme.of(context).theme.backgroundColor,
+          swipeThreshold: 0.3,
+          direction: replySwipeDirection,
+          onSwiped: (_) {
+            onMessageReply(context, message);
+            focusSearch();
+          },
+          backgroundBuilder: (
+              _,
+              SwipeDirection direction,
+              AnimationController progress,
+              ) {
+            bool vibrated = false;
+            return AnimatedBuilder(
+              animation: progress,
+              builder: (_, __) {
+                if (progress.value > 0.9999 && !vibrated) {
+                  HapticFeedback.vibrate();
+                  vibrated = true;
+                } else if (progress.value < 0.9999) {
+                  vibrated = false;
+                }
+                return Container(
+                  alignment: replySwipeDirection == SwipeDirection.endToStart
+                      ? Alignment.centerRight
+                      : Alignment.centerLeft,
+                  child: Padding(
+                    padding: replySwipeDirection == SwipeDirection.endToStart
+                        ? const EdgeInsets.only(right: 32.0)
+                        : const EdgeInsets.only(left: 32.0),
+                    child: Transform.scale(
+                      scale: Tween<double>(
+                        begin: 0.0,
+                        end: 1.2,
+                      )
+                          .animate(
+                        CurvedAnimation(
+                          parent: progress,
+                          curve: const Interval(0.3, 1.0, curve: Curves.linear),
+                        ),
+                      )
+                          .value,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: InheritedChatTheme.of(context)
+                              .theme
+                              .receivedMessageDocumentIconColor
+                              .withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        height: 24,
+                        width: 24,
+                        child:
+                        InheritedChatTheme.of(context).theme.replyIcon != null
+                            ? InheritedChatTheme.of(context).theme.replyIcon!
+                            : Image.asset(
+                          'assets/icon-reply.png',
+                          color: InheritedChatTheme.of(context)
+                              .theme
+                              .receivedMessageDocumentIconColor,
+                          package: 'chat',
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
+                );
+              },
             );
           },
-        );
-      },
-      key: UniqueKey(),
-      child: Container(
-        alignment: _currentUserIsAuthor
-            ? AlignmentDirectional.centerEnd
-            : AlignmentDirectional.centerStart,
-        margin: EdgeInsetsDirectional.only(
-          bottom: 4,
-          end: kIsWeb ? 0 : _query.padding.right,
-          start: 20 + (kIsWeb ? 0 : _query.padding.left),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (!_currentUserIsAuthor && showUserAvatars)  Padding(padding: const EdgeInsets.only(top: 5.0),child: _avatarBuilder(context),),
-            if(message.remoteId != null && message.remoteId == '1' && _currentUserIsAuthor)
-              const SizedBox(
-                height: 30.0,
-                child: Padding(
-                  padding: EdgeInsets.only(right: 3.0),
-                  child: Icon(Icons.edit_outlined,color: Colors.black,size: 15.0,
-                  ),
-                ),
-              ),
-            ConstrainedBox(
-              constraints: BoxConstraints(
-                maxWidth: messageWidth.toDouble(),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  GestureDetector(
-                    onDoubleTap: () =>
-                        onMessageDoubleTap?.call(context, message),
-                    onLongPress: () =>
-                        onMessageLongPress?.call(context, message),
-                    onTap: () => onMessageTap?.call(context, message),
-                    child: onMessageVisibilityChanged != null
-                        ? VisibilityDetector(
-                      key: Key(message.id),
-                      onVisibilityChanged: (visibilityInfo) =>
-                          onMessageVisibilityChanged!(message,
-                              visibilityInfo.visibleFraction > 0.1),
-                      child: _bubbleBuilder(
-                        context,
-                        _borderRadius.resolve(Directionality.of(context)),
-                        _currentUserIsAuthor,
-                        _enlargeEmojis,
-                      ),
-                    )
-                        : _bubbleBuilder(
-                      context,
-                      _borderRadius.resolve(Directionality.of(context)),
-                      _currentUserIsAuthor,
-                      _enlargeEmojis,
-                    ),
-                  ),
-                ],
-              ),
+          key: UniqueKey(),
+          child: Container(
+            alignment: _currentUserIsAuthor
+                ? AlignmentDirectional.centerEnd
+                : AlignmentDirectional.centerStart,
+            margin: EdgeInsetsDirectional.only(
+              bottom: 4,
+              end: kIsWeb ? 0 : _query.padding.right,
+              start: 20 + (kIsWeb ? 0 : _query.padding.left),
             ),
-            if (_currentUserIsAuthor)
-              Padding(
-                padding: InheritedChatTheme.of(context).theme.statusIconPadding,
-                child: showStatus
-                    ? GestureDetector(
-                  onLongPress: () =>
-                      onMessageStatusLongPress?.call(context, message),
-                  onTap: () => onMessageStatusTap?.call(context, message),
-                  child: _statusBuilder(context),
-                )
-                    : null,
-              ),
-            if(message.remoteId != null && message.remoteId == '1' && !_currentUserIsAuthor)
-              const SizedBox(
+            child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (!_currentUserIsAuthor && showUserAvatars)  Padding(padding: const EdgeInsets.only(top: 5.0),child: _avatarBuilder(context),),
+                    if(message.remoteId != null && message.remoteId == '1' && _currentUserIsAuthor)
+                      const SizedBox(
+                        height: 30.0,
+                        child: Padding(
+                          padding: EdgeInsets.only(right: 3.0),
+                          child: Icon(Icons.edit_outlined,color: Colors.black,size: 15.0,
+                          ),
+                        ),
+                      ),
+                    ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: messageWidth.toDouble(),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          GestureDetector(
+                            onDoubleTap: () =>
+                                onMessageDoubleTap?.call(context, message),
+                            onLongPress: () =>
+                                onMessageLongPress?.call(context, message),
+                            onTap: () => onMessageTap?.call(context, message),
+                            child: onMessageVisibilityChanged != null
+                                ? VisibilityDetector(
+                              key: Key(message.id),
+                              onVisibilityChanged: (visibilityInfo) =>
+                                  onMessageVisibilityChanged!(message,
+                                      visibilityInfo.visibleFraction > 0.1),
+                              child: _bubbleBuilder(
+                                context,
+                                _borderRadius.resolve(Directionality.of(context)),
+                                _currentUserIsAuthor,
+                                _enlargeEmojis,
+                              ),
+                            )
+                                : _bubbleBuilder(
+                              context,
+                              _borderRadius.resolve(Directionality.of(context)),
+                              _currentUserIsAuthor,
+                              _enlargeEmojis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (_currentUserIsAuthor)
+                      Padding(
+                        padding: InheritedChatTheme.of(context).theme.statusIconPadding,
+                        child: showStatus
+                            ? GestureDetector(
+                          onLongPress: () =>
+                              onMessageStatusLongPress?.call(context, message),
+                          onTap: () => onMessageStatusTap?.call(context, message),
+                          child: _statusBuilder(context),
+                        )
+                            : null,
+                      ),
+                    if(message.remoteId != null && message.remoteId == '1' && !_currentUserIsAuthor)
+                      const SizedBox(
+                        height: 30.0,
+                        child: Padding(
+                          padding: EdgeInsets.only(left: 3.0),
+                          child: Icon(Icons.edit_outlined,color: Colors.black,size: 15.0,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+          ),
+        ),
+        if(seenPeople != null) Row(
+          children: [
+            Expanded(child: Container()),
+            Padding(
+              padding: const EdgeInsets.only(right: 5.0),
+              child: SizedBox(
                 height: 30.0,
-                child: Padding(
-                  padding: EdgeInsets.only(left: 3.0),
-                  child: Icon(Icons.edit_outlined,color: Colors.black,size: 15.0,
-                  ),
+                child: Row(
+                  children: seenPeopleList(),
                 ),
               ),
+            )
           ],
-        ),
-      ),
+        )
+      ],
     );
+  }
+  List<Widget> seenPeopleList() {
+    List<Widget> _arr = [];
+    for (var e in seenPeople!) {
+      if(e?.picture == null) {
+        _arr.add(Padding(
+          padding: const EdgeInsets.only(right: 1.0),
+          child: CircleAvatar(
+            radius: 8.0,
+            child: Center(child: Text(e!.getAvatarName(),style: const TextStyle(color: Colors.white,fontSize: 6),)),
+          ),
+        ));
+      }
+      else {
+        _arr.add( Padding(
+          padding: const EdgeInsets.only(right: 1.0),
+          child: CircleAvatar(
+            radius: 8.0,
+            backgroundImage:
+            CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${e!.picture!.shieldedID}/256'),
+            backgroundColor: Colors.transparent,
+          ),
+        ));
+      }
+      if(_arr.length == 3) {
+        if(seenPeople!.length > _arr.length) {
+          _arr.add(Text('+${seenPeople!.length-3}',style: const TextStyle(color: Colors.black,fontSize: 8),));
+        }
+        break;
+      }
+    }
+    return _arr;
   }
 }
