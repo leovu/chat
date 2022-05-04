@@ -34,14 +34,18 @@ class _PlayAudioState extends State<PlayAudio> with TickerProviderStateMixin{
     audioPlayer = AudioPlayer();
     audioCache = AudioCache(fixedPlayer: audioPlayer);
     audioPlayer?.onDurationChanged.listen((Duration d) {
-      setState(() {
-        _duration = d;
-      });
+      if(mounted) {
+        setState(() {
+          _duration = d;
+        });
+      }
     });
     audioPlayer?.onAudioPositionChanged.listen((p) {
-      setState(() {
-        _position = p;
-      });
+      if(mounted) {
+        setState(() {
+          _position = p;
+        });
+      }
     });
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
       play();

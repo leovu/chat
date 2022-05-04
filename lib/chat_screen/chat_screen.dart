@@ -355,12 +355,31 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     }
   }
 
+  Future showLoading() async {
+    return await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return SimpleDialog(
+            elevation: 0.0,
+            backgroundColor: Colors.transparent,
+            children: <Widget>[
+              Center(
+                child: Platform.isAndroid ? const CircularProgressIndicator() : const CupertinoActivityIndicator(),
+              )
+            ],
+          );
+        });
+  }
+
   void _handleMessageTap(BuildContext context, types.Message message) async {
     if (message is types.FileMessage
         && message.status != Status.sending
         && message.status != Status.error)
     {
+      showLoading();
       String? result = await download(context,message.uri,'${message.createdAt}_${message.name}');
+      Navigator.of(context).pop();
       if(result != null) {
         List<String> documentFilesType = ['docx', 'doc', 'xlsx', 'xls', 'pptx', 'ppt', 'pdf', 'txt'];
         List<String> imageFilesType = ['png', 'jpg', 'jpeg', 'tiff','webp'];
