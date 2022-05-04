@@ -5,6 +5,7 @@ import 'package:chat/chat_screen/add_member_group_screen.dart';
 import 'package:chat/chat_screen/chat_screen.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';
+import 'package:chat/data_model/contact.dart' as ct;
 import 'package:chat/data_model/room.dart' as r;
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
@@ -141,22 +142,26 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
         ));
   }
   void sendMessage(r.People people) async {
-    r.Room? roomListData = await ChatConnection.roomList();
-    r.Rooms? val;
-    if(roomListData?.rooms != null) {
-      for (var value in roomListData!.rooms!) {
-        if(!value.isGroup!) {
-          r.People? result = value.people?.firstWhere((e) => e.sId == people.sId);
-          if(result != null) {
-            val = value;
-            break;
-          }
+    ct.Contacts? contactsListData = await ChatConnection.contactsList();
+    r.People? val;
+    if(contactsListData?.users != null) {
+      for (var value in contactsListData!.users!) {
+        if(value.sId == people.sId) {
+          val = value;
+          break;
         }
       }
     }
     if(val != null) {
+      r.Rooms? rooms = await ChatConnection.createRoom(val.sId);
       Navigator.of(context).popUntil((route) => route.settings.name == "chat_screen");
-      Navigator.of(context,rootNavigator: true).pushReplacement(MaterialPageRoute(builder: (context) => ChatScreen(data: val!),settings:const RouteSettings(name: 'chat_screen')),);
+      await Navigator.of(context,rootNavigator: true).pushReplacement(
+        MaterialPageRoute(builder: (context) => ChatScreen(data: rooms!),settings:const RouteSettings(name: 'chat_screen')),
+      );
+      try{
+        ChatConnection.refreshRoom.call();
+        ChatConnection.refreshFavorites.call();
+      }catch(_){}
     }
   }
   void errorDialog() {
