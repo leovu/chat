@@ -29,7 +29,6 @@
       <root url="file://$PROJECT_DIR$/../../../../flutter/.pub-cache/hosted/pub.dartlang.org/image_picker-0.8.5" />
       <root url="file://$PROJECT_DIR$/../../../../flutter/.pub-cache/hosted/pub.dartlang.org/sqflite-2.0.2+1" />
       <root url="file://$PROJECT_DIR$/../../../../flutter/.pub-cache/hosted/pub.dartlang.org/image_picker_for_web-2.1.6" />
-      <root url="file://$PROJECT_DIR$/../../../../flutter/.pub-cache/git/permission-ea2e40a68c175d392544485b9f3a05dfbcafa189" />
       <root url="file://$PROJECT_DIR$/../../../../flutter/.pub-cache/hosted/pub.dartlang.org/flutter_file_view-2.0.5" />
       <root url="file://$PROJECT_DIR$/../../../../flutter/.pub-cache/hosted/pub.dartlang.org/flutter_file_dialog-2.3.0" />
       <root url="file://$PROJECT_DIR$/../../../../flutter/.pub-cache/hosted/pub.dartlang.org/video_player_android-2.3.2" />
@@ -37,6 +36,7 @@
       <root url="file://$PROJECT_DIR$/../../../../flutter/.pub-cache/hosted/pub.dartlang.org/video_player_avfoundation-2.3.3" />
       <root url="file://$PROJECT_DIR$/../../../../flutter/.pub-cache/hosted/pub.dartlang.org/audioplayers-0.20.1" />
       <root url="file://$PROJECT_DIR$/../../../../flutter/.pub-cache/hosted/pub.dartlang.org/video_player-2.4.0" />
+      <root url="file://$PROJECT_DIR$/../../../../flutter/.pub-cache/git/permission-fb4603f540945fd283686f06d1bb34a1bb09508d" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

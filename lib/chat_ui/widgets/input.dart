@@ -247,26 +247,32 @@ class _InputState extends State<Input> {
                             Visibility(
                               visible: !_sendButtonVisible,
                               child: Padding(
-                                padding: const EdgeInsets.only(left: 10.0),
+                                padding: const EdgeInsets.only(left: 10.0,bottom: 5.0),
                                 child: _leftWidgetBuilder(),
                               ),
                             ),
                           Visibility(
                             visible: _isEdit,
-                            child: RemoveEditButton(
-                              onPressed: (){
-                                _isEdit = false;
-                                _textController.text = '';
-                                if(!_isEdit) {
-                                  editContent = null;
-                                }
-                              },
+                            child: Padding(
+                              padding: const EdgeInsets.only(bottom: 5.0),
+                              child: RemoveEditButton(
+                                onPressed: (){
+                                  _isEdit = false;
+                                  _textController.text = '';
+                                  if(!_isEdit) {
+                                    editContent = null;
+                                  }
+                                },
+                              ),
                             ),
                           ),
                           Visibility(
                             visible: _sendButtonVisible,
-                            child: SendButton(
-                              onPressed: _handleSendPressed,
+                            child: Padding(
+                              padding: const EdgeInsets.only(bottom: 5.0),
+                              child: SendButton(
+                                onPressed: _handleSendPressed,
+                              ),
                             ),
                           ),
                         ],
@@ -345,24 +351,27 @@ class _InputState extends State<Input> {
         ),
       );
     } else {
-      return SizedBox(
-        width: 50.0,
-        child: Row(
-          children: [
-            Expanded(
-                child: AttachmentButton(
-                  onPressed: widget.onCameraPressed,
-                  image: 'assets/icon-camera.png',
-                )),
-            Container(
-              width: 10.0,
-            ),
-            Expanded(
-                child: AttachmentButton(
-                  onPressed: widget.onAttachmentPressed,
-                  image: 'assets/icon-chat-add.png',
-                ))
-          ],
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 5.0),
+        child: SizedBox(
+          width: 50.0,
+          child: Row(
+            children: [
+              Expanded(
+                  child: AttachmentButton(
+                    onPressed: widget.onCameraPressed,
+                    image: 'assets/icon-camera.png',
+                  )),
+              Container(
+                width: 10.0,
+              ),
+              Expanded(
+                  child: AttachmentButton(
+                    onPressed: widget.onAttachmentPressed,
+                    image: 'assets/icon-chat-add.png',
+                  ))
+            ],
+          ),
         ),
       );
     }
