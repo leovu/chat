@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:chat/chat_screen/group_image_item.dart';
+import 'package:chat/localization/app_localizations.dart';
+import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/data_model/chat_message.dart' as c;
 import 'package:chat/data_model/room.dart' as r;
@@ -49,7 +51,7 @@ class _State extends State<BySenderResultScreen>
       margin: const EdgeInsets.only(top: 8.0),
       child: Center(
         child: Text(
-            (senders?.length ?? 0) > 1 ? '${senders!.length} senders' : '${senders?.length ?? 0} sender',
+            (senders?.length ?? 0) > 1 ? '${senders!.length} ${AppLocalizations.text(LangKey.senders)}' : '${senders?.length ?? 0} ${AppLocalizations.text(LangKey.sender)}',
             style: TextStyle(fontSize: 15.0, color: Colors.grey.shade600, fontWeight: FontWeight.w500)
         ),
       ),
@@ -60,9 +62,9 @@ class _State extends State<BySenderResultScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const AutoSizeText(
-          'By Senders',
-          style: TextStyle(
+        title: AutoSizeText(
+          AppLocalizations.text(LangKey.bySenders),
+          style: const TextStyle(
               color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
         ),
         leading: InkWell(

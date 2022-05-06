@@ -5,6 +5,8 @@ import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/chat_screen/chat_screen.dart';
 import 'package:chat/data_model/room.dart';
 import 'package:chat/connection/http_connection.dart';
+import 'package:chat/localization/app_localizations.dart';
+import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -118,9 +120,9 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen> with AutomaticKee
                     ],
                   ),
                 ),
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 3.0,left: 10.0,right: 10.0),
-                  child: Text('Favorites',style: TextStyle(fontSize: 25.0,color: Colors.black)),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 3.0,left: 10.0,right: 10.0),
+                  child: Text(AppLocalizations.text(LangKey.favorites),style: const TextStyle(fontSize: 25.0,color: Colors.black)),
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10.0,vertical: 10.0),
@@ -147,8 +149,8 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen> with AutomaticKee
                               _getRoomVisible();
                             });
                           },
-                          decoration: const InputDecoration.collapsed(
-                            hintText: 'Search Chats',
+                          decoration: InputDecoration.collapsed(
+                            hintText: AppLocalizations.text(LangKey.searchChats),
                           ),
                         )),
                         Material(
@@ -259,15 +261,15 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen> with AutomaticKee
                             child: Row(
                               children: [
                                 Expanded(child: AutoSizeText(!data.isGroup! ?
-                                '${info.firstName} ${info.lastName}' : data.title ?? 'Group ${info.firstName} ${info.lastName}',overflow: TextOverflow.ellipsis),),
+                                '${info.firstName} ${info.lastName}' : data.title ?? '${AppLocalizations.text(LangKey.group)} ${info.firstName} ${info.lastName}',overflow: TextOverflow.ellipsis),),
                                 AutoSizeText(data.lastMessage?.lastMessageDate() ?? '',style: const TextStyle(fontSize: 11,color: Colors.grey),)
                               ],
                             )
                         ),
                         Container(height: 5.0,),
                         Expanded(child: AutoSizeText(
-                          '$author${(data.lastMessage?.type == 'image' ? 'Sent a picture' :
-                          data.lastMessage?.type == 'file' ? 'Sent a file' :
+                          '$author${(data.lastMessage?.type == 'image' ? AppLocalizations.text(LangKey.sentPicture) :
+                          data.lastMessage?.type == 'file' ? AppLocalizations.text(LangKey.sendFile) :
                           data.lastMessage?.content ?? '')}',
                           overflow: TextOverflow.ellipsis,))
                       ],
@@ -293,7 +295,7 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen> with AutomaticKee
     People? p;
     try {
       p = people?.firstWhere((element) => element.sId == author);
-      return (p!.sId != ChatConnection.user!.id ? p.firstName : 'You')! + ': ';
+      return (p!.sId != ChatConnection.user!.id ? p.firstName : AppLocalizations.text(LangKey.you))! + ': ';
     }catch(_){
       return '';
     }

@@ -1,3 +1,5 @@
+import 'package:chat/localization/app_localizations.dart';
+import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:chat/chat_ui/widgets/inherited_user.dart';
@@ -41,7 +43,7 @@ class RepliedMessage extends StatelessWidget {
           break;
         case types.MessageType.image:
           final imageMessage = repliedMessage as types.ImageMessage;
-          _text = "Photo";
+          _text = AppLocalizations.text(LangKey.photo);
           _imageUri = imageMessage.uri;
           break;
         case types.MessageType.text:
@@ -85,7 +87,7 @@ class RepliedMessage extends StatelessWidget {
               children: [
                 if (repliedMessage?.author.firstName != null && showUserNames)
                   Text(
-                    _closable ? 'Replying ${repliedMessage!.author.firstName!} ${repliedMessage!.author.lastName!}' : _text,
+                    _closable ? '${AppLocalizations.text(LangKey.replying)} ${repliedMessage!.author.firstName!} ${repliedMessage!.author.lastName!}' : _text,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(

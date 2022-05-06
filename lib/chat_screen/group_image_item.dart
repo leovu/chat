@@ -2,6 +2,8 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/data_model/chat_message.dart';
 import 'package:chat/chat_screen/detail_group_image_screen.dart';
+import 'package:chat/localization/app_localizations.dart';
+import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/data_model/room.dart' as r;
@@ -59,7 +61,7 @@ class GroupImageItem extends StatelessWidget {
             Container(
               margin: const EdgeInsets.only(left: 8.0, bottom: 8.0),
               child: Text(
-                '${images?.length ?? 0} photos',
+                '${images?.length ?? 0} ${AppLocalizations.text(LangKey.photos)}',
                 style: TextStyle(fontSize: 14.0, color: Colors.grey.shade600, fontWeight: FontWeight.normal),
               ),
             ),

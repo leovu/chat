@@ -3,6 +3,8 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';
+import 'package:chat/localization/app_localizations.dart';
+import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/data_model/chat_message.dart' as c;
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
@@ -86,9 +88,9 @@ class ForwardScreenState extends State<ForwardScreen> {
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
           appBar: AppBar(
-            title: const AutoSizeText(
-              'Forward message',
-              style: TextStyle(
+            title: AutoSizeText(
+              AppLocalizations.text(LangKey.forwardMessage),
+              style: const TextStyle(
                   color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
             ),
             leading: InkWell(
@@ -134,8 +136,8 @@ class ForwardScreenState extends State<ForwardScreen> {
                               controller: _controllerContent,
                               keyboardType: TextInputType.multiline,
                               maxLines: null,
-                              decoration: const InputDecoration.collapsed(
-                                hintText: 'Input message here (optional)',
+                              decoration: InputDecoration.collapsed(
+                                hintText: AppLocalizations.text(LangKey.inputMessageOptional),
                               ),
                             ),
                           ),
@@ -169,8 +171,8 @@ class ForwardScreenState extends State<ForwardScreen> {
                               _getRoomVisible();
                             });
                           },
-                          decoration: const InputDecoration.collapsed(
-                            hintText: 'Search user and group',
+                          decoration: InputDecoration.collapsed(
+                            hintText: AppLocalizations.text(LangKey.searchUserAndGroup),
                           ),
                         )),
                         Material(
@@ -254,7 +256,7 @@ class ForwardScreenState extends State<ForwardScreen> {
                             child: Row(
                               children: [
                                 Expanded(child: AutoSizeText(!data.isGroup! ?
-                                '${info.firstName} ${info.lastName}' : data.title ?? 'Group ${info.firstName} ${info.lastName}',overflow: TextOverflow.ellipsis),),
+                                '${info.firstName} ${info.lastName}' : data.title ?? '${AppLocalizations.text(LangKey.group)} ${info.firstName} ${info.lastName}',overflow: TextOverflow.ellipsis),),
                                 ButtonTheme(
                                   minWidth: 50.0,
                                   child: MaterialButton(onPressed: () async {
@@ -272,7 +274,7 @@ class ForwardScreenState extends State<ForwardScreen> {
                                       setState(() {});
                                     }
                                   },
-                                  child: AutoSizeText(idSent.contains(data.sId) ? 'Sent' : 'Send'),
+                                  child: AutoSizeText(idSent.contains(data.sId) ? AppLocalizations.text(LangKey.sent) : AppLocalizations.text(LangKey.send)),
                                     color: idSent.contains(data.sId) ? Colors.grey : Colors.blue,
                                     textColor: idSent.contains(data.sId) ? Colors.black : Colors.white),
                                 )

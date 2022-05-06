@@ -5,6 +5,8 @@ import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/chat_screen/chat_screen.dart';
 import 'package:chat/data_model/room.dart';
 import 'package:chat/connection/http_connection.dart';
+import 'package:chat/localization/app_localizations.dart';
+import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -123,9 +125,9 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                     ),
                     Row(
                       children: [
-                        const Padding(
-                          padding: EdgeInsets.only(bottom: 3.0,left: 10.0,right: 10.0),
-                          child: Text('Chats',style: TextStyle(fontSize: 25.0,color: Colors.black)),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 3.0,left: 10.0,right: 10.0),
+                          child: Text(AppLocalizations.text(LangKey.chats),style: TextStyle(fontSize: 25.0,color: Colors.black)),
                         ),
                         Expanded(child: Container()),
                         Padding(
@@ -165,8 +167,8 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                                   _getRoomVisible();
                                 });
                               },
-                              decoration: const InputDecoration.collapsed(
-                                hintText: 'Search Chats',
+                              decoration: InputDecoration.collapsed(
+                                hintText: AppLocalizations.text(LangKey.searchChats),
                               ),
                             )),
                             Material(
@@ -229,14 +231,14 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                                               context: context,
                                               actions: [
                                                 if (roomListVisible!.rooms![position].isGroup!)
-                                                  const SheetAction(
+                                                  SheetAction(
                                                   icon: Icons.remove_circle,
-                                                  label: 'Leave',
+                                                  label: AppLocalizations.text(LangKey.leave),
                                                   key: 'Leave',
                                                 ),
-                                                if(Platform.isAndroid) const SheetAction(
+                                                if(Platform.isAndroid) SheetAction(
                                                     icon: Icons.cancel,
-                                                    label: 'Cancel',
+                                                    label: AppLocalizations.text(LangKey.cancel),
                                                     key: 'Cancel',
                                                     isDestructiveAction: true)
                                               ],
@@ -248,7 +250,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                                           backgroundColor: Colors.blue,
                                           foregroundColor: Colors.white,
                                           icon: Icons.remove_circle,
-                                          label: 'Leave',
+                                          label: AppLocalizations.text(LangKey.leave),
                                         ),
                                         if(roomListVisible!.rooms![position].owner == ChatConnection.user!.id &&
                                                 roomListVisible!.rooms![position].isGroup! || !roomListVisible!.rooms![position].isGroup!)
@@ -257,21 +259,21 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                                             showModalActionSheet<String>(
                                               context: context,
                                               actions: [
-                                                if (!roomListVisible!.rooms![position].isGroup!) const SheetAction(
+                                                if (!roomListVisible!.rooms![position].isGroup!) SheetAction(
                                                   icon: Icons.remove_circle,
-                                                  label: 'Delete',
+                                                  label: AppLocalizations.text(LangKey.delete),
                                                   key: 'Delete',
                                                 ),
                                                 if (roomListVisible!.rooms![position].isGroup!
                                                     && roomListVisible!.rooms![position].owner == ChatConnection.user!.id)
-                                                  const SheetAction(
+                                                  SheetAction(
                                                     icon: Icons.remove_circle,
-                                                    label: 'Delete',
+                                                    label: AppLocalizations.text(LangKey.delete),
                                                     key: 'Delete',
                                                   ),
-                                                if(Platform.isAndroid) const SheetAction(
+                                                if(Platform.isAndroid) SheetAction(
                                                     icon: Icons.cancel,
-                                                    label: 'Cancel',
+                                                    label: AppLocalizations.text(LangKey.cancel),
                                                     key: 'Cancel',
                                                     isDestructiveAction: true)
                                               ],
@@ -285,7 +287,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                                           backgroundColor: const Color(0xFFFE4A49),
                                           foregroundColor: Colors.white,
                                           icon: Icons.delete,
-                                          label: 'Delete',
+                                          label: AppLocalizations.text(LangKey.delete),
                                         ),
                                       ],
                                     ),
@@ -303,8 +305,8 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
     showDialog(
       context: context,
       builder: (cxt) => AlertDialog(
-        title: const Text('Leave the conversation'),
-        content: const Text('Are you sure you want to leave this conversation?'),
+        title: Text(AppLocalizations.text(LangKey.leaveConversation)),
+        content: Text(AppLocalizations.text(LangKey.leaveConfirm)),
         actions: [
           ElevatedButton(
               onPressed: () async {
@@ -321,25 +323,25 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                   showDialog(
                     context: context,
                     builder: (cxxt) => AlertDialog(
-                      title: const Text('Warning'),
-                      content: const Text('Leave room error!'),
+                      title: Text(AppLocalizations.text(LangKey.warning)),
+                      content: Text(AppLocalizations.text(LangKey.leaveError)),
                       actions: [
                         ElevatedButton(
                             onPressed: () {
                               Navigator.pop(cxxt);
                             },
-                            child: const Text('Accept'))
+                            child: Text(AppLocalizations.text(LangKey.accept)))
                       ],
                     ),
                   );
                 }
               },
-              child: const Text('Leave')),
+              child: Text(AppLocalizations.text(LangKey.leave))),
           ElevatedButton(
               onPressed: () {
                 Navigator.pop(cxt);
               },
-              child: const Text('Cancel')),
+              child: Text(AppLocalizations.text(LangKey.cancel))),
         ],
       ),
     );
@@ -348,8 +350,8 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
     showDialog(
       context: context,
       builder: (cxt) => AlertDialog(
-        title: const Text('Delete the conversation'),
-        content: const Text('Are you sure you want to delete this conversation?'),
+        title: Text(AppLocalizations.text(LangKey.deleteConversation)),
+        content: Text(AppLocalizations.text(LangKey.deleteConfirm)),
         actions: [
           ElevatedButton(
               onPressed: () {
@@ -362,26 +364,26 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                     showDialog(
                       context: context,
                       builder: (cxxt) => AlertDialog(
-                        title: const Text('Warning'),
-                        content: const Text('Remove room error!'),
+                        title: Text(AppLocalizations.text(LangKey.warning)),
+                        content: Text(AppLocalizations.text(LangKey.deleteError)),
                         actions: [
                           ElevatedButton(
                               onPressed: () {
                                 Navigator.pop(cxxt);
                               },
-                              child: const Text('Accept'))
+                              child: Text(AppLocalizations.text(LangKey.accept)))
                         ],
                       ),
                     );
                   }
                 });
               },
-              child: const Text('Delete')),
+              child: Text(AppLocalizations.text(LangKey.delete))),
           ElevatedButton(
               onPressed: () {
                 Navigator.pop(cxt);
               },
-              child: const Text('Cancel')),
+              child: Text(AppLocalizations.text(LangKey.cancel))),
         ],
       ),
     );
@@ -438,8 +440,8 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                         ),
                         Container(height: 5.0,),
                         Expanded(child: AutoSizeText(
-                          '$author${(data.lastMessage?.type == 'image' ? 'Sent a picture' :
-                          data.lastMessage?.type == 'file' ? 'Sent a file' :
+                          '$author${(data.lastMessage?.type == 'image' ? AppLocalizations.text(LangKey.sentPicture) :
+                          data.lastMessage?.type == 'file' ? AppLocalizations.text(LangKey.sendFile) :
                           data.lastMessage?.content ?? '')}',
                           overflow: TextOverflow.ellipsis,))
                       ],
@@ -465,7 +467,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
     People? p;
     try {
       p = people?.firstWhere((element) => element.sId == author);
-      return (p!.sId != ChatConnection.user!.id ? p.firstName : 'You')! + ': ';
+      return (p!.sId != ChatConnection.user!.id ? p.firstName : AppLocalizations.text(LangKey.you))! + ': ';
     }catch(_){
       return '';
     }

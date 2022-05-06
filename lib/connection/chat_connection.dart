@@ -15,6 +15,7 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 
 class ChatConnection {
   static late void Function() refreshRoom;
+  static late Locale locale;
   static late void Function() refreshContact;
   static late void Function() refreshFavorites;
   static StreamSocket streamSocket = StreamSocket();

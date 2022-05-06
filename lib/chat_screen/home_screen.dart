@@ -5,6 +5,8 @@ import 'package:chat/chat_screen/create_group_screen.dart';
 import 'package:chat/chat_screen/favorite_screen.dart';
 import 'package:chat/chat_screen/room_list_screen.dart';
 import 'package:chat/connection/chat_connection.dart';
+import 'package:chat/localization/app_localizations.dart';
+import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/data_model/room.dart' as r;
@@ -43,18 +45,18 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
         tabBar: CupertinoTabBar(
           backgroundColor: Colors.white,
           activeColor: const Color(0xff9012FE),
-          items: const [
+          items: [
             BottomNavigationBarItem(
-                icon: Icon(Icons.chat),
-                label: 'Chats'
+                icon: const Icon(Icons.chat),
+                label: AppLocalizations.text(LangKey.chats)
             ),
             BottomNavigationBarItem(
-                icon: Icon(Icons.contact_mail),
-                label: 'Contacts'
+                icon: const Icon(Icons.contact_mail),
+                label: AppLocalizations.text(LangKey.contacts)
             ),
             BottomNavigationBarItem(
-                icon: Icon(Icons.star_border),
-                label: 'Favorites'
+                icon: const Icon(Icons.star_border),
+                label: AppLocalizations.text(LangKey.favorites)
             ),
           ],
         ),

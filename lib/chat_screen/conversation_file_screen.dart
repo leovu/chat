@@ -2,8 +2,11 @@ import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:chat/chat_screen/by_time_search_list.dart';
 import 'package:chat/chat_ui/conditional/conditional.dart';
+import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/chat_screen/by_sender_screen.dart';
+import 'package:chat/localization/app_localizations.dart';
+import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/data_model/chat_message.dart' as c;
@@ -47,9 +50,9 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const AutoSizeText(
-          'File, images, link are sent',
-          style: TextStyle(
+        title: AutoSizeText(
+          AppLocalizations.text(LangKey.conversationFileTitle),
+          style: const TextStyle(
               color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
         ),
         leading: InkWell(
@@ -75,12 +78,12 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          _buildSearchChip('Search',
+                          _buildSearchChip(AppLocalizations.text(LangKey.search),
                               const Icon(Icons.search, color: Colors.black),
                               () {
                             _showBottomDialog();
                           }),
-                          _buildSearchChip('By sender',
+                          _buildSearchChip(AppLocalizations.text(LangKey.bySender),
                               const Icon(Icons.people, color: Colors.black),
                               () {
                             Navigator.of(context).push(MaterialPageRoute(
@@ -90,7 +93,7 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                                     )));
                           }),
                           _buildSearchChip(
-                              'By time',
+                              AppLocalizations.text(LangKey.byTimes),
                               const Icon(Icons.timer, color: Colors.black),
                               () {
                                 Navigator.of(context).push(
@@ -358,8 +361,8 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                                     focusNode: _searchNode,
                                     controller: _searchController,
                                     onChanged: (_) {},
-                                    decoration: const InputDecoration.collapsed(
-                                      hintText: 'Find images, files, links',
+                                    decoration: InputDecoration.collapsed(
+                                      hintText: AppLocalizations.text(LangKey.findConversationFile),
                                     ),
                                   )),
                                   Material(
@@ -402,7 +405,7 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                                 margin:
                                     const EdgeInsets.symmetric(horizontal: 8.0),
                                 child: Text(
-                                  "Cancel",
+                                  AppLocalizations.text(LangKey.cancel),
                                   style: TextStyle(
                                       fontSize: 15.0,
                                       fontWeight: FontWeight.w400,
@@ -425,7 +428,7 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                               _searchController.text = '';
                               searchType = 0;
                             },
-                            child: searchOptionItem("By sender", 1)),
+                            child: searchOptionItem(AppLocalizations.text(LangKey.bySender), 1)),
                       if (searchType == 0)
                         InkWell(
                             onTap: () {
@@ -433,7 +436,7 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                                 searchType = 1;
                               });
                             },
-                            child: searchOptionItem("By time", 2)),
+                            child: searchOptionItem(AppLocalizations.text(LangKey.byTimes), 2)),
                       // if (searchType == 1) InkWell(
                       //   onTap: () {
                       //     final format2 = DateFormat("dd/MM/yyyy");
@@ -460,11 +463,11 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                                   roomData: widget.roomData,
                                   chatMessage: widget.chatMessage,
                                   search: formattedDate,
-                                  title: 'Yesterday',
+                                  title: AppLocalizations.text(LangKey.yesterday),
                                 )));
                             _searchController.text = '';
                             searchType = 0;
-                          },child: searchOptionItem("Yesterday", 4, dateType: true)),
+                          },child: searchOptionItem(AppLocalizations.text(LangKey.yesterday), 4, dateType: true)),
                       // if (searchType == 1) InkWell(
                       //     onTap: () {
                       //       final format2 = DateFormat("dd/MM/yyyy");
@@ -496,11 +499,11 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                                   roomData: widget.roomData,
                                   chatMessage: widget.chatMessage,
                                   search: '$formattedDate1-$formattedDate2',
-                                  title: 'Last week',
+                                  title: AppLocalizations.text(LangKey.lastWeek),
                                 )));
                             _searchController.text = '';
                             searchType = 0;
-                          },child: searchOptionItem("Last week", 4, dateType: true)),
+                          },child: searchOptionItem(AppLocalizations.text(LangKey.lastWeek), 4, dateType: true)),
                       // if (searchType == 1) InkWell(
                       //     onTap: () {
                       //       final format2 = DateFormat("dd/MM/yyyy");
@@ -532,18 +535,18 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                                   roomData: widget.roomData,
                                   chatMessage: widget.chatMessage,
                                   search: '$formattedDate1-$formattedDate2',
-                                  title: 'Last month',
+                                  title: AppLocalizations.text(LangKey.lastMonth),
                                 )));
                             _searchController.text = '';
                             searchType = 0;
-                          },child: searchOptionItem("Last month", 4, dateType: true)),
+                          },child: searchOptionItem(AppLocalizations.text(LangKey.lastMonth), 4, dateType: true)),
                       if (searchType == 1) InkWell(
                           onTap: () async {
                             DateTimeRange? range = await showDateRangePicker(context: context,
                                 firstDate: DateTime(1990, 1, 1),
                                 lastDate: DateTime.now(),
                                 currentDate: DateTime.now(),
-                                locale: const Locale('en', ''));
+                                locale: ChatConnection.locale);
                             if(range != null) {
                               final format2 = DateFormat("dd/MM/yyyy");
                               String formattedDate1 = format2.format(range.start.toUtc().add(const Duration(hours: 7)));
@@ -554,12 +557,12 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                                     roomData: widget.roomData,
                                     chatMessage: widget.chatMessage,
                                     search: '$formattedDate1-$formattedDate2',
-                                    title: 'Custom',
+                                    title: AppLocalizations.text(LangKey.custom),
                                   )));
                               _searchController.text = '';
                               searchType = 0;
                             }
-                          },child: searchOptionItem("Custom", 4, dateType: true)),
+                          },child: searchOptionItem(AppLocalizations.text(LangKey.custom), 4, dateType: true)),
                     ],
                   ),
                 ),

@@ -12,6 +12,8 @@ dependencies:
     sdk: flutter
   flutter_web_plugins:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
   flutter_chat_types: ^3.3.2
   flutter_link_previewer: ^2.6.4
   flutter_lints: ^1.0.0
@@ -103,6 +105,8 @@ flutter:
     - assets/3.0x/icon-error.png
     - assets/3.0x/icon-seen.png
     - assets/3.0x/icon-send.png
+    - assets/chat_en.json
+    - assets/chat_vi.json
   #
   # For details regarding assets in packages, see
   # https://flutter.dev/assets-and-images/#from-packages

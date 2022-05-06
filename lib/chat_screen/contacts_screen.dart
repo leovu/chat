@@ -7,6 +7,8 @@ import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/data_model/contact.dart';
 import 'package:chat/data_model/room.dart';
+import 'package:chat/localization/app_localizations.dart';
+import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/data_model/room.dart' as r;
@@ -117,9 +119,9 @@ class _ContactsScreenState extends State<ContactsScreen> with AutomaticKeepAlive
                     ],
                   ),
                 ),
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 3.0,left: 10.0,right: 10.0),
-                  child: Text('Contacts',style: TextStyle(fontSize: 25.0,color: Colors.black)),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 3.0,left: 10.0,right: 10.0),
+                  child: Text(AppLocalizations.text(LangKey.contacts),style: const TextStyle(fontSize: 25.0,color: Colors.black)),
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10.0,vertical: 10.0),
@@ -146,8 +148,8 @@ class _ContactsScreenState extends State<ContactsScreen> with AutomaticKeepAlive
                               _getContactsVisible();
                             });
                           },
-                          decoration: const InputDecoration.collapsed(
-                            hintText: 'Search Contacts',
+                          decoration: InputDecoration.collapsed(
+                            hintText: AppLocalizations.text(LangKey.searchContacts),
                           ),
                         )),
                         Material(

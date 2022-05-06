@@ -1,3 +1,5 @@
+import 'package:chat/localization/app_localizations.dart';
+import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -92,8 +94,8 @@ class BannerNotificationState extends State<BannerNotification> {
                           Padding(
                             padding: const EdgeInsets.only(
                                 left: 5.0, top: 5.0, bottom: 5.0),
-                            child: Text(widget.isImage ? 'Sent a picture' :
-                            widget.isFile ? 'Sent a file' :
+                            child: Text(widget.isImage ? AppLocalizations.text(LangKey.sentPicture) :
+                            widget.isFile ? AppLocalizations.text(LangKey.sendFile) :
                             widget.notificationDescription,
                                 maxLines: 2,
                                 style: const TextStyle(

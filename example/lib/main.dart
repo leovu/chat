@@ -1,3 +1,4 @@
+import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:overlay_support/overlay_support.dart';
@@ -70,7 +71,7 @@ class _MyAppState extends State<MyApp> {
       ),
       body: Center(
         child: InkWell(
-            onTap: () => Chat.open(context,'leovu0703vn@gmail.com', 'long0703', 'assets/icon-app.png', domain: 'https://chat-stag-new.epoints.vn/'),
+            onTap: () => Chat.open(context,'leovu0703vn@gmail.com', 'long0703', 'assets/icon-app.png',const Locale(LangKey.langEn, 'EN'), domain: 'https://chat-stag-new.epoints.vn/'),
             child: Text('Running on: $_platformVersion\n')),
       ),
     );

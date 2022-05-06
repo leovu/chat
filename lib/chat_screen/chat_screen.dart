@@ -11,6 +11,8 @@ import 'package:chat/connection/download.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/data_model/chat_message.dart' as c;
 import 'package:chat/data_model/room.dart' as r;
+import 'package:chat/localization/app_localizations.dart';
+import 'package:chat/localization/lang_key.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
@@ -112,19 +114,19 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     showModalActionSheet<String>(
       context: context,
       actions: [
-        const SheetAction(
+        SheetAction(
           icon: Icons.photo,
-          label: 'Photo',
+          label: AppLocalizations.text(LangKey.photo),
           key: 'Photo',
         ),
-        const SheetAction(
+        SheetAction(
           icon: Icons.file_copy,
-          label: 'File',
+          label: AppLocalizations.text(LangKey.file),
           key: 'File',
         ),
-        if(Platform.isAndroid) const SheetAction(
+        if(Platform.isAndroid) SheetAction(
             icon: Icons.cancel,
-            label: 'Cancel',
+            label: AppLocalizations.text(LangKey.cancel),
             key: 'Cancel',
             isDestructiveAction: true),
       ],
@@ -139,19 +141,19 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Request permissions'),
-          content: const Text('Select Settings, go to App info, tap Permissions, turn on permission and re-enter this screen to use permission'),
+          title: Text(AppLocalizations.text(LangKey.requestPermission)),
+          content: Text(AppLocalizations.text(LangKey.requestNote)),
           actions: [
             ElevatedButton(
                 onPressed: () {
                   PermissionRequest.openSetting();
                 },
-                child: const Text('Open setting')),
+                child: Text(AppLocalizations.text(LangKey.openSetting))),
             ElevatedButton(
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: const Text('Cancel')),
+                child: Text(AppLocalizations.text(LangKey.cancel))),
           ],
         ),
       );
@@ -204,14 +206,14 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Warning'),
-          content: const Text('Get file error!'),
+          title: Text(AppLocalizations.text(LangKey.warning)),
+          content: Text(AppLocalizations.text(LangKey.accept)),
           actions: [
             ElevatedButton(
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: const Text('Accept'))
+                child: Text(AppLocalizations.text(LangKey.accept)))
           ],
         ),
       );
@@ -222,19 +224,19 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Request permissions'),
-          content: const Text('Select Settings, go to App info, tap Permissions, turn on permission and re-enter this screen to use permission'),
+          title: Text(AppLocalizations.text(LangKey.requestPermission)),
+          content: Text(AppLocalizations.text(LangKey.requestNote)),
           actions: [
             ElevatedButton(
                 onPressed: () {
                   PermissionRequest.openSetting();
                 },
-                child: const Text('Open setting')),
+                child: Text(AppLocalizations.text(LangKey.openSetting))),
             ElevatedButton(
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: const Text('Cancel')),
+                child: Text(AppLocalizations.text(LangKey.cancel))),
           ],
         ),
       );
@@ -291,19 +293,19 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Request permissions'),
-          content: const Text('Select Settings, go to App info, tap Permissions, turn on permission and re-enter this screen to use permission'),
+          title: Text(AppLocalizations.text(LangKey.requestPermission)),
+          content: Text(AppLocalizations.text(LangKey.requestNote)),
           actions: [
             ElevatedButton(
                 onPressed: () {
                   PermissionRequest.openSetting();
                 },
-                child: const Text('Open setting')),
+                child: Text(AppLocalizations.text(LangKey.openSetting))),
             ElevatedButton(
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: const Text('Cancel')),
+                child: Text(AppLocalizations.text(LangKey.cancel))),
           ],
         ),
       );
@@ -423,34 +425,34 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       showModalActionSheet<String>(
         context: context,
         actions: [
-          const SheetAction(
+          SheetAction(
             icon: Icons.reply,
-            label: 'Reply',
+            label: AppLocalizations.text(LangKey.reply),
             key: 'Reply',
           ),
-          const SheetAction(
+          SheetAction(
             icon: Icons.forward,
-            label: 'Forward',
+            label: AppLocalizations.text(LangKey.forward),
             key: 'Forward',
           ),
-          if(mess?.author?.sId == ChatConnection.user?.id) const SheetAction(
+          if(mess?.author?.sId == ChatConnection.user?.id) SheetAction(
             icon: Icons.replay_30_outlined,
-            label: 'Recall',
+            label: AppLocalizations.text(LangKey.recall),
             key: 'Recall',
           ),
-          if(mess?.author?.sId == ChatConnection.user?.id && message.type.name == 'text') const SheetAction(
+          if(mess?.author?.sId == ChatConnection.user?.id && message.type.name == 'text') SheetAction(
             icon: Icons.replay_30_outlined,
-            label: 'Edit',
+            label: AppLocalizations.text(LangKey.edit),
             key: 'Edit',
           ),
-          const SheetAction(
+          SheetAction(
             icon: Icons.replay_30_outlined,
-            label: 'Pin Message',
+            label: AppLocalizations.text(LangKey.pinMessage),
             key: 'Pin Message',
           ),
-          if(Platform.isAndroid) const SheetAction(
+          if(Platform.isAndroid) SheetAction(
               icon: Icons.cancel,
-              label: 'Cancel',
+              label: AppLocalizations.text(LangKey.cancel),
               key: 'Cancel',
               isDestructiveAction: true),
         ],
@@ -486,13 +488,13 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
           _messages.remove(message);
         }
         else if(message is types.TextMessage) {
-          value?.content = 'Message recalled';
+          value?.content = AppLocalizations.text(LangKey.messageRecalled);
           int index = _messages.indexOf(message);
           final textMessage = types.TextMessage(
               author: _user,
               createdAt: DateTime.now().millisecondsSinceEpoch,
               id: message.id,
-              text: 'Message recalled'
+              text: AppLocalizations.text(LangKey.messageRecalled)
           );
           _messages[index] = textMessage;
         }
@@ -908,8 +910,8 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                   });
                 }
               },
-              decoration: const InputDecoration.collapsed(
-                hintText: 'Find in chat',
+              decoration: InputDecoration.collapsed(
+                hintText: AppLocalizations.text(LangKey.findInChat),
               ),
             )),
             Material(
@@ -1069,13 +1071,13 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                       children: [
                         AutoSizeText(!widget.data.isGroup! ?
                         '${info.firstName} ${info.lastName}' : widget.data.title ??
-                            'Group with ${info.firstName} ${info.lastName}',
+                            '${AppLocalizations.text(LangKey.groupWith)} ${info.firstName} ${info.lastName}',
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
                           style: const TextStyle(color: Colors.black,fontWeight: FontWeight.bold,fontSize: 16),),
                         if (widget.data.isGroup!) Padding(
                           padding: const EdgeInsets.only(bottom: 3.0),
-                          child: AutoSizeText('${widget.data.people!.length} members',
+                          child: AutoSizeText('${widget.data.people!.length} ${AppLocalizations.text(LangKey.members).toLowerCase()}',
                             maxLines: 1,
                             style: const TextStyle(color: Colors.black,fontSize: 12),),
                         )

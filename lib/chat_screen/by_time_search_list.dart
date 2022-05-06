@@ -3,6 +3,8 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/chat_ui/conditional/conditional.dart';
 import 'package:chat/connection/http_connection.dart';
+import 'package:chat/localization/app_localizations.dart';
+import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/data_model/chat_message.dart' as c;
@@ -39,7 +41,7 @@ class _State extends State<ByTimeResultScreen>
     return Scaffold(
       appBar: AppBar(
         title: AutoSizeText(
-          widget.title ?? 'By Time',
+          widget.title ?? AppLocalizations.text(LangKey.byTime),
           style: const TextStyle(
               color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
         ),
@@ -126,7 +128,7 @@ class _State extends State<ByTimeResultScreen>
             Expanded(child: Padding(
               padding: const EdgeInsets.only(left: 10.0,bottom: 15.0,top: 10.0),
               child: Text(
-                dt.isToday() ? 'Today' : dt.isYesterday() ? 'Yesterday' :
+                dt.isToday() ? AppLocalizations.text(LangKey.today) : dt.isYesterday() ? AppLocalizations.text(LangKey.yesterday) :
                 element,
                 style: const TextStyle(fontWeight: FontWeight.w600),),
             ))

@@ -6,6 +6,8 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter/material.dart';
 import 'chat_screen/home_screen.dart';
 import 'connection/chat_connection.dart';
+import 'localization/app_localizations.dart';
+import 'localization/lang_key.dart';
 
 class Chat {
   static const MethodChannel _channel = MethodChannel('chat');
@@ -22,16 +24,18 @@ class Chat {
   static disconnectSocket() {
     ChatConnection.dispose(isDispose: true);
   }
-  static open(BuildContext context, String email, String password, String appIcon, {String? domain, Map<String, dynamic>? notificationData}) async {
+  static open(BuildContext context, String email, String password, String appIcon,Locale locale,{String? domain, Map<String, dynamic>? notificationData}) async {
     await initializeDateFormatting();
     if(domain != null) {
       HTTPConnection.domain = domain;
     }
+    ChatConnection.locale = locale;
     ChatConnection.buildContext = context;
     ChatConnection.appIcon = appIcon;
     if(notificationData != null) {
       ChatConnection.initialData = notificationData;
     }
+    AppLocalizations(ChatConnection.locale).load();
     bool result = await connectSocket(context,email,password,appIcon,domain:domain);
     if(result) {
       await Navigator.of(context,rootNavigator: true).push(
@@ -54,14 +58,14 @@ class Chat {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Warning'),
-        content: Text('Account login error!\nAccount:$username,Password:$password'),
+        title: Text(AppLocalizations.text(LangKey.warning)),
+        content: Text('${AppLocalizations.text(LangKey.accountLoginError)}\nAccount:$username,Password:$password'),
         actions: [
           ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: const Text('Accept'))
+              child: Text(AppLocalizations.text(LangKey.accept)))
         ],
       ),
     );

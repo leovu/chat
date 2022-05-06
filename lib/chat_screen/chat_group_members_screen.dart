@@ -8,6 +8,8 @@ import 'package:chat/connection/http_connection.dart';
 import 'package:chat/data_model/contact.dart' as ct;
 import 'package:chat/data_model/room.dart' as r;
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:chat/localization/app_localizations.dart';
+import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -37,7 +39,7 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
                   return StatefulBuilder(
                     builder: (BuildContext cxtx, StateSetter setState) {
                     return CupertinoAlertDialog(
-                      title: const Text('Rename the group'),
+                      title: Text(AppLocalizations.text(LangKey.renameGroup)),
                       content: Card(
                         color: Colors.transparent,
                         elevation: 0.0,
@@ -48,13 +50,13 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
                               child: CupertinoTextField(
                                 controller: _controller,
                                 focusNode: _focusNode,
-                                placeholder: "Enter group name",
+                                placeholder: AppLocalizations.text(LangKey.enterGroupName),
                               ),
                             ),
                             Row(
                               children: [
                                 Expanded(child:
-                                CupertinoButton(child: const Text('Accept'), onPressed: () async {
+                                CupertinoButton(child: Text(AppLocalizations.text(LangKey.accept)), onPressed: () async {
                                   FocusManager.instance.primaryFocus?.unfocus();
                                   Navigator.of(context).pop();
                                   bool result = await ChatConnection.updateRoomName(widget.roomData.sId!, _controller.value.text);
@@ -68,7 +70,7 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
                                 }),),
                                 Container(width: 1.0,height: 25.0,color: Colors.blue,),
                                 Expanded(child:
-                                CupertinoButton(child: const Text('Cancel'), onPressed: (){
+                                CupertinoButton(child: Text(AppLocalizations.text(LangKey.cancel)), onPressed: (){
                                   FocusManager.instance.primaryFocus?.unfocus();
                                   Navigator.of(context).pop();
                                 }),),
@@ -84,18 +86,18 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
             },
           child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
+              children: [
                 AutoSizeText(
-                  'Members ',
-                  style: TextStyle(
+                  '${AppLocalizations.text(LangKey.members)} ',
+                  style: const TextStyle(
                       color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
                 ),
-                Icon(Icons.edit_outlined,color: Colors.black,size: 15.0,)
+                const Icon(Icons.edit_outlined,color: Colors.black,size: 15.0,)
               ],
             ),
-        ) : const AutoSizeText(
-            'Members',
-            style: TextStyle(
+        ) : AutoSizeText(
+            AppLocalizations.text(LangKey.members),
+            style: const TextStyle(
                 color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
           ),
           leading: InkWell(
@@ -126,7 +128,7 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
             children: [
               Padding(
                 padding: const EdgeInsets.only(left:15.0,top: 10.0,bottom: 10.0),
-                child: Text('List of members (${widget.roomData.people?.length})',style: const TextStyle(
+                child: Text('${AppLocalizations.text(LangKey.listMembers)} (${widget.roomData.people?.length})',style: const TextStyle(
                   fontWeight: FontWeight.w600,
                   fontSize: 15
                 ),),
@@ -168,14 +170,14 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Warning'),
-        content: const Text('Change group name error!'),
+        title: Text(AppLocalizations.text(LangKey.warning)),
+        content: Text(AppLocalizations.text(LangKey.changeGroupNameError)),
         actions: [
           ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: const Text('Accept'))
+              child: Text(AppLocalizations.text(LangKey.accept)))
         ],
       ),
     );
@@ -200,20 +202,20 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
                 showModalActionSheet<String>(
                   context: context,
                   actions: [
-                    const SheetAction(
+                    SheetAction(
                       icon: Icons.chat,
-                      label: 'Send message',
+                      label: AppLocalizations.text(LangKey.sendMessage),
                       key: 'Chat',
                     ),
                     if(widget.roomData.owner == ChatConnection.user!.id &&
-                        widget.roomData.isGroup!) const SheetAction(
+                        widget.roomData.isGroup!) SheetAction(
                       icon: Icons.delete,
-                      label: 'Remove from group',
+                      label: AppLocalizations.text(LangKey.removeFroumGroup),
                       key: 'Delete',
                     ),
-                    if(Platform.isAndroid) const SheetAction(
+                    if(Platform.isAndroid) SheetAction(
                         icon: Icons.cancel,
-                        label: 'Cancel',
+                        label: AppLocalizations.text(LangKey.cancel),
                         key: 'Cancel',
                         isDestructiveAction: true),
                   ],

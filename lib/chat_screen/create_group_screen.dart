@@ -5,6 +5,8 @@ import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/data_model/contact.dart';
 import 'package:chat/data_model/room.dart';
+import 'package:chat/localization/app_localizations.dart';
+import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/data_model/room.dart' as r;
@@ -97,11 +99,11 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
                         ],
                       ),
                     ),
-                    const Center(
+                    Center(
                       child:
                       Padding(
-                        padding: EdgeInsets.only(bottom: 3.0,left: 10.0,right: 10.0,top: 2.0),
-                        child: Text('New Group Chat',style: TextStyle(fontSize: 22.0,color: Colors.black)),
+                        padding: const EdgeInsets.only(bottom: 3.0,left: 10.0,right: 10.0,top: 2.0),
+                        child: Text(AppLocalizations.text(LangKey.newGroupChat),style: const TextStyle(fontSize: 22.0,color: Colors.black)),
                       ),
                     )
                   ],
@@ -126,8 +128,8 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
                               _getContactsVisible();
                             });
                           },
-                          decoration: const InputDecoration.collapsed(
-                            hintText: 'Group name',
+                          decoration: InputDecoration.collapsed(
+                            hintText: AppLocalizations.text(LangKey.groupName),
                           ),
                         )),
                       ],
@@ -159,8 +161,8 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
                               _getContactsVisible();
                             });
                           },
-                          decoration: const InputDecoration.collapsed(
-                            hintText: 'Search',
+                          decoration: InputDecoration.collapsed(
+                            hintText: AppLocalizations.text(LangKey.search),
                           ),
                         )),
                         Material(
@@ -229,14 +231,14 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
                       showDialog(
                         context: context,
                         builder: (context) => AlertDialog(
-                          title: const Text('Warning'),
-                          content: const Text('Select at least one user'),
+                          title: Text(AppLocalizations.text(LangKey.warning)),
+                          content: Text(AppLocalizations.text(LangKey.selectAtleastOneUser)),
                           actions: [
                             ElevatedButton(
                                 onPressed: () {
                                   Navigator.pop(context);
                                 },
-                                child: const Text('Accept'))
+                                child: Text(AppLocalizations.text(LangKey.accept)))
                           ],
                         ),
                       );
@@ -245,14 +247,14 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
                       showDialog(
                         context: context,
                         builder: (context) => AlertDialog(
-                          title: const Text('Warning'),
-                          content: const Text('Must have group name'),
+                          title: Text(AppLocalizations.text(LangKey.warning)),
+                          content: Text(AppLocalizations.text(LangKey.groupNameError)),
                           actions: [
                             ElevatedButton(
                                 onPressed: () {
                                   Navigator.pop(context);
                                 },
-                                child: const Text('Accept'))
+                                child: Text(AppLocalizations.text(LangKey.accept)))
                           ],
                         ),
                       );
@@ -272,7 +274,7 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.0),
                   ),
-                  child: const Text('Create Group',style: TextStyle(color: Colors.white, fontSize: 16,fontWeight: FontWeight.w600),),
+                  child: Text(AppLocalizations.text(LangKey.createGroup),style: const TextStyle(color: Colors.white, fontSize: 16,fontWeight: FontWeight.w600),),
                 ),
               ),
             ) : Container()

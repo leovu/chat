@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:chat/chat_ui/widgets/inherited_replied_message.dart';
 import 'package:chat/chat_ui/widgets/remove_edit_button.dart';
 import 'package:chat/chat_ui/widgets/replied_message.dart';
+import 'package:chat/localization/app_localizations.dart';
+import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -219,7 +221,7 @@ class _InputState extends State<Input> {
                                                 color:
                                                 Colors.black.withOpacity(0.2),
                                               ),
-                                              hintText: 'Write a message...',
+                                              hintText: AppLocalizations.text(LangKey.writeAMessage),
                                             ),
                                             focusNode: _inputFocusNode,
                                             keyboardType: TextInputType.multiline,
