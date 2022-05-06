@@ -41,7 +41,7 @@ class Chat {
       await Navigator.of(context,rootNavigator: true).push(
           MaterialPageRoute(builder: (context) => AppChat(email: email,password: password)));
     }else {
-      loginError(context,email,password);
+      loginError(context);
     }
   }
   static openNotification(Map<String, dynamic> notificationData) {
@@ -54,12 +54,12 @@ class Chat {
       }
     }catch(_){}
   }
-  static void loginError(BuildContext context,String username,String password) {
+  static void loginError(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(AppLocalizations.text(LangKey.warning)),
-        content: Text('${AppLocalizations.text(LangKey.accountLoginError)}\nAccount:$username,Password:$password'),
+        content: Text(AppLocalizations.text(LangKey.accountLoginError)),
         actions: [
           ElevatedButton(
               onPressed: () {
