@@ -34,7 +34,8 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
   String? imageViewed;
   @override
   void initState() {
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 1, vsync: this);
+    // _tabController = TabController(length: 3, vsync: this);
     _searchController = TextEditingController();
     _searchNode = FocusNode();
     super.initState();
@@ -119,12 +120,12 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                         Tab(
                           text: 'IMAGE',
                         ),
-                        Tab(
-                          text: 'FILE',
-                        ),
-                        Tab(
-                          text: 'LINK',
-                        )
+                        // Tab(
+                        //   text: 'FILE',
+                        // ),
+                        // Tab(
+                        //   text: 'LINK',
+                        // )
                       ],
                       controller: _tabController,
                       indicatorSize: TabBarIndicatorSize.tab,
@@ -133,8 +134,8 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                     child: TabBarView(
                       children: [
                         _images(),
-                        Container(),
-                        Container(),
+                        // Container(),
+                        // Container(),
                       ],
                       controller: _tabController,
                     ),
