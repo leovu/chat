@@ -15,7 +15,8 @@ class Chat {
     final String? version = await _channel.invokeMethod('getPlatformVersion');
     return version;
   }
-  static Future<String?> chatToken(String email, String password) async {
+  static Future<String?> chatToken(String email, String password, String domain) async {
+    HTTPConnection.domain = domain;
     return await ChatConnection.token(email, password);
   }
   static Future<bool>connectSocket(BuildContext context, String email, String password, String appIcon, {String? domain}) async {
