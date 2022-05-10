@@ -316,11 +316,14 @@ class Message extends StatelessWidget {
     final _query = MediaQuery.of(context);
     final _user = InheritedUser.of(context).user;
     final _currentUserIsAuthor = _user.id == message.author.id;
-    final _enlargeEmojis =
+    var _enlargeEmojis =
         emojiEnlargementBehavior != EmojiEnlargementBehavior.never &&
             message is types.TextMessage &&
             isConsistsOfEmojis(
                 emojiEnlargementBehavior, message as types.TextMessage);
+    if(message.repliedMessage != null) {
+      _enlargeEmojis = false;
+    }
     final _messageBorderRadius =
         InheritedChatTheme.of(context).theme.messageBorderRadius;
     BorderRadiusDirectional _borderRadius = _currentUserIsAuthor

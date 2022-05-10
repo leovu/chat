@@ -190,9 +190,12 @@ class TextMessage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _enlargeEmojis =
+    var _enlargeEmojis =
         emojiEnlargementBehavior != EmojiEnlargementBehavior.never &&
             isConsistsOfEmojis(emojiEnlargementBehavior, message);
+    if(message.repliedMessage != null) {
+      _enlargeEmojis = false;
+    }
     final _theme = InheritedChatTheme.of(context).theme;
     final _user = InheritedUser.of(context).user;
     final _width = MediaQuery.of(context).size.width;
