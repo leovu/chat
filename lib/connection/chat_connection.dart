@@ -41,6 +41,14 @@ class ChatConnection {
     }
     return responseData.isSuccess;
   }
+  static Future<String?>token(String email,String password) async {
+    HttpOverrides.global = MyHttpOverrides();
+    ResponseData responseData = await connection.post('api/login', {'email':email,'password':password});
+    if(responseData.isSuccess) {
+      return responseData.data['token'];
+    }
+    return null;
+  }
   static bool checkConnected() {
     if(streamSocket.socket == null) {
       return false;
