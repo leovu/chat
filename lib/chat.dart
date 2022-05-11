@@ -43,14 +43,15 @@ class Chat {
     bool result = await connectSocket(context,email,password,appIcon,domain:domain);
     if(result) {
       await Navigator.of(context,rootNavigator: true).push(
-          MaterialPageRoute(builder: (context) => AppChat(email: email,password: password)));
+          MaterialPageRoute(builder: (context) => AppChat(email: email,password: password),settings: const RouteSettings(name: 'home_screen')));
     }else {
       loginError(context);
     }
   }
   static openNotification(Map<String, dynamic> notificationData) {
     try{
-      if(ChatConnection.roomId != null) {
+      if(ChatConnection.roomId == null) {
+        
         ChatConnection.homeScreenNotificationHandler(notificationData);
       }
       else {

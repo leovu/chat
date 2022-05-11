@@ -28,6 +28,12 @@ abstract class AppLifeCycle<T extends StatefulWidget> extends State<T>
       case AppLifecycleState.paused:
         ChatConnection.dispose();
         break;
+      case AppLifecycleState.inactive:
+        ChatConnection.dispose();
+        break;
+      case AppLifecycleState.detached:
+        ChatConnection.dispose();
+        break;
       default: break;
     }
   }
