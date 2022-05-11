@@ -471,7 +471,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
     People? p;
     try {
       p = people?.firstWhere((element) => element.sId == author);
-      return (p!.sId != ChatConnection.user!.id ? ((p.lastName ?? '').trim() + ' ' + (p.firstName ?? '').trim()).trim() : AppLocalizations.text(LangKey.you)) + ': ';
+      return (p!.sId != ChatConnection.user!.id ? ((p.firstName ?? '').trim() + ' ' + (p.lastName ?? '').trim()).trim() : AppLocalizations.text(LangKey.you)) + ': ';
     }catch(_){
       return '';
     }
