@@ -600,16 +600,21 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   }
   Future<dynamic> _notificationHandler(Map<String, dynamic> message) async {
     try{
+      ChatConnection.roomId = message['room']['_id'];
       r.Room? room = await ChatConnection.roomList();
       r.Rooms? rooms = room?.rooms?.firstWhere((element) => element.sId == message['room']['_id']);
-      Navigator.of(context).popUntil((route) => route.settings.name == "chat_screen");
-      Navigator.of(context,rootNavigator: true).pushReplacement(MaterialPageRoute(builder: (context) => ChatScreen(data: rooms!),settings:const RouteSettings(name: 'chat_screen')),);
+      Navigator.of(context).popUntil((route) => route.settings.name == "home_screen");
+      Navigator.of(context,rootNavigator: true).push(MaterialPageRoute(builder: (context) => ChatScreen(data: rooms!),settings:const RouteSettings(name: 'chat_screen')),);
       try{
         ChatConnection.refreshRoom.call();
         ChatConnection.refreshContact.call();
         ChatConnection.refreshFavorites.call();
-      }catch(_){}
-    }catch(_){}
+      }catch(_){
+        ChatConnection.roomId = null;
+      }
+    }catch(_){
+      ChatConnection.roomId = null;
+    }
   }
   @override
   Widget build(BuildContext context) {
