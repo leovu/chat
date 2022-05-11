@@ -342,11 +342,11 @@ class Messages {
         json['name'] = replies!.file!.name;
         json['uri'] = '${HTTPConnection.domain}api/files/${replies!.file!.shieldedID}';
       }
-      else if(type == 'image') {
+      else if(replies?.type == 'image') {
         json['size'] = 0;
         json['type'] = 'image';
         json['name'] = 'image';
-        json['uri'] = '${HTTPConnection.domain}api/images/$content';
+        json['uri'] = '${HTTPConnection.domain}api/images/${replies!.content}';
       }
       else {
         json['type'] = 'text';
