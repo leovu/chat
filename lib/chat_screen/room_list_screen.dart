@@ -440,10 +440,14 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                         ),
                         Container(height: 5.0,),
                         Expanded(child: AutoSizeText(
-                          '$author${(data.lastMessage?.type == 'image' ? AppLocalizations.text(LangKey.sentPicture) :
-                          data.lastMessage?.type == 'file' ? AppLocalizations.text(LangKey.sendFile) :
-                          data.lastMessage?.content ?? '')}',
-                          overflow: TextOverflow.ellipsis,))
+                          '$author${(data.lastMessage?.type == 'image'
+                              ? AppLocalizations.text(LangKey.sentPicture) :
+                                data.lastMessage?.type == 'file'
+                              ? AppLocalizations.text(LangKey.sendFile) :
+                                data.lastMessage?.content != null && data.lastMessage?.content != '' ?
+                                data.lastMessage?.content
+                                : AppLocalizations.text(LangKey.forwardMessage))}',
+                                overflow: TextOverflow.ellipsis,))
                       ],
                     ),
                   ))

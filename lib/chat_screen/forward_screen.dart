@@ -1,10 +1,12 @@
 import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:chat/chat_ui/util.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/data_model/chat_message.dart' as c;
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
@@ -122,8 +124,79 @@ class ForwardScreenState extends State<ForwardScreen> {
                               child: Icon(Icons.format_quote,color: Colors.black,size: 15.0,),
                             ),
                             Expanded(child: Padding(
-                              padding: const EdgeInsets.only(right: 10.0,bottom: 10.0,top: 10.0),
-                              child: AutoSizeText((widget.message as types.TextMessage).text),
+                              padding: widget.message is types.TextMessage ?
+                                const EdgeInsets.only(right: 10.0,bottom: 10.0,top: 10.0) :
+                              widget.message is types.FileMessage ?
+                                const EdgeInsets.only(right: 10.0,bottom: 10.0,top: 10.0,left: 10.0) :
+                              const EdgeInsets.only(right: 10.0,bottom: 0.0,top: 0.0),
+                              child:
+                              widget.message is types.TextMessage ?
+                                AutoSizeText((widget.message as types.TextMessage).text) :
+                              widget.message is types.ImageMessage ?
+                                Row(
+                                  children: [
+                                    SizedBox(
+                                      width: MediaQuery.of(context).size.width*0.15,
+                                      height: MediaQuery.of(context).size.width*0.25,
+                                      child: CachedNetworkImage(
+                                        imageUrl:
+                                        (widget.message as types.ImageMessage).uri,
+                                        placeholder: (context, url) => const CupertinoActivityIndicator(),
+                                        errorWidget: (context, url, error) => const Icon(Icons.error),
+                                        fit: BoxFit.contain,
+                                      ),
+                                    ),
+                                    Expanded(child: Container())
+                                  ],
+                                ) :
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.withOpacity(0.2),
+                                      borderRadius: BorderRadius.circular(21),
+                                    ),
+                                    height: 42,
+                                    width: 42,
+                                    child: Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        Image.asset(
+                                          'assets/icon-document.png',
+                                          color: Colors.grey,
+                                          package: 'chat',
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Flexible(
+                                    child: Container(
+                                      margin: const EdgeInsetsDirectional.only(
+                                        start: 16,
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            (widget.message as types.FileMessage).name,
+                                            textWidthBasis: TextWidthBasis.longestLine,
+                                            style: const TextStyle(fontWeight: FontWeight.w600),
+                                          ),
+                                          Container(
+                                            margin: const EdgeInsets.only(
+                                              top: 4,
+                                            ),
+                                            child: Text(
+                                              formatBytes((widget.message as types.FileMessage).size.truncate()),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),)
                           ],
                         ),

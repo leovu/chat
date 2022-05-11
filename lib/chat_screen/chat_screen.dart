@@ -417,57 +417,55 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   }
 
   void _handleMessageLongPress(BuildContext context, types.Message message) async {
-    if(message is types.TextMessage || message is types.ImageMessage) {
-      if(message is types.TextMessage && message.text == 'Message recalled') {
-        return;
-      }
-      c.Messages? mess = data?.room?.messages?.firstWhere((e) => e.sId == message.id);
-      showModalActionSheet<String>(
-        context: context,
-        actions: [
-          SheetAction(
-            icon: Icons.reply,
-            label: AppLocalizations.text(LangKey.reply),
-            key: 'Reply',
-          ),
-          SheetAction(
-            icon: Icons.forward,
-            label: AppLocalizations.text(LangKey.forward),
-            key: 'Forward',
-          ),
-          if(mess?.author?.sId == ChatConnection.user?.id) SheetAction(
-            icon: Icons.replay_30_outlined,
-            label: AppLocalizations.text(LangKey.recall),
-            key: 'Recall',
-          ),
-          if(mess?.author?.sId == ChatConnection.user?.id && message.type.name == 'text') SheetAction(
-            icon: Icons.replay_30_outlined,
-            label: AppLocalizations.text(LangKey.edit),
-            key: 'Edit',
-          ),
-          SheetAction(
-            icon: Icons.replay_30_outlined,
-            label: AppLocalizations.text(LangKey.pinMessage),
-            key: 'Pin Message',
-          ),
-          if(Platform.isAndroid) SheetAction(
-              icon: Icons.cancel,
-              label: AppLocalizations.text(LangKey.cancel),
-              key: 'Cancel',
-              isDestructiveAction: true),
-        ],
-      ).then((value) => value == 'Reply'
-          ? chatController.reply(message)
-          : value == 'Recall'
-          ? recall(message,mess)
-          : value == 'Pin Message'
-          ? pinMesage(message,mess)
-          : value == 'Forward'
-          ? forward(message,mess)
-          : value == 'Edit'
-          ? chatController.edit(message,mess)
-          : {});
+    if(message is types.TextMessage && message.text == 'Message recalled') {
+      return;
     }
+    c.Messages? mess = data?.room?.messages?.firstWhere((e) => e.sId == message.id);
+    showModalActionSheet<String>(
+      context: context,
+      actions: [
+        SheetAction(
+          icon: Icons.reply,
+          label: AppLocalizations.text(LangKey.reply),
+          key: 'Reply',
+        ),
+        // SheetAction(
+        //   icon: Icons.forward,
+        //   label: AppLocalizations.text(LangKey.forward),
+        //   key: 'Forward',
+        // ),
+        // if(mess?.author?.sId == ChatConnection.user?.id) SheetAction(
+        //   icon: Icons.replay_30_outlined,
+        //   label: AppLocalizations.text(LangKey.recall),
+        //   key: 'Recall',
+        // ),
+        // if(mess?.author?.sId == ChatConnection.user?.id && message.type.name == 'text') SheetAction(
+        //   icon: Icons.replay_30_outlined,
+        //   label: AppLocalizations.text(LangKey.edit),
+        //   key: 'Edit',
+        // ),
+        // SheetAction(
+        //   icon: Icons.replay_30_outlined,
+        //   label: AppLocalizations.text(LangKey.pinMessage),
+        //   key: 'Pin Message',
+        // ),
+        if(Platform.isAndroid) SheetAction(
+            icon: Icons.cancel,
+            label: AppLocalizations.text(LangKey.cancel),
+            key: 'Cancel',
+            isDestructiveAction: true),
+      ],
+    ).then((value) => value == 'Reply'
+        ? chatController.reply(message)
+        : value == 'Recall'
+        ? recall(message,mess)
+        : value == 'Pin Message'
+        ? pinMesage(message,mess)
+        : value == 'Forward'
+        ? forward(message,mess)
+        : value == 'Edit'
+        ? chatController.edit(message,mess)
+        : {});
   }
 
   void pinMesage(types.Message message, c.Messages? value) async {
@@ -996,22 +994,22 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
               }
             },
           ),
-          IconButton(
-            visualDensity: const VisualDensity(horizontal: -4.0, vertical: -4.0),
-            padding: EdgeInsets.zero,
-            icon: const Icon(
-              Icons.search,
-              color: Color(0xFF787878),
-            ),
-            onPressed: () {
-              setState(() {
-                _isSearchMessage = !_isSearchMessage;
-                if(_isSearchMessage) {
-                  _focusSearch.requestFocus();
-                }
-              });
-            },
-          ),
+          // IconButton(
+          //   visualDensity: const VisualDensity(horizontal: -4.0, vertical: -4.0),
+          //   padding: EdgeInsets.zero,
+          //   icon: const Icon(
+          //     Icons.search,
+          //     color: Color(0xFF787878),
+          //   ),
+          //   onPressed: () {
+          //     setState(() {
+          //       _isSearchMessage = !_isSearchMessage;
+          //       if(_isSearchMessage) {
+          //         _focusSearch.requestFocus();
+          //       }
+          //     });
+          //   },
+          // ),
           IconButton(
             visualDensity: const VisualDensity(horizontal: -4.0, vertical: -4.0),
             padding: EdgeInsets.zero,
