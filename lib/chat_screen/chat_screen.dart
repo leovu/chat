@@ -429,11 +429,11 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
           label: AppLocalizations.text(LangKey.reply),
           key: 'Reply',
         ),
-        SheetAction(
-          icon: Icons.forward,
-          label: AppLocalizations.text(LangKey.forward),
-          key: 'Forward',
-        ),
+        // SheetAction(
+        //   icon: Icons.forward,
+        //   label: AppLocalizations.text(LangKey.forward),
+        //   key: 'Forward',
+        // ),
         // if(mess?.author?.sId == ChatConnection.user?.id) SheetAction(
         //   icon: Icons.replay_30_outlined,
         //   label: AppLocalizations.text(LangKey.recall),
