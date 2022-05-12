@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:chat/chat_ui/widgets/inherited_replied_message.dart';
+import 'package:chat/connection/chat_connection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:chat/chat_ui/widgets/inherited_l10n.dart';
@@ -436,7 +437,9 @@ class _ChatState extends State<Chat> {
           seenPeople = [];
           for (var e in messageSeen) {
             if(e.message == message.id) {
-              seenPeople.add(e.author);
+              if(e.author!.sId != ChatConnection.user!.id) {
+                seenPeople.add(e.author);
+              }
             }
           }
         }

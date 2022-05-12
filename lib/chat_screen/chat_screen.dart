@@ -539,27 +539,30 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   }
 
   _loadMessages() async {
-    WidgetsBinding.instance?.addPostFrameCallback((_) async {
-      ChatConnection.roomId = widget.data.sId!;
-      data = await ChatConnection.joinRoom(widget.data.sId!);
-      isInitScreen = false;
-      if(data != null) {
-        List<c.Messages>? messages = data?.room?.messages;
-        if(messages != null) {
-          final values = (messages)
-              .map((e) => types.Message.fromJson(e.toMessageJson(messageSeen: data?.room?.messageSeen)))
-              .toList();
-          if(mounted) {
-            setState(() {
-              _messages = values;
-            });
-          }
+    ChatConnection.roomId = widget.data.sId!;
+    data = await ChatConnection.joinRoom(widget.data.sId!);
+    isInitScreen = false;
+    if(data != null) {
+      List<c.Messages>? messages = data?.room?.messages;
+      if(messages != null) {
+        List<types.Message> values = [];
+        for(var e in messages) {
+          Map<String, dynamic> result = await e.toMessageJson(messageSeen: data?.room?.messageSeen);
+          values.add(types.Message.fromJson(result));
         }
+        _messages = values;
       }
-      if(mounted) {
-        setState(() {});
-      }
-    });
+    }
+    if(mounted) {
+      setState(() {});
+    }
+    else {
+      WidgetsBinding.instance?.addPostFrameCallback((_) async {
+        if(mounted) {
+          setState(() {});
+        }
+      });
+    }
   }
   _refreshMessage(dynamic cData) async {
     if(mounted) {
@@ -571,9 +574,11 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       if(data != null) {
         List<c.Messages>? messages = data?.room?.messages;
         if(messages != null) {
-          final values = (messages)
-              .map((e) => types.Message.fromJson(e.toMessageJson(messageSeen: data?.room?.messageSeen)))
-              .toList();
+          List<types.Message> values = [];
+          for(var e in messages) {
+            Map<String, dynamic> result = await e.toMessageJson(messageSeen: data?.room?.messageSeen);
+            values.add(types.Message.fromJson(result));
+          }
           if(mounted) {
             setState(() {
               _messages = values;
@@ -600,20 +605,22 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   }
   Future<dynamic> _notificationHandler(Map<String, dynamic> message) async {
     try{
-      ChatConnection.roomId = message['room']['_id'];
-      r.Room? room = await ChatConnection.roomList();
-      r.Rooms? rooms = room?.rooms?.firstWhere((element) => element.sId == message['room']['_id']);
-      Navigator.of(context).popUntil((route) => route.settings.name == "home_screen");
-      Navigator.of(context,rootNavigator: true).push(MaterialPageRoute(builder: (context) => ChatScreen(data: rooms!),settings:const RouteSettings(name: 'chat_screen')),);
-      try{
-        ChatConnection.refreshRoom.call();
-        ChatConnection.refreshContact.call();
-        ChatConnection.refreshFavorites.call();
-      }catch(_){
-        ChatConnection.roomId = null;
+      if(ChatConnection.roomId == message['room']['_id']) {
+        await _loadMessages();
+      }
+      else {
+        r.Room? room = await ChatConnection.roomList();
+        r.Rooms? rooms = room?.rooms?.firstWhere((element) => element.sId == message['room']['_id']);
+        Navigator.of(context).popUntil((route) => route.settings.name == "home_screen");
+        Navigator.of(context,rootNavigator: true).push(MaterialPageRoute(builder: (context) => ChatScreen(data: rooms!),settings:const RouteSettings(name: 'chat_screen')),);
+        try{
+          ChatConnection.refreshRoom.call();
+          ChatConnection.refreshContact.call();
+          ChatConnection.refreshFavorites.call();
+        }catch(_){
+        }
       }
     }catch(_){
-      ChatConnection.roomId = null;
     }
   }
   @override
@@ -783,9 +790,11 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       List<c.Messages>? messages = value;
       if(messages.isNotEmpty) {
         data?.room?.messages?.addAll(messages);
-        final values = (messages)
-            .map((e) => types.Message.fromJson(e.toMessageJson(messageSeen: data?.room?.messageSeen)))
-            .toList();
+        List<types.Message> values = [];
+        for(var e in messages) {
+          Map<String, dynamic> result = await e.toMessageJson(messageSeen: data?.room?.messageSeen);
+          values.add(types.Message.fromJson(result));
+        }
         if(mounted) {
           setState(() {
             _messages.addAll(values);
