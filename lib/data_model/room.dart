@@ -252,7 +252,9 @@ class LastMessage {
     final format = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z");
     final dt = format.parse(date!, true).toLocal();
     if(dt.isToday()) {
-      return dt.hour > 12 ? '${dt.hour-12}:${dt.minute} PM' :'${dt.hour}:${dt.minute} AM';
+      String hour = dt.hour >= 10 ? '${dt.hour}' : '0${dt.hour}';
+      String minute = dt.minute >= 10 ? '${dt.minute}' : '0${dt.minute}';
+      return dt.hour > 12 ? '$hour:$minute PM' :'$hour:$minute AM';
     }
     else if (dt.isYesterday()) {
       return 'Yesterday';

@@ -24,10 +24,13 @@ class AttachmentButton extends StatelessWidget {
       child: IconButton(
         icon: InheritedChatTheme.of(context).theme.attachmentButtonIcon != null
             ? InheritedChatTheme.of(context).theme.attachmentButtonIcon!
-            : Image.asset(
-                image,
-                package: 'chat',
-              ),
+            : Padding(
+              padding: EdgeInsets.all(image == 'assets/icon-chat-add.png' ? 1.5 : 0.0),
+              child: Image.asset(
+                  image,
+                  package: 'chat',
+                ),
+            ),
         onPressed: onPressed,
         padding: EdgeInsets.zero,
         tooltip:

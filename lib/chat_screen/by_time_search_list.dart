@@ -77,7 +77,7 @@ class _State extends State<ByTimeResultScreen>
     final format1 = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z");
     final format2 = DateFormat("dd/MM/yyyy");
     widget.chatMessage?.room?.images?.forEach((e) {
-      final dt = format1.parse(e.date!, true);
+      final dt = format1.parse(e.date!, true).toLocal();
       String formattedDate = format2.format(dt);
       if(widget.search != null && widget.search != '') {
         if(widget.search!.contains('-')) {
