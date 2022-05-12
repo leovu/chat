@@ -304,8 +304,8 @@ class DefaultChatTheme extends ChatTheme {
     EdgeInsets closableRepliedMessagePadding =
     const EdgeInsets.fromLTRB(16, 12, 16, 12),
     EdgeInsets dateDividerMargin = const EdgeInsets.only(
-      bottom: 32,
-      top: 16,
+      bottom: 16,
+      top: 8,
     ),
     TextStyle dateDividerTextStyle = const TextStyle(
       color: neutral2,
@@ -521,8 +521,8 @@ class DarkChatTheme extends ChatTheme {
     EdgeInsets closableRepliedMessagePadding =
     const EdgeInsets.fromLTRB(16, 12, 16, 12),
     EdgeInsets dateDividerMargin = const EdgeInsets.only(
-      bottom: 32,
-      top: 16,
+      bottom: 16,
+      top: 8,
     ),
     TextStyle dateDividerTextStyle = const TextStyle(
       color: neutral7,

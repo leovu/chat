@@ -181,24 +181,40 @@ class _ImageMessageState extends State<ImageMessage> {
         ),
       );
     } else {
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Flexible(child: Container(
+            constraints: const BoxConstraints(
+                maxHeight: 150
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (widget.message.repliedMessage != null)
+                  _repliedMessageBuilder(_user),
+                Flexible(child: Image(
+                  fit: BoxFit.contain,
+                  image: _image!,
+                )),
+              ],
+            ),
+          ))
+        ],
+      );
       return Container(
-        constraints: BoxConstraints(
-          maxHeight: widget.messageWidth.toDouble(),
-          minWidth: 170,
+        constraints: const BoxConstraints(
+          // minWidth: 170,
+          maxHeight: 200
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             if (widget.message.repliedMessage != null)
               _repliedMessageBuilder(_user),
-            Expanded(
-              child: AspectRatio(
-                aspectRatio: _size.aspectRatio > 0 ? _size.aspectRatio : 1,
-                child: Image(
-                  fit: BoxFit.contain,
-                  image: _image!,
-                ),
-              ),
+            Image(
+              fit: BoxFit.contain,
+              image: _image!,
             ),
           ],
         ),

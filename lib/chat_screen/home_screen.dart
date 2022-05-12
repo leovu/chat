@@ -104,7 +104,6 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
     }
   }
   Future<dynamic> _notificationHandler(Map<String, dynamic> message) async {
-    ChatConnection.roomId = message['room']['_id'];
     r.Room? room = await ChatConnection.roomList();
     try{
       r.Rooms? rooms = room?.rooms?.firstWhere((element) => element.sId == message['room']['_id']);
@@ -112,7 +111,6 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
         MaterialPageRoute(builder: (context) => ChatScreen(data: rooms!),settings:const RouteSettings(name: 'chat_screen')),
       );
     }catch(_){
-      ChatConnection.roomId = null;
     }
     try{
       ChatConnection.refreshRoom.call();
