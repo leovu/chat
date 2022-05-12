@@ -107,9 +107,7 @@ class _ConversationInformationScreenState extends State<ConversationInformationS
                           widget.roomData.isGroup!))
                     _section(const Icon(Icons.delete,color: Colors.red,size: 35,),
                         AppLocalizations.text(LangKey.deleteConversation),() {
-                      !widget.roomData.isGroup! ?
-                      _leaveRoom(widget.roomData.sId!)
-                          : _removeRoom(widget.roomData.sId!);
+                      _removeRoom(widget.roomData.sId!);
                 },textColor: Colors.red)
               ],
             ),

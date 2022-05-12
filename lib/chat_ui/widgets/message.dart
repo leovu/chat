@@ -507,7 +507,7 @@ class Message extends StatelessWidget {
                 ),
           ),
         ),
-        if(seenPeople != null) Row(
+        if((seenPeople?.length ?? 0) != 0) Row(
           children: [
             Expanded(child: Container()),
             Padding(
