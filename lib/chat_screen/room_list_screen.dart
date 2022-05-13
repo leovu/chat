@@ -127,7 +127,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                       children: [
                         Padding(
                           padding: const EdgeInsets.only(bottom: 3.0,left: 10.0,right: 10.0),
-                          child: Text(AppLocalizations.text(LangKey.chats),style: TextStyle(fontSize: 25.0,color: Colors.black)),
+                          child: Text(AppLocalizations.text(LangKey.chats),style: const TextStyle(fontSize: 25.0,color: Colors.black)),
                         ),
                         Expanded(child: Container()),
                         Padding(
@@ -433,21 +433,38 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                           child: Row(
                             children: [
                               Expanded(child: AutoSizeText(!data.isGroup! ?
-                              '${info.firstName} ${info.lastName}' : data.title ?? 'Group ${info.firstName} ${info.lastName}',overflow: TextOverflow.ellipsis),),
-                              AutoSizeText(data.lastMessage?.lastMessageDate() ?? '',style: const TextStyle(fontSize: 11,color: Colors.grey),)
+                              '${info.firstName} ${info.lastName}' : data.title ?? 'Group ${info.firstName} ${info.lastName}',
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(fontWeight: findUnread(data.messagesReceived) != '0' ? FontWeight.bold : FontWeight.normal),
+                                ),
+                              ),
+                              AutoSizeText(data.lastMessage?.lastMessageDate() ?? '',style: const TextStyle(fontSize: 11,color: Colors.grey),),
                             ],
                           )
                         ),
                         Container(height: 5.0,),
-                        Expanded(child: AutoSizeText(
-                          '$author${(data.lastMessage?.type == 'image'
-                              ? AppLocalizations.text(LangKey.sentPicture) :
+                        Expanded(child:
+                        Container(
+                          child: Row(
+                            children: [
+                              Expanded(child: AutoSizeText(
+                                '$author${(data.lastMessage?.type == 'image'
+                                    ? AppLocalizations.text(LangKey.sentPicture) :
                                 data.lastMessage?.type == 'file'
-                              ? AppLocalizations.text(LangKey.sendFile) :
+                                    ? AppLocalizations.text(LangKey.sendFile) :
                                 data.lastMessage?.content != null && data.lastMessage?.content != '' ?
                                 data.lastMessage?.content
-                                : AppLocalizations.text(LangKey.forwardMessage))}',
-                                overflow: TextOverflow.ellipsis,))
+                                    : AppLocalizations.text(LangKey.forwardMessage))}',
+                                overflow: TextOverflow.ellipsis,),),
+                              if(findUnread(data.messagesReceived) != '0') CircleAvatar(
+                                radius: 15.0,
+                                child: Text(
+                                  findUnread(data.messagesReceived),
+                                  style: const TextStyle(color: Colors.white,fontSize: 12),),
+                              )
+                            ],
+                          ),
+                        )),
                       ],
                     ),
                   ))
@@ -466,6 +483,15 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
   }
   People getPeople(List<People>? people) {
     return people!.first.sId != ChatConnection.user!.id ? people.first : people.last;
+  }
+  String findUnread(List<MessagesReceived>? messagesRecived) {
+    MessagesReceived? m;
+    try {
+      m = messagesRecived?.firstWhere((e) => e.people == ChatConnection.user!.id);
+      return '${m?.total ?? '0'}';
+    }catch(_){
+      return '0';
+    }
   }
   String? findAuthor(List<People>? people, String? author) {
     People? p;
