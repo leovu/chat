@@ -37,6 +37,7 @@ class Rooms {
   LastMessage? lastMessage;
   String? lastUpdate;
   Picture? picture;
+  List<MessagesReceived>? messagesReceived;
 
   Rooms(
       {people,
@@ -47,7 +48,8 @@ class Rooms {
         lastAuthor,
         lastMessage,
         lastUpdate,
-        owner});
+        owner,
+        messagesReceived,});
 
   Rooms.fromJson(Map<String, dynamic> json) {
     if (json['people'] != null) {
@@ -67,6 +69,12 @@ class Rooms {
           ? LastMessage.fromJson(json['lastMessage'])
           : null;
     }catch(_){}
+    if (json['messagesReceived'] != null) {
+      messagesReceived = <MessagesReceived>[];
+      json['messagesReceived'].forEach((v) {
+        messagesReceived!.add(MessagesReceived.fromJson(v));
+      });
+    }
     lastUpdate = json['lastUpdate'];
     try {
       picture =
@@ -86,6 +94,10 @@ class Rooms {
     data['lastAuthor'] = lastAuthor;
     if (lastMessage != null) {
       data['lastMessage'] = lastMessage!.toJson();
+    }
+    if (messagesReceived != null) {
+      data['messagesReceived'] =
+          messagesReceived!.map((v) => v.toJson()).toList();
     }
     data['lastUpdate'] = lastUpdate;
     data['picture'] = picture;
@@ -224,6 +236,28 @@ class Picture {
     data['__v'] = iV;
     data['location'] = location;
     data['shieldedID'] = shieldedID;
+    return data;
+  }
+}
+
+class MessagesReceived {
+  int? total;
+  String? sId;
+  String? people;
+
+  MessagesReceived({this.total, this.sId, this.people});
+
+  MessagesReceived.fromJson(Map<String, dynamic> json) {
+    total = json['total'];
+    sId = json['_id'];
+    people = json['people'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['total'] = total;
+    data['_id'] = sId;
+    data['people'] = people;
     return data;
   }
 }

@@ -547,7 +547,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       if(messages != null) {
         List<types.Message> values = [];
         for(var e in messages) {
-          Map<String, dynamic> result = await e.toMessageJson(messageSeen: data?.room?.messageSeen);
+          Map<String, dynamic> result = e.toMessageJson(messageSeen: data?.room?.messageSeen);
           values.add(types.Message.fromJson(result));
         }
         _messages = values;
@@ -576,7 +576,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         if(messages != null) {
           List<types.Message> values = [];
           for(var e in messages) {
-            Map<String, dynamic> result = await e.toMessageJson(messageSeen: data?.room?.messageSeen);
+            Map<String, dynamic> result = e.toMessageJson(messageSeen: data?.room?.messageSeen);
             values.add(types.Message.fromJson(result));
           }
           if(mounted) {
@@ -792,7 +792,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         data?.room?.messages?.addAll(messages);
         List<types.Message> values = [];
         for(var e in messages) {
-          Map<String, dynamic> result = await e.toMessageJson(messageSeen: data?.room?.messageSeen);
+          Map<String, dynamic> result = e.toMessageJson(messageSeen: data?.room?.messageSeen);
           values.add(types.Message.fromJson(result));
         }
         if(mounted) {
@@ -1086,7 +1086,8 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                             '${AppLocalizations.text(LangKey.groupWith)} ${info.firstName} ${info.lastName}',
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
-                          style: const TextStyle(color: Colors.black,fontWeight: FontWeight.bold,fontSize: 16),),
+                          style:
+                          const TextStyle(color: Colors.black,fontWeight: FontWeight.bold,fontSize: 16),),
                         if (widget.data.isGroup!) Padding(
                           padding: const EdgeInsets.only(bottom: 3.0),
                           child: AutoSizeText('${widget.data.people!.length} ${AppLocalizations.text(LangKey.members).toLowerCase()}',

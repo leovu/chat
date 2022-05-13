@@ -202,23 +202,6 @@ class _ImageMessageState extends State<ImageMessage> {
           ))
         ],
       );
-      return Container(
-        constraints: const BoxConstraints(
-          // minWidth: 170,
-          maxHeight: 200
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (widget.message.repliedMessage != null)
-              _repliedMessageBuilder(_user),
-            Image(
-              fit: BoxFit.contain,
-              image: _image!,
-            ),
-          ],
-        ),
-      );
     }
   }
 }
