@@ -22,8 +22,28 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>https</string>
+		<string>http</string>
+	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<true/>
+	<key>NSAppleMusicUsageDescription</key>
+	<string>$(PRODUCT_NAME) cần bạn chấp nhận cho truy cập thư viện audio để thêm audio.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>$(PRODUCT_NAME) cần bạn chấp nhận cho truy cập camera để chụp ảnh profile hoặc cho upload ảnh.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>$(PRODUCT_NAME) cần bạn chấp nhận cho truy cập thư viện ảnh để chụp ảnh thêm ảnh profile hoặc cho upload ảnh.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>$(PRODUCT_NAME) cần bạn chấp nhận cho truy cập thư viện ảnh để thêm ảnh profile hoặc cho upload ảnh.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>remote-notification</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
@@ -31,8 +51,6 @@
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
@@ -41,30 +59,13 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>UISupportsDocumentBrowser</key>
+	<true/>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-    <key>UISupportsDocumentBrowser</key>
-    <true/>
-    <key>LSSupportsOpeningDocumentsInPlace</key>
-    <true/>
-    <key>LSApplicationQueriesSchemes</key>
-    <array>
-      <string>https</string>
-      <string>http</string>
-    </array>
-    <key>UIBackgroundModes</key>
-    <array>
-       <string>fetch</string>
-       <string>remote-notification</string>
-    </array>
-    <key>NSCameraUsageDescription</key>
-    <string>$(PRODUCT_NAME) cần bạn chấp nhận cho truy cập camera để chụp ảnh profile hoặc cho upload ảnh.</string>
-    <key>NSPhotoLibraryAddUsageDescription</key>
-    <string>$(PRODUCT_NAME) cần bạn chấp nhận cho truy cập thư viện ảnh để chụp ảnh thêm ảnh profile hoặc cho upload ảnh.</string>
-    <key>NSPhotoLibraryUsageDescription</key>
-    <string>$(PRODUCT_NAME) cần bạn chấp nhận cho truy cập thư viện ảnh để thêm ảnh profile hoặc cho upload ảnh.</string>
-    <key>NSAppleMusicUsageDescription</key>
-    <string>$(PRODUCT_NAME) cần bạn chấp nhận cho truy cập thư viện audio để thêm audio.</string>
-    <key>io.flutter.embedded_views_preview</key><true/>
+	<key>io.flutter.embedded_views_preview</key>
+	<true/>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
 </dict>
 </plist>

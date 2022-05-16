@@ -444,26 +444,24 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                         ),
                         Container(height: 5.0,),
                         Expanded(child:
-                        Container(
-                          child: Row(
-                            children: [
-                              Expanded(child: AutoSizeText(
-                                '$author${(data.lastMessage?.type == 'image'
-                                    ? AppLocalizations.text(LangKey.sentPicture) :
-                                data.lastMessage?.type == 'file'
-                                    ? AppLocalizations.text(LangKey.sendFile) :
-                                data.lastMessage?.content != null && data.lastMessage?.content != '' ?
-                                data.lastMessage?.content
-                                    : AppLocalizations.text(LangKey.forwardMessage))}',
-                                overflow: TextOverflow.ellipsis,),),
-                              if(findUnread(data.messagesReceived) != '0') CircleAvatar(
-                                radius: 15.0,
-                                child: Text(
-                                  findUnread(data.messagesReceived),
-                                  style: const TextStyle(color: Colors.white,fontSize: 12),),
-                              )
-                            ],
-                          ),
+                        Row(
+                          children: [
+                            Expanded(child: AutoSizeText(
+                              '$author''${checkTag('${(data.lastMessage?.type == 'image'
+                                  ? AppLocalizations.text(LangKey.sentPicture) :
+                              data.lastMessage?.type == 'file'
+                                  ? AppLocalizations.text(LangKey.sendFile) :
+                              data.lastMessage?.content != null && data.lastMessage?.content != '' ?
+                              data.lastMessage?.content
+                                  : AppLocalizations.text(LangKey.forwardMessage))}')}' ,
+                              overflow: TextOverflow.ellipsis,),),
+                            if(findUnread(data.messagesReceived) != '0') CircleAvatar(
+                              radius: 15.0,
+                              child: Text(
+                                findUnread(data.messagesReceived),
+                                style: const TextStyle(color: Colors.white,fontSize: 12),),
+                            )
+                          ],
                         )),
                       ],
                     ),
@@ -480,6 +478,21 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
         ) : Container()
       ],
     );
+  }
+  String checkTag(String message) {
+    List<String> contents = message.split(' ');
+    String result = '';
+    for (int i = 0; i < contents.length; i++) {
+      var element = contents[i];
+      if(element == '@all-all@') {
+        element = '@${AppLocalizations.text(LangKey.all)}';
+      }
+      if(element[element.length-1] == '@' && element.contains('-')) {
+        element = element.split('-').first;
+      }
+      result += '$element ';
+    }
+    return result.trim();
   }
   People getPeople(List<People>? people) {
     return people!.first.sId != ChatConnection.user!.id ? people.first : people.last;

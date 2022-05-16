@@ -1,5 +1,10 @@
 import 'dart:io';
-
+import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:chat/connection/chat_connection.dart';
+import 'package:chat/connection/http_connection.dart';
+import 'package:chat/data_model/room.dart';
+import 'package:rich_text_controller/rich_text_controller.dart';
 import 'package:chat/chat_ui/widgets/inherited_replied_message.dart';
 import 'package:chat/chat_ui/widgets/remove_edit_button.dart';
 import 'package:chat/chat_ui/widgets/replied_message.dart';
@@ -40,6 +45,7 @@ class Input extends StatefulWidget {
     required this.builder,
     required this.onCancelReplyPressed,
     required this.inputBuilder,
+    required this.people,
   }) : super(key: key);
 
   final ChatEmojiBuilder builder;
@@ -47,6 +53,8 @@ class Input extends StatefulWidget {
   /// See [AttachmentButton.onPressed]
   final void Function()? onAttachmentPressed;
   final void Function()? onCameraPressed;
+
+  final List<People>? people;
 
   /// Whether attachment is uploading. Will replace attachment button with a
   /// [CircularProgressIndicator]. Since we don't have libraries for
@@ -84,13 +92,32 @@ class _InputState extends State<Input> {
   bool _sendButtonVisible = false;
   bool _emojiShowing = false;
   bool _isEdit = false;
-  final _textController = TextEditingController();
+  late RichTextController _textController;
   types.TextMessage? editContent;
+  List<People>? _taggingSuggestList;
 
   @override
   void initState() {
     super.initState();
-
+    Map<String, TextStyle>? stringMatchMap = {};
+    String regex = '';
+    if(widget.people != null) {
+      regex = "r'@\b|";
+      for (var e in widget.people!) {
+        if(e.sId != ChatConnection.user!.id) {
+          String val = '@${e.firstName}${e.lastName}'.trim();
+          regex += '$val|';
+        }
+      }
+      regex += '@${AppLocalizations.text(LangKey.all)}|';
+      regex += "r'+\b'";
+    }
+    _textController = RichTextController(
+      patternMatchMap: {
+        RegExp(regex): const TextStyle(color: Colors.blueAccent),
+      },
+      onMatch: (List<String> match) {},
+    );
     if (widget.sendButtonVisibilityMode == SendButtonVisibilityMode.editing) {
       _sendButtonVisible = _textController.text.trim() != '';
       _textController.addListener(_handleTextControllerChange);
@@ -117,7 +144,13 @@ class _InputState extends State<Input> {
   }
 
   void _handleSendPressed() {
-    final trimmedText = _textController.text.trim();
+    var trimmedText = _textController.text.trim();
+    trimmedText = trimmedText.replaceAll('@${AppLocalizations.text(LangKey.all)}', '@all-all@');
+    if(widget.people != null) {
+      for (var e in widget.people!) {
+        trimmedText = trimmedText.replaceAll('@${e.firstName}${e.lastName}', '@${e.firstName}${e.lastName}-${e.sId}@');
+      }
+    }
     if (trimmedText != '') {
       final _partialText = types.PartialText(text: trimmedText);
       widget.onSendPressed(_partialText,repliedMessage: InheritedRepliedMessage.of(context)
@@ -131,6 +164,60 @@ class _InputState extends State<Input> {
       _sendButtonVisible = _textController.text.trim() != '';
     });
   }
+
+  void onChanged(String value) {
+    List<String> contents = value.split('@');
+    if(contents.length > 1) {
+      try {
+        if(contents.last == '') {
+          _taggingSuggestList = [];
+          for (var e in widget.people!) {
+            if(e.sId != ChatConnection.user!.id) {
+              _taggingSuggestList!.add(e);
+            }
+          }
+          setState(() {});
+        }
+        else {
+          if(contents.last[contents.last.length-1] == ' ') {
+            setState(() {
+              _taggingSuggestList = null;
+            });
+          }
+          else {
+            if(contents.last[contents.last.length-1] == '') {
+              _taggingSuggestList = [];
+              for (var e in widget.people!) {
+                if(e.sId != ChatConnection.user!.id) {
+                  _taggingSuggestList!.add(e);
+                }
+              }
+              setState(() {});
+            }
+            else {
+              _taggingSuggestList = [];
+              for (var e in widget.people!) {
+                if('${e.firstName}${e.lastName}'.toLowerCase().contains(contents.last.toLowerCase()) && e.sId != ChatConnection.user!.id) {
+                  _taggingSuggestList!.add(e);
+                }
+              }
+              setState(() {});
+            }
+          }
+        }
+      }catch(_) {
+        setState(() {
+          _taggingSuggestList = null;
+        });
+      }
+    }
+    else {
+      setState(() {
+        _taggingSuggestList = null;
+      });
+    }
+  }
+
   Widget _inputBuilder() {
     final _query = MediaQuery.of(context);
     final _safeAreaInsets = kIsWeb
@@ -153,6 +240,11 @@ class _InputState extends State<Input> {
                 InheritedChatTheme.of(context).theme.inputContainerDecoration,
             child: Column(
               children: [
+                Visibility(
+                    visible: _taggingSuggestList != null,
+                    child: _taggingSuggestList != null ? Wrap(
+                      children: _arrayTaggingSuggestionList(_taggingSuggestList!.length == widget.people!.length-1),
+                    ) : Container()),
                 if (InheritedRepliedMessage.of(context).repliedMessage != null)
                   Padding(
                       padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
@@ -227,7 +319,9 @@ class _InputState extends State<Input> {
                                             keyboardType: TextInputType.multiline,
                                             maxLines: 5,
                                             minLines: 1,
-                                            onChanged: widget.onTextChanged,
+                                            onChanged: (value) {
+                                              onChanged(value);
+                                            },
                                             onTap: widget.onTextFieldTap,
                                             style: InheritedChatTheme.of(context)
                                                 .theme
@@ -322,6 +416,100 @@ class _InputState extends State<Input> {
         ),
       ),
     );
+  }
+
+  List<Widget> _arrayTaggingSuggestionList(bool isAll) {
+    List<Widget> _arr = [];
+    if(isAll) {
+      _arr.add(Padding(
+        padding: const EdgeInsets.only(left: 8.0,right: 8.0,bottom: 8.0),
+        child: InkWell(
+          onTap: (){
+            List<String> contents = _textController.value.text.split('@');
+            contents.last = AppLocalizations.text(LangKey.all);
+            String val = '';
+            for (int i = 0; i < contents.length; i++) {
+              if(i != 0) {
+                val += '@${contents[i]} ';
+              }
+              else {
+                val += contents[i];
+              }
+            }
+            setState(() {
+              _textController.text = val;
+              _textController.selection = TextSelection.fromPosition(TextPosition(offset: _textController.text.length));
+              _taggingSuggestList = null;
+            });
+          },
+          child: Row(
+            children: [
+              const Icon(Icons.group,color: Colors.grey,),
+              Expanded(child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                child: AutoSizeText(AppLocalizations.text(LangKey.all),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis),
+              ))
+            ],
+          ),
+        ),
+      ));
+    }
+    for (var e in _taggingSuggestList!) {
+      _arr.add(Padding(
+        padding: const EdgeInsets.only(left: 8.0,right: 8.0,bottom: 8.0),
+        child: InkWell(
+          onTap: () {
+            List<String> contents = _textController.value.text.split('@');
+            contents.last = '${e.firstName}${e.lastName}';
+            String val = '';
+            for (int i = 0; i < contents.length; i++) {
+              if(i != 0) {
+                val += '@${contents[i].trim()} ';
+              }
+              else {
+                val += contents[i];
+              }
+            }
+            setState(() {
+              _textController.text = val;
+              _textController.selection = TextSelection.fromPosition(TextPosition(offset: _textController.text.length));
+              _taggingSuggestList = null;
+            });
+          },
+          child: Row(
+            children: [
+              e.picture == null ? CircleAvatar(
+                radius: 12.0,
+                child: AutoSizeText(
+                  e.getAvatarName(),
+                  style: const TextStyle(color: Colors.white,fontSize: 8),),
+              ) : CircleAvatar(
+                radius: 12.0,
+                backgroundImage:
+                CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${e.picture!.shieldedID}/256'),
+                backgroundColor: Colors.transparent,
+              ),
+              Expanded(child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                child: AutoSizeText('${e.firstName}${e.lastName}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis),
+              ))
+            ],
+          ),
+        ),
+      ));
+      if(_arr.length == 5) {
+        break;
+      }
+    }
+    if(_arr.isNotEmpty) {
+      _arr.insert(0, Padding(
+          padding: const EdgeInsets.only(bottom: 5.0),child: Container(height: 1.0,color: Colors.grey.shade200,)));
+    }
+    return _arr;
   }
 
   _onEmojiSelected(Emoji emoji) {

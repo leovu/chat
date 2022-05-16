@@ -748,6 +748,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
               isInitScreen ? Center(child: Platform.isAndroid ? const CircularProgressIndicator() : const CupertinoActivityIndicator()) :
               Chat(
                 messages: _messages,
+                people: widget.data.people,
                 progressUpdate: (value) {
                   progress = value;
                   if(progress < 0.1 && newMessage) {

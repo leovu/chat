@@ -44,6 +44,7 @@ dependencies:
   flutter_file_view: ^2.0.5
   audioplayers: ^0.20.1
   video_player: ^2.4.0
+  rich_text_controller: ^1.4.0
   permission:
     git:
       url: https://github.com/leovu/permission.git

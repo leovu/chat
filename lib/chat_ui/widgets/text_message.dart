@@ -1,4 +1,6 @@
 import 'package:chat/chat_ui/widgets/replied_message.dart';
+import 'package:chat/localization/app_localizations.dart';
+import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_link_previewer/flutter_link_previewer.dart'
@@ -149,20 +151,45 @@ class TextMessage extends StatelessWidget {
     List<InlineSpan> arr = [];
     for (int i = 0; i < contents.length; i++) {
       var element = contents[i];
+      bool isTag = false;
+      if(element == '@all-all@') {
+        element = '@${AppLocalizations.text(LangKey.all)}';
+        isTag = true;
+      }
+      if(element[0] == '@' && contents[i+1][contents[i+1].length-1] == '@' && contents[i+1].contains('-') && !element.contains('-')) {
+        isTag = true;
+      }
+      if(element[element.length-1] == '@' && element.contains('-')) {
+        element = element.split('-').first;
+        isTag = true;
+      }
       if(element.toLowerCase() == searchController.value.text.toLowerCase()) {
         arr.add(TextSpan(
             text: element,
             style:
             TextStyle(
-              color: const Color(0xffffffff),
+              color: isTag? const Color(0xffffffff) : Colors.blueAccent,
               fontSize: 16,
-              fontWeight: FontWeight.w500,
+              fontWeight:
+                isTag ?
+                  FontWeight.bold :
+                  FontWeight.w500,
               height: 1.5,
               background: Paint()
                 ..color = Colors.redAccent,
             )));
       }
       else {
+        isTag ?
+        arr.add(TextSpan(
+            text: element,
+            style: TextStyle(
+              color: user.id != message.author.id ? Colors.blueAccent : Colors.black,
+              fontSize: 16,
+              fontWeight: FontWeight.bold ,
+              height: 1.5,
+            )))
+            :
         arr.add(TextSpan(
             text: element,
             style: user.id == message.author.id

@@ -464,6 +464,12 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "rich_text_controller",
+      "rootUri": "file:///Users/longvu/.pub-cache/hosted/pub.dartlang.org/rich_text_controller-1.4.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "rxdart",
       "rootUri": "file:///Users/longvu/.pub-cache/hosted/pub.dartlang.org/rxdart-0.27.3",
       "packageUri": "lib/",
@@ -722,7 +728,7 @@
       "languageVersion": "2.16"
     }
   ],
-  "generated": "2022-05-13T07:33:04.896122Z",
+  "generated": "2022-05-16T04:25:53.966126Z",
   "generator": "pub",
   "generatorVersion": "2.17.0"
 }

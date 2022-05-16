@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:chat/chat_ui/widgets/inherited_replied_message.dart';
 import 'package:chat/connection/chat_connection.dart';
+import 'package:chat/data_model/room.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:chat/chat_ui/widgets/inherited_l10n.dart';
@@ -90,6 +91,7 @@ class Chat extends StatefulWidget {
     required this.chatController,
     required this.progressUpdate,
     required this.builder,
+    required this.people,
   }) : super(key: key);
 
   /// See [Message.bubbleBuilder]
@@ -183,6 +185,8 @@ class Chat extends StatefulWidget {
 
   /// List of [types.Message] to render in the chat widget
   final List<types.Message> messages;
+
+  final List<People>? people;
 
   /// See [Input.onAttachmentPressed]
   final void Function()? onAttachmentPressed;
@@ -585,6 +589,7 @@ class _ChatState extends State<Chat> {
                             onCameraPressed: widget.onCameraPressed,
                             onTextChanged: widget.onTextChanged,
                             onTextFieldTap: widget.onTextFieldTap,
+                            people: widget.people,
                             sendButtonVisibilityMode:
                                 widget.sendButtonVisibilityMode,
                             onCancelReplyPressed: _onCancelReplyPressed,
