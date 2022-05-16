@@ -59,7 +59,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
       setState(() {});
     }
     else {
-      WidgetsBinding.instance?.addPostFrameCallback((_) async {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
         roomListData = await ChatConnection.roomList();
         _getRoomVisible();
         isInitScreen = false;
@@ -456,7 +456,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                                   : AppLocalizations.text(LangKey.forwardMessage))}')}' ,
                               overflow: TextOverflow.ellipsis,),),
                             if(findUnread(data.messagesReceived) != '0') CircleAvatar(
-                              radius: 15.0,
+                              radius: 18.0,
                               child: Text(
                                 findUnread(data.messagesReceived),
                                 style: const TextStyle(color: Colors.white,fontSize: 12),),

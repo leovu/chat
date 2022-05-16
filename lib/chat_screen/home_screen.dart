@@ -3,6 +3,7 @@ import 'package:chat/chat_screen/chat_screen.dart';
 import 'package:chat/chat_screen/contacts_screen.dart';
 import 'package:chat/chat_screen/create_group_screen.dart';
 import 'package:chat/chat_screen/favorite_screen.dart';
+import 'package:chat/chat_screen/notification_screen.dart';
 import 'package:chat/chat_screen/room_list_screen.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/localization/app_localizations.dart';
@@ -11,6 +12,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/data_model/room.dart' as r;
 import 'package:chat/connection/app_lifecycle.dart';
+import 'package:badges/badges.dart';
 
 typedef RefreshBuilder = void Function(BuildContext context, void Function() refresh);
 
@@ -25,7 +27,8 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
     super.initState();
     ChatConnection.homeScreenNotificationHandler = _notificationHandler;
     ChatConnection.listenChat(_getRooms);
-    WidgetsBinding.instance?.addPostFrameCallback((_) async {
+    ChatConnection.notificationList();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       if(ChatConnection.initialData != null) {
         await Future.delayed(const Duration(milliseconds: 500));
         _notificationHandler(Map.from(ChatConnection.initialData!));
@@ -43,6 +46,13 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
   Widget build(BuildContext context) {
     return CupertinoTabScaffold(
         tabBar: CupertinoTabBar(
+          onTap: (index) {
+            if(index == 3) {
+              try{
+                ChatConnection.refreshNotifications.call();
+              }catch(_) {}
+            }
+          },
           backgroundColor: Colors.white,
           activeColor: const Color(0xff9012FE),
           items: [
@@ -57,6 +67,21 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
             BottomNavigationBarItem(
                 icon: const Icon(Icons.star_border),
                 label: AppLocalizations.text(LangKey.favorites)
+            ),
+            BottomNavigationBarItem(
+                icon: ValueListenableBuilder(
+                  builder: (BuildContext context, value, Widget? child) { 
+                    return Badge(
+                      child: const Icon(Icons.notifications),
+                      badgeContent: Text('$value',style: const TextStyle(color: Colors.white,fontSize: 10)),
+                      showBadge: value == '0' ? false : true,
+                      badgeColor: Colors.red,
+                      toAnimate: false,
+                    );
+                  },
+                  valueListenable: ChatConnection.notificationNotifier,
+                ),
+                label: AppLocalizations.text(LangKey.notification)
             ),
           ],
         ),
@@ -73,10 +98,16 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
                 ChatConnection.refreshContact = method;
               })
             );
-          } else {
+          } if (index == 2) {
             return CupertinoTabView(
               builder: (BuildContext context) =>  FavoriteScreen(builder: (BuildContext context, void Function() method) {
                 ChatConnection.refreshFavorites = method;
+              },homeCallback: ChatConnection.refreshRoom.call),
+            );
+          } else {
+            return CupertinoTabView(
+              builder: (BuildContext context) =>  NotificationScreen(builder: (BuildContext context, void Function() method) {
+                ChatConnection.refreshNotifications = method;
               },homeCallback: ChatConnection.refreshRoom.call),
             );
           }

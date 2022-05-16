@@ -429,26 +429,26 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
           label: AppLocalizations.text(LangKey.reply),
           key: 'Reply',
         ),
-        // SheetAction(
-        //   icon: Icons.forward,
-        //   label: AppLocalizations.text(LangKey.forward),
-        //   key: 'Forward',
-        // ),
-        // if(mess?.author?.sId == ChatConnection.user?.id) SheetAction(
-        //   icon: Icons.replay_30_outlined,
-        //   label: AppLocalizations.text(LangKey.recall),
-        //   key: 'Recall',
-        // ),
-        // if(mess?.author?.sId == ChatConnection.user?.id && message.type.name == 'text') SheetAction(
-        //   icon: Icons.replay_30_outlined,
-        //   label: AppLocalizations.text(LangKey.edit),
-        //   key: 'Edit',
-        // ),
-        // SheetAction(
-        //   icon: Icons.replay_30_outlined,
-        //   label: AppLocalizations.text(LangKey.pinMessage),
-        //   key: 'Pin Message',
-        // ),
+        SheetAction(
+          icon: Icons.forward,
+          label: AppLocalizations.text(LangKey.forward),
+          key: 'Forward',
+        ),
+        if(mess?.author?.sId == ChatConnection.user?.id) SheetAction(
+          icon: Icons.replay_30_outlined,
+          label: AppLocalizations.text(LangKey.recall),
+          key: 'Recall',
+        ),
+        if(mess?.author?.sId == ChatConnection.user?.id && message.type.name == 'text') SheetAction(
+          icon: Icons.replay_30_outlined,
+          label: AppLocalizations.text(LangKey.edit),
+          key: 'Edit',
+        ),
+        SheetAction(
+          icon: Icons.replay_30_outlined,
+          label: AppLocalizations.text(LangKey.pinMessage),
+          key: 'Pin Message',
+        ),
         if(Platform.isAndroid) SheetAction(
             icon: Icons.cancel,
             label: AppLocalizations.text(LangKey.cancel),
@@ -517,7 +517,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     final index = _messages.indexWhere((element) => element.id == message.id);
     final updatedMessage = _messages[index].copyWith(previewData: previewData);
 
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       if(mounted) {
         setState(() {
           _messages[index] = updatedMessage;
@@ -557,7 +557,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       setState(() {});
     }
     else {
-      WidgetsBinding.instance?.addPostFrameCallback((_) async {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
         if(mounted) {
           setState(() {});
         }
@@ -914,7 +914,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                   setState(() {});
                 }
                 else {
-                  WidgetsBinding.instance?.addPostFrameCallback((_) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
                     searchChat();
                     if(_listIdSearch.isNotEmpty) {
                       scroll(_listIdSearch.first);

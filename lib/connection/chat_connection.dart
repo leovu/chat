@@ -1,5 +1,6 @@
 import 'package:chat/chat_ui/notification.dart';
 import 'package:chat/data_model/chat_message.dart' as c;
+import 'package:chat/data_model/notifications.dart' as n;
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/connection/socket.dart';
 import 'package:chat/data_model/contact.dart' as ct;
@@ -18,6 +19,7 @@ class ChatConnection {
   static late Locale locale;
   static late void Function() refreshContact;
   static late void Function() refreshFavorites;
+  static late void Function() refreshNotifications;
   static StreamSocket streamSocket = StreamSocket();
   static HTTPConnection connection = HTTPConnection();
   static late String appIcon;
@@ -28,6 +30,7 @@ class ChatConnection {
   static Map<String, dynamic>? initialData;
   static late Function(Map<String, dynamic> message) homeScreenNotificationHandler;
   static late Function(Map<String, dynamic> message) chatScreenNotificationHandler;
+  static ValueNotifier<String> notificationNotifier = ValueNotifier('0');
   static Future<bool>init(String email,String password) async {
     HttpOverrides.global = MyHttpOverrides();
     ResponseData responseData = await connection.post('api/login', {'email':email,'password':password});
@@ -79,6 +82,21 @@ class ChatConnection {
     ResponseData responseData = await connection.post('api/favorites/list', {});
     if(responseData.isSuccess) {
       return r.Room.fromJson(responseData.data,isFavorite: true);
+    }
+    return null;
+  }
+  static Future<n.Notifications?>notificationList() async {
+    ResponseData responseData = await connection.post('api/notification/list', {});
+    if(responseData.isSuccess) {
+      n.Notifications result = n.Notifications.fromJson(responseData.data);
+      int totalUnread = 0;
+      result.notifications?.forEach((e) {
+        if(e.isRead == 0) {
+          totalUnread += 1;
+        }
+      });
+      ChatConnection.notificationNotifier.value = '$totalUnread';
+      return result;
     }
     return null;
   }
@@ -257,6 +275,10 @@ class ChatConnection {
       return r.Rooms.fromJson(responseData.data);
     }
     return null;
+  }
+  static Future<bool>readNotification(String notiId) async {
+    ResponseData responseData = await connection.post('api/notification/update', {'type':'read', 'notiId': notiId});
+    return responseData.isSuccess;
   }
   static Future<bool>addMemberGroup(List<String> people, String roomId) async {
     ResponseData responseData = await connection.post('api/group/update', {'data': people, 'type': 'add-people', 'roomId' : roomId});

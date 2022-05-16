@@ -72,5 +72,6 @@
   "send": "Send",
   "photos": "photos",
   "chats": "Chats",
-  "all": "All"
+  "all": "All",
+  "notification": "Notification"
 }

@@ -99,7 +99,6 @@ class _InputState extends State<Input> {
   @override
   void initState() {
     super.initState();
-    Map<String, TextStyle>? stringMatchMap = {};
     String regex = '';
     if(widget.people != null) {
       regex = "r'@\b|";
@@ -114,7 +113,7 @@ class _InputState extends State<Input> {
     }
     _textController = RichTextController(
       patternMatchMap: {
-        RegExp(regex): const TextStyle(color: Colors.blueAccent),
+        RegExp(regex): TextStyle(color: Colors.blueAccent,backgroundColor: Colors.grey[200]),
       },
       onMatch: (List<String> match) {},
     );

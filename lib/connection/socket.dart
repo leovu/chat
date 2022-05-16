@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/data_model/user.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
@@ -43,6 +44,7 @@ class StreamSocket {
   void listenChat(Function callback) {
     socket!.on('message-in', (data) {
       callback(data);
+      ChatConnection.notificationList();
     });
   }
 }

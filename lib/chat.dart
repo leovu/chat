@@ -49,6 +49,7 @@ class Chat {
     }
   }
   static openNotification(Map<String, dynamic> notificationData) {
+    ChatConnection.notificationList();
     try{
       if(ChatConnection.roomId == null) {
         

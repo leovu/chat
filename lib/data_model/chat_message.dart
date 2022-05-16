@@ -242,8 +242,9 @@ class Messages {
       replies = json['replies'] != null ? Replies.fromJson(json['replies']) : null;
     }catch(_){}
     room = json['room'];
-    author =
-    json['author'] != null ? Author.fromJson(json['author']) : null;
+    try{
+      author = json['author'] != null ? Author.fromJson(json['author']) : null;
+    }catch(_) {}
     content = json['content'];
     date = json['date'];
     iV = json['__v'];

@@ -56,7 +56,7 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen> with AutomaticKee
       setState(() {});
     }
     else {
-      WidgetsBinding.instance?.addPostFrameCallback((_) async {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
         roomListData = await ChatConnection.favoritesList();
         _getRoomVisible();
         isInitScreen = false;
@@ -261,21 +261,36 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen> with AutomaticKee
                             child: Row(
                               children: [
                                 Expanded(child: AutoSizeText(!data.isGroup! ?
-                                '${info.firstName} ${info.lastName}' : data.title ?? '${AppLocalizations.text(LangKey.group)} ${info.firstName} ${info.lastName}',overflow: TextOverflow.ellipsis),),
-                                AutoSizeText(data.lastMessage?.lastMessageDate() ?? '',style: const TextStyle(fontSize: 11,color: Colors.grey),)
+                                '${info.firstName} ${info.lastName}' : data.title ?? 'Group ${info.firstName} ${info.lastName}',
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(fontWeight: findUnread(data.messagesReceived) != '0' ? FontWeight.bold : FontWeight.normal),
+                                ),
+                                ),
+                                AutoSizeText(data.lastMessage?.lastMessageDate() ?? '',style: const TextStyle(fontSize: 11,color: Colors.grey),),
                               ],
                             )
                         ),
                         Container(height: 5.0,),
-                        Expanded(child: AutoSizeText(
-                          '$author''${checkTag('${(data.lastMessage?.type == 'image'
-                              ? AppLocalizations.text(LangKey.sentPicture) :
-                          data.lastMessage?.type == 'file'
-                              ? AppLocalizations.text(LangKey.sendFile) :
-                          data.lastMessage?.content != null && data.lastMessage?.content != '' ?
-                          data.lastMessage?.content
-                              : AppLocalizations.text(LangKey.forwardMessage))}')}' ,
-                          overflow: TextOverflow.ellipsis,),),
+                        Expanded(child:
+                        Row(
+                          children: [
+                            Expanded(child: AutoSizeText(
+                              '$author''${checkTag('${(data.lastMessage?.type == 'image'
+                                  ? AppLocalizations.text(LangKey.sentPicture) :
+                              data.lastMessage?.type == 'file'
+                                  ? AppLocalizations.text(LangKey.sendFile) :
+                              data.lastMessage?.content != null && data.lastMessage?.content != '' ?
+                              data.lastMessage?.content
+                                  : AppLocalizations.text(LangKey.forwardMessage))}')}' ,
+                              overflow: TextOverflow.ellipsis,),),
+                            if(findUnread(data.messagesReceived) != '0') CircleAvatar(
+                              radius: 18.0,
+                              child: Text(
+                                findUnread(data.messagesReceived),
+                                style: const TextStyle(color: Colors.white,fontSize: 12),),
+                            )
+                          ],
+                        )),
                       ],
                     ),
                   ))
@@ -291,6 +306,15 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen> with AutomaticKee
         ) : Container()
       ],
     );
+  }
+  String findUnread(List<MessagesReceived>? messagesRecived) {
+    MessagesReceived? m;
+    try {
+      m = messagesRecived?.firstWhere((e) => e.people == ChatConnection.user!.id);
+      return '${m?.total ?? '0'}';
+    }catch(_){
+      return '0';
+    }
   }
   String checkTag(String message) {
     List<String> contents = message.split(' ');
