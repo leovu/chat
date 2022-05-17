@@ -47,7 +47,7 @@ class _PlayAudioState extends State<PlayAudio> with TickerProviderStateMixin{
         });
       }
     });
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
       play();
     });
   }

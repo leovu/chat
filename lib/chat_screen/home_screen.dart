@@ -28,7 +28,7 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
     ChatConnection.homeScreenNotificationHandler = _notificationHandler;
     ChatConnection.listenChat(_getRooms);
     ChatConnection.notificationList();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
+    WidgetsBinding.instance?.addPostFrameCallback((_) async {
       if(ChatConnection.initialData != null) {
         await Future.delayed(const Duration(milliseconds: 500));
         _notificationHandler(Map.from(ChatConnection.initialData!));

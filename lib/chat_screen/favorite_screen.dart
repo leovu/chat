@@ -56,7 +56,7 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen> with AutomaticKee
       setState(() {});
     }
     else {
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
+      WidgetsBinding.instance?.addPostFrameCallback((_) async {
         roomListData = await ChatConnection.favoritesList();
         _getRoomVisible();
         isInitScreen = false;

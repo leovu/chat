@@ -51,7 +51,7 @@ class _NotificationScreenState extends State<NotificationScreen> with AutomaticK
       setState(() {});
     }
     else {
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
+      WidgetsBinding.instance?.addPostFrameCallback((_) async {
         notificationListData = await ChatConnection.notificationList();
         isInitScreen = false;
         if(mounted) {
