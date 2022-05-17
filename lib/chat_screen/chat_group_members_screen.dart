@@ -143,7 +143,24 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
           )
         ));
   }
+  Future showLoading() async {
+    return await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return SimpleDialog(
+            elevation: 0.0,
+            backgroundColor: Colors.transparent,
+            children: <Widget>[
+              Center(
+                child: Platform.isAndroid ? const CircularProgressIndicator() : const CupertinoActivityIndicator(),
+              )
+            ],
+          );
+        });
+  }
   void sendMessage(r.People people) async {
+    showLoading();
     ct.Contacts? contactsListData = await ChatConnection.contactsList();
     r.People? val;
     if(contactsListData?.users != null) {
@@ -156,6 +173,7 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
     }
     if(val != null) {
       r.Rooms? rooms = await ChatConnection.createRoom(val.sId);
+      Navigator.of(context).pop();
       Navigator.of(context).popUntil((route) => route.settings.name == "chat_screen");
       await Navigator.of(context,rootNavigator: true).pushReplacement(
         MaterialPageRoute(builder: (context) => ChatScreen(data: rooms!),settings:const RouteSettings(name: 'chat_screen')),
@@ -164,6 +182,9 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
         ChatConnection.refreshRoom.call();
         ChatConnection.refreshFavorites.call();
       }catch(_){}
+    }
+    else {
+      Navigator.of(context).pop();
     }
   }
   void errorDialog() {

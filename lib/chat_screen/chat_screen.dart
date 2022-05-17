@@ -185,8 +185,8 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         ChatConnection.uploadFile(data,_messages,id,file,data?.room,ChatConnection.user!.id).then((r) {
           if(mounted) {
             setState(() {
-              int index = _messages.indexWhere((element) => element.id==id);
-              Status s = !r ? Status.error : Status.sent;
+              int index = _messages.indexWhere((element) => element.id==r);
+              Status s = r==null ? Status.error : Status.sent;
               _messages[index] = types.FileMessage(
                 author: _user,
                 createdAt: DateTime.now().millisecondsSinceEpoch,
@@ -267,8 +267,8 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       );
       _addMessage(message,id);
       ChatConnection.uploadImage(data,_messages,id,result,data?.room,ChatConnection.user!.id).then((r) {
-        Status s = !r ? Status.error : Status.sent;
-        int index = _messages.indexWhere((element) => element.id==id);
+        Status s = r==null ? Status.error : Status.sent;
+        int index = _messages.indexWhere((element) => element.id==r);
         _messages[index] = types.ImageMessage(
           author: _user,
           createdAt: DateTime.now().millisecondsSinceEpoch,
@@ -336,8 +336,8 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       );
       _addMessage(message,id);
       ChatConnection.uploadImage(data,_messages,id,result,data?.room,ChatConnection.user!.id).then((r) {
-        Status s = !r ? Status.error : Status.sent;
-        int index = _messages.indexWhere((element) => element.id==id);
+        Status s = r==null ? Status.error : Status.sent;
+        int index = _messages.indexWhere((element) => element.id==r);
         _messages[index] = types.ImageMessage(
           author: _user,
           createdAt: DateTime.now().millisecondsSinceEpoch,
@@ -714,10 +714,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                                 errorWidget: (context, url, error) => const Icon(Icons.error),
                             ),
                               ),)
-                           : AutoSizeText('${data?.room?.pinMessage?.content}',
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(color: Colors.grey.shade400),),
+                           : checkTag(data?.room?.pinMessage?.content ?? ''),
                           ],
                         ),
                       )),
@@ -755,6 +752,21 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                     setState(() {
                       newMessage = false;
                     });
+                  }
+                },
+                onAvatarTap: (types.User user) async {
+                  if(user.id != ChatConnection.user!.id && data!.room!.isGroup!) {
+                    showLoading();
+                    r.Rooms? rooms = await ChatConnection.createRoom(user.id);
+                    Navigator.of(context).pop();
+                    await Navigator.of(context,rootNavigator: true).pushReplacement(
+                      MaterialPageRoute(builder: (context) => ChatScreen(data: rooms!),settings:const RouteSettings(name: 'chat_screen')),
+                    );
+                    try{
+                      ChatConnection.refreshRoom.call();
+                      ChatConnection.refreshFavorites.call();
+                      ChatConnection.refreshContact.call();
+                    }catch(_){}
                   }
                 },
                 showUserAvatars: true,
@@ -1206,5 +1218,50 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         ),
       ),
     );
+  }
+
+  Widget checkTag(String message) {
+    Widget _widget;
+    List<InlineSpan> _arr = [];
+    List<String> contents = message.split(' ');
+    for (int i = 0; i < contents.length; i++) {
+      var element = contents[i];
+      if(element == '@all-all@') {
+        element = '@${AppLocalizations.text(LangKey.all)}';
+        _arr.add(TextSpan(
+            text: '$element ',
+            style:
+            const TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold
+            )));
+      }
+      else if(element[element.length-1] == '@' && element.contains('-')) {
+        element = element.split('-').first;
+        _arr.add(TextSpan(
+            text: '$element ',
+            style:
+            const TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold
+            )));
+      }
+      else {
+        _arr.add(TextSpan(
+            text: i == contents.length-1 ? element : '$element ',
+            style:
+            TextStyle(
+                color: Colors.grey.shade700,
+                fontWeight: FontWeight.normal
+            )));
+      }
+    }
+    _widget = Text.rich(
+      TextSpan(
+        children: _arr,
+      ),
+      maxLines: 2,
+    );
+    return _widget;
   }
 }

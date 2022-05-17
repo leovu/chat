@@ -95,7 +95,7 @@ class ChatConnection {
           totalUnread += 1;
         }
       });
-      ChatConnection.notificationNotifier.value = '$totalUnread';
+      ChatConnection.notificationNotifier.value = totalUnread > 99 ? '99+' : '$totalUnread';
       return result;
     }
     return null;
@@ -193,7 +193,7 @@ class ChatConnection {
     }
     return false;
   }
-  static Future<bool>uploadImage(c.ChatMessage? data,List<types.Message> listMessage,String id,  XFile image, c.Room? room, String authorId)  async {
+  static Future<String?>uploadImage(c.ChatMessage? data,List<types.Message> listMessage,String id,  XFile image, c.Room? room, String authorId)  async {
     ResponseData response = await connection.upload('api/upload', convertToFile(image),isImage: true);
     if(response.isSuccess) {
       ResponseData responseData = await connection.post('api/message', {
@@ -220,12 +220,12 @@ class ChatConnection {
             repliedMessage: listMessage[index].repliedMessage
         );
         data?.room?.messages?.insert(0,valueResponse);
+        return valueResponse.sId!;
       }
-      return responseData.isSuccess;
     }
-    return response.isSuccess;
+    return null;
   }
-  static Future<bool>uploadFile(c.ChatMessage? data,List<types.Message> listMessage,String id, File file, c.Room? room, String authorId)  async {
+  static Future<String?>uploadFile(c.ChatMessage? data,List<types.Message> listMessage,String id, File file, c.Room? room, String authorId)  async {
     ResponseData response = await connection.upload('api/upload/file', file, isImage: false);
     if(response.isSuccess) {
       ResponseData responseData = await connection.post('api/message', {
@@ -252,10 +252,10 @@ class ChatConnection {
             repliedMessage: listMessage[index].repliedMessage
         );
         data?.room?.messages?.insert(0,valueResponse);
+        return valueResponse.sId!;
       }
-      return responseData.isSuccess;
     }
-    return response.isSuccess;
+    return null;
   }
   static Future<bool>updateRoomName(String roomId,String data) async {
     ResponseData responseData = await connection.post('api/group/update', {'data':data,'roomId':roomId,'type':'title'});

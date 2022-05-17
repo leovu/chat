@@ -501,6 +501,9 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
     MessagesReceived? m;
     try {
       m = messagesRecived?.firstWhere((e) => e.people == ChatConnection.user!.id);
+      if((m?.total ?? 0) > 99) {
+        return '99+';
+      }
       return '${m?.total ?? '0'}';
     }catch(_){
       return '0';

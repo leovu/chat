@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:flutter/material.dart';
@@ -440,7 +441,7 @@ class Message extends StatelessWidget {
                       const SizedBox(
                         height: 30.0,
                         child: Padding(
-                          padding: EdgeInsets.only(right: 3.0),
+                          padding: EdgeInsets.only(right: 3.0,top: 20.0),
                           child: Icon(Icons.edit_outlined,color: Colors.black,size: 15.0,
                           ),
                         ),
@@ -497,7 +498,7 @@ class Message extends StatelessWidget {
                       const SizedBox(
                         height: 30.0,
                         child: Padding(
-                          padding: EdgeInsets.only(left: 3.0),
+                          padding: EdgeInsets.only(right: 3.0,top: 20.0),
                           child: Icon(Icons.edit_outlined,color: Colors.black,size: 15.0,
                           ),
                         ),
@@ -511,10 +512,53 @@ class Message extends StatelessWidget {
             Expanded(child: Container()),
             Padding(
               padding: const EdgeInsets.only(right: 5.0),
-              child: SizedBox(
-                height: 30.0,
-                child: Row(
-                  children: seenPeopleList(),
+              child: InkWell(
+                onTap: () {
+                  num height = (seenPeople!.length > 5) ? 150 : (30*seenPeople!.length);
+                  showModalBottomSheet(
+                      context: context,
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.vertical(top: Radius.circular(25.0)),
+                      ),
+                      builder: (BuildContext context) {
+                        return SafeArea(
+                          child: SizedBox(
+                            height: height.toDouble(),
+                            child: SingleChildScrollView(
+                              physics: const ClampingScrollPhysics(),
+                              child: Wrap(
+                                children: seenPeople!.map((e) => Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: Row(
+                                    children: [
+                                      e?.picture == null ? CircleAvatar(
+                                        radius: 10.0,
+                                        child: Text(e?.getAvatarName() ?? ''),
+                                      ) : CircleAvatar(
+                                        radius: 10.0,
+                                        backgroundImage:
+                                        CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${e!.picture!.shieldedID}/256'),
+                                        backgroundColor: Colors.transparent,
+                                      ),
+                                      Expanded(child: Padding(
+                                        padding: const EdgeInsets.only(left: 5.0),
+                                        child: AutoSizeText('${e?.firstName ?? ''} ${e?.lastName ?? ''}',maxLines: 1,
+                                        style: const TextStyle(fontSize: 10),),
+                                      ),),
+                                    ],
+                                  ),
+                                )).toList(),
+                              ),
+                            ),
+                          ),
+                        );
+                      });
+                },
+                child: SizedBox(
+                  height: 30.0,
+                  child: Row(
+                    children: seenPeopleList(),
+                  ),
                 ),
               ),
             )

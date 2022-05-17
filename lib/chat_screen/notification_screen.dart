@@ -252,6 +252,7 @@ class _NotificationScreenState extends State<NotificationScreen> with AutomaticK
         TextSpan(
           children: _arr,
         ),
+        maxLines: 2,
       );
       return _widget;
     }

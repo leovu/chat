@@ -131,7 +131,7 @@ class ForwardScreenState extends State<ForwardScreen> {
                               const EdgeInsets.only(right: 10.0,bottom: 0.0,top: 0.0),
                               child:
                               widget.message is types.TextMessage ?
-                                AutoSizeText((widget.message as types.TextMessage).text) :
+                                checkTag((widget.message as types.TextMessage).text) :
                               widget.message is types.ImageMessage ?
                                 Row(
                                   children: [
@@ -284,6 +284,49 @@ class ForwardScreenState extends State<ForwardScreen> {
             )],),
           )),
     );
+  }
+  Widget checkTag(String message) {
+    Widget _widget;
+    List<InlineSpan> _arr = [];
+    List<String> contents = message.split(' ');
+    for (int i = 0; i < contents.length; i++) {
+      var element = contents[i];
+      if(element == '@all-all@') {
+        element = '@${AppLocalizations.text(LangKey.all)}';
+        _arr.add(TextSpan(
+            text: '$element ',
+            style:
+            const TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold
+            )));
+      }
+      else if(element[element.length-1] == '@' && element.contains('-')) {
+        element = element.split('-').first;
+        _arr.add(TextSpan(
+            text: '$element ',
+            style:
+            const TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold
+            )));
+      }
+      else {
+        _arr.add(TextSpan(
+            text: i == contents.length-1 ? element : '$element ',
+            style:
+            TextStyle(
+                color: Colors.grey.shade700,
+                fontWeight: FontWeight.normal
+            )));
+      }
+    }
+    _widget = Text.rich(
+      TextSpan(
+        children: _arr,
+      ),
+    );
+    return _widget;
   }
   Widget _room(Rooms data, bool isLast) {
     People info = getPeople(data.people);

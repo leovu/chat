@@ -569,10 +569,27 @@ class _InputState extends State<Input> {
   void requestFocus({types.TextMessage? editContent}) {
     if(editContent != null) {
       this.editContent = editContent;
-      _textController.text = editContent.text;
+      _textController.text = checkTag(editContent.text);
       _isEdit = true;
     }
     _inputFocusNode.requestFocus();
+  }
+
+
+  String checkTag(String message) {
+    List<String> contents = message.split(' ');
+    String result = '';
+    for (int i = 0; i < contents.length; i++) {
+      var element = contents[i];
+      if(element == '@all-all@') {
+        element = '@${AppLocalizations.text(LangKey.all)}';
+      }
+      if(element[element.length-1] == '@' && element.contains('-')) {
+        element = element.split('-').first;
+      }
+      result += '$element ';
+    }
+    return result.trim();
   }
 
   @override

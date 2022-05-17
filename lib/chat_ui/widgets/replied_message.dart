@@ -48,7 +48,7 @@ class RepliedMessage extends StatelessWidget {
           break;
         case types.MessageType.text:
           final textMessage = repliedMessage as types.TextMessage;
-          _text = textMessage.text;
+          _text = checkTag(textMessage.text);
           break;
         default:
           break;
@@ -137,5 +137,20 @@ class RepliedMessage extends StatelessWidget {
         ],
       ),
     );
+  }
+  String checkTag(String message) {
+    List<String> contents = message.split(' ');
+    String result = '';
+    for (int i = 0; i < contents.length; i++) {
+      var element = contents[i];
+      if(element == '@all-all@') {
+        element = '@${AppLocalizations.text(LangKey.all)}';
+      }
+      if(element[element.length-1] == '@' && element.contains('-')) {
+        element = element.split('-').first;
+      }
+      result += '$element ';
+    }
+    return result.trim();
   }
 }
