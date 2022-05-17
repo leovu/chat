@@ -146,9 +146,11 @@ class RepliedMessage extends StatelessWidget {
       if(element == '@all-all@') {
         element = '@${AppLocalizations.text(LangKey.all)}';
       }
-      if(element[element.length-1] == '@' && element.contains('-')) {
-        element = element.split('-').first;
-      }
+      try {
+        if(element[element.length-1] == '@' && element.contains('-')) {
+          element = element.split('-').first;
+        }
+      }catch(_) {}
       result += '$element ';
     }
     return result.trim();

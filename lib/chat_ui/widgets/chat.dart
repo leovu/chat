@@ -92,6 +92,7 @@ class Chat extends StatefulWidget {
     required this.progressUpdate,
     required this.builder,
     required this.people,
+    required this.isGroup,
   }) : super(key: key);
 
   /// See [Message.bubbleBuilder]
@@ -104,6 +105,8 @@ class Chat extends StatefulWidget {
   /// Allows you to replace the default Input widget e.g. if you want to create
   /// a channel view.
   final Widget? customBottomWidget;
+
+  final bool isGroup;
 
   final ChatController chatController;
 
@@ -584,6 +587,7 @@ class _ChatState extends State<Chat> {
                       ),
                       !widget.isSearchChat ? widget.customBottomWidget ??
                           Input(
+                            isGroup: widget.isGroup,
                             isAttachmentUploading: widget.isAttachmentUploading,
                             onAttachmentPressed: widget.onAttachmentPressed,
                             onCameraPressed: widget.onCameraPressed,

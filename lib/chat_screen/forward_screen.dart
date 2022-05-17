@@ -301,24 +301,36 @@ class ForwardScreenState extends State<ForwardScreen> {
                 fontWeight: FontWeight.bold
             )));
       }
-      else if(element[element.length-1] == '@' && element.contains('-')) {
-        element = element.split('-').first;
-        _arr.add(TextSpan(
-            text: '$element ',
-            style:
-            const TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold
-            )));
-      }
       else {
-        _arr.add(TextSpan(
-            text: i == contents.length-1 ? element : '$element ',
-            style:
-            TextStyle(
-                color: Colors.grey.shade700,
-                fontWeight: FontWeight.normal
-            )));
+        try {
+          if(element[element.length-1] == '@' && element.contains('-')) {
+            element = element.split('-').first;
+            _arr.add(TextSpan(
+                text: '$element ',
+                style:
+                const TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold
+                )));
+          }
+          else {
+            _arr.add(TextSpan(
+                text: i == contents.length-1 ? element : '$element ',
+                style:
+                TextStyle(
+                    color: Colors.grey.shade700,
+                    fontWeight: FontWeight.normal
+                )));
+          }
+        }catch(_) {
+          _arr.add(TextSpan(
+              text: i == contents.length-1 ? element : '$element ',
+              style:
+              TextStyle(
+                  color: Colors.grey.shade700,
+                  fontWeight: FontWeight.normal
+              )));
+        }
       }
     }
     _widget = Text.rich(

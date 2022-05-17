@@ -46,6 +46,7 @@ class Input extends StatefulWidget {
     required this.onCancelReplyPressed,
     required this.inputBuilder,
     required this.people,
+    required this.isGroup,
   }) : super(key: key);
 
   final ChatEmojiBuilder builder;
@@ -54,6 +55,7 @@ class Input extends StatefulWidget {
   final void Function()? onAttachmentPressed;
   final void Function()? onCameraPressed;
 
+  final bool isGroup;
   final List<People>? people;
 
   /// Whether attachment is uploading. Will replace attachment button with a
@@ -95,6 +97,7 @@ class _InputState extends State<Input> {
   late RichTextController _textController;
   types.TextMessage? editContent;
   List<People>? _taggingSuggestList;
+  List<String> _idTagList = [];
 
   @override
   void initState() {
@@ -117,6 +120,7 @@ class _InputState extends State<Input> {
       },
       onMatch: (List<String> match) {},
     );
+    _idTagList = [];
     if (widget.sendButtonVisibilityMode == SendButtonVisibilityMode.editing) {
       _sendButtonVisible = _textController.text.trim() != '';
       _textController.addListener(_handleTextControllerChange);
@@ -141,14 +145,20 @@ class _InputState extends State<Input> {
       ),
     );
   }
-
   void _handleSendPressed() {
+    _isEdit = false;
     var trimmedText = _textController.text.trim();
     trimmedText = trimmedText.replaceAll('@${AppLocalizations.text(LangKey.all)}', '@all-all@');
     if(widget.people != null) {
-      for (var e in widget.people!) {
-        trimmedText = trimmedText.replaceAll('@${e.firstName}${e.lastName}', '@${e.firstName}${e.lastName}-${e.sId}@');
+      if(_idTagList.isNotEmpty) {
+        for(var e in _idTagList) {
+          try {
+            People p = widget.people!.firstWhere((element) => element.sId == e);
+            trimmedText = trimmedText.replaceAll('@${p.firstName}${p.lastName}', '@${p.firstName}${p.lastName}-${p.sId}@');
+          }catch(_) {}
+        }
       }
+      _idTagList = [];
     }
     if (trimmedText != '') {
       final _partialText = types.PartialText(text: trimmedText);
@@ -161,6 +171,9 @@ class _InputState extends State<Input> {
   void _handleTextControllerChange() {
     setState(() {
       _sendButtonVisible = _textController.text.trim() != '';
+      if(!_sendButtonVisible) {
+        _idTagList = [];
+      }
     });
   }
 
@@ -242,7 +255,7 @@ class _InputState extends State<Input> {
                 Visibility(
                     visible: _taggingSuggestList != null,
                     child: _taggingSuggestList != null ? Wrap(
-                      children: _arrayTaggingSuggestionList(_taggingSuggestList!.length == widget.people!.length-1),
+                      children: _arrayTaggingSuggestionList(_taggingSuggestList!.length == widget.people!.length-1 && !widget.isGroup),
                     ) : Container()),
                 if (InheritedRepliedMessage.of(context).repliedMessage != null)
                   Padding(
@@ -462,6 +475,9 @@ class _InputState extends State<Input> {
           onTap: () {
             List<String> contents = _textController.value.text.split('@');
             contents.last = '${e.firstName}${e.lastName}';
+            if(!_idTagList.contains(e.sId!)) {
+              _idTagList.add(e.sId!);
+            }
             String val = '';
             for (int i = 0; i < contents.length; i++) {
               if(i != 0) {
@@ -570,6 +586,13 @@ class _InputState extends State<Input> {
     if(editContent != null) {
       this.editContent = editContent;
       _textController.text = checkTag(editContent.text);
+      for (var e in widget.people!) {
+        if(editContent.text.contains('@${e.firstName}${e.lastName}-${e.sId}')) {
+          if(!_idTagList.contains(e.sId)) {
+            _idTagList.add(e.sId!);
+          }
+        }
+      }
       _isEdit = true;
     }
     _inputFocusNode.requestFocus();
@@ -584,9 +607,11 @@ class _InputState extends State<Input> {
       if(element == '@all-all@') {
         element = '@${AppLocalizations.text(LangKey.all)}';
       }
-      if(element[element.length-1] == '@' && element.contains('-')) {
-        element = element.split('-').first;
-      }
+      try {
+        if(element[element.length-1] == '@' && element.contains('-')) {
+          element = element.split('-').first;
+        }
+      }catch(_) {}
       result += '$element ';
     }
     return result.trim();

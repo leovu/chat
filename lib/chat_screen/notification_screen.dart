@@ -134,63 +134,60 @@ class _NotificationScreenState extends State<NotificationScreen> with AutomaticK
     );
   }
   Widget _notification(n.Notification data, bool isLast) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5.0),
-      child: Column(
-        children: [
-          SizedBox(
-            height: 50.0,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  data.createdBy?.picture == null ? CircleAvatar(
-                    radius: 25.0,
-                    child: Text(data.createdBy!.getAvatarName()),
-                  ) : CircleAvatar(
-                    radius: 25.0,
-                    backgroundImage:
-                    CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${data.createdBy!.picture!.shieldedID}/256'),
-                    backgroundColor: Colors.transparent,
+    return Column(
+      children: [
+        SizedBox(
+          height: 50.0,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                data.createdBy?.picture == null ? CircleAvatar(
+                  radius: 20.0,
+                  child: Text(data.createdBy!.getAvatarName()),
+                ) : CircleAvatar(
+                  radius: 20.0,
+                  backgroundImage:
+                  CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${data.createdBy!.picture!.shieldedID}/256'),
+                  backgroundColor: Colors.transparent,
+                ),
+                Expanded(child: Container(
+                  padding: const EdgeInsets.only(left: 10.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child:
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(child: Opacity(
+                                opacity: data.isRead == 0 ? 1.0 : 0.3,
+                                child: dataMessage(data.messageData ?? ''))),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                              child: AutoSizeText(data.createMessageDate(),style: const TextStyle(fontSize: 11,color: Colors.grey),),
+                            ),
+                          ],
+                        )
+                      ),
+                    ],
                   ),
-                  Expanded(child: Container(
-                    padding: const EdgeInsets.only(top: 5.0,bottom: 5.0,left: 10.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child:
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(child: Opacity(
-                                  opacity: data.isRead == 0 ? 1.0 : 0.3,
-                                  child: dataMessage(data.messageData ?? ''))),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 5.0),
-                                child: AutoSizeText(data.createMessageDate(),style: const TextStyle(fontSize: 11,color: Colors.grey),),
-                              ),
-                            ],
-                          )
-                        ),
-                      ],
-                    ),
-                  ))
-                ],
-              ),
+                ))
+              ],
             ),
           ),
-          !isLast ? Container(height: 5.0,) : Container(),
-          !isLast ?  Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10.0),
-            child: Container(height: 1.0,color: Colors.grey.shade300,),
-          ) : Container(),
-        ],
-      ),
+        ),
+        !isLast ? Container(height: 5.0,) : Container(),
+        !isLast ?  Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10.0),
+          child: Container(height: 1.0,color: Colors.grey.shade300,),
+        ) : Container(),
+      ],
     );
   }
   Widget dataMessage(String value) {
@@ -253,6 +250,7 @@ class _NotificationScreenState extends State<NotificationScreen> with AutomaticK
           children: _arr,
         ),
         maxLines: 2,
+        overflow: TextOverflow.ellipsis,
       );
       return _widget;
     }

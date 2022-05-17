@@ -417,7 +417,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   }
 
   void _handleMessageLongPress(BuildContext context, types.Message message) async {
-    if(message is types.TextMessage && message.text == 'Message recalled') {
+    if(message is types.TextMessage && message.text == AppLocalizations.text(LangKey.messageRecalled)) {
       return;
     }
     c.Messages? mess = data?.room?.messages?.firstWhere((e) => e.sId == message.id);
@@ -745,6 +745,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
               isInitScreen ? Center(child: Platform.isAndroid ? const CircularProgressIndicator() : const CupertinoActivityIndicator()) :
               Chat(
                 messages: _messages,
+                isGroup: data?.room?.isGroup ?? false,
                 people: widget.data.people,
                 progressUpdate: (value) {
                   progress = value;
@@ -1236,24 +1237,36 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                 fontWeight: FontWeight.bold
             )));
       }
-      else if(element[element.length-1] == '@' && element.contains('-')) {
-        element = element.split('-').first;
-        _arr.add(TextSpan(
-            text: '$element ',
-            style:
-            const TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold
-            )));
-      }
       else {
-        _arr.add(TextSpan(
-            text: i == contents.length-1 ? element : '$element ',
-            style:
-            TextStyle(
-                color: Colors.grey.shade700,
-                fontWeight: FontWeight.normal
-            )));
+        try {
+          if(element[element.length-1] == '@' && element.contains('-')) {
+            element = element.split('-').first;
+            _arr.add(TextSpan(
+                text: '$element ',
+                style:
+                const TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold
+                )));
+          }
+          else {
+            _arr.add(TextSpan(
+                text: i == contents.length-1 ? element : '$element ',
+                style:
+                TextStyle(
+                    color: Colors.grey.shade700,
+                    fontWeight: FontWeight.normal
+                )));
+          }
+        }catch(_) {
+          _arr.add(TextSpan(
+              text: i == contents.length-1 ? element : '$element ',
+              style:
+              TextStyle(
+                  color: Colors.grey.shade700,
+                  fontWeight: FontWeight.normal
+              )));
+        }
       }
     }
     _widget = Text.rich(

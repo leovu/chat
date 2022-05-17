@@ -446,7 +446,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                         Expanded(child:
                         Row(
                           children: [
-                            Expanded(child: AutoSizeText(
+                            Expanded(child: Text(
                               '$author''${checkTag('${(data.lastMessage?.type == 'image'
                                   ? AppLocalizations.text(LangKey.sentPicture) :
                               data.lastMessage?.type == 'file'
@@ -482,14 +482,19 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
   String checkTag(String message) {
     List<String> contents = message.split(' ');
     String result = '';
+    if(message.trim() == '') {
+      return '';
+    }
     for (int i = 0; i < contents.length; i++) {
       var element = contents[i];
       if(element == '@all-all@') {
         element = '@${AppLocalizations.text(LangKey.all)}';
       }
-      if(element[element.length-1] == '@' && element.contains('-')) {
-        element = element.split('-').first;
-      }
+      try {
+        if(element[element.length-1] == '@' && element.contains('-')) {
+          element = element.split('-').first;
+        }
+      }catch(_){}
       result += '$element ';
     }
     return result.trim();

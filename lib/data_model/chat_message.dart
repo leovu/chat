@@ -1,4 +1,6 @@
 import 'package:chat/connection/http_connection.dart';
+import 'package:chat/localization/app_localizations.dart';
+import 'package:chat/localization/lang_key.dart';
 import 'package:intl/intl.dart';
 import 'package:mime/mime.dart';
 
@@ -250,6 +252,10 @@ class Messages {
     iV = json['__v'];
     type = json['type'];
     edit = json['edit'];
+    if(content == 'Message recalled') {
+      content = AppLocalizations.text(LangKey.messageRecalled);
+      edit = 0;
+    }
     try{
       file = json['file'] != null ? Picture.fromJson(json['file']) : null;
     }catch(_){}

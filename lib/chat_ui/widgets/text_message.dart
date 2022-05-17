@@ -113,7 +113,6 @@ class TextMessage extends StatelessWidget {
     final color =
         getUserAvatarNameColor(message.author, theme.userAvatarNameColors);
     final name = getUserName(message.author);
-    List<String> contents = message.text.split(' ');
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -133,86 +132,90 @@ class TextMessage extends StatelessWidget {
               style: theme.userNameTextStyle.copyWith(color: color),
             ),
           ),
-        SelectableText.rich(
+        Text.rich(
           TextSpan(
-            children: contentMessage(contents, user, context, color, enlargeEmojis),
+            children: contentMessages(message.text, user, context, color, enlargeEmojis),
           ),
         ),
       ],
     );
   }
 
-  List<InlineSpan> contentMessage(List<String> contents,
+  List<InlineSpan> contentMessages(String value,
       types.User user,
       BuildContext context,
       Color color,
-      bool enlargeEmojis,) {
-    final theme = InheritedChatTheme.of(context).theme;
+      bool enlargeEmojis) {
     List<InlineSpan> arr = [];
+    value.splitMapJoin(RegExp('@((?!@).)*-((?!@).)*@'), onMatch: (match){
+      arr.add(contentMessage('${match[0]}', user, context, color, enlargeEmojis, true));
+      return match.input;
+    }, onNonMatch: (text){
+      arr.add(contentMessage(text, user, context, color, enlargeEmojis, false));
+      return text;
+    });
+    return arr;
+  }
+
+  InlineSpan contentMessage(String element,
+      types.User user,
+      BuildContext context,
+      Color color,
+      bool enlargeEmojis,
+      bool isTag) {
+    final theme = InheritedChatTheme.of(context).theme;
+    if(element.toLowerCase() == searchController.value.text.toLowerCase() && searchController.value.text != '') {
+      return TextSpan(
+          text: checkTag(element),
+          style:
+          TextStyle(
+            color: isTag? const Color(0xffffffff) : Colors.blueAccent,
+            fontSize: 16,
+            fontWeight:
+            isTag ?
+            FontWeight.bold :
+            FontWeight.w500,
+            height: 1.5,
+            background: Paint()
+              ..color = Colors.redAccent,
+          ));
+    }
+    else {
+      return isTag ? TextSpan(
+          text: checkTag(element),
+          style: TextStyle(
+            color: user.id != message.author.id ? Colors.blueAccent : Colors.black,
+            fontSize: 16,
+            fontWeight: FontWeight.bold ,
+            height: 1.5,
+          ))
+          : TextSpan(
+          text: element,
+          style: user.id == message.author.id
+              ? enlargeEmojis
+              ? theme.sentEmojiMessageTextStyle
+              : theme.sentMessageBodyTextStyle
+              : enlargeEmojis
+              ? theme.receivedEmojiMessageTextStyle
+              : theme.receivedMessageBodyTextStyle);
+    }
+  }
+  String checkTag(String message) {
+    List<String> contents = message.split(' ');
+    String result = '';
     for (int i = 0; i < contents.length; i++) {
       var element = contents[i];
-      bool isTag = false;
       if(element == '@all-all@') {
         element = '@${AppLocalizations.text(LangKey.all)}';
-        isTag = true;
       }
-      if(element[0] == '@' && contents[i+1][contents[i+1].length-1] == '@' && contents[i+1].contains('-') && !element.contains('-')) {
-        isTag = true;
-      }
-      if(element[element.length-1] == '@' && element.contains('-')) {
-        element = element.split('-').first;
-        isTag = true;
-      }
-      if(element.toLowerCase() == searchController.value.text.toLowerCase()) {
-        arr.add(TextSpan(
-            text: element,
-            style:
-            TextStyle(
-              color: isTag? const Color(0xffffffff) : Colors.blueAccent,
-              fontSize: 16,
-              fontWeight:
-                isTag ?
-                  FontWeight.bold :
-                  FontWeight.w500,
-              height: 1.5,
-              background: Paint()
-                ..color = Colors.redAccent,
-            )));
-      }
-      else {
-        isTag ?
-        arr.add(TextSpan(
-            text: element,
-            style: TextStyle(
-              color: user.id != message.author.id ? Colors.blueAccent : Colors.black,
-              fontSize: 16,
-              fontWeight: FontWeight.bold ,
-              height: 1.5,
-            )))
-            :
-        arr.add(TextSpan(
-            text: element,
-            style: user.id == message.author.id
-                ? enlargeEmojis
-                ? theme.sentEmojiMessageTextStyle
-                : theme.sentMessageBodyTextStyle
-                : enlargeEmojis
-                ? theme.receivedEmojiMessageTextStyle
-                : theme.receivedMessageBodyTextStyle));
-      }
-      if(i < contents.length-1) {
-        arr.add(TextSpan(
-            text: ' ',
-            style: user.id == message.author.id
-                ? enlargeEmojis
-                ? theme.sentEmojiMessageTextStyle
-                : theme.sentMessageBodyTextStyle
-                : enlargeEmojis
-                ? theme.receivedEmojiMessageTextStyle
-                : theme.receivedMessageBodyTextStyle));
-      }
+      try {
+        if(element[element.length-1] == '@' && element.contains('-')) {
+          element = element.split('-').first;
+        }
+      }catch(_) {}
+      result += element;
     }
-    return arr;
+    return result;
   }
 
   @override

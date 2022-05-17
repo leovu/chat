@@ -274,7 +274,7 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen> with AutomaticKee
                         Expanded(child:
                         Row(
                           children: [
-                            Expanded(child: AutoSizeText(
+                            Expanded(child: Text(
                               '$author''${checkTag('${(data.lastMessage?.type == 'image'
                                   ? AppLocalizations.text(LangKey.sentPicture) :
                               data.lastMessage?.type == 'file'
@@ -327,9 +327,11 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen> with AutomaticKee
       if(element == '@all-all@') {
         element = '@${AppLocalizations.text(LangKey.all)}';
       }
-      if(element[element.length-1] == '@' && element.contains('-')) {
-        element = element.split('-').first;
-      }
+      try {
+        if(element[element.length-1] == '@' && element.contains('-')) {
+          element = element.split('-').first;
+        }
+      }catch(_){}
       result += '$element ';
     }
     return result.trim();
