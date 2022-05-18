@@ -598,11 +598,30 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
             notificationData['room']['isGroup'] == true ?
             '${notificationData['message']['author']['firstName']} ${notificationData['message']['author']['lastName']} in ${notificationData['room']['title']}'
             : '${notificationData['message']['author']['firstName']} ${notificationData['message']['author']['lastName']}',
-            notificationData['message']['content'],
+            checkTagMessage(notificationData['message']['content']),
             notificationData, ChatConnection.appIcon, _notificationHandler);
       }
     }
   }
+
+  String checkTagMessage(String message) {
+    List<String> contents = message.split(' ');
+    String result = '';
+    for (int i = 0; i < contents.length; i++) {
+      var element = contents[i];
+      if(element == '@all-all@') {
+        element = '@${AppLocalizations.text(LangKey.all)}';
+      }
+      try {
+        if(element[element.length-1] == '@' && element.contains('-')) {
+          element = element.split('-').first;
+        }
+      }catch(_) {}
+      result += '$element ';
+    }
+    return result.trim();
+  }
+
   Future<dynamic> _notificationHandler(Map<String, dynamic> message) async {
     try{
       if(ChatConnection.roomId == message['room']['_id']) {
