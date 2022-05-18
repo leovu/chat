@@ -476,9 +476,8 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
 
   String _checkContent(Rooms model){
     if((model.messagesReceived?.length ?? 0) == 0){
-      return AppLocalizations.text(LangKey.justCreatedRoom);
+      return (findAuthor(model.people,model.owner,isGroupOwner: true) ?? '') + AppLocalizations.text(LangKey.justCreatedRoom);
     }
-
     if(model.lastMessage?.type == 'image'){
       return AppLocalizations.text(LangKey.sentPicture);
     }
@@ -529,11 +528,11 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
       return '0';
     }
   }
-  String? findAuthor(List<People>? people, String? author) {
+  String? findAuthor(List<People>? people, String? author,{bool isGroupOwner = false}) {
     People? p;
     try {
       p = people?.firstWhere((element) => element.sId == author);
-      return (p!.sId != ChatConnection.user!.id ? ((p.firstName ?? '').trim() + ' ' + (p.lastName ?? '').trim()).trim() : AppLocalizations.text(LangKey.you)) + ': ';
+      return (p!.sId != ChatConnection.user!.id ? ((p.firstName ?? '').trim() + ' ' + (p.lastName ?? '').trim()).trim() : AppLocalizations.text(LangKey.you)) + (isGroupOwner ? ' ' : ': ');
     }catch(_){
       return '';
     }

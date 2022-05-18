@@ -75,10 +75,10 @@ class _ConversationInformationScreenState
                           widget.roomData.picture == null
                               ? null
                               : '${HTTPConnection.domain}api/images/${widget.roomData.picture!.shieldedID}/256',
-                              onTap: widget.roomData.owner == ChatConnection.user!.id? (){
+                              onTap: widget.roomData.owner == ChatConnection.user!.id? () async {
                                 _controller.text = widget.roomData.title!;
                                 final FocusNode _focusNode = FocusNode();
-                                showDialog<bool>(
+                                await showDialog<bool>(
                                   context: context,
                                   builder: (context) {
                                     _focusNode.requestFocus();
@@ -121,6 +121,7 @@ class _ConversationInformationScreenState
                                                                     ?.unfocus();
                                                                 widget.roomData.title =
                                                                     _controller.value.text;
+                                                                reload();
                                                               } else {
                                                                 errorDialog();
                                                               }
@@ -263,6 +264,10 @@ class _ConversationInformationScreenState
         ],
       ),
     );
+  }
+
+  reload() {
+    setState(() {});
   }
 
   Widget _buildAvatar(String name, String avatarName, String? url, {Function()? onTap}) {
