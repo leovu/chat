@@ -447,13 +447,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                         Row(
                           children: [
                             Expanded(child: Text(
-                              '$author''${checkTag('${(data.lastMessage?.type == 'image'
-                                  ? AppLocalizations.text(LangKey.sentPicture) :
-                              data.lastMessage?.type == 'file'
-                                  ? AppLocalizations.text(LangKey.sendFile) :
-                              data.lastMessage?.content != null && data.lastMessage?.content != '' ?
-                              data.lastMessage?.content
-                                  : AppLocalizations.text(LangKey.forwardMessage))}')}' ,
+                              '$author''${checkTag(_checkContent(data))}' ,
                               overflow: TextOverflow.ellipsis,),),
                             if(findUnread(data.messagesReceived) != '0') CircleAvatar(
                               radius: 18.0,
@@ -479,6 +473,27 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
       ],
     );
   }
+
+  String _checkContent(Rooms model){
+    if((model.messagesReceived?.length ?? 0) == 0){
+      return AppLocalizations.text(LangKey.justCreatedRoom);
+    }
+
+    if(model.lastMessage?.type == 'image'){
+      return AppLocalizations.text(LangKey.sentPicture);
+    }
+
+    if(model.lastMessage?.type == 'file'){
+      return AppLocalizations.text(LangKey.sendFile);
+    }
+
+    if((model.lastMessage?.content ?? "").isEmpty){
+      return AppLocalizations.text(LangKey.forwardMessage);
+    }
+
+    return model.lastMessage!.content!;
+  }
+
   String checkTag(String message) {
     List<String> contents = message.split(' ');
     String result = '';

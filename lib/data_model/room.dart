@@ -183,6 +183,17 @@ class People {
     return data;
   }
 
+  String getName(){
+    List<String> names = [];
+    if((firstName ?? "").isNotEmpty) {
+      names.add(firstName!);
+    }
+    if((lastName ?? "").isNotEmpty) {
+      names.add(lastName!);
+    }
+    return names.join(" ");
+  }
+
   String getAvatarName() {
     String avatarName = '';
     if(firstName != '' && firstName != null) {

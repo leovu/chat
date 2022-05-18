@@ -91,7 +91,7 @@ class _NotificationScreenState extends State<NotificationScreen> with AutomaticK
               ),
               Padding(
                 padding: const EdgeInsets.only(bottom: 3.0,left: 10.0,right: 10.0),
-                child: Text(AppLocalizations.text(LangKey.notification),style: const TextStyle(fontSize: 25.0,color: Colors.black)),
+                child: Text(AppLocalizations.text(LangKey.notifications),style: const TextStyle(fontSize: 25.0,color: Colors.black)),
               ),
             ],
           ),

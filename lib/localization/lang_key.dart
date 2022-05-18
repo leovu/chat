@@ -76,5 +76,6 @@ class LangKey {
   static const String photos = "photos";
   static const String chats = "chats";
   static const String all = "all";
-  static const String notification = "notification";
+  static const String notifications = "notifications";
+  static const String justCreatedRoom = "justCreatedRoom";
 }

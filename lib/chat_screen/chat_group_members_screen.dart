@@ -21,81 +21,12 @@ class ChatGroupMembersScreen extends StatefulWidget {
 }
 
 class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
-  final TextEditingController _controller = TextEditingController();
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
     return Scaffold(
         appBar: AppBar(
-          title: (widget.roomData.owner == ChatConnection.user!.id &&
-        widget.roomData.isGroup!) ? InkWell(
-            onTap: () {
-              _controller.text = widget.roomData.title!;
-              final FocusNode _focusNode = FocusNode();
-              showDialog<bool>(
-                context: context,
-                builder: (context) {
-                  _focusNode.requestFocus();
-                  return StatefulBuilder(
-                    builder: (BuildContext cxtx, StateSetter setState) {
-                    return CupertinoAlertDialog(
-                      title: Text(AppLocalizations.text(LangKey.renameGroup)),
-                      content: Card(
-                        color: Colors.transparent,
-                        elevation: 0.0,
-                        child: Column(
-                          children: <Widget>[
-                            Padding(
-                              padding: const EdgeInsets.only(top: 8.0,bottom: 3.0),
-                              child: CupertinoTextField(
-                                controller: _controller,
-                                focusNode: _focusNode,
-                                placeholder: AppLocalizations.text(LangKey.enterGroupName),
-                              ),
-                            ),
-                            Row(
-                              children: [
-                                Expanded(child:
-                                CupertinoButton(child: Text(AppLocalizations.text(LangKey.accept)), onPressed: () async {
-                                  FocusManager.instance.primaryFocus?.unfocus();
-                                  Navigator.of(context).pop();
-                                  bool result = await ChatConnection.updateRoomName(widget.roomData.sId!, _controller.value.text);
-                                  if(result) {
-                                    FocusManager.instance.primaryFocus?.unfocus();
-                                    widget.roomData.title = _controller.value.text;
-                                  }
-                                  else {
-                                    errorDialog();
-                                  }
-                                }),),
-                                Container(width: 1.0,height: 25.0,color: Colors.blue,),
-                                Expanded(child:
-                                CupertinoButton(child: Text(AppLocalizations.text(LangKey.cancel)), onPressed: (){
-                                  FocusManager.instance.primaryFocus?.unfocus();
-                                  Navigator.of(context).pop();
-                                }),),
-                              ],
-                            )
-                          ],
-                        ),
-                      ),
-                    );}
-                  );
-                },
-              );
-            },
-          child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                AutoSizeText(
-                  '${AppLocalizations.text(LangKey.members)} ',
-                  style: const TextStyle(
-                      color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-                const Icon(Icons.edit_outlined,color: Colors.black,size: 15.0,)
-              ],
-            ),
-        ) : AutoSizeText(
+          title: AutoSizeText(
             AppLocalizations.text(LangKey.members),
             style: const TextStyle(
                 color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
@@ -187,22 +118,7 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
       Navigator.of(context).pop();
     }
   }
-  void errorDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(AppLocalizations.text(LangKey.warning)),
-        content: Text(AppLocalizations.text(LangKey.changeGroupNameError)),
-        actions: [
-          ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text(AppLocalizations.text(LangKey.accept)))
-        ],
-      ),
-    );
-  }
+
   void removeMember(r.People people) async {
     bool value = await ChatConnection.leaveRoom(widget.roomData.sId!,people.sId);
     if(value) {

@@ -73,5 +73,6 @@
   "photos": "photos",
   "chats": "Chats",
   "all": "All",
-  "notification": "Notification"
+  "notifications": "Notifications",
+  "justCreatedRoom": "Group has just been created"
 }

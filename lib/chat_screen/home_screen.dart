@@ -81,7 +81,7 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
                   },
                   valueListenable: ChatConnection.notificationNotifier,
                 ),
-                label: AppLocalizations.text(LangKey.notification)
+                label: AppLocalizations.text(LangKey.notifications)
             ),
           ],
         ),

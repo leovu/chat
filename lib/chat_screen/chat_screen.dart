@@ -435,17 +435,17 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
           key: 'Forward',
         ),
         if(mess?.author?.sId == ChatConnection.user?.id) SheetAction(
-          icon: Icons.replay_30_outlined,
+          icon: Icons.refresh,
           label: AppLocalizations.text(LangKey.recall),
           key: 'Recall',
         ),
         if(mess?.author?.sId == ChatConnection.user?.id && message.type.name == 'text') SheetAction(
-          icon: Icons.replay_30_outlined,
+          icon: Icons.edit,
           label: AppLocalizations.text(LangKey.edit),
           key: 'Edit',
         ),
         SheetAction(
-          icon: Icons.replay_30_outlined,
+          icon: Icons.push_pin,
           label: AppLocalizations.text(LangKey.pinMessage),
           key: 'Pin Message',
         ),
