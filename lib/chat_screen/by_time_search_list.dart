@@ -1,7 +1,9 @@
 import 'dart:io';
+import 'package:any_link_preview/any_link_preview.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/chat_ui/conditional/conditional.dart';
+import 'package:chat/connection/download.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
@@ -10,14 +12,17 @@ import 'package:flutter/material.dart';
 import 'package:chat/data_model/chat_message.dart' as c;
 import 'package:chat/data_model/room.dart' as r;
 import 'package:intl/intl.dart';
+import 'package:open_file/open_file.dart';
 import 'package:photo_view/photo_view_gallery.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ByTimeResultScreen extends StatefulWidget {
   final c.ChatMessage? chatMessage;
   final r.Rooms roomData;
   final String? search;
   final String? title;
-  const ByTimeResultScreen({Key? key, required this.roomData, required this.chatMessage, this.search, this.title}) : super(key: key);
+  final int tabbarIndex;
+  const ByTimeResultScreen({Key? key, required this.roomData, required this.chatMessage, this.search, this.title, required this.tabbarIndex}) : super(key: key);
   @override
   _State createState() => _State();
 }
@@ -76,14 +81,28 @@ class _State extends State<ByTimeResultScreen>
     List<String> keys = [];
     final format1 = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z");
     final format2 = DateFormat("dd/MM/yyyy");
-    widget.chatMessage?.room?.images?.forEach((e) {
-      final dt = format1.parse(e.date!, true).toLocal();
-      String formattedDate = format2.format(dt);
-      if(widget.search != null && widget.search != '') {
-        if(widget.search!.contains('-')) {
-          List<String> listDates = widget.search!.split('-');
-          if(listDates.length >= 2) {
-            if (dt.isBetween(format2.parse(listDates[0]), format2.parse(listDates[1]))) {
+    if(widget.tabbarIndex == 0) {
+      widget.chatMessage?.room?.images?.forEach((e) {
+        final dt = format1.parse(e.date!, true).toLocal();
+        String formattedDate = format2.format(dt);
+        if(widget.search != null && widget.search != '') {
+          if(widget.search!.contains('-')) {
+            List<String> listDates = widget.search!.split('-');
+            if(listDates.length >= 2) {
+              if (dt.isBetween(format2.parse(listDates[0]), format2.parse(listDates[1]))) {
+                if(values.containsKey(formattedDate)) {
+                  values[formattedDate]!.add(widgetCacheImage(e.content!));
+                }
+                else {
+                  values[formattedDate] = [];
+                  values[formattedDate]!.add(widgetCacheImage(e.content!));
+                  keys.add(formattedDate);
+                }
+              }
+            }
+          }
+          else {
+            if(formattedDate == widget.search) {
               if(values.containsKey(formattedDate)) {
                 values[formattedDate]!.add(widgetCacheImage(e.content!));
               }
@@ -96,29 +115,107 @@ class _State extends State<ByTimeResultScreen>
           }
         }
         else {
-          if(formattedDate == widget.search) {
-            if(values.containsKey(formattedDate)) {
-              values[formattedDate]!.add(widgetCacheImage(e.content!));
+          if(values.containsKey(formattedDate)) {
+            values[formattedDate]!.add(widgetCacheImage(e.content!));
+          }
+          else {
+            values[formattedDate] = [];
+            values[formattedDate]!.add(widgetCacheImage(e.content!));
+            keys.add(formattedDate);
+          }
+        }
+      });
+    }
+    if(widget.tabbarIndex == 1) {
+      widget.chatMessage?.room?.files?.forEach((e) {
+        final dt = format1.parse(e.date!, true).toLocal();
+        String formattedDate = format2.format(dt);
+        if(widget.search != null && widget.search != '') {
+          if(widget.search!.contains('-')) {
+            List<String> listDates = widget.search!.split('-');
+            if(listDates.length >= 2) {
+              if (dt.isBetween(format2.parse(listDates[0]), format2.parse(listDates[1]))) {
+                if(values.containsKey(formattedDate)) {
+                  values[formattedDate]!.add(widgetCacheFile(e));
+                }
+                else {
+                  values[formattedDate] = [];
+                  values[formattedDate]!.add(widgetCacheFile(e));
+                  keys.add(formattedDate);
+                }
+              }
             }
-            else {
-              values[formattedDate] = [];
-              values[formattedDate]!.add(widgetCacheImage(e.content!));
-              keys.add(formattedDate);
+          }
+          else {
+            if(formattedDate == widget.search) {
+              if(values.containsKey(formattedDate)) {
+                values[formattedDate]!.add(widgetCacheFile(e));
+              }
+              else {
+                values[formattedDate] = [];
+                values[formattedDate]!.add(widgetCacheFile(e));
+                keys.add(formattedDate);
+              }
             }
           }
         }
-      }
-      else {
-        if(values.containsKey(formattedDate)) {
-          values[formattedDate]!.add(widgetCacheImage(e.content!));
+        else {
+          if(values.containsKey(formattedDate)) {
+            values[formattedDate]!.add(widgetCacheFile(e));
+          }
+          else {
+            values[formattedDate] = [];
+            values[formattedDate]!.add(widgetCacheFile(e));
+            keys.add(formattedDate);
+          }
+        }
+      });
+    }
+    if(widget.tabbarIndex == 2) {
+      widget.chatMessage?.room?.links?.forEach((e) {
+        final dt = format1.parse(e.date!, true).toLocal();
+        String formattedDate = format2.format(dt);
+        if(widget.search != null && widget.search != '') {
+          if(widget.search!.contains('-')) {
+            List<String> listDates = widget.search!.split('-');
+            if(listDates.length >= 2) {
+              if (dt.isBetween(format2.parse(listDates[0]), format2.parse(listDates[1]))) {
+                if(values.containsKey(formattedDate)) {
+                  values[formattedDate]!.add(widgetCacheLink(e));
+                }
+                else {
+                  values[formattedDate] = [];
+                  values[formattedDate]!.add(widgetCacheLink(e));
+                  keys.add(formattedDate);
+                }
+              }
+            }
+          }
+          else {
+            if(formattedDate == widget.search) {
+              if(values.containsKey(formattedDate)) {
+                values[formattedDate]!.add(widgetCacheLink(e));
+              }
+              else {
+                values[formattedDate] = [];
+                values[formattedDate]!.add(widgetCacheLink(e));
+                keys.add(formattedDate);
+              }
+            }
+          }
         }
         else {
-          values[formattedDate] = [];
-          values[formattedDate]!.add(widgetCacheImage(e.content!));
-          keys.add(formattedDate);
+          if(values.containsKey(formattedDate)) {
+            values[formattedDate]!.add(widgetCacheLink(e));
+          }
+          else {
+            values[formattedDate] = [];
+            values[formattedDate]!.add(widgetCacheLink(e));
+            keys.add(formattedDate);
+          }
         }
-      }
-    });
+      });
+    }
     List<Widget> widgets = [];
     for (var element in keys) {
       final dt = format2.parse(element, true);
@@ -146,6 +243,49 @@ class _State extends State<ByTimeResultScreen>
     return widgets;
   }
 
+  Widget widgetCacheFile(c.Images message) {
+    return InkWell(
+      onTap: () async {
+        showLoading();
+        String? result = await download(context,'${HTTPConnection.domain}api/files/${message.file?.shieldedID}','${message.date}_${message.file?.name}');
+        Navigator.of(context).pop();
+        await OpenFile.open(result);
+      },
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 45.0,
+                height: 45.0,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5),
+                  color: Colors.blue,
+                ),
+                child: Image.asset(
+                  'assets/icon-document.png',
+                  color: Colors.white,
+                  package: 'chat',
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Column(
+                  children: [
+                    AutoSizeText(message.file?.name ?? '')
+                  ],
+                ),
+              ),
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Container(height: 1.0,color: Colors.grey.shade200,),
+          )
+        ],
+      ),
+    );
+  }
   Widget widgetCacheImage(String content) {
     return InkWell(
       onTap: () {
@@ -167,6 +307,55 @@ class _State extends State<ByTimeResultScreen>
         ),
       ),
     );
+  }
+  Widget widgetCacheLink(c.Images message) {
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: AnyLinkPreview(
+        link: message.content ?? '',
+        displayDirection: UIDirection.uiDirectionHorizontal,
+        showMultimedia: false,
+        bodyMaxLines: 5,
+        bodyTextOverflow: TextOverflow.ellipsis,
+        titleStyle: const TextStyle(
+          color: Colors.black,
+          fontWeight: FontWeight.bold,
+          fontSize: 15,
+        ),
+        bodyStyle: const TextStyle(color: Colors.grey, fontSize: 12),
+        errorBody: 'Something is wrong!',
+        errorTitle: 'Found nothing',
+        errorWidget: Container(
+          color: Colors.grey[300],
+          child: const Text('Oops!'),
+        ),
+        errorImage: "https://google.com/",
+        cache: const Duration(days: 7),
+        backgroundColor: Colors.grey[300],
+        borderRadius: 12,
+        removeElevation: false,
+        boxShadow: const [BoxShadow(blurRadius: 3, color: Colors.grey)],
+        onTap: () async {
+          launchUrl(Uri.parse('${message.content}'));
+        }, // This disables tap event
+      ),
+    );
+  }
+  Future showLoading() async {
+    return await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return SimpleDialog(
+            elevation: 0.0,
+            backgroundColor: Colors.transparent,
+            children: <Widget>[
+              Center(
+                child: Platform.isAndroid ? const CircularProgressIndicator() : const CupertinoActivityIndicator(),
+              )
+            ],
+          );
+        });
   }
   Widget _imageGalleryBuilder() {
     return imageViewed != null

@@ -11,7 +11,8 @@ class BySenderResultScreen extends StatefulWidget {
   final c.ChatMessage? chatMessage;
   final r.Rooms roomData;
   final String? search;
-  const BySenderResultScreen({Key? key, required this.roomData, required this.chatMessage, this.search}) : super(key: key);
+  final int tabbarIndex;
+  const BySenderResultScreen({Key? key, required this.roomData, required this.chatMessage, this.search, required this.tabbarIndex}) : super(key: key);
   @override
   _State createState() => _State();
 }
@@ -31,16 +32,46 @@ class _State extends State<BySenderResultScreen>
   Widget totalText(){
     List<r.People?>? senders = widget.roomData.people?.map((e) {
       try{
-        if(widget.search != '' && widget.search != null) {
-          var tmp = widget.chatMessage?.room?.images?.firstWhere((element) => element.author?.sId == e.sId && '${e.firstName} ${e.lastName}'.toLowerCase().contains(widget.search!.toLowerCase()));
-          if(tmp != null) {
-            return e;
+        if(widget.tabbarIndex == 0) {
+          if(widget.search != '' && widget.search != null) {
+            var tmp = widget.chatMessage?.room?.images?.firstWhere((element) => element.author?.sId == e.sId && '${e.firstName} ${e.lastName}'.toLowerCase().contains(widget.search!.toLowerCase()));
+            if(tmp != null) {
+              return e;
+            }
+          }
+          else {
+            var tmp = widget.chatMessage?.room?.images?.firstWhere((element) => element.author?.sId == e.sId);
+            if(tmp != null) {
+              return e;
+            }
+          }
+        }
+        else if(widget.tabbarIndex == 1) {
+          if(widget.search != '' && widget.search != null) {
+            var tmp = widget.chatMessage?.room?.files?.firstWhere((element) => element.author?.sId == e.sId && '${e.firstName} ${e.lastName}'.toLowerCase().contains(widget.search!.toLowerCase()));
+            if(tmp != null) {
+              return e;
+            }
+          }
+          else {
+            var tmp = widget.chatMessage?.room?.files?.firstWhere((element) => element.author?.sId == e.sId);
+            if(tmp != null) {
+              return e;
+            }
           }
         }
         else {
-          var tmp = widget.chatMessage?.room?.images?.firstWhere((element) => element.author?.sId == e.sId);
-          if(tmp != null) {
-            return e;
+          if(widget.search != '' && widget.search != null) {
+            var tmp = widget.chatMessage?.room?.links?.firstWhere((element) => element.author?.sId == e.sId && '${e.firstName} ${e.lastName}'.toLowerCase().contains(widget.search!.toLowerCase()));
+            if(tmp != null) {
+              return e;
+            }
+          }
+          else {
+            var tmp = widget.chatMessage?.room?.links?.firstWhere((element) => element.author?.sId == e.sId);
+            if(tmp != null) {
+              return e;
+            }
           }
         }
       }catch(_){}
@@ -51,7 +82,9 @@ class _State extends State<BySenderResultScreen>
       margin: const EdgeInsets.only(top: 8.0),
       child: Center(
         child: Text(
-            (senders?.length ?? 0) > 1 ? '${senders!.length} ${AppLocalizations.text(LangKey.senders)}' : '${senders?.length ?? 0} ${AppLocalizations.text(LangKey.sender)}',
+            (senders?.length ?? 0) > 1 ?
+            '${senders!.length} ${AppLocalizations.text(LangKey.senders)}' :
+            '${senders?.length ?? 0} ${AppLocalizations.text(LangKey.sender)}',
             style: TextStyle(fontSize: 15.0, color: Colors.grey.shade600, fontWeight: FontWeight.w500)
         ),
       ),
@@ -93,20 +126,23 @@ class _State extends State<BySenderResultScreen>
     );
   }
   List<Widget> _list() {
-    List<r.People?>? listPeople = widget.roomData.people;
-    List<c.Images>? listImages = widget.chatMessage?.room?.images;
+    List<r.People?>? listPeople;
+    List<c.Images>? listImages = widget.tabbarIndex == 0 ?
+        widget.chatMessage?.room?.images : widget.tabbarIndex == 1 ?
+    widget.chatMessage?.room?.files : widget.chatMessage?.room?.links;
     if(widget.search != '' && widget.search != null) {
-      listPeople = widget.roomData.people?.map((e) {
+      listPeople = [];
+      for(var e in widget.roomData.people!) {
         if('${e.firstName} ${e.lastName}'.toLowerCase().contains(widget.search!.toLowerCase())){
-          var tmp = widget.chatMessage?.room?.images?.firstWhere((element) => element.author?.sId == e.sId);
-          if(tmp != null) {
-            return e;
-          }
+          listPeople.add(e);
         }
-      }).toList();
-      listPeople?.remove(null);
+      }
     }
-    List<GroupImageItem>? widgets = listPeople?.map((e) =>  GroupImageItem(people: e!,images:
+    else {
+      listPeople = widget.roomData.people;
+    }
+    List<GroupImageItem>? widgets = listPeople?.map((e) =>  GroupImageItem(people: e!,
+      tabbarIndex: widget.tabbarIndex,images:
     listImages?.where((element) => element.author?.sId == e.sId).toList()
       ,)).toList();
     return widgets ?? [];

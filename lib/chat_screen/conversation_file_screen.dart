@@ -35,15 +35,19 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
   late TextEditingController _searchController;
   late FocusNode _searchNode;
   bool _isImageViewVisible = false;
+  int _activeTabIndex = 0;
   String? imageViewed;
   @override
   void initState() {
     _tabController = TabController(length: 3, vsync: this);
     _searchController = TextEditingController();
     _searchNode = FocusNode();
+    _tabController.addListener(_setActiveTabIndex);
     super.initState();
   }
-
+  void _setActiveTabIndex() {
+    _activeTabIndex = _tabController.index;
+  }
   @override
   void dispose() {
     _tabController.dispose();
@@ -94,6 +98,7 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                                 builder: (context) => BySenderResultScreen(
                                       roomData: widget.roomData,
                                       chatMessage: widget.chatMessage,
+                                      tabbarIndex: _activeTabIndex,
                                     )));
                           }),
                           _buildSearchChip(
@@ -105,6 +110,7 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                                       builder: (context) => ByTimeResultScreen(
                                         roomData: widget.roomData,
                                         chatMessage: widget.chatMessage,
+                                        tabbarIndex: _activeTabIndex,
                                       )));
                               }),
                         ],
@@ -539,6 +545,7 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                                   builder: (context) => BySenderResultScreen(
                                         roomData: widget.roomData,
                                         chatMessage: widget.chatMessage,
+                                        tabbarIndex: _activeTabIndex,
                                         search: text,
                                       )));
                               _searchController.text = '';
@@ -578,6 +585,7 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                                 builder: (context) => ByTimeResultScreen(
                                   roomData: widget.roomData,
                                   chatMessage: widget.chatMessage,
+                                  tabbarIndex: _activeTabIndex,
                                   search: formattedDate,
                                   title: AppLocalizations.text(LangKey.yesterday),
                                 )));
@@ -614,6 +622,7 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                                 builder: (context) => ByTimeResultScreen(
                                   roomData: widget.roomData,
                                   chatMessage: widget.chatMessage,
+                                  tabbarIndex: _activeTabIndex,
                                   search: '$formattedDate1-$formattedDate2',
                                   title: AppLocalizations.text(LangKey.lastWeek),
                                 )));
@@ -650,6 +659,7 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                                 builder: (context) => ByTimeResultScreen(
                                   roomData: widget.roomData,
                                   chatMessage: widget.chatMessage,
+                                  tabbarIndex: _activeTabIndex,
                                   search: '$formattedDate1-$formattedDate2',
                                   title: AppLocalizations.text(LangKey.lastMonth),
                                 )));
@@ -673,6 +683,7 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                                     roomData: widget.roomData,
                                     chatMessage: widget.chatMessage,
                                     search: '$formattedDate1-$formattedDate2',
+                                    tabbarIndex: _activeTabIndex,
                                     title: AppLocalizations.text(LangKey.custom),
                                   )));
                               _searchController.text = '';

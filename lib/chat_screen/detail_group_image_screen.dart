@@ -1,19 +1,24 @@
 import 'dart:io';
+import 'package:any_link_preview/any_link_preview.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/chat_ui/conditional/conditional.dart';
+import 'package:chat/connection/download.dart';
 import 'package:chat/data_model/chat_message.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/data_model/room.dart' as r;
+import 'package:open_file/open_file.dart';
 import 'package:photo_view/photo_view_gallery.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../connection/http_connection.dart';
 
 class DetailGroupImageScreen extends StatefulWidget {
   final r.People people;
   final List<Images>? images;
-  const DetailGroupImageScreen({Key? key, required this.people, required this.images}) : super(key: key);
+  final int tabbarIndex;
+  const DetailGroupImageScreen({Key? key, required this.people, required this.images, required this.tabbarIndex}) : super(key: key);
   @override
   _State createState() => _State();
 }
@@ -54,34 +59,146 @@ class _State extends State<DetailGroupImageScreen>
       body:  _isImageViewVisible
           ? _imageGalleryBuilder()
           : SafeArea(
-        child: GridView.builder(
-            padding: const EdgeInsets.fromLTRB(5, 5, 5, 5),
-            shrinkWrap: true,
-            physics: const ClampingScrollPhysics(),
-            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-            itemCount: widget.images?.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3, crossAxisSpacing: 8, mainAxisSpacing: 4),
-            itemBuilder: (BuildContext context, int position) {
-              return InkWell(
-                onTap: () {
-                  setState(() {
-                    _isImageViewVisible = true;
-                    imageViewed =
-                    '${HTTPConnection.domain}api/images/${widget.images?[position].content}/512';
-                  });
-                },
-                child: CachedNetworkImage(
-                  imageUrl:
-                  '${HTTPConnection.domain}api/images/${widget.images?[position].content}/512',
-                  placeholder: (context, url) => const CupertinoActivityIndicator(),
-                  errorWidget: (context, url, error) => const Icon(Icons.error),
-                  fit: BoxFit.cover,
-                ),
-              );
-            }),
+        child: widget.tabbarIndex == 0 ? _images() : widget.tabbarIndex == 1 ? _files() : _links(),
       ),
     );
+  }
+  Widget _images() {
+    return GridView.builder(
+        padding: const EdgeInsets.fromLTRB(5, 5, 5, 5),
+        shrinkWrap: true,
+        physics: const ClampingScrollPhysics(),
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        itemCount: widget.images?.length,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3, crossAxisSpacing: 8, mainAxisSpacing: 4),
+        itemBuilder: (BuildContext context, int position) {
+          return InkWell(
+            onTap: () {
+              setState(() {
+                _isImageViewVisible = true;
+                imageViewed =
+                '${HTTPConnection.domain}api/images/${widget.images?[position].content}/512';
+              });
+            },
+            child: CachedNetworkImage(
+              imageUrl:
+              '${HTTPConnection.domain}api/images/${widget.images?[position].content}/512',
+              placeholder: (context, url) => const CupertinoActivityIndicator(),
+              errorWidget: (context, url, error) => const Icon(Icons.error),
+              fit: BoxFit.cover,
+            ),
+          );
+        });
+  }
+  Widget _files() {
+    return ListView.builder(
+        padding: const EdgeInsets.fromLTRB(5, 15, 5, 5),
+        shrinkWrap: true,
+        physics: const ClampingScrollPhysics(),
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        itemCount: widget.images?.length,
+        itemBuilder: (BuildContext context, int position) {
+          return InkWell(
+            onTap: () async {
+              showLoading();
+              var message = widget.images?[position].file!;
+              String? result = await download(context,'${HTTPConnection.domain}api/files/${message!.shieldedID}','${widget.images?[position].date}_${message.name}');
+              Navigator.of(context).pop();
+              await OpenFile.open(result);
+            },
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 45.0,
+                      height: 45.0,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        color: Colors.blue,
+                      ),
+                      child: Image.asset(
+                        'assets/icon-document.png',
+                        color: Colors.white,
+                        package: 'chat',
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Column(
+                        children: [
+                          AutoSizeText(widget.images?[position].file?.name ?? '')
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Container(height: 1.0,color: Colors.grey.shade200,),
+                )
+              ],
+            ),
+          );
+        });
+  }
+  Widget _links() {
+    return ListView.builder(
+        padding: const EdgeInsets.fromLTRB(5, 5, 5, 5),
+        shrinkWrap: true,
+        physics: const ClampingScrollPhysics(),
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        itemCount: widget.images?.length,
+        itemBuilder: (BuildContext context, int position) {
+          return Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: AnyLinkPreview(
+              link: widget.images?[position].content ?? '',
+              displayDirection: UIDirection.uiDirectionHorizontal,
+              showMultimedia: false,
+              bodyMaxLines: 5,
+              bodyTextOverflow: TextOverflow.ellipsis,
+              titleStyle: const TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+                fontSize: 15,
+              ),
+              bodyStyle: const TextStyle(color: Colors.grey, fontSize: 12),
+              errorBody: 'Something is wrong!',
+              errorTitle: 'Found nothing',
+              errorWidget: Container(
+                color: Colors.grey[300],
+                child: const Text('Oops!'),
+              ),
+              errorImage: "https://google.com/",
+              cache: const Duration(days: 7),
+              backgroundColor: Colors.grey[300],
+              borderRadius: 12,
+              removeElevation: false,
+              boxShadow: const [BoxShadow(blurRadius: 3, color: Colors.grey)],
+              onTap: () async {
+                launchUrl(Uri.parse('${widget.images?[position].content}'));
+              }, // This disables tap event
+            ),
+          );
+        });
+  }
+  Future showLoading() async {
+    return await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return SimpleDialog(
+            elevation: 0.0,
+            backgroundColor: Colors.transparent,
+            children: <Widget>[
+              Center(
+                child: Platform.isAndroid ? const CircularProgressIndicator() : const CupertinoActivityIndicator(),
+              )
+            ],
+          );
+        });
   }
   Widget _imageGalleryBuilder() {
     return imageViewed != null

@@ -199,6 +199,7 @@ class ChatConnection {
       ResponseData responseData = await connection.post('api/message', {
         'authorID': authorId,
         'content': response.data['image']['shieldedID'],
+        'imageID': response.data['image']['_id'],
         'type': "image",
         'roomID': room?.sId});
       if(responseData.isSuccess) {

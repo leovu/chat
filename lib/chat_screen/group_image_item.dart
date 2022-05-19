@@ -12,13 +12,14 @@ import 'package:cached_network_image/cached_network_image.dart';
 class GroupImageItem extends StatelessWidget {
   final r.People people;
   final List<Images>? images;
-  const GroupImageItem({Key? key, required this.people, required this.images}) : super(key: key);
+  final int tabbarIndex;
+  const GroupImageItem({Key? key, required this.people, required this.images, required this.tabbarIndex}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: (){
         Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => DetailGroupImageScreen(people: people,images: images,)));
+            MaterialPageRoute(builder: (context) => DetailGroupImageScreen(people: people,images: images,tabbarIndex: tabbarIndex,)));
       },
       child: Container(
         margin: const EdgeInsets.only(left: 8.0, bottom: 8.0),
@@ -61,7 +62,11 @@ class GroupImageItem extends StatelessWidget {
             Container(
               margin: const EdgeInsets.only(left: 8.0, bottom: 8.0),
               child: Text(
-                '${images?.length ?? 0} ${AppLocalizations.text(LangKey.photos)}',
+                '${images?.length ?? 0} '
+                    '${ tabbarIndex == 0 ?
+                    AppLocalizations.text(LangKey.photos) :
+                tabbarIndex == 1 ? AppLocalizations.text(LangKey.file) : 'Links'
+                }',
                 style: TextStyle(fontSize: 14.0, color: Colors.grey.shade600, fontWeight: FontWeight.normal),
               ),
             ),
