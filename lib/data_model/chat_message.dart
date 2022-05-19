@@ -33,6 +33,8 @@ class Room {
   List<Messages>? messages;
   List<MessageSeen>? messageSeen;
   List<Images>? images;
+  List<Images>? files;
+  List<Images>? links;
   PinMessage? pinMessage;
 
   Room(
@@ -44,6 +46,8 @@ class Room {
         lastMessage,
         messages,
         images,
+        files,
+        links,
         pinMessage,
         owner,
         messageSeen});
@@ -86,6 +90,22 @@ class Room {
       json['images'].forEach((v) {
         if(v['content'] != 'Message recalled') {
           images!.add(Images.fromJson(v));
+        }
+      });
+    }
+    if (json['files'] != null) {
+      files = <Images>[];
+      json['files'].forEach((v) {
+        if(v['content'] != 'Message recalled') {
+          files!.add(Images.fromJson(v));
+        }
+      });
+    }
+    if (json['links'] != null) {
+      links = <Images>[];
+      json['links'].forEach((v) {
+        if(v['content'] != 'Message recalled') {
+          links!.add(Images.fromJson(v));
         }
       });
     }
@@ -470,6 +490,7 @@ class Images {
   String? type;
   String? date;
   int? iV;
+  Picture? file;
 
   Images({sId,
     room,
@@ -477,6 +498,7 @@ class Images {
     content,
     type,
     date,
+    file,
     iV});
 
   Images.fromJson(Map<String, dynamic> json) {
@@ -488,6 +510,9 @@ class Images {
     type = json['type'];
     date = json['date'];
     iV = json['__v'];
+    try{
+      file = json['file'] != null ? Picture.fromJson(json['file']) : null;
+    }catch(_){}
   }
 
   Map<String, dynamic> toJson() {
@@ -500,6 +525,9 @@ class Images {
     data['content'] = content;
     data['type'] = type;
     data['date'] = date;
+    if(file != null) {
+      data['file'] = file!.toJson();
+    }
     data['__v'] = iV;
     return data;
   }

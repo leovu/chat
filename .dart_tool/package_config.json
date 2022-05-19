@@ -14,6 +14,12 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "any_link_preview",
+      "rootUri": "file:///Users/longvu/.pub-cache/hosted/pub.dartlang.org/any_link_preview-2.0.8",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "async",
       "rootUri": "file:///Users/longvu/.pub-cache/hosted/pub.dartlang.org/async-2.8.2",
       "packageUri": "lib/",
@@ -489,7 +495,7 @@
     },
     {
       "name": "shared_preferences",
-      "rootUri": "file:///Users/longvu/.pub-cache/hosted/pub.dartlang.org/shared_preferences-2.0.13",
+      "rootUri": "file:///Users/longvu/.pub-cache/hosted/pub.dartlang.org/shared_preferences-2.0.15",
       "packageUri": "lib/",
       "languageVersion": "2.14"
     },
@@ -590,6 +596,12 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "string_validator",
+      "rootUri": "file:///Users/longvu/.pub-cache/hosted/pub.dartlang.org/string_validator-0.3.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "swipeable_tile",
       "rootUri": "file:///Users/longvu/.pub-cache/hosted/pub.dartlang.org/swipeable_tile-1.0.0+6",
       "packageUri": "lib/",
@@ -621,7 +633,7 @@
     },
     {
       "name": "url_launcher",
-      "rootUri": "file:///Users/longvu/.pub-cache/hosted/pub.dartlang.org/url_launcher-6.0.20",
+      "rootUri": "file:///Users/longvu/.pub-cache/hosted/pub.dartlang.org/url_launcher-6.1.2",
       "packageUri": "lib/",
       "languageVersion": "2.14"
     },
@@ -734,7 +746,7 @@
       "languageVersion": "2.16"
     }
   ],
-  "generated": "2022-05-19T07:30:14.394554Z",
+  "generated": "2022-05-19T08:19:23.287273Z",
   "generator": "pub",
   "generatorVersion": "2.17.0"
 }

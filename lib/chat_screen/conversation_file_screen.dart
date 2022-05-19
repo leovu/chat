@@ -3,6 +3,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:chat/chat_screen/by_time_search_list.dart';
 import 'package:chat/chat_ui/conditional/conditional.dart';
 import 'package:chat/connection/chat_connection.dart';
+import 'package:chat/connection/download.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/chat_screen/by_sender_screen.dart';
 import 'package:chat/localization/app_localizations.dart';
@@ -13,7 +14,10 @@ import 'package:chat/data_model/chat_message.dart' as c;
 import 'package:chat/data_model/room.dart' as r;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:intl/intl.dart';
+import 'package:open_file/open_file.dart';
 import 'package:photo_view/photo_view_gallery.dart';
+import 'package:any_link_preview/any_link_preview.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ConversationFileScreen extends StatefulWidget {
   final c.ChatMessage? chatMessage;
@@ -34,8 +38,7 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
   String? imageViewed;
   @override
   void initState() {
-    _tabController = TabController(length: 1, vsync: this);
-    // _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     _searchController = TextEditingController();
     _searchNode = FocusNode();
     super.initState();
@@ -120,12 +123,12 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                         Tab(
                           text: 'IMAGE',
                         ),
-                        // Tab(
-                        //   text: 'FILE',
-                        // ),
-                        // Tab(
-                        //   text: 'LINK',
-                        // )
+                        Tab(
+                          text: 'FILE',
+                        ),
+                        Tab(
+                          text: 'LINK',
+                        )
                       ],
                       controller: _tabController,
                       indicatorSize: TabBarIndicatorSize.tab,
@@ -134,8 +137,8 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                     child: TabBarView(
                       children: [
                         _images(),
-                        // Container(),
-                        // Container(),
+                        _files(),
+                        _links(),
                       ],
                       controller: _tabController,
                     ),
@@ -191,6 +194,118 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
               fit: BoxFit.cover,
               errorWidget: (context, url, error) => const Icon(Icons.error),
             ),
+          );
+        });
+  }
+
+  Widget _files() {
+    return ListView.builder(
+        padding: const EdgeInsets.fromLTRB(5, 5, 5, 5),
+        shrinkWrap: true,
+        physics: const ClampingScrollPhysics(),
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        itemCount: widget.chatMessage?.room?.files?.length,
+        itemBuilder: (BuildContext context, int position) {
+          return InkWell(
+            onTap: () async {
+              showLoading();
+              var message = widget.chatMessage?.room?.files?[position].file!;
+              String? result = await download(context,'${HTTPConnection.domain}api/files/${message!.shieldedID}','${widget.chatMessage?.room?.files?[position].date}_${message.name}');
+              Navigator.of(context).pop();
+              await OpenFile.open(result);
+            },
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 45.0,
+                      height: 45.0,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        color: Colors.blue,
+                      ),
+                      child: Image.asset(
+                        'assets/icon-document.png',
+                        color: Colors.white,
+                        package: 'chat',
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Column(
+                        children: [
+                          AutoSizeText(widget.chatMessage?.room?.files?[position].file?.name ?? '')
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Container(height: 1.0,color: Colors.grey.shade200,),
+                )
+              ],
+            ),
+          );
+        });
+  }
+
+  Widget _links() {
+    return ListView.builder(
+        padding: const EdgeInsets.fromLTRB(5, 5, 5, 5),
+        shrinkWrap: true,
+        physics: const ClampingScrollPhysics(),
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        itemCount: widget.chatMessage?.room?.links?.length,
+        itemBuilder: (BuildContext context, int position) {
+          return Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: AnyLinkPreview(
+                link: widget.chatMessage?.room?.links?[position].content ?? '',
+                displayDirection: UIDirection.uiDirectionHorizontal,
+                showMultimedia: false,
+                bodyMaxLines: 5,
+                bodyTextOverflow: TextOverflow.ellipsis,
+                titleStyle: const TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                ),
+                bodyStyle: const TextStyle(color: Colors.grey, fontSize: 12),
+                errorBody: 'Something is wrong!',
+                errorTitle: 'Found nothing',
+                errorWidget: Container(
+                  color: Colors.grey[300],
+                  child: const Text('Oops!'),
+                ),
+                errorImage: "https://google.com/",
+                cache: const Duration(days: 7),
+                backgroundColor: Colors.grey[300],
+                borderRadius: 12,
+                removeElevation: false,
+                boxShadow: const [BoxShadow(blurRadius: 3, color: Colors.grey)],
+                onTap: () async {
+                  launchUrl(Uri.parse('${widget.chatMessage?.room?.links?[position].content}'));
+                }, // This disables tap event
+            ),
+          );
+        });
+  }
+
+  Future showLoading() async {
+    return await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return SimpleDialog(
+            elevation: 0.0,
+            backgroundColor: Colors.transparent,
+            children: <Widget>[
+              Center(
+                child: Platform.isAndroid ? const CircularProgressIndicator() : const CupertinoActivityIndicator(),
+              )
+            ],
           );
         });
   }
