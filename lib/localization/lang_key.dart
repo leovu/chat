@@ -66,6 +66,7 @@ class LangKey {
   static const String createGroup = "createGroup";
   static const String favorites = "favorites";
   static const String searchChats = "searchChats";
+  static const String searchFavorites = "searchFavorites";
   static const String group = "group";
   static const String you = "you";
   static const String forwardMessage = "forwardMessage";

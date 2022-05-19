@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 import 'package:chat/chat_ui/widgets/inherited_replied_message.dart';
 import 'package:chat/connection/chat_connection.dart';
@@ -93,6 +94,7 @@ class Chat extends StatefulWidget {
     required this.builder,
     required this.people,
     required this.isGroup,
+    required this.onStickerPressed,
   }) : super(key: key);
 
   /// See [Message.bubbleBuilder]
@@ -257,6 +259,9 @@ class Chat extends StatefulWidget {
   /// Show user names for received messages. Useful for a group chat. Will be
   /// shown only on text messages.
   final bool showUserNames;
+
+  final void Function(File sticker)
+  onStickerPressed;
 
   /// See [Message.textMessageBuilder]
   final Widget Function(
@@ -532,6 +537,10 @@ class _ChatState extends State<Chat> {
     widget.onSendPressed(message, repliedMessage: repliedMessage, isEdit:isEdit);
   }
 
+  void _onStickerPressed(File sticker) {
+    widget.onStickerPressed(sticker);
+  }
+
   void _onCancelReplyPressed() {
     setState(() {
       _repliedMessage = null;
@@ -598,6 +607,7 @@ class _ChatState extends State<Chat> {
                                 widget.sendButtonVisibilityMode,
                             onCancelReplyPressed: _onCancelReplyPressed,
                             onSendPressed: _onSendPressed,
+                            onStickerPressed: _onStickerPressed,
                             inputBuilder: (BuildContext context, void Function({types.TextMessage? editContent}) method) {
                               requestFocusTextField = method;
                             },

@@ -150,7 +150,7 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen> with AutomaticKee
                             });
                           },
                           decoration: InputDecoration.collapsed(
-                            hintText: AppLocalizations.text(LangKey.searchChats),
+                            hintText: AppLocalizations.text(LangKey.searchFavorites),
                           ),
                         )),
                         Material(
@@ -274,14 +274,9 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen> with AutomaticKee
                         Expanded(child:
                         Row(
                           children: [
-                            Expanded(child: Text(
-                              '$author''${checkTag('${(data.lastMessage?.type == 'image'
-                                  ? AppLocalizations.text(LangKey.sentPicture) :
-                              data.lastMessage?.type == 'file'
-                                  ? AppLocalizations.text(LangKey.sendFile) :
-                              data.lastMessage?.content != null && data.lastMessage?.content != '' ?
-                              data.lastMessage?.content
-                                  : AppLocalizations.text(LangKey.forwardMessage))}')}' ,
+                            Expanded(child: AutoSizeText(
+                              '$author''${checkTag(_checkContent(data))}' ,
+                              minFontSize: 13,
                               overflow: TextOverflow.ellipsis,),),
                             if(findUnread(data.messagesReceived) != '0') CircleAvatar(
                               radius: 18.0,
@@ -306,6 +301,24 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen> with AutomaticKee
         ) : Container()
       ],
     );
+  }
+  String _checkContent(Rooms model){
+    if((model.messagesReceived?.length ?? 0) == 0){
+      return (findAuthor(model.people,model.owner,isGroupOwner: true) ?? '') + AppLocalizations.text(LangKey.justCreatedRoom);
+    }
+    if(model.lastMessage?.type == 'image'){
+      return AppLocalizations.text(LangKey.sentPicture);
+    }
+
+    if(model.lastMessage?.type == 'file'){
+      return AppLocalizations.text(LangKey.sendFile);
+    }
+
+    if((model.lastMessage?.content ?? "").isEmpty){
+      return AppLocalizations.text(LangKey.forwardMessage);
+    }
+
+    return model.lastMessage!.content!;
   }
   String findUnread(List<MessagesReceived>? messagesRecived) {
     MessagesReceived? m;
@@ -339,11 +352,11 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen> with AutomaticKee
   People getPeople(List<People>? people) {
     return people!.first.sId != ChatConnection.user!.id ? people.first : people.last;
   }
-  String? findAuthor(List<People>? people, String? author) {
+  String? findAuthor(List<People>? people, String? author,{bool isGroupOwner = false}) {
     People? p;
     try {
       p = people?.firstWhere((element) => element.sId == author);
-      return (p!.sId != ChatConnection.user!.id ? ((p.firstName ?? '').trim() + ' ' + (p.lastName ?? '').trim()).trim() : AppLocalizations.text(LangKey.you)) + ': ';
+      return (p!.sId != ChatConnection.user!.id ? ((p.firstName ?? '').trim() + ' ' + (p.lastName ?? '').trim()).trim() : AppLocalizations.text(LangKey.you)) + (isGroupOwner ? ' ' : ': ');
     }catch(_){
       return '';
     }

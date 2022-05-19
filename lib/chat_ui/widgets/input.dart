@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:chat/chat_ui/widgets/sticker.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/data_model/room.dart';
@@ -47,6 +48,7 @@ class Input extends StatefulWidget {
     required this.inputBuilder,
     required this.people,
     required this.isGroup,
+    required this.onStickerPressed,
   }) : super(key: key);
 
   final ChatEmojiBuilder builder;
@@ -80,6 +82,9 @@ class Input extends StatefulWidget {
   /// be transformed to [types.TextMessage] and added to the messages list.
   final void Function(types.PartialText, {types.Message? repliedMessage , types.TextMessage? isEdit})
   onSendPressed;
+
+  final void Function(File sticker)
+  onStickerPressed;
 
   /// See [RepliedMessage.onCancelReplyPressed]
   final void Function() onCancelReplyPressed;
@@ -229,7 +234,7 @@ class _InputState extends State<Input> {
       });
     }
   }
-
+  int emojiIndex = 0;
   Widget _inputBuilder() {
     final _query = MediaQuery.of(context);
     final _safeAreaInsets = kIsWeb
@@ -295,9 +300,10 @@ class _InputState extends State<Input> {
                                             onTap: () {
                                               setState(() {
                                                 _emojiShowing = !_emojiShowing;
-                                                if(_emojiShowing) {
-                                                  _inputFocusNode.requestFocus();
-                                                }
+                                                emojiIndex = 0;
+                                                // if(_emojiShowing) {
+                                                //   _inputFocusNode.requestFocus();
+                                                // }
                                               });
                                             },
                                             child: Image.asset(
@@ -388,37 +394,139 @@ class _InputState extends State<Input> {
                       Visibility(
                         visible: _emojiShowing,
                         child: SizedBox(
-                          height: 200,
-                          child: EmojiPicker(
-                              onEmojiSelected: (Category category, Emoji emoji) {
-                                _onEmojiSelected(emoji);
-                              },
-                              onBackspacePressed: _onBackspacePressed,
-                              config: Config(
-                                  columns: 7,
-                                  emojiSizeMax: 32 * (Platform.isIOS ? 1.30 : 1.0),
-                                  verticalSpacing: 0,
-                                  horizontalSpacing: 0,
-                                  initCategory: Category.RECENT,
-                                  bgColor: Colors.white,
-                                  indicatorColor: Colors.blue,
-                                  iconColor: Colors.grey,
-                                  iconColorSelected: Colors.blue,
-                                  progressIndicatorColor: Colors.blue,
-                                  backspaceColor: Colors.blue,
-                                  skinToneDialogBgColor: Colors.white,
-                                  skinToneIndicatorColor: Colors.grey,
-                                  enableSkinTones: true,
-                                  showRecentsTab: true,
-                                  recentsLimit: 28,
-                                  noRecentsText: 'No Recents',
-                                  noRecentsStyle: const TextStyle(
-                                      fontSize: 20, color: Colors.black26),
-                                  tabIndicatorAnimDuration: kTabScrollDuration,
-                                  categoryIcons: const CategoryIcons(),
-                                  buttonMode: ButtonMode.MATERIAL)),
-                        ),
-                      ),
+                          height: 250,
+                          child: Column(
+                            children: [
+                              SizedBox(
+                                height: 50.0,
+                                child: Row(
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.only(right: 10.0),
+                                      child: InkWell(
+                                          child: Chip(
+                                            labelPadding: const EdgeInsets.all(2.0),
+                                            label: AutoSizeText(
+                                              'Emotion Icon',
+                                              style: TextStyle(
+                                                color:  emojiIndex == 0 ? Colors.white : Colors.black,
+                                              ),
+                                            ),
+                                            backgroundColor: emojiIndex == 0 ? Colors.blue : const Color(0xFFE5E5E5),
+                                            elevation: 6.0,
+                                            shadowColor: Colors.grey[60],
+                                            padding: const EdgeInsets.all(8.0),
+                                          ),
+                                        onTap: () {
+                                          setState(() {
+                                            emojiIndex = 0;
+                                          });
+                                        }
+                                      ),
+                                    ),
+                                    InkWell(
+                                        child: Chip(
+                                          labelPadding: const EdgeInsets.all(2.0),
+                                          label: AutoSizeText(
+                                            'Sticker',
+                                            style: TextStyle(
+                                              color:  emojiIndex == 1 ? Colors.white : Colors.black,
+                                            ),
+                                          ),
+                                          backgroundColor: emojiIndex == 1 ? Colors.blue : const Color(0xFFE5E5E5),
+                                          elevation: 6.0,
+                                          shadowColor: Colors.grey[60],
+                                          padding: const EdgeInsets.all(8.0),
+                                        ),
+                                        onTap: () {
+                                          setState(() {
+                                            emojiIndex = 1;
+                                          });
+                                        }
+                                    )
+                                  ],
+                                ),
+                              ),
+                              Expanded(
+                                child:
+                                emojiIndex == 0 ?
+                                  EmojiPicker(
+                                  onEmojiSelected: (Category category, Emoji emoji) {
+                                    _onEmojiSelected(emoji);
+                                  },
+                                  onBackspacePressed: _onBackspacePressed,
+                                  config: Config(
+                                      columns: 7,
+                                      emojiSizeMax: 32 * (Platform.isIOS ? 1.30 : 1.0),
+                                      verticalSpacing: 0,
+                                      horizontalSpacing: 0,
+                                      initCategory: Category.RECENT,
+                                      bgColor: Colors.white,
+                                      indicatorColor: Colors.blue,
+                                      iconColor: Colors.grey,
+                                      iconColorSelected: Colors.blue,
+                                      progressIndicatorColor: Colors.blue,
+                                      backspaceColor: Colors.blue,
+                                      skinToneDialogBgColor: Colors.white,
+                                      skinToneIndicatorColor: Colors.grey,
+                                      enableSkinTones: true,
+                                      showRecentsTab: true,
+                                      recentsLimit: 28,
+                                      noRecentsText: 'No Recents',
+                                      noRecentsStyle: const TextStyle(
+                                          fontSize: 20, color: Colors.black26),
+                                      tabIndicatorAnimDuration: kTabScrollDuration,
+                                      categoryIcons: const CategoryIcons(),
+                                      buttonMode: ButtonMode.MATERIAL))
+                                :
+                                Column(
+                                  children: [
+                                    Expanded(child: GridView(
+                                      scrollDirection: Axis.horizontal,
+                                      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                                          maxCrossAxisExtent: 160,
+                                          childAspectRatio: 2.25 / 2,
+                                          crossAxisSpacing: 5,
+                                          mainAxisSpacing: 5
+                                      ),
+                                      children: emojiIndex == 1 ?
+                                      Stickers.usagyuunStickers(widget.onStickerPressed) :
+                                      Stickers.pandaStickers(widget.onStickerPressed) ,
+                                    )),
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 5.0),
+                                      child: SizedBox(height: 20.0,child: Row(
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.only(right: 8.0),
+                                            child: InkWell(
+                                                child:
+                                                ImageIcon(const AssetImage("assets/icon-rabbit.png",package: 'chat'),
+                                                  color: emojiIndex == 1 ? Colors.blue : Colors.grey.shade400,),
+                                              onTap: () {
+                                                setState(() {
+                                                  emojiIndex = 1;
+                                                });},
+                                            ),
+                                          ),
+                                          InkWell(
+                                            child:
+                                            ImageIcon(const AssetImage("assets/icon-panda.png",package: 'chat'),
+                                              color: emojiIndex == 2 ? Colors.blue : Colors.grey.shade400,),
+                                            onTap: () {
+                                              setState(() {
+                                                emojiIndex = 2;
+                                              });},
+                                          ),
+                                        ],
+                                      ),),
+                                    )
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                      )),
                     ],
                   ),
                 )

@@ -537,6 +537,50 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     );
     _addMessage(textMessage,id,text: message.text, repliedMessageId: repliedMessage?.id, isEdit: isEdit);
   }
+  void _onStickerPressed(File sticker) async {
+    final result = XFile(sticker.path);
+    final bytes = await result.readAsBytes();
+    final image = await decodeImageFromList(bytes);
+    String id = const Uuid().v4();
+    final message = types.ImageMessage(
+      author: _user,
+      createdAt: DateTime
+          .now()
+          .millisecondsSinceEpoch,
+      height: image.height.toDouble(),
+      id: id,
+      name: result.name,
+      size: bytes.length,
+      uri: result.path,
+      width: image.width.toDouble(),
+      showStatus: true,
+      status: Status.sending,
+    );
+    _addMessage(message, id);
+    ChatConnection.uploadImage(
+        data, _messages, id, result, data?.room, ChatConnection.user!.id)
+        .then((r) {
+      Status s = r == null ? Status.error : Status.sent;
+      int index = _messages.indexWhere((element) => element.id == r);
+      _messages[index] = types.ImageMessage(
+        author: _user,
+        createdAt: DateTime
+            .now()
+            .millisecondsSinceEpoch,
+        height: image.height.toDouble(),
+        id: id,
+        name: result.name,
+        size: bytes.length,
+        uri: result.path,
+        width: image.width.toDouble(),
+        showStatus: true,
+        status: s,
+      );
+      if (mounted) {
+        setState(() {});
+      }
+    });
+  }
 
   _loadMessages() async {
     ChatConnection.roomId = widget.data.sId!;
@@ -789,6 +833,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                     }catch(_){}
                   }
                 },
+                onStickerPressed: _onStickerPressed,
                 showUserAvatars: true,
                 showUserNames: true,
                 onAttachmentPressed: _handleAttachmentPressed,
