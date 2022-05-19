@@ -255,7 +255,7 @@ class _InputState extends State<Input> {
                 Visibility(
                     visible: _taggingSuggestList != null,
                     child: _taggingSuggestList != null ? Wrap(
-                      children: _arrayTaggingSuggestionList(_taggingSuggestList!.length == widget.people!.length-1 && !widget.isGroup),
+                      children: _arrayTaggingSuggestionList(_taggingSuggestList!.length == widget.people!.length-1 && widget.isGroup),
                     ) : Container()),
                 if (InheritedRepliedMessage.of(context).repliedMessage != null)
                   Padding(

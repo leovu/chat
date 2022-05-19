@@ -207,7 +207,7 @@ class _NotificationScreenState extends State<NotificationScreen> with AutomaticK
             )));
         if(i != contents.length-1) {
           _arr.add(const TextSpan(
-              text: '@mentioned',
+              text: 'mentioned',
               style:
               TextStyle(
                   color: Colors.black,
