@@ -172,6 +172,8 @@ class _State extends State<ByTimeResultScreen>
       });
     }
     if(widget.tabbarIndex == 2) {
+      final urlRegExp = RegExp(
+          r"((https?:www\.)|(https?:\/\/)|(www\.))[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9]{1,6}(\/[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)?");
       widget.chatMessage?.room?.links?.forEach((e) {
         final dt = format1.parse(e.date!, true).toLocal();
         String formattedDate = format2.format(dt);
@@ -181,11 +183,27 @@ class _State extends State<ByTimeResultScreen>
             if(listDates.length >= 2) {
               if (dt.isBetween(format2.parse(listDates[0]), format2.parse(listDates[1]))) {
                 if(values.containsKey(formattedDate)) {
-                  values[formattedDate]!.add(widgetCacheLink(e));
+                  List<String> urls = [];
+                  final urlMatches = urlRegExp.allMatches(e.content ?? '');
+                  List<String> url = urlMatches.map(
+                          (urlMatch) => (e.content ?? '').substring(urlMatch.start, urlMatch.end))
+                      .toList();
+                  urls.addAll(url);
+                  for (var e in urls) {
+                    values[formattedDate]!.add(widgetCacheLink(e));
+                  }
                 }
                 else {
                   values[formattedDate] = [];
-                  values[formattedDate]!.add(widgetCacheLink(e));
+                  List<String> urls = [];
+                  final urlMatches = urlRegExp.allMatches(e.content ?? '');
+                  List<String> url = urlMatches.map(
+                          (urlMatch) => (e.content ?? '').substring(urlMatch.start, urlMatch.end))
+                      .toList();
+                  urls.addAll(url);
+                  for (var e in urls) {
+                    values[formattedDate]!.add(widgetCacheLink(e));
+                  }
                   keys.add(formattedDate);
                 }
               }
@@ -194,11 +212,27 @@ class _State extends State<ByTimeResultScreen>
           else {
             if(formattedDate == widget.search) {
               if(values.containsKey(formattedDate)) {
-                values[formattedDate]!.add(widgetCacheLink(e));
+                List<String> urls = [];
+                final urlMatches = urlRegExp.allMatches(e.content ?? '');
+                List<String> url = urlMatches.map(
+                        (urlMatch) => (e.content ?? '').substring(urlMatch.start, urlMatch.end))
+                    .toList();
+                urls.addAll(url);
+                for (var e in urls) {
+                  values[formattedDate]!.add(widgetCacheLink(e));
+                }
               }
               else {
                 values[formattedDate] = [];
-                values[formattedDate]!.add(widgetCacheLink(e));
+                List<String> urls = [];
+                final urlMatches = urlRegExp.allMatches(e.content ?? '');
+                List<String> url = urlMatches.map(
+                        (urlMatch) => (e.content ?? '').substring(urlMatch.start, urlMatch.end))
+                    .toList();
+                urls.addAll(url);
+                for (var e in urls) {
+                  values[formattedDate]!.add(widgetCacheLink(e));
+                }
                 keys.add(formattedDate);
               }
             }
@@ -206,11 +240,27 @@ class _State extends State<ByTimeResultScreen>
         }
         else {
           if(values.containsKey(formattedDate)) {
-            values[formattedDate]!.add(widgetCacheLink(e));
+            List<String> urls = [];
+            final urlMatches = urlRegExp.allMatches(e.content ?? '');
+            List<String> url = urlMatches.map(
+                    (urlMatch) => (e.content ?? '').substring(urlMatch.start, urlMatch.end))
+                .toList();
+            urls.addAll(url);
+            for (var e in urls) {
+              values[formattedDate]!.add(widgetCacheLink(e));
+            }
           }
           else {
             values[formattedDate] = [];
-            values[formattedDate]!.add(widgetCacheLink(e));
+            List<String> urls = [];
+            final urlMatches = urlRegExp.allMatches(e.content ?? '');
+            List<String> url = urlMatches.map(
+                    (urlMatch) => (e.content ?? '').substring(urlMatch.start, urlMatch.end))
+                .toList();
+            urls.addAll(url);
+            for (var e in urls) {
+              values[formattedDate]!.add(widgetCacheLink(e));
+            }
             keys.add(formattedDate);
           }
         }
@@ -308,11 +358,11 @@ class _State extends State<ByTimeResultScreen>
       ),
     );
   }
-  Widget widgetCacheLink(c.Images message) {
+  Widget widgetCacheLink(String content) {
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: AnyLinkPreview(
-        link: message.content ?? '',
+        link: content,
         displayDirection: UIDirection.uiDirectionHorizontal,
         showMultimedia: false,
         bodyMaxLines: 5,
@@ -336,7 +386,7 @@ class _State extends State<ByTimeResultScreen>
         removeElevation: false,
         boxShadow: const [BoxShadow(blurRadius: 3, color: Colors.grey)],
         onTap: () async {
-          launchUrl(Uri.parse('${message.content}'));
+          launchUrl(Uri.parse(content));
         }, // This disables tap event
       ),
     );

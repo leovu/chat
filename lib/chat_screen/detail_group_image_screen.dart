@@ -144,17 +144,27 @@ class _State extends State<DetailGroupImageScreen>
         });
   }
   Widget _links() {
+    final urlRegExp = RegExp(
+        r"((https?:www\.)|(https?:\/\/)|(www\.))[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9]{1,6}(\/[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)?");
+    List<String> urls = [];
+    for(var e in widget.images ?? <Images>[] ) {
+      final urlMatches = urlRegExp.allMatches(e.content ?? '');
+      List<String> url = urlMatches.map(
+              (urlMatch) => (e.content ?? '').substring(urlMatch.start, urlMatch.end))
+          .toList();
+      urls.addAll(url);
+    }
     return ListView.builder(
         padding: const EdgeInsets.fromLTRB(5, 5, 5, 5),
         shrinkWrap: true,
         physics: const ClampingScrollPhysics(),
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        itemCount: widget.images?.length,
+        itemCount: urls.length,
         itemBuilder: (BuildContext context, int position) {
           return Padding(
             padding: const EdgeInsets.all(10.0),
             child: AnyLinkPreview(
-              link: widget.images?[position].content ?? '',
+              link: urls[position],
               displayDirection: UIDirection.uiDirectionHorizontal,
               showMultimedia: false,
               bodyMaxLines: 5,
@@ -178,7 +188,7 @@ class _State extends State<DetailGroupImageScreen>
               removeElevation: false,
               boxShadow: const [BoxShadow(blurRadius: 3, color: Colors.grey)],
               onTap: () async {
-                launchUrl(Uri.parse('${widget.images?[position].content}'));
+                launchUrl(Uri.parse(urls[position]));
               }, // This disables tap event
             ),
           );

@@ -258,17 +258,27 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
   }
 
   Widget _links() {
+    final urlRegExp = RegExp(
+        r"((https?:www\.)|(https?:\/\/)|(www\.))[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9]{1,6}(\/[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)?");
+    List<String> urls = [];
+    for(var e in widget.chatMessage?.room?.links ?? <c.Images>[] ) {
+      final urlMatches = urlRegExp.allMatches(e.content ?? '');
+      List<String> url = urlMatches.map(
+              (urlMatch) => (e.content ?? '').substring(urlMatch.start, urlMatch.end))
+          .toList();
+      urls.addAll(url);
+    }
     return ListView.builder(
         padding: const EdgeInsets.fromLTRB(5, 5, 5, 5),
         shrinkWrap: true,
         physics: const ClampingScrollPhysics(),
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        itemCount: widget.chatMessage?.room?.links?.length,
+        itemCount: urls.length,
         itemBuilder: (BuildContext context, int position) {
           return Padding(
             padding: const EdgeInsets.all(10.0),
             child: AnyLinkPreview(
-                link: widget.chatMessage?.room?.links?[position].content ?? '',
+                link: urls[position],
                 displayDirection: UIDirection.uiDirectionHorizontal,
                 showMultimedia: false,
                 bodyMaxLines: 5,
@@ -292,7 +302,7 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                 removeElevation: false,
                 boxShadow: const [BoxShadow(blurRadius: 3, color: Colors.grey)],
                 onTap: () async {
-                  launchUrl(Uri.parse('${widget.chatMessage?.room?.links?[position].content}'));
+                  launchUrl(Uri.parse(urls[position]));
                 }, // This disables tap event
             ),
           );

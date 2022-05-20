@@ -38,6 +38,7 @@ class Rooms {
   String? lastUpdate;
   Picture? picture;
   List<MessagesReceived>? messagesReceived;
+  String? createdAt;
 
   Rooms(
       {people,
@@ -49,7 +50,8 @@ class Rooms {
         lastMessage,
         lastUpdate,
         owner,
-        messagesReceived,});
+        messagesReceived,
+        createdAt,});
 
   Rooms.fromJson(Map<String, dynamic> json) {
     if (json['people'] != null) {
@@ -61,6 +63,7 @@ class Rooms {
     isGroup = json['isGroup'];
     sId = json['_id'];
     title = json['title'];
+    createdAt = json['createdAt'];
     iV = json['__v'];
     lastAuthor = json['lastAuthor'];
     owner = json['owner'];
@@ -82,6 +85,23 @@ class Rooms {
     }catch(_) {}
   }
 
+  String createdDate() {
+    if(createdAt == null) return '';
+    final format = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z");
+    final dt = format.parse(createdAt!, true).toLocal();
+    if(dt.isToday()) {
+      String hour = dt.hour >= 10 ? '${dt.hour}' : '0${dt.hour}';
+      String minute = dt.minute >= 10 ? '${dt.minute}' : '0${dt.minute}';
+      return dt.hour > 12 ? '$hour:$minute PM' :'$hour:$minute AM';
+    }
+    else if (dt.isYesterday()) {
+      return 'Yesterday';
+    }
+    else {
+      return '${dt.day}/${dt.month}/${dt.year}';
+    }
+  }
+
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     if (people != null) {
@@ -92,6 +112,7 @@ class Rooms {
     data['title'] = title;
     data['__v'] = iV;
     data['lastAuthor'] = lastAuthor;
+    data['createdAt'] = createdAt;
     if (lastMessage != null) {
       data['lastMessage'] = lastMessage!.toJson();
     }

@@ -278,7 +278,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                                                     isDestructiveAction: true)
                                               ],
                                             ).then((value) => value == 'Delete'
-                                                ? roomListVisible!.rooms![position].isGroup!
+                                                ? !roomListVisible!.rooms![position].isGroup!
                                                 ? _removeRoom(roomListVisible!.rooms![position].sId!)
                                                 : _leaveRoom(roomListVisible!.rooms![position].sId!)
                                                 : (){});
@@ -438,7 +438,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                                   style: TextStyle(fontWeight: findUnread(data.messagesReceived) != '0' ? FontWeight.bold : FontWeight.normal),
                                 ),
                               ),
-                              AutoSizeText(data.lastMessage?.lastMessageDate() ?? '',style: const TextStyle(fontSize: 11,color: Colors.grey),),
+                              AutoSizeText(data.lastMessage?.lastMessageDate() ?? data.createdDate(),style: const TextStyle(fontSize: 11,color: Colors.grey),),
                             ],
                           )
                         ),
@@ -448,7 +448,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                           children: [
                             Expanded(child: AutoSizeText(
                               '$author''${checkTag(_checkContent(data))}' ,
-                              minFontSize: 13,
+                              textScaleFactor: 0.8,
                               overflow: TextOverflow.ellipsis,),),
                             if(findUnread(data.messagesReceived) != '0') CircleAvatar(
                               radius: 18.0,
