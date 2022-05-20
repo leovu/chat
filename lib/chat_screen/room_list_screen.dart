@@ -278,9 +278,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                                                     isDestructiveAction: true)
                                               ],
                                             ).then((value) => value == 'Delete'
-                                                ? !roomListVisible!.rooms![position].isGroup!
                                                 ? _removeRoom(roomListVisible!.rooms![position].sId!)
-                                                : _leaveRoom(roomListVisible!.rooms![position].sId!)
                                                 : (){});
                                           },
                                           autoClose: true,
