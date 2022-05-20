@@ -1,8 +1,8 @@
 import 'dart:io';
-import 'package:any_link_preview/any_link_preview.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/chat_ui/conditional/conditional.dart';
+import 'package:chat/chat_ui/widgets/link_preview.dart';
 import 'package:chat/connection/download.dart';
 import 'package:chat/data_model/chat_message.dart';
 import 'package:flutter/cupertino.dart';
@@ -163,33 +163,8 @@ class _State extends State<DetailGroupImageScreen>
         itemBuilder: (BuildContext context, int position) {
           return Padding(
             padding: const EdgeInsets.all(10.0),
-            child: AnyLinkPreview(
-              link: urls[position],
-              displayDirection: UIDirection.uiDirectionHorizontal,
-              showMultimedia: false,
-              bodyMaxLines: 5,
-              bodyTextOverflow: TextOverflow.ellipsis,
-              titleStyle: const TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-                fontSize: 15,
-              ),
-              bodyStyle: const TextStyle(color: Colors.grey, fontSize: 12),
-              errorBody: 'Something is wrong!',
-              errorTitle: 'Found nothing',
-              errorWidget: Container(
-                color: Colors.grey[300],
-                child: const Text('Oops!'),
-              ),
-              errorImage: "https://google.com/",
-              cache: const Duration(days: 7),
-              backgroundColor: Colors.grey[300],
-              borderRadius: 12,
-              removeElevation: false,
-              boxShadow: const [BoxShadow(blurRadius: 3, color: Colors.grey)],
-              onTap: () async {
-                launchUrl(Uri.parse(urls[position]));
-              }, // This disables tap event
+            child: PreviewLink(
+              content: urls[position],
             ),
           );
         });
