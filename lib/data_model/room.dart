@@ -1,3 +1,5 @@
+import 'package:chat/localization/app_localizations.dart';
+import 'package:chat/localization/lang_key.dart';
 import 'package:intl/intl.dart';
 
 class Room {
@@ -340,6 +342,9 @@ class LastMessage {
     iV = json['__v'];
     type = json['type'];
     file = json['file'];
+    if(content == 'Message recalled') {
+      content = AppLocalizations.text(LangKey.messageRecalled);
+    }
   }
 
   Map<String, dynamic> toJson() {
