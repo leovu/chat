@@ -87,9 +87,11 @@ flutter:
   assets:
     - assets/meme/panda/
     - assets/meme/usagyuun/
+    - assets/meme/mimicat/
     - assets/messages.json
     - assets/icon-rabbit.png
     - assets/icon-panda.png
+    - assets/icon-cat.png
     - assets/icon-attachment.png
     - assets/icon-edit.png
     - assets/icon-camera.png

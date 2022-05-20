@@ -489,35 +489,15 @@ class _InputState extends State<Input> {
                                           crossAxisSpacing: 5,
                                           mainAxisSpacing: 5
                                       ),
-                                      children: emojiIndex == 1 ?
-                                      Stickers.usagyuunStickers(widget.onStickerPressed) :
-                                      Stickers.pandaStickers(widget.onStickerPressed) ,
+                                      children: stickers() ,
                                     )),
                                     Padding(
                                       padding: const EdgeInsets.only(top: 5.0),
                                       child: SizedBox(height: 20.0,child: Row(
                                         children: [
-                                          Padding(
-                                            padding: const EdgeInsets.only(right: 8.0),
-                                            child: InkWell(
-                                                child:
-                                                ImageIcon(const AssetImage("assets/icon-rabbit.png",package: 'chat'),
-                                                  color: emojiIndex == 1 ? Colors.blue : Colors.grey.shade400,),
-                                              onTap: () {
-                                                setState(() {
-                                                  emojiIndex = 1;
-                                                });},
-                                            ),
-                                          ),
-                                          InkWell(
-                                            child:
-                                            ImageIcon(const AssetImage("assets/icon-panda.png",package: 'chat'),
-                                              color: emojiIndex == 2 ? Colors.blue : Colors.grey.shade400,),
-                                            onTap: () {
-                                              setState(() {
-                                                emojiIndex = 2;
-                                              });},
-                                          ),
+                                          stickerSelection("assets/icon-cat.png",1),
+                                          stickerSelection("assets/icon-rabbit.png",2),
+                                          stickerSelection("assets/icon-panda.png",3),
                                         ],
                                       ),),
                                     )
@@ -536,6 +516,34 @@ class _InputState extends State<Input> {
         ),
       ),
     );
+  }
+  Widget stickerSelection(String icon, int index) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 8.0),
+      child: InkWell(
+        child:
+        ImageIcon(AssetImage(icon,package: 'chat'),
+          color: emojiIndex == index ? Colors.blue : Colors.grey.shade400,),
+        onTap: () {
+          setState(() {
+            emojiIndex = index;
+          });},
+      ),
+    );
+  }
+  List<Widget> stickers() {
+    if(emojiIndex == 1) {
+      return Stickers.mimiCatStickers(widget.onStickerPressed);
+    }
+    else if(emojiIndex == 2) {
+      return Stickers.usagyuunStickers(widget.onStickerPressed);
+    }
+    else if(emojiIndex == 3) {
+      return Stickers.pandaStickers(widget.onStickerPressed);
+    }
+    else {
+      return [Container()];
+    }
   }
 
   List<Widget> _arrayTaggingSuggestionList(bool isAll) {

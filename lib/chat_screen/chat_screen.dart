@@ -1110,9 +1110,12 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
               color: Color(0xFF787878),
             ),
             onPressed: () async{
+              showLoading();
+              data = await ChatConnection.joinRoom(widget.data.sId!,refresh: true);
+              Navigator.of(context).pop();
               await Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => ConversationInformationScreen(roomData: widget.data,chatMessage: data),
-                  settings:const RouteSettings(name: 'conversation_information_screen')));
+                  MaterialPageRoute(builder: (context) => ConversationInformationScreen(roomData: widget.data,chatMessage: data),
+                      settings:const RouteSettings(name: 'conversation_information_screen')));
               setState(() {});
             },
           )
