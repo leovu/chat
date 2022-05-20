@@ -328,6 +328,6 @@ class ChatConnection {
           OverlaySupportEntry.of(context)?.dismiss();
         },
       );
-    }, duration: const Duration(seconds: 5));
+    }, duration: const Duration(seconds: 2));
   }
 }
