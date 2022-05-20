@@ -159,6 +159,7 @@ class ChatConnection {
       'content': message,
       'contentType': "text",
       'roomID': room?.sId,
+      'forward':1,
       'replies': reppliedMessageId});
     if(responseData.isSuccess) {
       streamSocket.sendMessage(message, room);
@@ -166,7 +167,11 @@ class ChatConnection {
     return responseData.isSuccess;
   }
   static Future<void>updateChat(String data,String? messageId,c.Room? room, {String? reppliedMessageId}) async {
-    Map<String,dynamic> json = {'data': data, 'messageId': messageId, 'type': "edit", 'roomId': room!.sId};
+    Map<String,dynamic> json = {
+      'data': data,
+      'messageId': messageId,
+      'type': "edit",
+      'roomId': room!.sId};
     if(reppliedMessageId != null) {
       json['replies'] = reppliedMessageId;
     }
