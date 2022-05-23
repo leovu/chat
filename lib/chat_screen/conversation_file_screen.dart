@@ -218,7 +218,13 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
               var message = widget.chatMessage?.room?.files?[position].file!;
               String? result = await download(context,'${HTTPConnection.domain}api/files/${message!.shieldedID}','${widget.chatMessage?.room?.files?[position].date}_${message.name}');
               Navigator.of(context).pop();
-              await OpenFile.open(result);
+              String? dataResult = await openFile(result,context,message.name ?? AppLocalizations.text(LangKey.file));
+              if(dataResult != null) {
+                setState(() {
+                  _isImageViewVisible = true;
+                  imageViewed = result;
+                });
+              }
             },
             child: Column(
               children: [

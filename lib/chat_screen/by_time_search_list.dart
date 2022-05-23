@@ -299,7 +299,13 @@ class _State extends State<ByTimeResultScreen>
         showLoading();
         String? result = await download(context,'${HTTPConnection.domain}api/files/${message.file?.shieldedID}','${message.date}_${message.file?.name}');
         Navigator.of(context).pop();
-        await OpenFile.open(result);
+        String? dataResult = await openFile(result,context,message.file?.name ?? AppLocalizations.text(LangKey.file));
+        if(dataResult != null) {
+          setState(() {
+            _isImageViewVisible = true;
+            imageViewed = result;
+          });
+        }
       },
       child: Column(
         children: [

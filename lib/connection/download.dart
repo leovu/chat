@@ -1,6 +1,10 @@
 import 'dart:io';
+import 'package:chat/chat_screen/local_file_view_page.dart';
+import 'package:chat/chat_screen/media_screen.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:mime/mime.dart';
+import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:permission/permission.dart';
@@ -73,4 +77,48 @@ Future<String?> download(BuildContext context,String url,String filename) async 
   }catch(_) {
     return null;
   }
+}
+
+bool isImage(String path) {
+  final mimeType = lookupMimeType(path) ?? '';
+  return mimeType.startsWith('image/');
+}
+bool isAudio(String path) {
+  final mimeType = lookupMimeType(path) ?? '';
+  return mimeType.startsWith('audio/');
+}
+bool isVideo(String path) {
+  final mimeType = lookupMimeType(path) ?? '';
+  return mimeType.startsWith('video/');
+}
+
+Future<String?> openFile(String? result,BuildContext context,String fileName) async {
+  if(result != null) {
+    List<String> documentFilesType = ['docx', 'doc', 'xlsx', 'xls', 'pptx', 'ppt', 'pdf', 'txt'];
+    final mimeType = fileName.split('.').last.toLowerCase();
+    if(documentFilesType.contains(fileName)) {
+      Navigator.of(context).push(MaterialPageRoute(builder: (ctx) {
+        return LocalFileViewerPage(filePath: result,title: fileName,);
+      }));
+      return null;
+    }
+    else if(isAudio(mimeType)) {
+      Navigator.of(context).push(MaterialPageRoute(builder: (ctx) {
+        return MediaScreen(filePath: result,title: fileName);
+      }));
+      return null;
+    }
+    else if(isVideo(mimeType)) {
+      await OpenFile.open(result);
+      return null;
+    }
+    else if(isImage(mimeType)) {
+      return result;
+    }
+    else {
+      await OpenFile.open(result);
+      return null;
+    }
+  }
+  return null;
 }

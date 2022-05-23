@@ -5,6 +5,8 @@ import 'package:chat/chat_ui/conditional/conditional.dart';
 import 'package:chat/chat_ui/widgets/link_preview.dart';
 import 'package:chat/connection/download.dart';
 import 'package:chat/data_model/chat_message.dart';
+import 'package:chat/localization/app_localizations.dart';
+import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/data_model/room.dart' as r;
@@ -105,7 +107,13 @@ class _State extends State<DetailGroupImageScreen>
               var message = widget.images?[position].file!;
               String? result = await download(context,'${HTTPConnection.domain}api/files/${message!.shieldedID}','${widget.images?[position].date}_${message.name}');
               Navigator.of(context).pop();
-              await OpenFile.open(result);
+              String? dataResult = await openFile(result,context,message.name ?? AppLocalizations.text(LangKey.file));
+              if(dataResult != null) {
+                setState(() {
+                  _isImageViewVisible = true;
+                  imageViewed = result;
+                });
+              }
             },
             child: Column(
               children: [

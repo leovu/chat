@@ -3,8 +3,6 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/chat_screen/conversation_information_screen.dart';
 import 'package:chat/chat_screen/forward_screen.dart';
-import 'package:chat/chat_screen/local_file_view_page.dart';
-import 'package:chat/chat_screen/media_screen.dart';
 import 'package:chat/chat_ui/conditional/conditional.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/download.dart';
@@ -20,7 +18,6 @@ import 'package:chat/chat_ui/flutter_chat_ui.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mime/mime.dart';
-import 'package:open_file/open_file.dart';
 import 'package:permission/permission.dart';
 import 'package:uuid/uuid.dart';
 import 'package:adaptive_dialog/adaptive_dialog.dart';
@@ -119,6 +116,11 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
           label: AppLocalizations.text(LangKey.photo),
           key: 'Photo',
         ),
+        const SheetAction(
+          icon: Icons.video_collection_sharp,
+          label: 'Video',
+          key: 'Video',
+        ),
         SheetAction(
           icon: Icons.file_copy,
           label: AppLocalizations.text(LangKey.file),
@@ -132,6 +134,8 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       ],
     ).then((value) => value == 'Photo'
         ? _handleImageSelection()
+        : value == 'Video'
+        ? _handelVideoSelection()
         : value == 'File'
         ? _handleFileSelection()
         : {});
@@ -182,23 +186,15 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         );
         File file = File(result.files.single.path!);
         _addMessage(message,id);
-        ChatConnection.uploadFile(data,_messages,id,file,data?.room,ChatConnection.user!.id).then((r) {
+        ChatConnection.uploadFile(context,data,_messages,id,file,data?.room,ChatConnection.user!.id).then((r) {
+          if(r == 'limit') {
+            try {
+              int index = _messages.indexOf(_messages.firstWhere((element) => element.id == id));
+              _messages.removeAt(index);
+            }catch(_) {}
+          }
           if(mounted) {
-            setState(() {
-              int index = _messages.indexWhere((element) => element.id==r);
-              Status s = r==null ? Status.error : Status.sent;
-              _messages[index] = types.FileMessage(
-                author: _user,
-                createdAt: DateTime.now().millisecondsSinceEpoch,
-                id: id,
-                mimeType: lookupMimeType(result.files.single.path!),
-                name: result.files.single.name,
-                size: result.files.single.size,
-                uri: result.files.single.path!,
-                showStatus: true,
-                status: s,
-              );
-            });
+            setState(()  {});
           }
         });
       }
@@ -217,6 +213,63 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
           ],
         ),
       );
+    }
+  }
+  void _handelVideoSelection() async {
+    bool permission = await PermissionRequest.request(PermissionRequestType.STORAGE, (){
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(AppLocalizations.text(LangKey.requestPermission)),
+          content: Text(AppLocalizations.text(LangKey.requestNote)),
+          actions: [
+            ElevatedButton(
+                onPressed: () {
+                  PermissionRequest.openSetting();
+                },
+                child: Text(AppLocalizations.text(LangKey.openSetting))),
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text(AppLocalizations.text(LangKey.cancel))),
+          ],
+        ),
+      );
+    });
+    if(!permission) {
+      return;
+    }
+    final result = await ImagePicker().pickVideo(
+      source: ImageSource.gallery,
+    );
+    if (result != null) {
+      var size = await result.length();
+      String id = const Uuid().v4();
+      final message = types.FileMessage(
+        author: _user,
+        createdAt: DateTime.now().millisecondsSinceEpoch,
+        id: id,
+        mimeType: lookupMimeType(result.path),
+        name: result.name,
+        size: size,
+        uri: result.path,
+        showStatus: true,
+        status: Status.sending,
+      );
+      File file = File(result.path);
+      _addMessage(message,id);
+      ChatConnection.uploadFile(context,data,_messages,id,file,data?.room,ChatConnection.user!.id).then((r) {
+        if(r == 'limit') {
+          try {
+            int index = _messages.indexOf(_messages.firstWhere((element) => element.id == id));
+            _messages.removeAt(index);
+          }catch(_) {}
+        }
+        if(mounted) {
+          setState(()  {});
+        }
+      });
     }
   }
   void _handleImageSelection() async {
@@ -266,21 +319,13 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         status: Status.sending,
       );
       _addMessage(message,id);
-      ChatConnection.uploadImage(data,_messages,id,result,data?.room,ChatConnection.user!.id).then((r) {
-        Status s = r==null ? Status.error : Status.sent;
-        int index = _messages.indexWhere((element) => element.id==r);
-        _messages[index] = types.ImageMessage(
-          author: _user,
-          createdAt: DateTime.now().millisecondsSinceEpoch,
-          height: image.height.toDouble(),
-          id: id,
-          name: result.name,
-          size: bytes.length,
-          uri: result.path,
-          width: image.width.toDouble(),
-          showStatus: true,
-          status: s,
-        );
+      ChatConnection.uploadImage(context,data,_messages,id,result,data?.room,ChatConnection.user!.id).then((r) {
+        if(r == 'limit') {
+          try {
+            int index = _messages.indexOf(_messages.firstWhere((element) => element.id == id));
+            _messages.removeAt(index);
+          }catch(_) {}
+        }
         if(mounted) {
           setState(() {});
         }
@@ -335,21 +380,13 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         status: Status.sending,
       );
       _addMessage(message,id);
-      ChatConnection.uploadImage(data,_messages,id,result,data?.room,ChatConnection.user!.id).then((r) {
-        Status s = r==null ? Status.error : Status.sent;
-        int index = _messages.indexWhere((element) => element.id==r);
-        _messages[index] = types.ImageMessage(
-          author: _user,
-          createdAt: DateTime.now().millisecondsSinceEpoch,
-          height: image.height.toDouble(),
-          id: id,
-          name: result.name,
-          size: bytes.length,
-          uri: result.path,
-          width: image.width.toDouble(),
-          showStatus: true,
-          status: s,
-        );
+      ChatConnection.uploadImage(context,data,_messages,id,result,data?.room,ChatConnection.user!.id).then((r) {
+        if(r == 'limit') {
+          try {
+            int index = _messages.indexOf(_messages.firstWhere((element) => element.id == id));
+            _messages.removeAt(index);
+          }catch(_) {}
+        }
         if(mounted) {
           setState(() {});
         }
@@ -382,36 +419,12 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       showLoading();
       String? result = await download(context,message.uri,'${message.createdAt}_${message.name}');
       Navigator.of(context).pop();
-      if(result != null) {
-        List<String> documentFilesType = ['docx', 'doc', 'xlsx', 'xls', 'pptx', 'ppt', 'pdf', 'txt'];
-        List<String> imageFilesType = ['png', 'jpg', 'jpeg', 'tiff','webp'];
-        List<String> videoFilesType = ['mp4', 'mov', 'wmv', 'avi'];
-        List<String> audioFilesType = ['wav', 'mp3'];
-        final mimeType = message.name.split('.').last.toLowerCase();
-        if(documentFilesType.contains(mimeType)) {
-          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) {
-            return LocalFileViewerPage(filePath: result,title: message.name,);
-          }));
-        }
-        else if(audioFilesType.contains(mimeType)) {
-          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) {
-            return MediaScreen(filePath: result,title: message.name,type: 'audio',);
-          }));
-        }
-        else if(videoFilesType.contains(mimeType)) {
-          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) {
-            return MediaScreen(filePath: result,title: message.name,type: 'video',);
-          }));
-        }
-        else if(imageFilesType.contains(mimeType)) {
-          setState(() {
-            _isImageViewVisible = true;
-            imageViewed = result;
-          });
-        }
-        else {
-          await OpenFile.open(result);
-        }
+      String? dataResult = await openFile(result,context,message.name);
+      if(dataResult != null) {
+        setState(() {
+          _isImageViewVisible = true;
+          imageViewed = result;
+        });
       }
     }
   }
@@ -558,24 +571,14 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     );
     _addMessage(message, id);
     ChatConnection.uploadImage(
-        data, _messages, id, result, data?.room, ChatConnection.user!.id)
+        context, data, _messages, id, result, data?.room, ChatConnection.user!.id)
         .then((r) {
-      Status s = r == null ? Status.error : Status.sent;
-      int index = _messages.indexWhere((element) => element.id == r);
-      _messages[index] = types.ImageMessage(
-        author: _user,
-        createdAt: DateTime
-            .now()
-            .millisecondsSinceEpoch,
-        height: image.height.toDouble(),
-        id: id,
-        name: result.name,
-        size: bytes.length,
-        uri: result.path,
-        width: image.width.toDouble(),
-        showStatus: true,
-        status: s,
-      );
+      if(r == 'limit') {
+        try {
+          int index = _messages.indexOf(_messages.firstWhere((element) => element.id == id));
+          _messages.removeAt(index);
+        }catch(_) {}
+      }
       if (mounted) {
         setState(() {});
       }

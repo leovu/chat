@@ -75,5 +75,6 @@
   "chats": "Chats",
   "all": "All",
   "notifications": "Notifications",
-  "justCreatedRoom": "just created the group"
+  "justCreatedRoom": "just created the group",
+  "limitSizeUpload": "Upload limitation is 20MB"
 }

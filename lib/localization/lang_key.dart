@@ -79,4 +79,5 @@ class LangKey {
   static const String all = "all";
   static const String notifications = "notifications";
   static const String justCreatedRoom = "justCreatedRoom";
+  static const String limitSizeUpload = "limitSizeUpload";
 }

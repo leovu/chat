@@ -7,13 +7,11 @@ import 'package:flutter/material.dart';
 class MediaScreen extends StatefulWidget {
   final String filePath;
   final String title;
-  final String type;
 
   const MediaScreen({
     Key? key,
     required this.filePath,
     required this.title,
-    required this.type,
   }) : super(key: key);
 
   @override
@@ -67,28 +65,22 @@ class _MediaScreenState extends State<MediaScreen> with SingleTickerProviderStat
       body: SafeArea(
         child: Column(
           children: [
-            widget.type == 'audio' ? Padding(
-              padding: EdgeInsets.only(top: MediaQuery.of(context).size.height*0.05,bottom: MediaQuery.of(context).size.height*0.05),
-              child: RotationTransition(
-                turns: _animation,
-                child: const CircleAvatar(
-                  radius: 100,
-                  backgroundColor: Colors.black,
-                  child: Icon(
-                    Icons.music_note,
-                    color: Colors.white,
-                    size: 100.0,
-                  ),
+            Padding(
+              padding: EdgeInsets.only(top: MediaQuery.of(context).size.height*0.05,
+                  bottom: MediaQuery.of(context).size.height*0.05),
+            child: RotationTransition(
+              turns: _animation,
+              child: const CircleAvatar(
+                radius: 100,
+                backgroundColor: Colors.black,
+                child: Icon(
+                  Icons.music_note,
+                  color: Colors.white,
+                  size: 100.0,
                 ),
               ),
-            ) : Padding(
-              padding: EdgeInsets.only(top: MediaQuery.of(context).size.height*0.05,bottom: MediaQuery.of(context).size.height*0.05),
-              child: Container(),
-            ),
-            Center(child:
-                widget.type == 'audio' ?
-            PlayAudio(url: widget.filePath)
-            : PlayVideo(url: widget.filePath))
+            )),
+            Center(child: PlayAudio(url: widget.filePath))
           ],
         ),
       ),

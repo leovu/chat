@@ -5,6 +5,8 @@ import 'package:chat/connection/http_connection.dart';
 import 'package:chat/connection/socket.dart';
 import 'package:chat/data_model/contact.dart' as ct;
 import 'package:chat/data_model/user.dart';
+import 'package:chat/localization/app_localizations.dart';
+import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:jwt_decode/jwt_decode.dart';
@@ -198,7 +200,13 @@ class ChatConnection {
     }
     return false;
   }
-  static Future<String?>uploadImage(c.ChatMessage? data,List<types.Message> listMessage,String id,  XFile image, c.Room? room, String authorId)  async {
+  static Future<String?>uploadImage(BuildContext context, c.ChatMessage? data,List<types.Message> listMessage,String id,  XFile image, c.Room? room, String authorId)  async {
+    int sizeInBytes = await image.length();
+    double sizeInMb = sizeInBytes / (1024 * 1024);
+    if (sizeInMb > 20){
+      showError(context);
+      return 'limit';
+    }
     ResponseData response = await connection.upload('api/upload', convertToFile(image),isImage: true);
     if(response.isSuccess) {
       ResponseData responseData = await connection.post('api/message', {
@@ -212,6 +220,7 @@ class ChatConnection {
         types.Message val = listMessage.firstWhere((element) => element.id == id);
         int index = listMessage.indexOf(val);
         c.Messages valueResponse =  c.Messages.fromJson(responseData.data['message']);
+        types.Status s = valueResponse.sId==null ? types.Status.error : types.Status.sent;
         listMessage[index] = types.ImageMessage(
             author: listMessage[index].author,
             createdAt: listMessage[index].createdAt,
@@ -219,10 +228,10 @@ class ChatConnection {
             height: (listMessage[index] as types.ImageMessage).height,
             name: (listMessage[index] as types.ImageMessage).name,
             size: (listMessage[index] as types.ImageMessage).size,
-            uri: (listMessage[index] as types.ImageMessage).uri,
+            uri: '${HTTPConnection.domain}api/images/${valueResponse.content}',
             width: (listMessage[index] as types.ImageMessage).width,
             showStatus: true,
-            status: (listMessage[index] as types.ImageMessage).status,
+            status: s,
             repliedMessage: listMessage[index].repliedMessage
         );
         data?.room?.messages?.insert(0,valueResponse);
@@ -231,7 +240,13 @@ class ChatConnection {
     }
     return null;
   }
-  static Future<String?>uploadFile(c.ChatMessage? data,List<types.Message> listMessage,String id, File file, c.Room? room, String authorId)  async {
+  static Future<String?>uploadFile(BuildContext context, c.ChatMessage? data,List<types.Message> listMessage,String id, File file, c.Room? room, String authorId)  async {
+    int sizeInBytes = file.lengthSync();
+    double sizeInMb = sizeInBytes / (1024 * 1024);
+    if (sizeInMb > 20){
+      showError(context);
+      return 'limit';
+    }
     ResponseData response = await connection.upload('api/upload/file', file, isImage: false);
     if(response.isSuccess) {
       ResponseData responseData = await connection.post('api/message', {
@@ -245,6 +260,7 @@ class ChatConnection {
         types.Message val = listMessage.firstWhere((element) => element.id == id);
         int index = listMessage.indexOf(val);
         c.Messages valueResponse =  c.Messages.fromJson(responseData.data['message']);
+        types.Status s = valueResponse.sId==null ? types.Status.error : types.Status.sent;
         listMessage[index] = types.FileMessage(
             author: listMessage[index].author,
             createdAt: listMessage[index].createdAt,
@@ -252,9 +268,9 @@ class ChatConnection {
             mimeType: (listMessage[index] as types.FileMessage).mimeType,
             name: (listMessage[index] as types.FileMessage).name,
             size: (listMessage[index] as types.FileMessage).size,
-            uri: (listMessage[index] as types.FileMessage).uri,
+            uri: '${HTTPConnection.domain}api/files/${valueResponse.file!.shieldedID!}',
             showStatus: true,
-            status: (listMessage[index] as types.FileMessage).status,
+            status: s,
             repliedMessage: listMessage[index].repliedMessage
         );
         data?.room?.messages?.insert(0,valueResponse);
@@ -334,5 +350,21 @@ class ChatConnection {
         },
       );
     }, duration: const Duration(seconds: 2));
+  }
+  static void showError(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(AppLocalizations.text(LangKey.warning)),
+        content: Text(AppLocalizations.text(LangKey.limitSizeUpload)),
+        actions: [
+          ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text(AppLocalizations.text(LangKey.accept)))
+        ],
+      ),
+    );
   }
 }

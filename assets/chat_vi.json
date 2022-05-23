@@ -75,5 +75,6 @@
   "chats": "Cuộc trò chuyện",
   "all": "Tất cả",
   "notifications": "Thông báo",
-  "justCreatedRoom": " vừa tạo nhóm"
+  "justCreatedRoom": "vừa tạo nhóm",
+  "limitSizeUpload": "Dung lượng tải lên giới hạn 20MB"
 }
