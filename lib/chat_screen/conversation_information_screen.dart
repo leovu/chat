@@ -238,7 +238,8 @@ class _ConversationInformationScreenState
                           size: 35,
                         ),
                         AppLocalizations.text(LangKey.deleteConversation), () {
-                      _removeRoom(widget.roomData.sId!);
+                      !widget.roomData.isGroup! ? _removeLeaveRoom(widget.roomData.sId!) :
+                          _removeRoom(widget.roomData.sId!);
                     }, textColor: Colors.red)
                 ],
               ),
@@ -417,7 +418,52 @@ class _ConversationInformationScreenState
       ),
     );
   }
-
+  void _removeLeaveRoom(String roomId) {
+    showDialog(
+      context: context,
+      builder: (cxt) => AlertDialog(
+        title: Text(AppLocalizations.text(LangKey.deleteConversation)),
+        content: Text(AppLocalizations.text(LangKey.deleteConfirm)),
+        actions: [
+          ElevatedButton(
+              onPressed: () {
+                ChatConnection.leaveRoom(
+                    roomId, ChatConnection.user?.id).then((value) {
+                  Navigator.of(cxt).pop();
+                  if (value) {
+                    Navigator.of(context).popUntil(
+                            (route) => route.settings.name == "chat_screen");
+                    Navigator.of(context).pop();
+                  } else {
+                    showDialog(
+                      context: context,
+                      builder: (cxxt) => AlertDialog(
+                        title: Text(AppLocalizations.text(LangKey.warning)),
+                        content:
+                        Text(AppLocalizations.text(LangKey.deleteError)),
+                        actions: [
+                          ElevatedButton(
+                              onPressed: () {
+                                Navigator.pop(cxxt);
+                              },
+                              child:
+                              Text(AppLocalizations.text(LangKey.accept)))
+                        ],
+                      ),
+                    );
+                  }
+                });
+              },
+              child: Text(AppLocalizations.text(LangKey.delete))),
+          ElevatedButton(
+              onPressed: () {
+                Navigator.pop(cxt);
+              },
+              child: Text(AppLocalizations.text(LangKey.cancel))),
+        ],
+      ),
+    );
+  }
   void _removeRoom(String roomId) {
     showDialog(
       context: context,

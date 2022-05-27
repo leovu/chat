@@ -262,7 +262,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                                                 if (!roomListVisible!.rooms![position].isGroup!) SheetAction(
                                                   icon: Icons.remove_circle,
                                                   label: AppLocalizations.text(LangKey.delete),
-                                                  key: 'Delete',
+                                                  key: 'Leave',
                                                 ),
                                                 if (roomListVisible!.rooms![position].isGroup!
                                                     && roomListVisible!.rooms![position].owner == ChatConnection.user!.id)
@@ -279,6 +279,8 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                                               ],
                                             ).then((value) => value == 'Delete'
                                                 ? _removeRoom(roomListVisible!.rooms![position].sId!)
+                                                : value == 'Leave'
+                                                ? _removeLeaveRoom(roomListVisible!.rooms![position].sId!)
                                                 : (){});
                                           },
                                           autoClose: true,
@@ -335,6 +337,48 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                 }
               },
               child: Text(AppLocalizations.text(LangKey.leave))),
+          ElevatedButton(
+              onPressed: () {
+                Navigator.pop(cxt);
+              },
+              child: Text(AppLocalizations.text(LangKey.cancel))),
+        ],
+      ),
+    );
+  }
+  void _removeLeaveRoom(String roomId) {
+    showDialog(
+      context: context,
+      builder: (cxt) => AlertDialog(
+        title: Text(AppLocalizations.text(LangKey.deleteConversation)),
+        content: Text(AppLocalizations.text(LangKey.deleteConfirm)),
+        actions: [
+          ElevatedButton(
+              onPressed: () {
+                ChatConnection.leaveRoom(roomId,ChatConnection.user?.id).then((value) {
+                  Navigator.of(cxt).pop();
+                  if (value) {
+                    _getRooms();
+                  }
+                  else {
+                    showDialog(
+                      context: context,
+                      builder: (cxxt) => AlertDialog(
+                        title: Text(AppLocalizations.text(LangKey.warning)),
+                        content: Text(AppLocalizations.text(LangKey.deleteError)),
+                        actions: [
+                          ElevatedButton(
+                              onPressed: () {
+                                Navigator.pop(cxxt);
+                              },
+                              child: Text(AppLocalizations.text(LangKey.accept)))
+                        ],
+                      ),
+                    );
+                  }
+                });
+              },
+              child: Text(AppLocalizations.text(LangKey.delete))),
           ElevatedButton(
               onPressed: () {
                 Navigator.pop(cxt);
