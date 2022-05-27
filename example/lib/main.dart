@@ -72,7 +72,7 @@ class _MyAppState extends State<MyApp> {
       body: Center(
         child: InkWell(
             onTap: () async {
-              Chat.open(context,'quangth', '123456', 'assets/icon-app.png',const Locale(LangKey.langVi, 'VN'), domain: 'https://chat-matthewsliquor.epoints.vn/');
+              Chat.open(context,'waosupport@pioapps.vn', '123456', 'assets/icon-app.png',const Locale(LangKey.langVi, 'VN'), domain: 'https://chat-matthewsliquor.epoints.vn/');
             },
             child: Text('Running on: $_platformVersion\n')),
       ),

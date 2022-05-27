@@ -30,6 +30,7 @@ class RepliedMessage extends StatelessWidget {
   Widget build(BuildContext context) {
     String _text = '';
     String? _imageUri;
+    bool _isFile = false;
     final bool _closable = onCancelReplyPressed != null;
     final bool _isCurrentUser =
         messageAuthorId == InheritedUser.of(context).user.id;
@@ -40,6 +41,7 @@ class RepliedMessage extends StatelessWidget {
         case types.MessageType.file:
           final fileMessage = repliedMessage as types.FileMessage;
           _text = fileMessage.name;
+          _isFile = true;
           break;
         case types.MessageType.image:
           final imageMessage = repliedMessage as types.ImageMessage;
@@ -79,8 +81,23 @@ class RepliedMessage extends StatelessWidget {
                 fit: BoxFit.cover,
               ),
             ),
-          )
-              : Container(),
+          ) :
+          _isFile ? Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: Colors.grey.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(21),
+              ),
+              child: Image.asset(
+                'assets/icon-document.png',
+                color: Colors.white,
+                package: 'chat',
+              ),
+            ),
+          ) : Container(),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
