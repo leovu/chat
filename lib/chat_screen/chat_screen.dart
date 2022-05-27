@@ -111,35 +111,52 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   void _handleAttachmentPressed() {
     showModalActionSheet<String>(
       context: context,
-      actions: [
-        SheetAction(
-          icon: Icons.photo,
-          label: AppLocalizations.text(LangKey.photo),
-          key: 'Photo',
-        ),
-        const SheetAction(
-          icon: Icons.video_collection_sharp,
-          label: 'Video',
-          key: 'Video',
-        ),
-        SheetAction(
-          icon: Icons.file_copy,
-          label: AppLocalizations.text(LangKey.file),
-          key: 'File',
-        ),
-        if(Platform.isAndroid) SheetAction(
-            icon: Icons.cancel,
-            label: AppLocalizations.text(LangKey.cancel),
-            key: 'Cancel',
-            isDestructiveAction: true),
-      ],
+      actions: _attachmentSheetAction(),
     ).then((value) => value == 'Photo'
         ? _handleImageSelection()
         : value == 'Video'
         ? _handelVideoSelection()
         : value == 'File'
         ? _handleFileSelection()
+        : ChatConnection.addOnModules != null
+        ? ChatConnection.addOnModules!.firstWhere((e) => e['key'])['function']
         : {});
+  }
+  List<SheetAction<String>> _attachmentSheetAction() {
+    List<SheetAction<String>> _list = [];
+    _list.add(SheetAction(
+      icon: Icons.photo,
+      label: AppLocalizations.text(LangKey.photo),
+      key: 'Photo',
+    ));
+    _list.add(const SheetAction(
+      icon: Icons.video_collection_sharp,
+      label: 'Video',
+      key: 'Video',
+    ));
+    _list.add(SheetAction(
+      icon: Icons.file_copy,
+      label: AppLocalizations.text(LangKey.file),
+      key: 'File',
+    ));
+    if(ChatConnection.addOnModules != null) {
+      for (var e in ChatConnection.addOnModules!) {
+        _list.add(SheetAction(
+            icon: e['icon'],
+            label: e['name'],
+            key: e['key'],
+        ));
+      }
+    }
+    if(Platform.isAndroid) {
+      _list.add(SheetAction(
+        icon: Icons.cancel,
+        label: AppLocalizations.text(LangKey.cancel),
+        key: 'Cancel',
+        isDestructiveAction: true
+      ));
+    }
+    return _list;
   }
   void _handleFileSelection() async {
     bool permission = await PermissionRequest.request(PermissionRequestType.STORAGE, (){

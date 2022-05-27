@@ -28,6 +28,7 @@ class ChatConnection {
   static String? roomId;
   static User? user;
   static late BuildContext buildContext;
+  static List<Map<String,dynamic>>? addOnModules;
   static bool isLoadMore = false;
   static Map<String, dynamic>? initialData;
   static late Function(Map<String, dynamic> message) homeScreenNotificationHandler;

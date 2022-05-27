@@ -28,7 +28,11 @@ class Chat {
   static disconnectSocket() {
     ChatConnection.dispose(isDispose: true);
   }
-  static open(BuildContext context, String email, String password, String appIcon,Locale locale,{String? domain, Map<String, dynamic>? notificationData}) async {
+  static open(BuildContext context, String email, String password,
+      String appIcon,Locale locale,
+      { String? domain,
+        Map<String, dynamic>? notificationData,
+        List<Map<String,dynamic>>? addOnModules}) async {
     await initializeDateFormatting();
     if(domain != null) {
       HTTPConnection.domain = domain;
@@ -52,7 +56,6 @@ class Chat {
     ChatConnection.notificationList();
     try{
       if(ChatConnection.roomId == null) {
-        
         ChatConnection.homeScreenNotificationHandler(notificationData);
       }
       else {
