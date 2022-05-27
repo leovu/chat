@@ -76,5 +76,7 @@
   "all": "Tất cả",
   "notifications": "Thông báo",
   "justCreatedRoom": "vừa tạo nhóm",
-  "limitSizeUpload": "Dung lượng tải lên giới hạn 20MB"
+  "limitSizeUpload": "Dung lượng tải lên giới hạn 20MB",
+  "copy": "Sao chép",
+  "copyAlert": "Đã sao chép vào bảng tạm"
 }

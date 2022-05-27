@@ -76,5 +76,7 @@
   "all": "All",
   "notifications": "Notifications",
   "justCreatedRoom": "just created the group",
-  "limitSizeUpload": "Upload limitation is 20MB"
+  "limitSizeUpload": "Upload limitation is 20MB",
+  "copy": "Copy",
+  "copyAlert": "Copied to clipboard"
 }

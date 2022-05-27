@@ -171,6 +171,9 @@ class _InputState extends State<Input> {
           .repliedMessage,isEdit: editContent);
       _textController.clear();
     }
+    setState(() {
+      _taggingSuggestList = null;
+    });
   }
 
   void _handleTextControllerChange() {

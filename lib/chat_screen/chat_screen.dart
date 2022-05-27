@@ -26,6 +26,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:chat/connection/app_lifecycle.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:photo_view/photo_view_gallery.dart';
+import 'package:flutter/services.dart';
 
 class ChatScreen extends StatefulWidget {
   final Function? callback;
@@ -442,6 +443,11 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
           label: AppLocalizations.text(LangKey.reply),
           key: 'Reply',
         ),
+        if(message is types.TextMessage) SheetAction(
+          icon: Icons.copy,
+          label: AppLocalizations.text(LangKey.copy),
+          key: 'Copy',
+        ),
         SheetAction(
           icon: Icons.forward,
           label: AppLocalizations.text(LangKey.forward),
@@ -478,7 +484,16 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         ? forward(message,mess)
         : value == 'Edit'
         ? chatController.edit(message,mess)
+        : value == 'Copy'
+        ? copyMessage(message as types.TextMessage)
         : {});
+  }
+
+  void copyMessage(types.TextMessage message) {
+    Clipboard.setData(ClipboardData(text: checkCopyTagMessage(message.text))).then((_){
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(AppLocalizations.text(LangKey.copyAlert)),duration: const Duration(seconds: 2),));
+    });
   }
 
   void pinMesage(types.Message message, c.Messages? value) async {
@@ -662,6 +677,24 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       try {
         if(element[element.length-1] == '@' && element.contains('-')) {
           element = element.split('-').first;
+        }
+      }catch(_) {}
+      result += '$element ';
+    }
+    return result.trim();
+  }
+
+  String checkCopyTagMessage(String message) {
+    List<String> contents = message.split(' ');
+    String result = '';
+    for (int i = 0; i < contents.length; i++) {
+      var element = contents[i];
+      if(element == '@all-all@') {
+        element = AppLocalizations.text(LangKey.all);
+      }
+      try {
+        if(element[element.length-1] == '@' && element.contains('-')) {
+          element = element.split('-').first.substring(1);
         }
       }catch(_) {}
       result += '$element ';
