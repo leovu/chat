@@ -475,9 +475,11 @@ class _InputState extends State<Input> {
                                       enableSkinTones: true,
                                       showRecentsTab: true,
                                       recentsLimit: 28,
-                                      noRecentsText: 'No Recents',
-                                      noRecentsStyle: const TextStyle(
-                                          fontSize: 20, color: Colors.black26),
+                                      noRecents: const Text(
+                                        'No Recents',
+                                        style: TextStyle(fontSize: 20, color: Colors.black26),
+                                        textAlign: TextAlign.center,
+                                      ),
                                       tabIndicatorAnimDuration: kTabScrollDuration,
                                       categoryIcons: const CategoryIcons(),
                                       buttonMode: ButtonMode.MATERIAL))
