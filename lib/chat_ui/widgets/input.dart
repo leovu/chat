@@ -186,44 +186,31 @@ class _InputState extends State<Input> {
   }
 
   void onChanged(String value) {
-    List<String> contents = value.split('@');
-    if(contents.length > 1) {
-      try {
-        if(contents.last == '') {
-          _taggingSuggestList = [];
-          for (var e in widget.people!) {
-            if(e.sId != ChatConnection.user!.id) {
-              _taggingSuggestList!.add(e);
-            }
+    List<String> contents = [];
+    if(value.contains('@')) {
+      if(value[value.length-1] == "@") {
+        contents.add('');
+      }
+      else {
+        final selection = _textController.value.selection;
+        final text = _textController.value.text;
+        if(text == selection.textBefore(text)) {
+          if(text[text.length-1] == "@") {
+            contents.add('');
           }
-          setState(() {});
         }
         else {
-          if(contents.last[contents.last.length-1] == ' ') {
-            setState(() {
-              _taggingSuggestList = null;
-            });
+          final before = selection.textBefore(text);
+          if(before.contains('@')) {
+            contents = before.split('@');
           }
-          else {
-            if(contents.last[contents.last.length-1] == '') {
-              _taggingSuggestList = [];
-              for (var e in widget.people!) {
-                if(e.sId != ChatConnection.user!.id) {
-                  _taggingSuggestList!.add(e);
-                }
-              }
-              setState(() {});
-            }
-            else {
-              _taggingSuggestList = [];
-              for (var e in widget.people!) {
-                if('${e.firstName}${e.lastName}'.toLowerCase().contains(contents.last.toLowerCase()) && e.sId != ChatConnection.user!.id) {
-                  _taggingSuggestList!.add(e);
-                }
-              }
-              setState(() {});
-            }
-          }
+        }
+      }
+    }
+    if(contents.isNotEmpty) {
+      try {
+        for (var e in contents) {
+          detectTagInTextField(e);
         }
       }catch(_) {
         setState(() {
@@ -235,6 +222,31 @@ class _InputState extends State<Input> {
       setState(() {
         _taggingSuggestList = null;
       });
+    }
+  }
+  detectTagInTextField(String data) {
+    List<People> tmp = [];
+    for (var e in widget.people!) {
+      if('${e.firstName}${e.lastName}'.toLowerCase().contains(data.toLowerCase()) && e.sId != ChatConnection.user!.id) {
+        if('${e.firstName}${e.lastName}'.toLowerCase() != data.toLowerCase()) {
+          tmp.add(e);
+        }
+      }
+    }
+    if(tmp.isNotEmpty) {
+      _taggingSuggestList = tmp;
+      setState(() {});
+    }
+    else {
+      if(data == '') {
+        _taggingSuggestList = [];
+        for (var e in widget.people!) {
+          if(e.sId != ChatConnection.user!.id) {
+            _taggingSuggestList!.add(e);
+          }
+        }
+      }
+      setState(() {});
     }
   }
   int emojiIndex = 0;
@@ -558,17 +570,7 @@ class _InputState extends State<Input> {
         padding: const EdgeInsets.only(left: 8.0,right: 8.0,bottom: 8.0),
         child: InkWell(
           onTap: (){
-            List<String> contents = _textController.value.text.split('@');
-            contents.last = AppLocalizations.text(LangKey.all);
-            String val = '';
-            for (int i = 0; i < contents.length; i++) {
-              if(i != 0) {
-                val += '@${contents[i]} ';
-              }
-              else {
-                val += contents[i];
-              }
-            }
+            String val = replaceTagInTextField(null, _textController.value.text);
             setState(() {
               _textController.text = val;
               _textController.selection = TextSelection.fromPosition(TextPosition(offset: _textController.text.length));
@@ -594,20 +596,10 @@ class _InputState extends State<Input> {
         padding: const EdgeInsets.only(left: 8.0,right: 8.0,bottom: 8.0),
         child: InkWell(
           onTap: () {
-            List<String> contents = _textController.value.text.split('@');
-            contents.last = '${e.firstName}${e.lastName}';
             if(!_idTagList.contains(e.sId!)) {
               _idTagList.add(e.sId!);
             }
-            String val = '';
-            for (int i = 0; i < contents.length; i++) {
-              if(i != 0) {
-                val += '@${contents[i].trim()} ';
-              }
-              else {
-                val += contents[i];
-              }
-            }
+            String val = replaceTagInTextField(e, _textController.value.text);
             setState(() {
               _textController.text = val;
               _textController.selection = TextSelection.fromPosition(TextPosition(offset: _textController.text.length));
@@ -646,6 +638,34 @@ class _InputState extends State<Input> {
           padding: const EdgeInsets.only(bottom: 5.0),child: Container(height: 1.0,color: Colors.grey.shade200,)));
     }
     return _arr;
+  }
+
+  String replaceTagInTextField(People? p, String value) {
+    String result = value;
+    List<String> contents = [];
+    final selection = _textController.value.selection;
+    final text = _textController.value.text;
+    if(text == selection.textBefore(text)) {
+      if(text[text.length-1] == "@") {
+        if(p == null) {
+          result += AppLocalizations.text(LangKey.all);
+        }
+        else {
+          result += '${p.firstName}${p.lastName}';
+        }
+      }
+    }
+    else {
+      final before = selection.textBefore(text);
+      contents = before.split('@');
+      if(contents.last != '') {
+        result = result.replaceFirst(contents.last, '${p!.firstName}${p.lastName}');
+      }
+      else {
+        result = result.replaceFirst(before, '$before${p!.firstName}${p.lastName}');
+      }
+    }
+    return result;
   }
 
   _onEmojiSelected(Emoji emoji) {

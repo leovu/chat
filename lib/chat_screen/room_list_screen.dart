@@ -491,6 +491,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                             Expanded(child: AutoSizeText(
                               '$author''${checkTag(_checkContent(data))}' ,
                               textScaleFactor: 0.8,
+                              maxLines: 1,
                               overflow: TextOverflow.ellipsis,),),
                             if(findUnread(data.messagesReceived) != '0') CircleAvatar(
                               radius: 18.0,
