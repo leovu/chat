@@ -1317,7 +1317,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
             scrollPhysics: const ClampingScrollPhysics(),
           ),
           Positioned(
-            right: 8,
+            right: 5,
             top: 0,
             child: CloseButton(
               color: Colors.white,
@@ -1325,7 +1325,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
             ),
           ),
           Positioned(
-            right: 40,
+            right: 45,
             top: 0,
             child: IconButton(
               icon: const Icon(Icons.download_rounded),
