@@ -409,7 +409,7 @@ class _State extends State<ByTimeResultScreen>
             scrollPhysics: const ClampingScrollPhysics(),
           ),
           Positioned(
-            right: 8,
+            right: 5,
             top: 0,
             child: CloseButton(
               color: Colors.white,
@@ -417,7 +417,7 @@ class _State extends State<ByTimeResultScreen>
             ),
           ),
           Positioned(
-            right: 40,
+            right: 45,
             top: 0,
             child: IconButton(
               icon: const Icon(Icons.download_rounded),
