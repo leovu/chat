@@ -2,7 +2,9 @@ import 'dart:io';
 import 'dart:math';
 import 'package:chat/chat_ui/widgets/inherited_replied_message.dart';
 import 'package:chat/connection/chat_connection.dart';
+import 'package:chat/connection/download.dart';
 import 'package:chat/data_model/room.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:chat/chat_ui/widgets/inherited_l10n.dart';
@@ -390,16 +392,47 @@ class _ChatState extends State<Chat> {
             scrollPhysics: const ClampingScrollPhysics(),
           ),
           Positioned(
-            right: 16,
-            top: 56,
+            right: 8,
+            top: 0,
             child: CloseButton(
               color: Colors.white,
               onPressed: _onCloseGalleryPressed,
             ),
           ),
+          Positioned(
+            right: 40,
+            top: 0,
+            child: IconButton(
+              icon: const Icon(Icons.download_rounded),
+              color: Colors.white,
+              tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+              onPressed: () async {
+                showLoading();
+                await download(context,_gallery[_imageViewIndex].uri,'${DateTime.now().toUtc().millisecond}.jpeg',isSaveGallery: true);
+                Navigator.of(context).pop();
+              },
+            ),
+          ),
         ],
       ),
     );
+  }
+
+  Future showLoading() async {
+    return await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return SimpleDialog(
+            elevation: 0.0,
+            backgroundColor: Colors.transparent,
+            children: <Widget>[
+              Center(
+                child: Platform.isAndroid ? const CircularProgressIndicator() : const CupertinoActivityIndicator(),
+              )
+            ],
+          );
+        });
   }
 
   Widget _imageGalleryLoadingBuilder(
@@ -611,6 +644,7 @@ class _ChatState extends State<Chat> {
                             inputBuilder: (BuildContext context, void Function({types.TextMessage? editContent}) method) {
                               requestFocusTextField = method;
                             },
+                            onMessageTap: widget.onMessageTap,
                             builder: (void Function() method) {
                                 hideEmoji = method;
                         },) : Container(),

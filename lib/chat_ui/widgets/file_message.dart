@@ -13,6 +13,7 @@ class FileMessage extends StatelessWidget {
     Key? key,
     required this.message,
     required this.showUserNameForRepliedMessage,
+    required this.onMessageTap,
   }) : super(key: key);
 
   /// [types.FileMessage]
@@ -20,6 +21,9 @@ class FileMessage extends StatelessWidget {
 
   /// Show user name for replied message.
   final bool showUserNameForRepliedMessage;
+
+  /// See [Message.onMessageTap]
+  final void Function(BuildContext context, types.Message)? onMessageTap;
 
   @override
   Widget build(BuildContext context) {
@@ -68,6 +72,7 @@ class FileMessage extends StatelessWidget {
                 messageAuthorId: message.author.id,
                 repliedMessage: message.repliedMessage,
                 showUserNames: showUserNameForRepliedMessage,
+                onMessageTap: onMessageTap,
               ),
             Row(
               mainAxisSize: MainAxisSize.min,

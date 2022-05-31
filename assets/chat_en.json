@@ -78,5 +78,7 @@
   "justCreatedRoom": "just created the group",
   "limitSizeUpload": "Upload limitation is 20MB",
   "copy": "Copy",
-  "copyAlert": "Copied to clipboard"
+  "download": "Download",
+  "downloadSuccess": "Downloaded completed",
+  "downloadFailed": "Downloaded failed"
 }

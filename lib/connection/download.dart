@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:chat/chat_screen/local_file_view_page.dart';
 import 'package:chat/chat_screen/media_screen.dart';
+import 'package:chat/localization/app_localizations.dart';
+import 'package:chat/localization/lang_key.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:mime/mime.dart';
@@ -9,8 +11,9 @@ import 'package:path_provider/path_provider.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:permission/permission.dart';
 import 'dart:io' as io;
+import 'package:gallery_saver/gallery_saver.dart';
 
-Future<String?> download(BuildContext context,String url,String filename) async {
+Future<String?> download(BuildContext context,String url,String filename, {bool isSaveGallery = false}) async {
   try {
     bool granted = false;
     if (Platform.isAndroid) {
@@ -54,6 +57,7 @@ Future<String?> download(BuildContext context,String url,String filename) async 
       String urlPath = '${directory.path}/$filename';
       bool checkAvailable = await io.File(urlPath).exists();
       if(checkAvailable) {
+        if(isSaveGallery) saveGallery(context, urlPath);
         return urlPath;
       }
       await Dio().download(
@@ -65,9 +69,11 @@ Future<String?> download(BuildContext context,String url,String filename) async 
             sourceFilePath: urlPath);
         final filePath =
         await FlutterFileDialog.saveFile(params: params);
+        if(isSaveGallery) saveGallery(context, filePath);
         return filePath;
       }
       else {
+        if(isSaveGallery) saveGallery(context,urlPath);
         return urlPath;
       }
     }
@@ -76,6 +82,35 @@ Future<String?> download(BuildContext context,String url,String filename) async 
     }
   }catch(_) {
     return null;
+  }
+}
+
+void saveGallery(BuildContext context, String? path) {
+  if(path != null) {
+    if(isImage(path)) {
+      GallerySaver.saveImage(path).then((result) {
+        if(result == true) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(AppLocalizations.text(LangKey.downloadSuccess)),duration: const Duration(seconds: 2),));
+        }
+        else {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(AppLocalizations.text(LangKey.downloadFailed)),duration: const Duration(seconds: 2),));
+        }
+      });
+    }
+    else if(isVideo(path)) {
+      GallerySaver.saveVideo(path).then((result) {
+        if(result == true) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(AppLocalizations.text(LangKey.downloadSuccess)),duration: const Duration(seconds: 2),));
+        }
+        else {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(AppLocalizations.text(LangKey.downloadFailed)),duration: const Duration(seconds: 2),));
+        }
+      });
+    }
   }
 }
 

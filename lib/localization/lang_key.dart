@@ -81,5 +81,8 @@ class LangKey {
   static const String justCreatedRoom = "justCreatedRoom";
   static const String limitSizeUpload = "limitSizeUpload";
   static const String copy = "copy";
+  static const String download = "download";
   static const String copyAlert = "copyAlert";
+  static const String downloadSuccess = "downloadSuccess";
+  static const String downloadFailed = "downloadFailed";
 }

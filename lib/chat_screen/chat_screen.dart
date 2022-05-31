@@ -460,6 +460,11 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
           label: AppLocalizations.text(LangKey.reply),
           key: 'Reply',
         ),
+        if(message is types.ImageMessage || message is types.FileMessage) SheetAction(
+          icon: Icons.download_rounded,
+          label: AppLocalizations.text(LangKey.download),
+          key: 'Download',
+        ),
         if(message is types.TextMessage) SheetAction(
           icon: Icons.copy,
           label: AppLocalizations.text(LangKey.copy),
@@ -503,7 +508,20 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         ? chatController.edit(message,mess)
         : value == 'Copy'
         ? copyMessage(message as types.TextMessage)
+        : value == 'Download'
+        ? downloadMessage(message)
         : {});
+  }
+
+  void downloadMessage(types.Message message) async {
+    showLoading();
+    if(message is types.FileMessage) {
+      await download(context,message.uri,'${message.createdAt}_${message.name}',isSaveGallery: true);
+    }
+    else if(message is types.ImageMessage) {
+      await download(context,message.uri,'${message.createdAt}_${message.name}.jpeg',isSaveGallery: true);
+    }
+    Navigator.of(context).pop();
   }
 
   void copyMessage(types.TextMessage message) {
@@ -1299,11 +1317,25 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
             scrollPhysics: const ClampingScrollPhysics(),
           ),
           Positioned(
-            right: 16,
-            top: 56,
+            right: 8,
+            top: 0,
             child: CloseButton(
               color: Colors.white,
               onPressed: _onCloseGalleryPressed,
+            ),
+          ),
+          Positioned(
+            right: 40,
+            top: 0,
+            child: IconButton(
+              icon: const Icon(Icons.download_rounded),
+              color: Colors.white,
+              tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+              onPressed: () async {
+                showLoading();
+                await download(context,imageViewed!,'${DateTime.now().toUtc().millisecond}.jpeg',isSaveGallery: true);
+                Navigator.of(context).pop();
+              },
             ),
           ),
         ],

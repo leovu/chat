@@ -17,6 +17,7 @@ class ImageMessage extends StatefulWidget {
     required this.message,
     required this.messageWidth,
     required this.showUserNameForRepliedMessage,
+    required this.onMessageTap,
   }) : super(key: key);
 
   /// [types.ImageMessage]
@@ -26,6 +27,9 @@ class ImageMessage extends StatefulWidget {
   final int messageWidth;
   /// Show user name for replied message.
   final bool showUserNameForRepliedMessage;
+
+  /// See [Message.onMessageTap]
+  final void Function(BuildContext context, types.Message)? onMessageTap;
 
   @override
   _ImageMessageState createState() => _ImageMessageState();
@@ -70,6 +74,7 @@ class _ImageMessageState extends State<ImageMessage> {
         messageAuthorId: widget.message.author.id,
         repliedMessage: widget.message.repliedMessage,
         showUserNames: widget.showUserNameForRepliedMessage,
+        onMessageTap: widget.onMessageTap,
       ),
     );
   }

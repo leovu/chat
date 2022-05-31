@@ -12,6 +12,7 @@ class RepliedMessage extends StatelessWidget {
     this.messageAuthorId,
     required this.repliedMessage,
     this.showUserNames = false,
+    required this.onMessageTap,
   }) : super(key: key);
 
   /// Called when user presses cancel reply button
@@ -25,6 +26,9 @@ class RepliedMessage extends StatelessWidget {
 
   /// Show user names for replied messages.
   final bool showUserNames;
+
+  /// See [Message.onMessageTap]
+  final void Function(BuildContext context, types.Message)? onMessageTap;
 
   @override
   Widget build(BuildContext context) {
@@ -57,117 +61,152 @@ class RepliedMessage extends StatelessWidget {
       }
     }
 
-    return Container(
-      width: MediaQuery.of(context).size.width,
-      margin: EdgeInsets.only(bottom: _closable ? 0 : 8),
-      padding: _closable
-          ? _theme.closableRepliedMessagePadding
-          : const EdgeInsets.fromLTRB(0, 0, 0, 0),
-      decoration: BoxDecoration(
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(30.0)),
-        color: _closable ? Colors.grey.shade50 : Colors.transparent,
-      ),
-      child: Row(
-        children: [
-          _imageUri != null
-              ? Container(
-            width: 44,
-            height: 44,
-            margin: _theme.repliedMessageImageMargin,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.network(
-                _imageUri,
-                fit: BoxFit.cover,
-              ),
+    return InkWell(
+      onTap: () {
+        if ((_imageUri != null || _isFile) &&
+            repliedMessage != null &&
+            onMessageTap != null) {
+          onMessageTap!(context, repliedMessage!);
+        } else {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              content: Text(_text),
             ),
-          ) :
-          _isFile ? Padding(
-            padding: const EdgeInsets.only(right: 8.0),
-            child: Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: Colors.grey.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(21),
-              ),
-              child: Image.asset(
-                'assets/icon-document.png',
-                color: Colors.white,
-                package: 'chat',
-              ),
-            ),
-          ) : Container(),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (repliedMessage?.author.firstName != null && showUserNames)
+          );
+        }
+      },
+      child: Container(
+        width: MediaQuery.of(context).size.width,
+        margin: EdgeInsets.only(bottom: _closable ? 0 : 8),
+        padding: _closable
+            ? _theme.closableRepliedMessagePadding
+            : const EdgeInsets.fromLTRB(0, 0, 0, 0),
+        decoration: BoxDecoration(
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(30.0)),
+          color: _closable ? Colors.grey.shade50 : Colors.transparent,
+        ),
+        child: Row(
+          children: [
+            _imageUri != null
+                ? Container(
+                    width: 44,
+                    height: 44,
+                    margin: _theme.repliedMessageImageMargin,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.network(
+                        _imageUri,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  )
+                : _isFile
+                    ? Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(21),
+                          ),
+                          child: Image.asset(
+                            'assets/icon-document.png',
+                            color: Colors.white,
+                            package: 'chat',
+                          ),
+                        ),
+                      )
+                    : Container(),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (repliedMessage?.author.firstName != null && showUserNames)
+                    Text(
+                      _closable
+                          ? '${AppLocalizations.text(LangKey.replying)} ${repliedMessage!.author.firstName!} ${repliedMessage!.author.lastName!}'
+                          : _text,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: _closable
+                            ? Colors.black
+                            : _isCurrentUser
+                                ? Colors.white
+                                : Colors.black,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        height: 1.5,
+                      ),
+                    ),
                   Text(
-                    _closable ? '${AppLocalizations.text(LangKey.replying)} ${repliedMessage!.author.firstName!} ${repliedMessage!.author.lastName!}' : _text,
+                    _closable
+                        ? _text
+                        : '${repliedMessage!.author.firstName!} ${repliedMessage!.author.lastName!}',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      color: _closable ? Colors.black : _isCurrentUser ? Colors.white : Colors.black,
-                      fontSize: 14,
+                      color: _closable
+                          ? Colors.grey
+                          : _isCurrentUser
+                              ? Colors.grey.shade400
+                              : Colors.grey,
+                      fontSize: 12,
                       fontWeight: FontWeight.w500,
                       height: 1.5,
                     ),
                   ),
-                Text(
-                  _closable ? _text :'${repliedMessage!.author.firstName!} ${repliedMessage!.author.lastName!}',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: _closable ? Colors.grey : _isCurrentUser ? Colors.grey.shade400 : Colors.grey,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    height: 1.5,
+                  if (!_closable)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 1.0),
+                      child: Container(
+                        height: 1.0,
+                        color: _isCurrentUser ? Colors.white : Colors.grey,
+                      ),
+                    )
+                ],
+              ),
+            ),
+            if (_closable)
+              Container(
+                margin: _theme.closableRepliedMessageImageMargin,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade400,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                height: 20,
+                width: 20,
+                child: IconButton(
+                  icon: const Icon(
+                    Icons.close,
+                    color: Colors.white,
+                    size: 15.0,
                   ),
+                  onPressed: () => onCancelReplyPressed?.call(),
+                  padding: EdgeInsets.zero,
                 ),
-                if(!_closable) Padding(
-                  padding: const EdgeInsets.only(top: 1.0),
-                  child: Container(height: 1.0,color: _isCurrentUser ? Colors.white : Colors.grey,),
-                )
-              ],
-            ),
-          ),
-          if (_closable)
-            Container(
-              margin: _theme.closableRepliedMessageImageMargin,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade400,
-                borderRadius: BorderRadius.circular(12),
               ),
-              height: 20,
-              width: 20,
-              child: IconButton(
-                icon: const Icon(
-                  Icons.close,
-                  color: Colors.white,
-                  size: 15.0,
-                ),
-                onPressed: () => onCancelReplyPressed?.call(),
-                padding: EdgeInsets.zero,
-              ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }
+
   String checkTag(String message) {
     List<String> contents = message.split(' ');
     String result = '';
     for (int i = 0; i < contents.length; i++) {
       var element = contents[i];
-      if(element == '@all-all@') {
+      if (element == '@all-all@') {
         element = '@${AppLocalizations.text(LangKey.all)}';
       }
       try {
-        if(element[element.length-1] == '@' && element.contains('-')) {
+        if (element[element.length - 1] == '@' && element.contains('-')) {
           element = element.split('-').first;
         }
-      }catch(_) {}
+      } catch (_) {}
       result += '$element ';
     }
     return result.trim();

@@ -214,11 +214,25 @@ class _State extends State<DetailGroupImageScreen>
             scrollPhysics: const ClampingScrollPhysics(),
           ),
           Positioned(
-            right: 16,
-            top: 56,
+            right: 8,
+            top: 0,
             child: CloseButton(
               color: Colors.white,
               onPressed: _onCloseGalleryPressed,
+            ),
+          ),
+          Positioned(
+            right: 40,
+            top: 0,
+            child: IconButton(
+              icon: const Icon(Icons.download_rounded),
+              color: Colors.white,
+              tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+              onPressed: () async {
+                showLoading();
+                await download(context,imageViewed!,'${DateTime.now().toUtc().millisecond}.jpeg',isSaveGallery: true);
+                Navigator.of(context).pop();
+              },
             ),
           ),
         ],

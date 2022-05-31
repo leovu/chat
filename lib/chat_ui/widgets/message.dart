@@ -230,6 +230,7 @@ class Message extends StatelessWidget {
             : FileMessage(
                 message: fileMessage,
                 showUserNameForRepliedMessage: true,
+                onMessageTap: onMessageTap,
               );
       case types.MessageType.image:
         final imageMessage = message as types.ImageMessage;
@@ -239,6 +240,7 @@ class Message extends StatelessWidget {
                 message: imageMessage,
                 messageWidth: messageWidth,
                 showUserNameForRepliedMessage: true,
+                onMessageTap: onMessageTap,
               );
       case types.MessageType.text:
         final textMessage = message as types.TextMessage;
@@ -257,6 +259,7 @@ class Message extends StatelessWidget {
                 usePreviewData: usePreviewData,
                 searchController: searchController,
                 showUserNameForRepliedMessage: true,
+                onMessageTap: onMessageTap,
               );
       default:
         return const SizedBox();

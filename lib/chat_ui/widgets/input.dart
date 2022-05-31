@@ -49,6 +49,7 @@ class Input extends StatefulWidget {
     required this.people,
     required this.isGroup,
     required this.onStickerPressed,
+    required this.onMessageTap,
   }) : super(key: key);
 
   final ChatEmojiBuilder builder;
@@ -56,6 +57,9 @@ class Input extends StatefulWidget {
   /// See [AttachmentButton.onPressed]
   final void Function()? onAttachmentPressed;
   final void Function()? onCameraPressed;
+
+  /// See [Message.onMessageTap]
+  final void Function(BuildContext context, types.Message)? onMessageTap;
 
   final bool isGroup;
   final List<People>? people;
@@ -285,6 +289,7 @@ class _InputState extends State<Input> {
                         repliedMessage: InheritedRepliedMessage.of(context)
                             .repliedMessage,
                         showUserNames: true,
+                        onMessageTap: widget.onMessageTap,
                       )
                   ),
                 Container(

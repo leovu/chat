@@ -22,6 +22,7 @@ class TextMessage extends StatelessWidget {
     required this.showName,
     required this.searchController,
     required this.showUserNameForRepliedMessage,
+    required this.onMessageTap,
   }) : super(key: key);
 
   /// See [Message.emojiEnlargementBehavior]
@@ -47,6 +48,9 @@ class TextMessage extends StatelessWidget {
 
   /// Show user name for replied message.
   final bool showUserNameForRepliedMessage;
+
+  /// See [Message.onMessageTap]
+  final void Function(BuildContext context, types.Message)? onMessageTap;
 
   void _onPreviewDataFetched(types.PreviewData previewData) {
     if (message.previewData == null) {
@@ -121,6 +125,7 @@ class TextMessage extends StatelessWidget {
             messageAuthorId: message.author.id,
             repliedMessage: message.repliedMessage,
             showUserNames: showUserNameForRepliedMessage,
+            onMessageTap: onMessageTap,
           ),
         if (showName)
           Padding(
