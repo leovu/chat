@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:chat/chat_ui/widgets/audio_player.dart';
-import 'package:chat/chat_ui/widgets/video_player.dart';
 import 'package:flutter/material.dart';
 
 class MediaScreen extends StatefulWidget {

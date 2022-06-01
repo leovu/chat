@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:chat/chat_ui/conditional/conditional.dart';
 import 'package:chat/chat_ui/widgets/link_preview.dart';
 import 'package:chat/connection/download.dart';
 import 'package:chat/connection/http_connection.dart';
@@ -12,9 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:chat/data_model/chat_message.dart' as c;
 import 'package:chat/data_model/room.dart' as r;
 import 'package:intl/intl.dart';
-import 'package:open_file/open_file.dart';
-import 'package:photo_view/photo_view_gallery.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class ByTimeResultScreen extends StatefulWidget {
   final c.ChatMessage? chatMessage;
@@ -29,8 +25,6 @@ class ByTimeResultScreen extends StatefulWidget {
 
 class _State extends State<ByTimeResultScreen>
     with SingleTickerProviderStateMixin {
-  bool _isImageViewVisible = false;
-  String? imageViewed;
   @override
   void initState() {
     super.initState();
@@ -60,9 +54,7 @@ class _State extends State<ByTimeResultScreen>
           color: Colors.black,
         ),
       ),
-      body:  _isImageViewVisible
-          ? _imageGalleryBuilder()
-          : SafeArea(
+      body: SafeArea(
         child: ListView(
           children: [
             Container(
@@ -299,13 +291,7 @@ class _State extends State<ByTimeResultScreen>
         showLoading();
         String? result = await download(context,'${HTTPConnection.domain}api/files/${message.file?.shieldedID}','${message.date}_${message.file?.name}');
         Navigator.of(context).pop();
-        String? dataResult = await openFile(result,context,message.file?.name ?? AppLocalizations.text(LangKey.file));
-        if(dataResult != null) {
-          setState(() {
-            _isImageViewVisible = true;
-            imageViewed = result;
-          });
-        }
+        openFile(result,context,message.file?.name ?? AppLocalizations.text(LangKey.file));
       },
       child: Column(
         children: [
@@ -344,12 +330,11 @@ class _State extends State<ByTimeResultScreen>
   }
   Widget widgetCacheImage(String content) {
     return InkWell(
-      onTap: () {
-        setState(() {
-          _isImageViewVisible = true;
-          imageViewed =
-          '${HTTPConnection.domain}api/images/$content/256';
-        });
+      onTap: () async {
+        showLoading();
+        String? result = await download(context,'${HTTPConnection.domain}api/images/$content/512','${DateTime.now().toUtc().millisecond}.jpeg');
+        Navigator.of(context).pop();
+        openFile(result,context,'image/');
       },
       child: SizedBox(
         width: MediaQuery.of(context).size.width * 0.3,
@@ -387,82 +372,6 @@ class _State extends State<ByTimeResultScreen>
             ],
           );
         });
-  }
-  Widget _imageGalleryBuilder() {
-    return imageViewed != null
-        ? Dismissible(
-      key: const Key('photo_view_gallery'),
-      direction: DismissDirection.down,
-      onDismissed: (direction) => _onCloseGalleryPressed(),
-      child: Stack(
-        children: [
-          PhotoViewGallery.builder(
-            builder: (BuildContext context, int index) =>
-                PhotoViewGalleryPageOptions(
-                  imageProvider: Conditional().getProvider(imageViewed!),
-                ),
-            itemCount: 1,
-            loadingBuilder: (context, event) =>
-                _imageGalleryLoadingBuilder(context, event),
-            onPageChanged: _onPageChanged,
-            pageController: PageController(initialPage: 0),
-            scrollPhysics: const ClampingScrollPhysics(),
-          ),
-          Positioned(
-            right: 5,
-            top: 0,
-            child: CloseButton(
-              color: Colors.white,
-              onPressed: _onCloseGalleryPressed,
-            ),
-          ),
-          Positioned(
-            right: 45,
-            top: 0,
-            child: IconButton(
-              icon: const Icon(Icons.download_rounded),
-              color: Colors.white,
-              tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
-              onPressed: () async {
-                showLoading();
-                await download(context,imageViewed!,'${DateTime.now().toUtc().millisecond}.jpeg',isSaveGallery: true);
-                Navigator.of(context).pop();
-              },
-            ),
-          ),
-        ],
-      ),
-    )
-        : Container();
-  }
-
-  void _onCloseGalleryPressed() {
-    try{
-      setState(() {
-        _isImageViewVisible = false;
-      });
-    }catch(_) {}
-  }
-
-  void _onPageChanged(int index) {
-    setState(() {});
-  }
-
-  Widget _imageGalleryLoadingBuilder(
-      BuildContext context,
-      ImageChunkEvent? event,
-      ) {
-    return Center(
-      child: SizedBox(
-        width: 20,
-        height: 20,
-        child: CircularProgressIndicator(
-          value: event == null || event.expectedTotalBytes == null
-              ? 0
-              : event.cumulativeBytesLoaded / event.expectedTotalBytes!,
-        ),
-      ),
-    );
   }
 }
 

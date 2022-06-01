@@ -227,7 +227,7 @@ class Chat extends StatefulWidget {
   final void Function(BuildContext context, types.Message)? onMessageStatusTap;
 
   /// See [Message.onMessageTap]
-  final void Function(BuildContext context, types.Message)? onMessageTap;
+  final void Function(BuildContext context, types.Message, bool isRepliedMessage)? onMessageTap;
 
   /// See [Message.onMessageVisibilityChanged]
   final void Function(types.Message, bool visible)? onMessageVisibilityChanged;
@@ -300,8 +300,6 @@ class Chat extends StatefulWidget {
 class _ChatState extends State<Chat> {
   List<Object> _chatMessages = [];
   List<PreviewImage> _gallery = [];
-  int _imageViewIndex = 0;
-  bool _isImageViewVisible = false;
   late void Function() hideEmoji;
   types.Message? _repliedMessage;
   late Function({types.TextMessage? editContent}) requestFocusTextField;
@@ -370,52 +368,6 @@ class _ChatState extends State<Chat> {
             textAlign: TextAlign.center,
           ),
         );
-  }
-
-  Widget _imageGalleryBuilder() {
-    return Dismissible(
-      key: const Key('photo_view_gallery'),
-      direction: DismissDirection.down,
-      onDismissed: (direction) => _onCloseGalleryPressed(),
-      child: Stack(
-        children: [
-          PhotoViewGallery.builder(
-            builder: (BuildContext context, int index) =>
-                PhotoViewGalleryPageOptions(
-              imageProvider: Conditional().getProvider(_gallery[index].uri),
-            ),
-            itemCount: _gallery.length,
-            loadingBuilder: (context, event) =>
-                _imageGalleryLoadingBuilder(context, event),
-            onPageChanged: _onPageChanged,
-            pageController: PageController(initialPage: _imageViewIndex),
-            scrollPhysics: const ClampingScrollPhysics(),
-          ),
-          Positioned(
-            right: 5,
-            top: 0,
-            child: CloseButton(
-              color: Colors.white,
-              onPressed: _onCloseGalleryPressed,
-            ),
-          ),
-          Positioned(
-            right: 45,
-            top: 0,
-            child: IconButton(
-              icon: const Icon(Icons.download_rounded),
-              color: Colors.white,
-              tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
-              onPressed: () async {
-                showLoading();
-                await download(context,_gallery[_imageViewIndex].uri,'${DateTime.now().toUtc().millisecond}.jpeg',isSaveGallery: true);
-                Navigator.of(context).pop();
-              },
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
   Future showLoading() async {
@@ -506,12 +458,12 @@ class _ChatState extends State<Chat> {
         onMessageLongPress: widget.onMessageLongPress,
         onMessageStatusLongPress: widget.onMessageStatusLongPress,
         onMessageStatusTap: widget.onMessageStatusTap,
-        onMessageTap: (context, tappedMessage) {
+        onMessageTap: (context, tappedMessage, isRepliedMessage) {
           if (tappedMessage is types.ImageMessage &&
-              widget.disableImageGallery != true) {
+              widget.disableImageGallery != true && !isRepliedMessage) {
             _onImagePressed(tappedMessage);
           }
-          widget.onMessageTap?.call(context, tappedMessage);
+          widget.onMessageTap?.call(context, tappedMessage, isRepliedMessage);
         },
         onMessageVisibilityChanged: widget.onMessageVisibilityChanged,
         onPreviewDataFetched: _onPreviewDataFetched,
@@ -535,25 +487,11 @@ class _ChatState extends State<Chat> {
     });
   }
 
-  void _onCloseGalleryPressed() {
-    setState(() {
-      _isImageViewVisible = false;
-    });
-  }
-
-  void _onImagePressed(types.ImageMessage message) {
-    setState(() {
-      _imageViewIndex = _gallery.indexWhere(
-        (element) => element.id == message.id && element.uri == message.uri,
-      );
-      _isImageViewVisible = true;
-    });
-  }
-
-  void _onPageChanged(int index) {
-    setState(() {
-      _imageViewIndex = index;
-    });
+  void _onImagePressed(types.ImageMessage message) async {
+    showLoading();
+    String? result = await download(context,_gallery[0].uri,'${DateTime.now().toUtc().millisecond}.jpeg');
+    Navigator.of(context).pop();
+    openFile(result,context,'image/');
   }
 
   void _onPreviewDataFetched(
@@ -651,7 +589,6 @@ class _ChatState extends State<Chat> {
                     ],
                   ),
                 ),
-                if (_isImageViewVisible) _imageGalleryBuilder(),
               ],
             ),
           ),

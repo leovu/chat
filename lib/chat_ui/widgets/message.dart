@@ -113,7 +113,7 @@ class Message extends StatelessWidget {
   final void Function(BuildContext context, types.Message)? onMessageStatusTap;
 
   /// Called when user taps on any message
-  final void Function(BuildContext context, types.Message)? onMessageTap;
+  final void Function(BuildContext context, types.Message, bool isRepliedMessage)? onMessageTap;
 
   /// Called when the message's visibility changes
   final void Function(types.Message, bool visible)? onMessageVisibilityChanged;
@@ -461,7 +461,7 @@ class Message extends StatelessWidget {
                                 onMessageDoubleTap?.call(context, message),
                             onLongPress: () =>
                                 onMessageLongPress?.call(context, message),
-                            onTap: () => onMessageTap?.call(context, message),
+                            onTap: () => onMessageTap?.call(context, message, false),
                             child: onMessageVisibilityChanged != null
                                 ? VisibilityDetector(
                               key: Key(message.id),

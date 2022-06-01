@@ -59,7 +59,7 @@ class Input extends StatefulWidget {
   final void Function()? onCameraPressed;
 
   /// See [Message.onMessageTap]
-  final void Function(BuildContext context, types.Message)? onMessageTap;
+  final void Function(BuildContext context, types.Message, bool isRepliedMessage)? onMessageTap;
 
   final bool isGroup;
   final List<People>? people;

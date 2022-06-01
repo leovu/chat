@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:chat/chat_screen/local_file_view_page.dart';
 import 'package:chat/chat_screen/media_screen.dart';
+import 'package:chat/chat_ui/widgets/photo_view.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:dio/dio.dart';
@@ -116,7 +117,7 @@ void saveGallery(BuildContext context, String? path) {
 
 bool isImage(String path) {
   final mimeType = lookupMimeType(path) ?? '';
-  return mimeType.startsWith('image/');
+  return mimeType.startsWith('image/') || path == 'image/';
 }
 bool isAudio(String path) {
   final mimeType = lookupMimeType(path) ?? '';
@@ -127,7 +128,7 @@ bool isVideo(String path) {
   return mimeType.startsWith('video/');
 }
 
-Future<String?> openFile(String? result,BuildContext context,String fileName) async {
+void openFile(String? result,BuildContext context,String fileName) async {
   if(result != null) {
     List<String> documentFilesType = ['docx', 'doc', 'xlsx', 'xls', 'pptx', 'ppt', 'pdf', 'txt'];
     final mimeType = fileName.split('.').last.toLowerCase();
@@ -135,24 +136,22 @@ Future<String?> openFile(String? result,BuildContext context,String fileName) as
       Navigator.of(context).push(MaterialPageRoute(builder: (ctx) {
         return LocalFileViewerPage(filePath: result,title: fileName,);
       }));
-      return null;
     }
     else if(isAudio(mimeType)) {
       Navigator.of(context).push(MaterialPageRoute(builder: (ctx) {
         return MediaScreen(filePath: result,title: fileName);
       }));
-      return null;
     }
     else if(isVideo(mimeType)) {
       await OpenFile.open(result);
-      return null;
     }
     else if(isImage(mimeType)) {
-      return result;
+      Navigator.of(context).push(MaterialPageRoute(builder: (ctx) {
+        return PhotoScreen(imageViewed: result);
+      }));
     }
     else {
       await OpenFile.open(result);
-      return null;
     }
   }
   return null;

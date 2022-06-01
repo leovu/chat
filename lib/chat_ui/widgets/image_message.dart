@@ -29,7 +29,7 @@ class ImageMessage extends StatefulWidget {
   final bool showUserNameForRepliedMessage;
 
   /// See [Message.onMessageTap]
-  final void Function(BuildContext context, types.Message)? onMessageTap;
+  final void Function(BuildContext context, types.Message, bool isRepliedMessage)? onMessageTap;
 
   @override
   _ImageMessageState createState() => _ImageMessageState();

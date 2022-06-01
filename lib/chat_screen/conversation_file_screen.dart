@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:chat/chat_screen/by_time_search_list.dart';
-import 'package:chat/chat_ui/conditional/conditional.dart';
 import 'package:chat/chat_ui/widgets/link_preview.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/download.dart';
@@ -15,9 +14,6 @@ import 'package:chat/data_model/chat_message.dart' as c;
 import 'package:chat/data_model/room.dart' as r;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:intl/intl.dart';
-import 'package:open_file/open_file.dart';
-import 'package:photo_view/photo_view_gallery.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class ConversationFileScreen extends StatefulWidget {
   final c.ChatMessage? chatMessage;
@@ -34,9 +30,7 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
   late TabController _tabController;
   late TextEditingController _searchController;
   late FocusNode _searchNode;
-  bool _isImageViewVisible = false;
   int _activeTabIndex = 0;
-  String? imageViewed;
   @override
   void initState() {
     _tabController = TabController(length: 3, vsync: this);
@@ -73,9 +67,7 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
           color: Colors.black,
         ),
       ),
-      body: _isImageViewVisible
-          ? _imageGalleryBuilder()
-          : SafeArea(
+      body: SafeArea(
               child: Column(
                 children: [
                   Container(
@@ -186,12 +178,11 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
             crossAxisCount: 3, crossAxisSpacing: 8, mainAxisSpacing: 4),
         itemBuilder: (BuildContext context, int position) {
           return InkWell(
-            onTap: () {
-              setState(() {
-                _isImageViewVisible = true;
-                imageViewed =
-                    '${HTTPConnection.domain}api/images/${widget.chatMessage?.room?.images?[position].content}/512';
-              });
+            onTap: () async {
+              showLoading();
+              String? result = await download(context,'${HTTPConnection.domain}api/images/${widget.chatMessage?.room?.images?[position].content}/512','${DateTime.now().toUtc().millisecond}.jpeg');
+              Navigator.of(context).pop();
+              openFile(result,context,'image/');
             },
             child: CachedNetworkImage(
               imageUrl:
@@ -218,13 +209,7 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
               var message = widget.chatMessage?.room?.files?[position].file!;
               String? result = await download(context,'${HTTPConnection.domain}api/files/${message!.shieldedID}','${widget.chatMessage?.room?.files?[position].date}_${message.name}');
               Navigator.of(context).pop();
-              String? dataResult = await openFile(result,context,message.name ?? AppLocalizations.text(LangKey.file));
-              if(dataResult != null) {
-                setState(() {
-                  _isImageViewVisible = true;
-                  imageViewed = result;
-                });
-              }
+              openFile(result,context,message.name ?? AppLocalizations.text(LangKey.file));
             },
             child: Column(
               children: [
@@ -305,69 +290,6 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
             ],
           );
         });
-  }
-
-  Widget _imageGalleryBuilder() {
-    return imageViewed != null
-        ? Dismissible(
-            key: const Key('photo_view_gallery'),
-            direction: DismissDirection.down,
-            onDismissed: (direction) => _onCloseGalleryPressed(),
-            child: Stack(
-              children: [
-                PhotoViewGallery.builder(
-                  builder: (BuildContext context, int index) =>
-                      PhotoViewGalleryPageOptions(
-                    imageProvider: Conditional().getProvider(imageViewed!),
-                  ),
-                  itemCount: 1,
-                  loadingBuilder: (context, event) =>
-                      _imageGalleryLoadingBuilder(context, event),
-                  onPageChanged: _onPageChanged,
-                  pageController: PageController(initialPage: 0),
-                  scrollPhysics: const ClampingScrollPhysics(),
-                ),
-                Positioned(
-                  right: 16,
-                  top: 56,
-                  child: CloseButton(
-                    color: Colors.white,
-                    onPressed: _onCloseGalleryPressed,
-                  ),
-                ),
-              ],
-            ),
-          )
-        : Container();
-  }
-
-  void _onCloseGalleryPressed() {
-    try {
-      setState(() {
-        _isImageViewVisible = false;
-      });
-    } catch (_) {}
-  }
-
-  void _onPageChanged(int index) {
-    setState(() {});
-  }
-
-  Widget _imageGalleryLoadingBuilder(
-    BuildContext context,
-    ImageChunkEvent? event,
-  ) {
-    return Center(
-      child: SizedBox(
-        width: 20,
-        height: 20,
-        child: CircularProgressIndicator(
-          value: event == null || event.expectedTotalBytes == null
-              ? 0
-              : event.cumulativeBytesLoaded / event.expectedTotalBytes!,
-        ),
-      ),
-    );
   }
 
   Widget searchOptionItem(String title, int type , {bool dateType = false}) {

@@ -23,7 +23,7 @@ class FileMessage extends StatelessWidget {
   final bool showUserNameForRepliedMessage;
 
   /// See [Message.onMessageTap]
-  final void Function(BuildContext context, types.Message)? onMessageTap;
+  final void Function(BuildContext context, types.Message, bool isRepliedMessage)? onMessageTap;
 
   @override
   Widget build(BuildContext context) {

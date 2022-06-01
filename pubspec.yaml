@@ -43,7 +43,6 @@ dependencies:
   dio: ^4.0.6
   flutter_file_view: ^2.0.5
   audioplayers: ^0.20.1
-  video_player: ^2.4.0
   rich_text_controller: ^1.4.0
   badges: ^2.0.2
   url_launcher: ^6.1.2

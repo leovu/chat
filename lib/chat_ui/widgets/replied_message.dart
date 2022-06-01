@@ -28,7 +28,7 @@ class RepliedMessage extends StatelessWidget {
   final bool showUserNames;
 
   /// See [Message.onMessageTap]
-  final void Function(BuildContext context, types.Message)? onMessageTap;
+  final void Function(BuildContext context, types.Message, bool isRepliedMessage)? onMessageTap;
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +66,7 @@ class RepliedMessage extends StatelessWidget {
         if ((_imageUri != null || _isFile) &&
             repliedMessage != null &&
             onMessageTap != null) {
-          onMessageTap!(context, repliedMessage!);
+          onMessageTap!(context, repliedMessage!,true);
         } else {
           showDialog(
             context: context,

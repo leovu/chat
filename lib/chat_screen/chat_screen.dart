@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/chat_screen/conversation_information_screen.dart';
 import 'package:chat/chat_screen/forward_screen.dart';
-import 'package:chat/chat_ui/conditional/conditional.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/download.dart';
 import 'package:chat/connection/http_connection.dart';
@@ -25,7 +24,6 @@ import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:chat/connection/app_lifecycle.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import 'package:photo_view/photo_view_gallery.dart';
 import 'package:flutter/services.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -54,8 +52,6 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   double progress = 0;
   late void Function() focusTextField;
   bool isInitScreen = true;
-  bool _isImageViewVisible = false;
-  String? imageViewed;
   @override
   void initState() {
     super.initState();
@@ -422,27 +418,37 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
             backgroundColor: Colors.transparent,
             children: <Widget>[
               Center(
-                child: Platform.isAndroid ? const CircularProgressIndicator() : const CupertinoActivityIndicator(),
+                child: Platform.isAndroid ? const CircularProgressIndicator(color: Colors.white,) : const CupertinoActivityIndicator(color: Colors.white,),
               )
             ],
           );
         });
   }
 
-  void _handleMessageTap(BuildContext context, types.Message message) async {
-    if (message is types.FileMessage
-        && message.status != Status.sending
-        && message.status != Status.error)
-    {
-      showLoading();
-      String? result = await download(context,message.uri,'${message.createdAt}_${message.name}');
-      Navigator.of(context).pop();
-      String? dataResult = await openFile(result,context,message.name);
-      if(dataResult != null) {
-        setState(() {
-          _isImageViewVisible = true;
-          imageViewed = result;
-        });
+  void _handleMessageTap(BuildContext cxt, types.Message message, bool isRepliedMessage) async {
+    if(isRepliedMessage) {
+      if(message is types.FileMessage) {
+        showLoading();
+        String? result = await download(context,message.uri,'${message.createdAt}_${message.name}');
+        Navigator.of(context).pop();
+        openFile(result,context,message.name);
+      }
+      if(message is types.ImageMessage) {
+        showLoading();
+        String? result = await download(context,message.uri,'${DateTime.now().toUtc().millisecond}.jpeg');
+        Navigator.of(context).pop();
+        openFile(result,context,'image/');
+      }
+    }
+    else {
+      if (message is types.FileMessage
+          && message.status != Status.sending
+          && message.status != Status.error)
+      {
+        showLoading();
+        String? result = await download(context,message.uri,'${message.createdAt}_${message.name}');
+        Navigator.of(context).pop();
+        openFile(result,context,message.name);
       }
     }
   }
@@ -804,10 +810,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         floatingActionButtonLocation:
         FloatingActionButtonLocation.centerFloat,
         appBar: !_isSearchMessage ? _defaultAppbar() : _searchAppBar(),
-        body:
-        _isImageViewVisible
-            ? _imageGalleryBuilder()
-            : SafeArea(
+        body: SafeArea(
           bottom: false,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1295,82 +1298,6 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       }catch(_){}
     }catch(_){
     }
-  }
-  Widget _imageGalleryBuilder() {
-    return imageViewed != null
-        ? Dismissible(
-      key: const Key('photo_view_gallery'),
-      direction: DismissDirection.down,
-      onDismissed: (direction) => _onCloseGalleryPressed(),
-      child: Stack(
-        children: [
-          PhotoViewGallery.builder(
-            builder: (BuildContext context, int index) =>
-                PhotoViewGalleryPageOptions(
-                  imageProvider: Conditional().getProvider(imageViewed!),
-                ),
-            itemCount: 1,
-            loadingBuilder: (context, event) =>
-                _imageGalleryLoadingBuilder(context, event),
-            onPageChanged: _onPageChanged,
-            pageController: PageController(initialPage: 0),
-            scrollPhysics: const ClampingScrollPhysics(),
-          ),
-          Positioned(
-            right: 5,
-            top: 0,
-            child: CloseButton(
-              color: Colors.white,
-              onPressed: _onCloseGalleryPressed,
-            ),
-          ),
-          Positioned(
-            right: 45,
-            top: 0,
-            child: IconButton(
-              icon: const Icon(Icons.download_rounded),
-              color: Colors.white,
-              tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
-              onPressed: () async {
-                showLoading();
-                await download(context,imageViewed!,'${DateTime.now().toUtc().millisecond}.jpeg',isSaveGallery: true);
-                Navigator.of(context).pop();
-              },
-            ),
-          ),
-        ],
-      ),
-    )
-        : Container();
-  }
-
-  void _onCloseGalleryPressed() {
-    try{
-      setState(() {
-        _isImageViewVisible = false;
-      });
-    }catch(_) {}
-  }
-
-  void _onPageChanged(int index) {
-    setState(() {});
-  }
-
-  Widget _imageGalleryLoadingBuilder(
-      BuildContext context,
-      ImageChunkEvent? event,
-      ) {
-    return Center(
-      child: SizedBox(
-        width: 20,
-        height: 20,
-        child: CircularProgressIndicator(
-          value: event == null || event.expectedTotalBytes == null
-              ? 0
-              : event.cumulativeBytesLoaded / event.expectedTotalBytes!,
-        ),
-      ),
-    );
   }
 
   Widget checkTag(String message) {

@@ -1,20 +1,15 @@
 import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:chat/chat_ui/conditional/conditional.dart';
 import 'package:chat/chat_ui/widgets/link_preview.dart';
 import 'package:chat/connection/download.dart';
+import 'package:chat/connection/http_connection.dart';
 import 'package:chat/data_model/chat_message.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/data_model/room.dart' as r;
-import 'package:open_file/open_file.dart';
-import 'package:photo_view/photo_view_gallery.dart';
-import 'package:url_launcher/url_launcher.dart';
-
-import '../connection/http_connection.dart';
 
 class DetailGroupImageScreen extends StatefulWidget {
   final r.People people;
@@ -27,8 +22,6 @@ class DetailGroupImageScreen extends StatefulWidget {
 
 class _State extends State<DetailGroupImageScreen>
     with SingleTickerProviderStateMixin {
-  bool _isImageViewVisible = false;
-  String? imageViewed;
   @override
   void initState() {
     super.initState();
@@ -58,9 +51,7 @@ class _State extends State<DetailGroupImageScreen>
           color: Colors.black,
         ),
       ),
-      body:  _isImageViewVisible
-          ? _imageGalleryBuilder()
-          : SafeArea(
+      body: SafeArea(
         child: widget.tabbarIndex == 0 ? _images() : widget.tabbarIndex == 1 ? _files() : _links(),
       ),
     );
@@ -76,12 +67,11 @@ class _State extends State<DetailGroupImageScreen>
             crossAxisCount: 3, crossAxisSpacing: 8, mainAxisSpacing: 4),
         itemBuilder: (BuildContext context, int position) {
           return InkWell(
-            onTap: () {
-              setState(() {
-                _isImageViewVisible = true;
-                imageViewed =
-                '${HTTPConnection.domain}api/images/${widget.images?[position].content}/512';
-              });
+            onTap: () async {
+              showLoading();
+              String? result = await download(context,'${HTTPConnection.domain}api/images/${widget.images?[position].content}/512','${DateTime.now().toUtc().millisecond}.jpeg');
+              Navigator.of(context).pop();
+              openFile(result,context,'image/');
             },
             child: CachedNetworkImage(
               imageUrl:
@@ -107,13 +97,7 @@ class _State extends State<DetailGroupImageScreen>
               var message = widget.images?[position].file!;
               String? result = await download(context,'${HTTPConnection.domain}api/files/${message!.shieldedID}','${widget.images?[position].date}_${message.name}');
               Navigator.of(context).pop();
-              String? dataResult = await openFile(result,context,message.name ?? AppLocalizations.text(LangKey.file));
-              if(dataResult != null) {
-                setState(() {
-                  _isImageViewVisible = true;
-                  imageViewed = result;
-                });
-              }
+              openFile(result,context,message.name ?? AppLocalizations.text(LangKey.file));
             },
             child: Column(
               children: [
@@ -192,81 +176,5 @@ class _State extends State<DetailGroupImageScreen>
             ],
           );
         });
-  }
-  Widget _imageGalleryBuilder() {
-    return imageViewed != null
-        ? Dismissible(
-      key: const Key('photo_view_gallery'),
-      direction: DismissDirection.down,
-      onDismissed: (direction) => _onCloseGalleryPressed(),
-      child: Stack(
-        children: [
-          PhotoViewGallery.builder(
-            builder: (BuildContext context, int index) =>
-                PhotoViewGalleryPageOptions(
-                  imageProvider: Conditional().getProvider(imageViewed!),
-                ),
-            itemCount: 1,
-            loadingBuilder: (context, event) =>
-                _imageGalleryLoadingBuilder(context, event),
-            onPageChanged: _onPageChanged,
-            pageController: PageController(initialPage: 0),
-            scrollPhysics: const ClampingScrollPhysics(),
-          ),
-          Positioned(
-            right: 5,
-            top: 0,
-            child: CloseButton(
-              color: Colors.white,
-              onPressed: _onCloseGalleryPressed,
-            ),
-          ),
-          Positioned(
-            right: 45,
-            top: 0,
-            child: IconButton(
-              icon: const Icon(Icons.download_rounded),
-              color: Colors.white,
-              tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
-              onPressed: () async {
-                showLoading();
-                await download(context,imageViewed!,'${DateTime.now().toUtc().millisecond}.jpeg',isSaveGallery: true);
-                Navigator.of(context).pop();
-              },
-            ),
-          ),
-        ],
-      ),
-    )
-        : Container();
-  }
-
-  void _onCloseGalleryPressed() {
-    try{
-      setState(() {
-        _isImageViewVisible = false;
-      });
-    }catch(_) {}
-  }
-
-  void _onPageChanged(int index) {
-    setState(() {});
-  }
-
-  Widget _imageGalleryLoadingBuilder(
-      BuildContext context,
-      ImageChunkEvent? event,
-      ) {
-    return Center(
-      child: SizedBox(
-        width: 20,
-        height: 20,
-        child: CircularProgressIndicator(
-          value: event == null || event.expectedTotalBytes == null
-              ? 0
-              : event.cumulativeBytesLoaded / event.expectedTotalBytes!,
-        ),
-      ),
-    );
   }
 }
