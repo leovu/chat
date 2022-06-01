@@ -34,18 +34,34 @@ class ChatConnection {
   static late Function(Map<String, dynamic> message) homeScreenNotificationHandler;
   static late Function(Map<String, dynamic> message) chatScreenNotificationHandler;
   static ValueNotifier<String> notificationNotifier = ValueNotifier('0');
-  static Future<bool>init(String email,String password) async {
+  static Future<bool>init(String email,String password,{String? token}) async {
     HttpOverrides.global = MyHttpOverrides();
-    ResponseData responseData = await connection.post('api/login', {'email':email,'password':password});
-    if(responseData.isSuccess) {
-      user = User(email:email,password:password,token:responseData.data['token']);
-      Map<String, dynamic> payload = Jwt.parseJwt(responseData.data['token']);
+    String? resultToken;
+    if(token != null) {
+      resultToken = token;
+    }
+    else {
+      resultToken = await login(email, password);
+    }
+    if(resultToken != null) {
+      user = User(email:email,password:password,token:resultToken);
+      Map<String, dynamic> payload = Jwt.parseJwt(resultToken);
       user!.id = payload['id'];
       user!.firstName = payload['firstName'];
       user!.lastName = payload['lastName'];
       streamSocket.connectAndListen(streamSocket,user!);
+      return true;
     }
-    return responseData.isSuccess;
+    else {
+      return false;
+    }
+  }
+  static Future<String?> login(String email,String password) async {
+    ResponseData responseData = await connection.post('api/login', {'email':email,'password':password});
+    if(responseData.isSuccess) {
+      return responseData.data['token'];
+    }
+    return null;
   }
   static Future<String?>token(String email,String password) async {
     HttpOverrides.global = MyHttpOverrides();

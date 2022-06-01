@@ -20,10 +20,10 @@ class Chat {
     HTTPConnection.domain = domain;
     return await ChatConnection.token(email, password);
   }
-  static Future<bool>connectSocket(BuildContext context, String email, String password, String appIcon, {String? domain}) async {
+  static Future<bool>connectSocket(BuildContext context, String email, String password, String appIcon, {String? domain, String? token}) async {
     ChatConnection.buildContext = context;
     ChatConnection.appIcon = appIcon;
-    bool result = await ChatConnection.init(email, password);
+    bool result = await ChatConnection.init(email, password, token: token);
     return result;
   }
   static disconnectSocket() {
@@ -31,7 +31,7 @@ class Chat {
   }
   static open(BuildContext context, String email, String password,
       String appIcon,Locale locale,
-      { String? domain,
+      { String? domain, String? token,
         Map<String, dynamic>? notificationData,
         List<Map<String,dynamic>>? addOnModules}) async {
     showLoading(context);
@@ -47,7 +47,7 @@ class Chat {
       ChatConnection.initialData = notificationData;
     }
     AppLocalizations(ChatConnection.locale).load();
-    bool result = await connectSocket(context,email,password,appIcon,domain:domain);
+    bool result = await connectSocket(context,email,password,appIcon,domain:domain,token: token);
     Navigator.of(context).pop();
     if(result) {
       await Navigator.of(context,rootNavigator: true).push(
