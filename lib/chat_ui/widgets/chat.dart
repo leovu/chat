@@ -9,12 +9,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:chat/chat_ui/widgets/inherited_l10n.dart';
 import 'package:intl/intl.dart';
-import 'package:photo_view/photo_view_gallery.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:swipeable_tile/swipeable_tile.dart';
 import '../chat_l10n.dart';
 import '../chat_theme.dart';
-import '../conditional/conditional.dart';
 import '../models/date_header.dart';
 import '../models/emoji_enlargement_behavior.dart';
 import '../models/message_spacer.dart';
@@ -299,7 +297,6 @@ class Chat extends StatefulWidget {
 /// [Chat] widget state
 class _ChatState extends State<Chat> {
   List<Object> _chatMessages = [];
-  List<PreviewImage> _gallery = [];
   late void Function() hideEmoji;
   types.Message? _repliedMessage;
   late Function({types.TextMessage? editContent}) requestFocusTextField;
@@ -342,7 +339,6 @@ class _ChatState extends State<Chat> {
         timeFormat: widget.timeFormat
       );
       _chatMessages = result[0] as List<Object>;
-      _gallery = result[1] as List<PreviewImage>;
       for (var i = 0; i < _chatMessages.length; i++) {
         if (_chatMessages[i] is DateHeader) {
         } else if (_chatMessages[i] is MessageSpacer) {
@@ -385,23 +381,6 @@ class _ChatState extends State<Chat> {
             ],
           );
         });
-  }
-
-  Widget _imageGalleryLoadingBuilder(
-    BuildContext context,
-    ImageChunkEvent? event,
-  ) {
-    return Center(
-      child: SizedBox(
-        width: 20,
-        height: 20,
-        child: CircularProgressIndicator(
-          value: event == null || event.expectedTotalBytes == null
-              ? 0
-              : event.cumulativeBytesLoaded / event.expectedTotalBytes!,
-        ),
-      ),
-    );
   }
 
   Widget _messageBuilder(Object object, BoxConstraints constraints) {
@@ -488,10 +467,7 @@ class _ChatState extends State<Chat> {
   }
 
   void _onImagePressed(types.ImageMessage message) async {
-    showLoading();
-    String? result = await download(context,_gallery[0].uri,'${DateTime.now().toUtc().millisecond}.jpeg');
-    Navigator.of(context).pop();
-    openFile(result,context,'image/');
+    openImage(context,message.uri);
   }
 
   void _onPreviewDataFetched(

@@ -179,10 +179,7 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
         itemBuilder: (BuildContext context, int position) {
           return InkWell(
             onTap: () async {
-              showLoading();
-              String? result = await download(context,'${HTTPConnection.domain}api/images/${widget.chatMessage?.room?.images?[position].content}/512','${DateTime.now().toUtc().millisecond}.jpeg');
-              Navigator.of(context).pop();
-              openFile(result,context,'image/');
+              openImage(context,'${HTTPConnection.domain}api/images/${widget.chatMessage?.room?.images?[position].content}/512');
             },
             child: CachedNetworkImage(
               imageUrl:

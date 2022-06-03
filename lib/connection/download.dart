@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:chat/chat_screen/local_file_view_page.dart';
 import 'package:chat/chat_screen/media_screen.dart';
 import 'package:chat/chat_ui/widgets/photo_view.dart';
+import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:dio/dio.dart';
@@ -58,7 +59,7 @@ Future<String?> download(BuildContext context,String url,String filename, {bool 
       String urlPath = '${directory.path}/$filename';
       bool checkAvailable = await io.File(urlPath).exists();
       if(checkAvailable) {
-        if(isSaveGallery) saveGallery(context, urlPath);
+        if(isSaveGallery) saveGallery(urlPath);
         return urlPath;
       }
       await Dio().download(
@@ -70,11 +71,11 @@ Future<String?> download(BuildContext context,String url,String filename, {bool 
             sourceFilePath: urlPath);
         final filePath =
         await FlutterFileDialog.saveFile(params: params);
-        if(isSaveGallery) saveGallery(context, filePath);
+        if(isSaveGallery) saveGallery(filePath);
         return filePath;
       }
       else {
-        if(isSaveGallery) saveGallery(context,urlPath);
+        if(isSaveGallery) saveGallery(urlPath);
         return urlPath;
       }
     }
@@ -86,16 +87,16 @@ Future<String?> download(BuildContext context,String url,String filename, {bool 
   }
 }
 
-void saveGallery(BuildContext context, String? path) {
+void saveGallery(String? path) {
   if(path != null) {
     if(isImage(path)) {
       GallerySaver.saveImage(path).then((result) {
         if(result == true) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          ScaffoldMessenger.of(ChatConnection.buildContext).showSnackBar(SnackBar(
             content: Text(AppLocalizations.text(LangKey.downloadSuccess)),duration: const Duration(seconds: 2),));
         }
         else {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          ScaffoldMessenger.of(ChatConnection.buildContext).showSnackBar(SnackBar(
             content: Text(AppLocalizations.text(LangKey.downloadFailed)),duration: const Duration(seconds: 2),));
         }
       });
@@ -103,11 +104,11 @@ void saveGallery(BuildContext context, String? path) {
     else if(isVideo(path)) {
       GallerySaver.saveVideo(path).then((result) {
         if(result == true) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          ScaffoldMessenger.of(ChatConnection.buildContext).showSnackBar(SnackBar(
             content: Text(AppLocalizations.text(LangKey.downloadSuccess)),duration: const Duration(seconds: 2),));
         }
         else {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          ScaffoldMessenger.of(ChatConnection.buildContext).showSnackBar(SnackBar(
             content: Text(AppLocalizations.text(LangKey.downloadFailed)),duration: const Duration(seconds: 2),));
         }
       });
@@ -155,4 +156,10 @@ void openFile(String? result,BuildContext context,String fileName) async {
     }
   }
   return null;
+}
+
+void openImage(BuildContext context, String url) {
+  Navigator.of(context).push(MaterialPageRoute(builder: (ctx) {
+    return PhotoScreen(imageViewed: url);
+  }));
 }

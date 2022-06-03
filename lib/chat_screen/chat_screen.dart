@@ -434,10 +434,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         openFile(result,context,message.name);
       }
       if(message is types.ImageMessage) {
-        showLoading();
-        String? result = await download(context,message.uri,'${DateTime.now().toUtc().millisecond}.jpeg');
-        Navigator.of(context).pop();
-        openFile(result,context,'image/');
+        openImage(context,message.uri);
       }
     }
     else {

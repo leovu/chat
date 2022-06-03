@@ -331,10 +331,7 @@ class _State extends State<ByTimeResultScreen>
   Widget widgetCacheImage(String content) {
     return InkWell(
       onTap: () async {
-        showLoading();
-        String? result = await download(context,'${HTTPConnection.domain}api/images/$content/512','${DateTime.now().toUtc().millisecond}.jpeg');
-        Navigator.of(context).pop();
-        openFile(result,context,'image/');
+        openImage(context,'${HTTPConnection.domain}api/images/$content/512');
       },
       child: SizedBox(
         width: MediaQuery.of(context).size.width * 0.3,

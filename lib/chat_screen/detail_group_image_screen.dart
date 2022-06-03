@@ -68,10 +68,7 @@ class _State extends State<DetailGroupImageScreen>
         itemBuilder: (BuildContext context, int position) {
           return InkWell(
             onTap: () async {
-              showLoading();
-              String? result = await download(context,'${HTTPConnection.domain}api/images/${widget.images?[position].content}/512','${DateTime.now().toUtc().millisecond}.jpeg');
-              Navigator.of(context).pop();
-              openFile(result,context,'image/');
+              openImage(context,'${HTTPConnection.domain}api/images/${widget.images?[position].content}/512');
             },
             child: CachedNetworkImage(
               imageUrl:
