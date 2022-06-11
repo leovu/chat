@@ -202,6 +202,12 @@ class _InputState extends State<Input> {
           if(text[text.length-1] == "@") {
             contents.add('');
           }
+          else {
+            List<String> splits = text.split(' ');
+            if(splits.last.contains('@')) {
+              contents.add(splits.last.substring(1));
+            }
+          }
         }
         else {
           final before = selection.textBefore(text);
@@ -658,6 +664,10 @@ class _InputState extends State<Input> {
         else {
           result += '${p.firstName}${p.lastName}';
         }
+      }
+      else {
+        List<String> splits = text.split(' ');
+        result = result.replaceFirst(splits.last, '@${p!.firstName}${p.lastName}');
       }
     }
     else {
