@@ -1,12 +1,12 @@
 import 'dart:math';
 import 'dart:ui';
+import 'package:chat/chat_ui/models/date_header.dart';
+import 'package:chat/chat_ui/models/emoji_enlargement_behavior.dart';
+import 'package:chat/chat_ui/models/message_spacer.dart';
+import 'package:chat/chat_ui/models/preview_image.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:intl/intl.dart';
-import './models/date_header.dart';
-import './models/emoji_enlargement_behavior.dart';
-import './models/message_spacer.dart';
-import './models/preview_image.dart';
 
 /// Swipe direction for swipe to reply feature
 enum ReplySwipeDirection {

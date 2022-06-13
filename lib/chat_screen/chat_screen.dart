@@ -311,40 +311,48 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     if(!permission) {
       return;
     }
-    final result = await ImagePicker().pickImage(
+    final listResult = await ImagePicker().pickMultiImage(
       imageQuality: 70,
       maxWidth: 1440,
-      source: ImageSource.gallery,
+      maxHeight: 1440
     );
-    if (result != null) {
-      final bytes = await result.readAsBytes();
-      final image = await decodeImageFromList(bytes);
-      String id = const Uuid().v4();
-      final message = types.ImageMessage(
-        author: _user,
-        createdAt: DateTime.now().millisecondsSinceEpoch,
-        height: image.height.toDouble(),
-        id: id,
-        name: result.name,
-        size: bytes.length,
-        uri: result.path,
-        width: image.width.toDouble(),
-        showStatus: true,
-        status: Status.sending,
-      );
-      _addMessage(message,id);
-      ChatConnection.uploadImage(context,data,_messages,id,result,data?.room,ChatConnection.user!.id).then((r) {
-        if(r == 'limit') {
-          try {
-            int index = _messages.indexOf(_messages.firstWhere((element) => element.id == id));
-            _messages.removeAt(index);
-          }catch(_) {}
+    if (listResult != null) {
+      if(listResult.isNotEmpty) {
+        for (var result in listResult) {
+          pickedImageFromMulti(result);
         }
-        if(mounted) {
-          setState(() {});
-        }
-      });
+      }
     }
+  }
+
+  void pickedImageFromMulti(XFile result) async {
+    final bytes = await result.readAsBytes();
+    final image = await decodeImageFromList(bytes);
+    String id = const Uuid().v4();
+    final message = types.ImageMessage(
+      author: _user,
+      createdAt: DateTime.now().millisecondsSinceEpoch,
+      height: image.height.toDouble(),
+      id: id,
+      name: result.name,
+      size: bytes.length,
+      uri: result.path,
+      width: image.width.toDouble(),
+      showStatus: true,
+      status: Status.sending,
+    );
+    _addMessage(message,id);
+    ChatConnection.uploadImage(context,data,_messages,id,result,data?.room,ChatConnection.user!.id).then((r) {
+      if(r == 'limit') {
+        try {
+          int index = _messages.indexOf(_messages.firstWhere((element) => element.id == id));
+          _messages.removeAt(index);
+        }catch(_) {}
+      }
+      if(mounted) {
+        setState(() {});
+      }
+    });
   }
 
   void _handleCameraSelection() async {
@@ -375,6 +383,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     final result = await ImagePicker().pickImage(
       imageQuality: 70,
       maxWidth: 1440,
+      maxHeight: 1440,
       source: ImageSource.camera,
     );
     if (result != null) {
