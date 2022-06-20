@@ -81,5 +81,6 @@
   "download": "Lưu",
   "copyAlert": "Đã sao chép vào bảng tạm",
   "downloadSuccess": "Hoàn tất tải xuống",
-  "downloadFailed": "Tải xuống thất bại"
+  "downloadFailed": "Tải xuống thất bại",
+  "draft": "Nháp"
 }

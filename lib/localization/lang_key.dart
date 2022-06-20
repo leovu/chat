@@ -85,4 +85,5 @@ class LangKey {
   static const String copyAlert = "copyAlert";
   static const String downloadSuccess = "downloadSuccess";
   static const String downloadFailed = "downloadFailed";
+  static const String draft = "draft";
 }

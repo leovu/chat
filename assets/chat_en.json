@@ -80,5 +80,6 @@
   "copy": "Copy",
   "download": "Download",
   "downloadSuccess": "Downloaded completed",
-  "downloadFailed": "Downloaded failed"
+  "downloadFailed": "Downloaded failed",
+  "draft": "Draft"
 }

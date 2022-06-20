@@ -673,6 +673,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       });
     }
   }
+
   _refreshMessage(dynamic cData) async {
     if(mounted) {
       if(widget.callback!= null) {

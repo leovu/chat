@@ -11,6 +11,7 @@ import 'package:chat/chat_ui/widgets/inherited_replied_message.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/download.dart';
 import 'package:chat/data_model/room.dart';
+import 'package:chat/draft.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
@@ -317,8 +318,18 @@ class _ChatState extends State<Chat> {
   @override
   void initState() {
     super.initState();
-
+    getDraft();
     didUpdateWidget(widget);
+  }
+
+  void getDraft() async {
+    Map<String,dynamic>? value = await getDraftInput(ChatConnection.roomId!);
+    if(value != null) {
+      if(value.containsKey('reply')) {
+        types.Message message = types.Message.fromJson(value['reply']);
+        reply(message);
+      }
+    }
   }
 
   @override
@@ -557,6 +568,7 @@ class _ChatState extends State<Chat> {
                             inputBuilder: (BuildContext context, void Function({types.TextMessage? editContent}) method) {
                               requestFocusTextField = method;
                             },
+                            repliedMessage: _repliedMessage,
                             onMessageTap: widget.onMessageTap,
                             builder: (void Function() method) {
                                 hideEmoji = method;

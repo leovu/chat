@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:chat/chat_screen/home_screen.dart';
 import 'package:chat/chat_ui/vietnamese_text.dart';
+import 'package:chat/chat_ui/widgets/chat_room_widget.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/chat_screen/chat_screen.dart';
 import 'package:chat/data_model/room.dart';
@@ -274,11 +275,7 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen> with AutomaticKee
                         Expanded(child:
                         Row(
                           children: [
-                            Expanded(child: AutoSizeText(
-                              '$author''${checkTag(_checkContent(data))}' ,
-                              textScaleFactor: 0.8,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,),),
+                            Expanded(child: ChatRoomWidget(roomId: data.sId!,content: '$author''${checkTag(_checkContent(data))}',),),
                             if(findUnread(data.messagesReceived) != '0') CircleAvatar(
                               radius: 18.0,
                               child: Text(
@@ -310,15 +307,12 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen> with AutomaticKee
     if(model.lastMessage?.type == 'image'){
       return AppLocalizations.text(LangKey.sentPicture);
     }
-
     if(model.lastMessage?.type == 'file'){
       return AppLocalizations.text(LangKey.sendFile);
     }
-
     if((model.lastMessage?.content ?? "").isEmpty){
       return AppLocalizations.text(LangKey.forwardMessage);
     }
-
     return model.lastMessage!.content!;
   }
   String findUnread(List<MessagesReceived>? messagesRecived) {

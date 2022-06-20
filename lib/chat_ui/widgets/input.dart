@@ -1,10 +1,12 @@
 import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:chat/chat_ui/models/send_button_visibility_mode.dart';
 import 'package:chat/chat_ui/widgets/sticker.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/data_model/room.dart';
+import 'package:chat/draft.dart';
 import 'package:rich_text_controller/rich_text_controller.dart';
 import 'package:chat/chat_ui/widgets/inherited_replied_message.dart';
 import 'package:chat/chat_ui/widgets/remove_edit_button.dart';
@@ -15,7 +17,6 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-import '../models/send_button_visibility_mode.dart';
 import 'attachment_button.dart';
 import 'chat.dart';
 import 'inherited_chat_theme.dart';
@@ -42,6 +43,7 @@ class Input extends StatefulWidget {
     required this.onSendPressed,
     this.onTextChanged,
     this.onTextFieldTap,
+    this.repliedMessage,
     required this.sendButtonVisibilityMode,
     required this.builder,
     required this.onCancelReplyPressed,
@@ -57,6 +59,8 @@ class Input extends StatefulWidget {
   /// See [AttachmentButton.onPressed]
   final void Function()? onAttachmentPressed;
   final void Function()? onCameraPressed;
+
+  final types.Message? repliedMessage;
 
   /// See [Message.onMessageTap]
   final void Function(BuildContext context, types.Message, bool isRepliedMessage)? onMessageTap;
@@ -123,6 +127,7 @@ class _InputState extends State<Input> {
       regex += '@${AppLocalizations.text(LangKey.all)}|';
       regex += "r'+\b'";
     }
+    getDraft();
     _textController = RichTextController(
       patternMatchMap: {
         RegExp(regex): TextStyle(color: Colors.blueAccent,backgroundColor: Colors.grey[200]),
@@ -138,10 +143,34 @@ class _InputState extends State<Input> {
     }
   }
 
+  void getDraft() async {
+    Map<String,dynamic>? value = await getDraftInput(ChatConnection.roomId!);
+    if(value != null) {
+      if(value.containsKey('text')) {
+        setState(() {
+          _textController.text = checkTag(value['text']);
+        });
+      }
+    }
+  }
+
   @override
   void dispose() {
     _inputFocusNode.dispose();
     _textController.dispose();
+    Map<String,dynamic> value = {};
+    if(_textController.value.text != '') {
+      value['text'] = _textController.value.text;
+    }
+    if(widget.repliedMessage != null) {
+      value['reply'] = widget.repliedMessage!.toJson();
+    }
+    if(value.isNotEmpty) {
+      saveDraftInput(value, ChatConnection.roomId!);
+    }
+    else {
+      deleteDraftInput(ChatConnection.roomId!);
+    }
     super.dispose();
   }
 
