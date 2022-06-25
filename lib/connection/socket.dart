@@ -3,21 +3,21 @@ import 'dart:io';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/data_model/user.dart';
-import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:socket_io_client/socket_io_client.dart' as io;
 import 'package:chat/data_model/chat_message.dart' as c;
 
 class StreamSocket {
   final _socketResponse = StreamController<String>();
   void Function(String) get addResponse => _socketResponse.sink.add;
   Stream<String> get getResponse => _socketResponse.stream;
-  IO.Socket? socket;
+  io.Socket? socket;
   void dispose() {
     _socketResponse.close();
   }
   String? id () {return socket!.id;}
   void connectAndListen(StreamSocket streamSocket, User user) {
-    socket = IO.io(HTTPConnection.domain,
-        IO.OptionBuilder().setTransports(['websocket'])
+    socket = io.io(HTTPConnection.domain,
+        io.OptionBuilder().setTransports(['websocket'])
             .build());
     socket!.onConnectError((data) {});
     socket!.on('authenticated', (data) {

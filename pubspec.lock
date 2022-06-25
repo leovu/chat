@@ -56,7 +56,7 @@ packages:
       name: cached_network_image
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.2.0"
+    version: "3.2.1"
   cached_network_image_platform_interface:
     dependency: transitive
     description:
@@ -147,7 +147,7 @@ packages:
       name: emoji_picker_flutter
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.2.1"
+    version: "1.3.0"
   equatable:
     dependency: transitive
     description:
@@ -269,7 +269,7 @@ packages:
       name: flutter_slidable
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.2.0"
+    version: "1.3.0"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -508,8 +508,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "0.0.9"
-      resolved-ref: aa132a29286697ab93ebe77deb89803fb9f28a18
+      ref: "1.0.1"
+      resolved-ref: "37f9bde10d9dd6be4108f3280a4f8a5a9d9efae1"
       url: "https://github.com/leovu/permission.git"
     source: git
     version: "0.0.1"
@@ -570,7 +570,7 @@ packages:
       name: scrollable_positioned_list
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.2.3"
+    version: "0.3.2"
   shared_preferences:
     dependency: "direct main"
     description:
@@ -815,5 +815,5 @@ packages:
     source: hosted
     version: "0.2.0+1"
 sdks:
-  dart: ">=2.17.0-0 <3.0.0"
-  flutter: ">=2.12.0"
+  dart: ">=2.17.0 <3.0.0"
+  flutter: ">=3.0.0"

@@ -33,7 +33,7 @@ class ForwardScreenState extends State<ForwardScreen> {
   void initState() {
     super.initState();
     _getRooms();
-    WidgetsBinding.instance?.addPostFrameCallback((_) async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       await Future.delayed(const Duration(milliseconds: 500));
       _focusContent.requestFocus();
     });
@@ -51,7 +51,7 @@ class ForwardScreenState extends State<ForwardScreen> {
       setState(() {});
     }
     else {
-      WidgetsBinding.instance?.addPostFrameCallback((_) async {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
         roomListData = await ChatConnection.roomList();
         _getRoomVisible();
         setState(() {});

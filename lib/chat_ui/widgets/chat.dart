@@ -291,7 +291,7 @@ class Chat extends StatefulWidget {
   final bool isSearchChat;
 
   @override
-  _ChatState createState() => _ChatState(chatController);
+  _ChatState createState() => _ChatState();
 }
 
 /// [Chat] widget state
@@ -300,11 +300,6 @@ class _ChatState extends State<Chat> {
   late void Function() hideEmoji;
   types.Message? _repliedMessage;
   late Function({types.TextMessage? editContent}) requestFocusTextField;
-
-  _ChatState(ChatController _controller) {
-    _controller.reply = reply;
-    _controller.edit = edit;
-  }
 
   void reply(types.Message? message) {
     setState(() {
@@ -318,6 +313,9 @@ class _ChatState extends State<Chat> {
   @override
   void initState() {
     super.initState();
+    widget.chatController.reply = reply;
+    widget.chatController.edit = edit;
+
     getDraft();
     didUpdateWidget(widget);
   }

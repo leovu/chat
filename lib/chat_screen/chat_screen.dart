@@ -592,7 +592,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     final index = _messages.indexWhere((element) => element.id == message.id);
     final updatedMessage = _messages[index].copyWith(previewData: previewData);
 
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       if(mounted) {
         setState(() {
           _messages[index] = updatedMessage;
@@ -666,7 +666,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       setState(() {});
     }
     else {
-      WidgetsBinding.instance?.addPostFrameCallback((_) async {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
         if(mounted) {
           setState(() {});
         }
@@ -1072,7 +1072,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                   setState(() {});
                 }
                 else {
-                  WidgetsBinding.instance?.addPostFrameCallback((_) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
                     searchChat();
                     if(_listIdSearch.isNotEmpty) {
                       scroll(_listIdSearch.first);
