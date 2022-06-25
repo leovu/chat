@@ -687,7 +687,7 @@
     },
     {
       "name": "visibility_detector",
-      "rootUri": "file:///Users/trungnt110/Documents/Project/Flutter/sdk/flutter/.pub-cache/hosted/pub.dartlang.org/visibility_detector-0.2.2",
+      "rootUri": "file:///Users/trungnt110/Documents/Project/Flutter/sdk/flutter/.pub-cache/hosted/pub.dartlang.org/visibility_detector-0.3.3",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
@@ -710,7 +710,7 @@
       "languageVersion": "2.16"
     }
   ],
-  "generated": "2022-06-25T06:36:11.852325Z",
+  "generated": "2022-06-25T06:42:44.651274Z",
   "generator": "pub",
   "generatorVersion": "2.17.0"
 }
