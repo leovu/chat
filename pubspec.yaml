@@ -18,7 +18,7 @@ dependencies:
   flutter_link_previewer: ^2.6.4
   flutter_lints: ^1.0.0
   file_picker: ^4.5.1
-  image_picker: ^0.8.5
+  image_picker: ^0.8.5+3
   mime: ^1.0.1
   open_file: ^3.2.1
   uuid: ^3.0.6
@@ -31,7 +31,7 @@ dependencies:
   cached_network_image: ^3.2.0
   jwt_decode: ^0.3.1
   auto_size_text: ^3.0.0
-  overlay_support: ^1.2.1
+  overlay_support: ^2.0.1
   email_validator: ^2.0.1
   pull_to_refresh: ^2.0.0
   flutter_beep: ^1.0.0
