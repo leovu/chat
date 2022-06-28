@@ -506,7 +506,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
           label: AppLocalizations.text(LangKey.pinMessage),
           key: 'Pin Message',
         ),
-        if(checkAddTaskIntanceAvailable()) SheetAction(
+        if(checkAddTaskIntanceAvailable() && message is types.TextMessage) SheetAction(
           icon: Icons.add_task,
           label: AppLocalizations.text(LangKey.createTask),
           key: 'Create Task',
