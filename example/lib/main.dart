@@ -1,8 +1,7 @@
+import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/material.dart';
-import 'dart:async';
 import 'package:overlay_support/overlay_support.dart';
-import 'package:flutter/services.dart';
 import 'package:chat/chat.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_file_view/flutter_file_view.dart';
@@ -33,33 +32,19 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _platformVersion = 'Unknown';
+  final TextEditingController _userNameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _domainController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    initPlatformState();
-  }
-
-  // Platform messages are asynchronous, so we initialize in an async method.
-  Future<void> initPlatformState() async {
-    String platformVersion;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    // We also handle the message potentially returning null.
-    try {
-      platformVersion =
-          await Chat.platformVersion ?? 'Unknown platform version';
-    } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
-    }
-
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) return;
-
-    setState(() {
-      _platformVersion = platformVersion;
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      setState(() {
+        _userNameController.text = 'waosupport@pioapps.vn';
+        _passwordController.text = '123456';
+        _domainController.text = 'https://chat-matthewsliquor.epoints.vn/';
+      });
     });
   }
 
@@ -69,12 +54,110 @@ class _MyAppState extends State<MyApp> {
       appBar: AppBar(
         title: const Text('Plugin example app'),
       ),
-      body: Center(
-        child: InkWell(
-            onTap: () async {
-              Chat.open(context,'waosupport@pioapps.vn', '123456', 'assets/icon-app.png',const Locale(LangKey.langVi, 'VN'), domain: 'https://chat-matthewsliquor.epoints.vn/');
-            },
-            child: Text('Running on: $_platformVersion\n')),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: 15.0,left: 15.0,right: 15.0),
+            child: Container(
+              height: 40.0,
+              decoration: BoxDecoration(
+                border: Border.all(width: 1.0)
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                child: Center(
+                  child: TextField(
+                    decoration: const InputDecoration.collapsed(
+                        hintText: 'Username'
+                    ),
+                    controller: _userNameController,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 15.0,left: 15.0,right: 15.0),
+            child: Container(
+              height: 40.0,
+              decoration: BoxDecoration(
+                  border: Border.all(width: 1.0)
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                child: Center(
+                  child: TextField(
+                    decoration: const InputDecoration.collapsed(
+                        hintText: 'Password'
+                    ),
+                    controller: _passwordController,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 15.0,left: 15.0,right: 15.0),
+            child: Container(
+              height: 40.0,
+              decoration: BoxDecoration(
+                  border: Border.all(width: 1.0)
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                child: Center(
+                  child: TextField(
+                    decoration: const InputDecoration.collapsed(
+                        hintText: 'Domain'
+                    ),
+                    controller: _domainController,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Center(
+            child: InkWell(
+                onTap: () async {
+                  if(_userNameController.value.text == '') {
+                    errorDialog('Username Empty');
+                    return;
+                  }
+                  if(_passwordController.value.text == '') {
+                    errorDialog('Password Empty');
+                    return;
+                  }
+                  if(_domainController.value.text == '') {
+                    errorDialog('Domain Empty');
+                    return;
+                  }
+                  Chat.open(context,_userNameController.value.text, _passwordController.value.text, 'assets/icon-app.png',const Locale(LangKey.langVi, 'VN'), domain: _domainController.value.text);
+                },
+                child: Container(
+                    height: 40.0,
+                    width: 80.0,
+                    color: Colors.blue,
+                    child: const Center(child: Text('Login',style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),)))),
+          ),
+        ],
+      ),
+    );
+  }
+  void errorDialog(String text) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(AppLocalizations.text(LangKey.warning)),
+        content: Text(text),
+        actions: [
+          ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text(AppLocalizations.text(LangKey.accept)))
+        ],
       ),
     );
   }

@@ -40,6 +40,7 @@ class LangKey {
   static const String recall = "recall";
   static const String edit = "edit";
   static const String pinMessage = "pinMessage";
+  static const String createTask = "createTask";
   static const String messageRecalled = "messageRecalled";
   static const String findInChat = "findInChat";
   static const String groupWith = "groupWith";

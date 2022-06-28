@@ -206,10 +206,10 @@ class TextMessage extends StatelessWidget {
           : TextSpan(
           text: element,
           style:
-          isUrl ? TextStyle(
-            color: user.id != message.author.id ? Colors.blueAccent : Colors.black,
+          isUrl ? const TextStyle(
+            color: Color(0xff0F2BE6),
             fontSize: 16,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w500,
             decoration: TextDecoration.underline,
             height: 1.5,
           ) :
