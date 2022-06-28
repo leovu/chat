@@ -38,13 +38,16 @@ const neutral7 = Color(0xffffffff);
 const neutral7WithOpacity = Color(0x80ffffff);
 
 /// Primary
-const primary = Color(0xff6f61e8);
+const primary = Color(0xffdbf1ff);
 
 /// Secondary
 const secondary = Color(0xfff5f5f7);
 
 /// Secondary dark
 const secondaryDark = Color(0xff2b2250);
+
+/// Link Preview
+const linkPreview = Color(0xff0F2BE6);
 
 /// Base chat theme containing all required properties to make a theme.
 /// Extend this class if you want to create a custom theme.
@@ -400,7 +403,7 @@ class DefaultChatTheme extends ChatTheme {
     TextStyle sentEmojiMessageTextStyle = const TextStyle(fontSize: 40),
     TextStyle? sentMessageBodyLinkTextStyle,
     TextStyle sentMessageBodyTextStyle = const TextStyle(
-      color: neutral7,
+      color: neutral0,
       fontSize: 16,
       fontWeight: FontWeight.w500,
       height: 1.5,
@@ -411,15 +414,15 @@ class DefaultChatTheme extends ChatTheme {
       fontWeight: FontWeight.w500,
       height: 1.333,
     ),
-    Color sentMessageDocumentIconColor = neutral7,
+    Color sentMessageDocumentIconColor = neutral0,
     TextStyle sentMessageLinkDescriptionTextStyle = const TextStyle(
-      color: neutral7,
+      color: neutral0,
       fontSize: 14,
       fontWeight: FontWeight.w400,
       height: 1.428,
     ),
     TextStyle sentMessageLinkTitleTextStyle = const TextStyle(
-      color: neutral7,
+      color: neutral0,
       fontSize: 16,
       fontWeight: FontWeight.w800,
       height: 1.375,

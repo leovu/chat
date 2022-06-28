@@ -30,7 +30,7 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance?.addPostFrameCallback((_) async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       await _getContacts();
       isInitScreen = false;
     });

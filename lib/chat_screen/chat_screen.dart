@@ -104,6 +104,10 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     }
   }
 
+  void addTaskInstance(String textMessage) {
+    ChatConnection.addOnModules!.firstWhere((e) => e['key']=='create_jobs')['function'](textMessage);
+  }
+
   void _handleAttachmentPressed() {
     showModalActionSheet<String>(
       context: context,
@@ -502,6 +506,11 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
           label: AppLocalizations.text(LangKey.pinMessage),
           key: 'Pin Message',
         ),
+        if(checkAddTaskIntanceAvailable()) SheetAction(
+          icon: Icons.add_task,
+          label: AppLocalizations.text(LangKey.createTask),
+          key: 'Create Task',
+        ),
         if(Platform.isAndroid) SheetAction(
             icon: Icons.cancel,
             label: AppLocalizations.text(LangKey.cancel),
@@ -522,7 +531,22 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         ? copyMessage(message as types.TextMessage)
         : value == 'Download'
         ? downloadMessage(message)
+        : value == 'Create Task'
+        ? addTaskInstance((message as types.TextMessage).text)
         : {});
+  }
+
+  bool checkAddTaskIntanceAvailable() {
+    if(ChatConnection.addOnModules != null) {
+      if(ChatConnection.addOnModules!.isNotEmpty) {
+        for (var e in ChatConnection.addOnModules!) {
+          if(e['key']=='create_jobs') {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
   }
 
   void downloadMessage(types.Message message) async {
@@ -592,7 +616,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     final index = _messages.indexWhere((element) => element.id == message.id);
     final updatedMessage = _messages[index].copyWith(previewData: previewData);
 
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       if(mounted) {
         setState(() {
           _messages[index] = updatedMessage;
@@ -666,7 +690,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       setState(() {});
     }
     else {
-      WidgetsBinding.instance?.addPostFrameCallback((_) async {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
         if(mounted) {
           setState(() {});
         }
@@ -1072,7 +1096,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                   setState(() {});
                 }
                 else {
-                  WidgetsBinding.instance?.addPostFrameCallback((_) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
                     searchChat();
                     if(_listIdSearch.isNotEmpty) {
                       scroll(_listIdSearch.first);

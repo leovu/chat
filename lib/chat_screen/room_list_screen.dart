@@ -60,7 +60,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
       setState(() {});
     }
     else {
-      WidgetsBinding.instance?.addPostFrameCallback((_) async {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
         roomListData = await ChatConnection.roomList();
         _getRoomVisible();
         isInitScreen = false;

@@ -56,7 +56,7 @@ class _ContactsScreenState extends State<ContactsScreen> with AutomaticKeepAlive
       setState(() {});
     }
     else {
-      WidgetsBinding.instance?.addPostFrameCallback((_) async {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
         contactsListData = await ChatConnection.contactsList();
         _getContactsVisible();
         isInitScreen = false;
