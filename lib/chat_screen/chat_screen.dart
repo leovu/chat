@@ -119,7 +119,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         : value == 'File'
         ? _handleFileSelection()
         : ChatConnection.addOnModules != null
-        ? ChatConnection.addOnModules!.firstWhere((e) => e['key']==value)['function']()
+        ? ChatConnection.addOnModules!.firstWhere((e) => e['key']==value)['function']('')
         : {});
   }
   List<SheetAction<String>> _attachmentSheetAction() {
