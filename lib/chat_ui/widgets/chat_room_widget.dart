@@ -7,7 +7,8 @@ import 'package:flutter/material.dart';
 class ChatRoomWidget extends StatefulWidget {
   final String content;
   final String roomId;
-  const ChatRoomWidget({Key? key, required this.content,required this.roomId}) : super(key: key);
+  const ChatRoomWidget({Key? key, required this.content, required this.roomId})
+      : super(key: key);
   @override
   _ChatRoomWidgetState createState() => _ChatRoomWidgetState();
 }
@@ -18,23 +19,37 @@ class _ChatRoomWidgetState extends State<ChatRoomWidget> {
   @override
   void initState() {
     super.initState();
-    draftMessage(widget.roomId);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await draftMessage(widget.roomId);
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant ChatRoomWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await draftMessage(widget.roomId);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return AutoSizeText(
-      _draftMessage == null ? widget.content : _draftMessage! ,
+      _draftMessage ?? "",
       textScaleFactor: 0.8,
       maxLines: 1,
-      overflow: TextOverflow.ellipsis,);
+      overflow: TextOverflow.ellipsis,
+    );
   }
 
   draftMessage(String roomId) async {
-    Map<String,dynamic>? draft = await getDraftInput(roomId);
-    if(draft != null) {
-      _draftMessage ='[${AppLocalizations.text(LangKey.draft)}] ${draft['text'] ?? ''}';
-      setState(() {});
+    Map<String, dynamic>? draft = await getDraftInput(roomId);
+    if (draft != null) {
+      _draftMessage =
+          '[${AppLocalizations.text(LangKey.draft)}] ${draft['text'] ?? ''}';
+    } else {
+      _draftMessage = widget.content;
     }
+    setState(() {});
   }
 }
