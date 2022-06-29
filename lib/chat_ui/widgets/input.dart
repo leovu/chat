@@ -151,6 +151,9 @@ class _InputState extends State<Input> {
           _textController.text = checkTag(value['text']);
         });
       }
+      if(value.containsKey('tag_list')) {
+        _idTagList = List<String>.from(value['tag_list']);
+      }
     }
   }
 
@@ -161,6 +164,9 @@ class _InputState extends State<Input> {
     Map<String,dynamic> value = {};
     if(_textController.value.text != '') {
       value['text'] = _textController.value.text;
+    }
+    if(_idTagList.isNotEmpty) {
+      value['tag_list'] = _idTagList;
     }
     if(widget.repliedMessage != null) {
       value['reply'] = widget.repliedMessage!.toJson();
@@ -207,6 +213,7 @@ class _InputState extends State<Input> {
     setState(() {
       _taggingSuggestList = null;
     });
+    deleteDraftInput(ChatConnection.roomId!);
   }
 
   void _handleTextControllerChange() {

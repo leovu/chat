@@ -6,6 +6,7 @@ import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/chat_screen/chat_screen.dart';
 import 'package:chat/data_model/room.dart';
 import 'package:chat/connection/http_connection.dart';
+import 'package:chat/draft.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/cupertino.dart';
@@ -220,6 +221,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                                   await Navigator.of(context,rootNavigator: true).push(
                                     MaterialPageRoute(builder: (context) => ChatScreen(data: roomListVisible!.rooms![position]),settings:const RouteSettings(name: 'chat_screen')),
                                   );
+                                  setState(() {});
                                   _getRooms();
                                 },
                                 child: Slidable(
@@ -490,7 +492,16 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                         Row(
                           children: [
                             Expanded(child:
-                            ChatRoomWidget(roomId: data.sId!,content: '$author''${checkTag(_checkContent(data))}',),),
+                              FutureBuilder<String>(
+                                future: draftMessage(data.sId!,'$author''${checkTag(_checkContent(data))}'),
+                                builder:
+                                    (BuildContext context, AsyncSnapshot<String> snapshot) {
+                                  if (snapshot.hasData) {
+                                    final text = snapshot.data;
+                                    return ChatRoomWidget(content: text ?? "");
+                                  }return Container();
+                                },
+                              )),
                             if(findUnread(data.messagesReceived) != '0') CircleAvatar(
                               radius: 18.0,
                               child: Text(
@@ -515,7 +526,14 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
       ],
     );
   }
-
+  Future<String> draftMessage(String roomId,String content) async {
+    Map<String, dynamic>? draft = await getDraftInput(roomId);
+    if (draft != null) {
+      return '[${AppLocalizations.text(LangKey.draft)}] ${draft['text'] ?? ''}';
+    } else {
+      return content;
+    }
+  }
   String _checkContent(Rooms model) {
     if((model.messagesReceived?.length ?? 0) == 0){
       return (findAuthor(model.people,model.owner,isGroupOwner: true) ?? '') + AppLocalizations.text(LangKey.justCreatedRoom);
