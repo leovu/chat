@@ -134,7 +134,7 @@ class RepliedMessage extends StatelessWidget {
                         color: _closable
                             ? Colors.black
                             : _isCurrentUser
-                                ? Colors.white
+                                ? Colors.black
                                 : Colors.black,
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -151,7 +151,7 @@ class RepliedMessage extends StatelessWidget {
                       color: _closable
                           ? Colors.grey
                           : _isCurrentUser
-                              ? Colors.grey.shade400
+                              ? Colors.grey.shade600
                               : Colors.grey,
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
@@ -163,7 +163,7 @@ class RepliedMessage extends StatelessWidget {
                       padding: const EdgeInsets.only(top: 1.0),
                       child: Container(
                         height: 1.0,
-                        color: _isCurrentUser ? Colors.white : Colors.grey,
+                        color: Colors.grey,
                       ),
                     )
                 ],

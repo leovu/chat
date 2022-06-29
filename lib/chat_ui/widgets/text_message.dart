@@ -1,9 +1,11 @@
 import 'package:chat/chat_ui/widgets/replied_message.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_link_previewer/flutter_link_previewer.dart' show LinkPreview;
+import 'package:url_launcher/url_launcher.dart';
 import '../models/emoji_enlargement_behavior.dart';
 import '../util.dart';
 import 'inherited_chat_theme.dart';
@@ -203,23 +205,30 @@ class TextMessage extends StatelessWidget {
             decoration: isUrl? TextDecoration.underline : TextDecoration.none,
             height: 1.5,
           ))
-          : TextSpan(
+          :
+      isUrl ? TextSpan(
           text: element,
-          style:
-          isUrl ? const TextStyle(
+          recognizer: TapGestureRecognizer()
+            ..onTap = () {
+              launchUrl(Uri.parse(element));
+            },
+          style: const TextStyle(
             color: Color(0xff0F2BE6),
             fontSize: 16,
             fontWeight: FontWeight.w500,
             decoration: TextDecoration.underline,
             height: 1.5,
-          ) :
-          user.id == message.author.id
+          )) :
+      TextSpan(
+          text: element,
+          style: user.id == message.author.id
               ? enlargeEmojis
               ? theme.sentEmojiMessageTextStyle
               : theme.sentMessageBodyTextStyle
               : enlargeEmojis
               ? theme.receivedEmojiMessageTextStyle
-              : theme.receivedMessageBodyTextStyle);
+              : theme.receivedMessageBodyTextStyle)
+      ;
     }
   }
   String checkTag(String message) {

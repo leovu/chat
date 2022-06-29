@@ -8,7 +8,6 @@ import 'package:chat/connection/download.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/data_model/chat_message.dart' as c;
 import 'package:chat/data_model/room.dart' as r;
-import 'package:chat/draft.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:file_picker/file_picker.dart';
