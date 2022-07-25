@@ -16,28 +16,34 @@ class Chat {
     final String? version = await _channel.invokeMethod('getPlatformVersion');
     return version;
   }
-  static Future<String?> chatToken(String email, String password, String domain) async {
+  static Future<String?> chatToken(String email, String password, String role, String domain, String chatDomain) async {
     HTTPConnection.domain = domain;
-    return await ChatConnection.token(email, password);
+    HTTPConnection.chatDomain = chatDomain;
+    return await ChatConnection.token(email, password,role);
   }
-  static Future<bool>connectSocket(BuildContext context, String email, String password, String appIcon, {String? domain, String? token}) async {
+  static Future<bool>connectSocket(BuildContext context, String email, String password, String role, String appIcon, {String? domain, String? chatDomain, Map<String,dynamic>? token}) async {
     ChatConnection.buildContext = context;
     ChatConnection.appIcon = appIcon;
-    bool result = await ChatConnection.init(email, password, token: token);
+    bool result = await ChatConnection.init(email, password, role, token: token);
     return result;
   }
   static disconnectSocket() {
     ChatConnection.dispose(isDispose: true);
   }
-  static open(BuildContext context, String email, String password,
+  static open(BuildContext context, String email, String password, String role,
       String appIcon,Locale locale,
-      { String? domain, String? token,
+      { String? domain,
+        String? chatDomain,
+        Map<String,dynamic>? token,
         Map<String, dynamic>? notificationData,
         List<Map<String,dynamic>>? addOnModules}) async {
     showLoading(context);
     await initializeDateFormatting();
     if(domain != null) {
       HTTPConnection.domain = domain;
+    }
+    if(chatDomain != null) {
+      HTTPConnection.chatDomain = chatDomain;
     }
     ChatConnection.addOnModules = addOnModules;
     ChatConnection.locale = locale;
@@ -47,7 +53,7 @@ class Chat {
       ChatConnection.initialData = notificationData;
     }
     AppLocalizations(ChatConnection.locale).load();
-    bool result = await connectSocket(context,email,password,appIcon,domain:domain,token: token);
+    bool result = await connectSocket(context,email,password,role,appIcon,domain:domain,token: token);
     Navigator.of(context).pop();
     if(result) {
       await Navigator.of(context,rootNavigator: true).push(

@@ -4,7 +4,8 @@ import 'package:chat/connection/chat_connection.dart';
 import 'package:http/http.dart' as http;
 
 class HTTPConnection {
-  static String domain = 'https://chat-stag.epoints.vn/';
+  static String domain = 'http://dev.api.ggigroup.org/';
+  static String chatDomain = 'http://dev.ws.ggigroup.org/';
   Future<ResponseData> upload(String path, File file , {bool isImage = false}) async {
     final uri = Uri.parse('$domain$path');
     var request = http.MultipartRequest('POST', uri);

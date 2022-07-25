@@ -41,9 +41,9 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       setState(() {
-        _userNameController.text = 'quangth';
+        _userNameController.text = '+84925959787';
         _passwordController.text = '123456';
-        _domainController.text = 'http://chat-stag-new.epoints.vn/';
+        _domainController.text = 'http://dev.api.ggigroup.org/';
       });
     });
   }
@@ -133,7 +133,9 @@ class _MyAppState extends State<MyApp> {
                     errorDialog('Domain Empty');
                     return;
                   }
-                  Chat.open(context,_userNameController.value.text, _passwordController.value.text, 'assets/icon-app.png',const Locale(LangKey.langVi, 'VN'), domain: _domainController.value.text);
+                  Chat.open(context,_userNameController.value.text, _passwordController.value.text,
+                      'children', 'assets/icon-app.png',const Locale(LangKey.langVi, 'VN'), domain: _domainController.value.text,
+                      chatDomain: 'http://dev.ws.ggigroup.org/');
                 },
                 child: Container(
                     height: 40.0,
