@@ -16,18 +16,21 @@ class StreamSocket {
   }
   String? id () {return socket!.id;}
   void connectAndListen(StreamSocket streamSocket, User user) {
-    socket = io.io(HTTPConnection.chatDomain);
+    socket = io.io(HTTPConnection.chatDomain,
+        io.OptionBuilder().setTransports(['websocket']).build());
     socket!.onConnectError((data) {
       print(data);
     });
     socket!.on('authenticated', (data) {
       streamSocket.addResponse;
     });
+
     connectSocket(user);
     socket!.onDisconnect((_) => connectSocket(user));
   }
   void connectSocket(User user) {
     socket!.onConnect((_) {
+      print("connectSocket");
       socket!.emit('identity',{'id':int.parse(user.id)});
     });
   }
