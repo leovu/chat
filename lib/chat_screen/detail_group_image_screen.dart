@@ -62,7 +62,7 @@ class _State extends State<DetailGroupImageScreen>
         shrinkWrap: true,
         physics: const ClampingScrollPhysics(),
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        itemCount: widget.images?.length,
+        itemCount: widget.images?.length ?? 0,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 3, crossAxisSpacing: 8, mainAxisSpacing: 4),
         itemBuilder: (BuildContext context, int position) {
@@ -86,7 +86,7 @@ class _State extends State<DetailGroupImageScreen>
         shrinkWrap: true,
         physics: const ClampingScrollPhysics(),
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        itemCount: widget.images?.length,
+        itemCount: widget.images?.length ?? 0,
         itemBuilder: (BuildContext context, int position) {
           return InkWell(
             onTap: () async {

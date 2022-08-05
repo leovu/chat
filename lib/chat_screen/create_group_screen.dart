@@ -195,7 +195,7 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
               isInitScreen ? Center(child: Platform.isAndroid ? const CircularProgressIndicator() : const CupertinoActivityIndicator()) :
               contactsListVisible != null ? ListView.builder(
                   keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                  itemCount: contactsListVisible!.users?.length,
+                  itemCount: contactsListVisible!.users?.length ?? 0,
                   itemBuilder: (BuildContext context, int position) {
                     return InkWell(
                         onTap: () async {

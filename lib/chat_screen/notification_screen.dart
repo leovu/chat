@@ -107,7 +107,7 @@ class _NotificationScreenState extends State<NotificationScreen> with AutomaticK
               header: const WaterDropHeader(),
               child: ListView.builder(
                   keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                  itemCount: notificationListData!.notifications?.length,
+                  itemCount: notificationListData!.notifications?.length ?? 0,
                   itemBuilder: (BuildContext context, int position) {
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 5.0),

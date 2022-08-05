@@ -69,7 +69,7 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
                 padding: const EdgeInsets.only(top: 5.0),
                 keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                 itemBuilder: _itemBuilder,
-                itemCount: widget.roomData.people?.length,),)
+                itemCount: widget.roomData.people?.length ?? 0,),)
             ],
           )
         ));

@@ -191,7 +191,7 @@ class _ContactsScreenState extends State<ContactsScreen> with AutomaticKeepAlive
                 header: const WaterDropHeader(),
                 child: ListView.builder(
                     keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                    itemCount: contactsListVisible!.users?.length,
+                    itemCount: contactsListVisible!.users?.length ?? 0,
                     itemBuilder: (BuildContext context, int position) {
                       return InkWell(
                           onTap: () async {

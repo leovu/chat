@@ -212,7 +212,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                     header: const WaterDropHeader(),
                     child: ListView.builder(
                         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                        itemCount: roomListVisible!.rooms?.length,
+                        itemCount: roomListVisible!.rooms?.length ?? 0,
                         itemBuilder: (BuildContext context, int position) {
                           return Padding(
                             padding: const EdgeInsets.symmetric(vertical: 5.0),

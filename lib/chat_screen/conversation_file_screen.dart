@@ -173,7 +173,7 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
         shrinkWrap: true,
         physics: const ClampingScrollPhysics(),
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        itemCount: widget.chatMessage?.room?.images?.length,
+        itemCount: widget.chatMessage?.room?.images?.length ?? 0,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 3, crossAxisSpacing: 8, mainAxisSpacing: 4),
         itemBuilder: (BuildContext context, int position) {
@@ -198,7 +198,7 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
         shrinkWrap: true,
         physics: const ClampingScrollPhysics(),
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        itemCount: widget.chatMessage?.room?.files?.length,
+        itemCount: widget.chatMessage?.room?.files?.length ?? 0,
         itemBuilder: (BuildContext context, int position) {
           return InkWell(
             onTap: () async {
