@@ -696,6 +696,7 @@ class _InputState extends State<Input> {
     final selection = _textController.value.selection;
     final text = _textController.value.text;
     if(text == selection.textBefore(text)) {
+
       if(text[text.length-1] == "@") {
         if(p == null) {
           result += AppLocalizations.text(LangKey.all);
@@ -706,17 +707,29 @@ class _InputState extends State<Input> {
       }
       else {
         List<String> splits = text.split(' ');
-        result = result.replaceFirst(splits.last, '@${p!.firstName}${p.lastName}');
+        if(p == null) {
+          result = result.replaceFirst(splits.last, '@${AppLocalizations.text(LangKey.all)}');
+        } else {
+          result = result.replaceFirst(splits.last, '@${p.firstName}${p.lastName}');
+        }
       }
     }
     else {
       final before = selection.textBefore(text);
       contents = before.split('@');
       if(contents.last != '') {
-        result = result.replaceFirst(contents.last, '${p!.firstName}${p.lastName}');
+        if(p == null) {
+          result = result.replaceFirst(contents.last, '@${AppLocalizations.text(LangKey.all)}');
+        } else {
+          result = result.replaceFirst(contents.last, '@${p.firstName}${p.lastName}');
+        }
       }
       else {
-        result = result.replaceFirst(before, '$before${p!.firstName}${p.lastName}');
+        if(p == null) {
+          result = result.replaceFirst(before, '@${AppLocalizations.text(LangKey.all)}');
+        } else {
+          result = result.replaceFirst(before, '$before${p.firstName}${p.lastName}');
+        }
       }
     }
     return result;
