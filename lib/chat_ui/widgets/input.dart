@@ -227,6 +227,9 @@ class _InputState extends State<Input> {
 
   void onChanged(String value) {
     List<String> contents = [];
+    if(value.contains('@${AppLocalizations.text(LangKey.all)}')) {
+      value.replaceAll('@${AppLocalizations.text(LangKey.all)}', '@all-all@');
+    }
     if(value.contains('@')) {
       if(value[value.length-1] == "@") {
         contents.add('');

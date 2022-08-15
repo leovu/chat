@@ -41,9 +41,9 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       setState(() {
-        _userNameController.text = 'quangth';
+        _userNameController.text = 'waosupport@pioapps.vn';
         _passwordController.text = '123456';
-        _domainController.text = 'http://chat-stag-new.epoints.vn/';
+        _domainController.text = 'https://chat-matthewsliquor.epoints.vn/';
       });
     });
   }

@@ -681,7 +681,9 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         List<types.Message> values = [];
         for(var e in messages) {
           Map<String, dynamic> result = e.toMessageJson(messageSeen: data?.room?.messageSeen);
-          values.add(types.Message.fromJson(result));
+          if(e.author?.sId != null && e.sId != null) {
+            values.add(types.Message.fromJson(result));
+          }
         }
         _messages = values;
       }
@@ -711,7 +713,9 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
           List<types.Message> values = [];
           for(var e in messages) {
             Map<String, dynamic> result = e.toMessageJson(messageSeen: data?.room?.messageSeen);
-            values.add(types.Message.fromJson(result));
+            if(e.author?.sId != null && e.sId != null) {
+              values.add(types.Message.fromJson(result));
+            }
           }
           if(mounted) {
             setState(() {
@@ -762,7 +766,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     for (int i = 0; i < contents.length; i++) {
       var element = contents[i];
       if(element == '@all-all@') {
-        element = AppLocalizations.text(LangKey.all);
+        element = '@${AppLocalizations.text(LangKey.all)}';
       }
       try {
         if(element[element.length-1] == '@' && element.contains('-')) {
@@ -976,7 +980,9 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         List<types.Message> values = [];
         for(var e in messages) {
           Map<String, dynamic> result = e.toMessageJson(messageSeen: data?.room?.messageSeen);
-          values.add(types.Message.fromJson(result));
+          if(e.author?.sId != null && e.sId != null) {
+            values.add(types.Message.fromJson(result));
+          }
         }
         if(mounted) {
           setState(() {

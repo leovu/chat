@@ -129,6 +129,7 @@ class ChatConnection {
       if(!refresh) {
         streamSocket.joinRoom(id);
       }
+      print(responseData.data);
       return c.ChatMessage.fromJson(responseData.data);
     }
     return null;
