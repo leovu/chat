@@ -7,6 +7,7 @@ import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/data_model/room.dart';
 import 'package:chat/draft.dart';
+import 'package:chat/localization/check_tag.dart';
 import 'package:rich_text_controller/rich_text_controller.dart';
 import 'package:chat/chat_ui/widgets/inherited_replied_message.dart';
 import 'package:chat/chat_ui/widgets/remove_edit_button.dart';
@@ -148,7 +149,7 @@ class _InputState extends State<Input> {
     if(value != null) {
       if(value.containsKey('text')) {
         setState(() {
-          _textController.text = checkTag(value['text']);
+          _textController.text = checkTag(value['text'],widget.people);
         });
       }
       if(value.containsKey('tag_list')) {
@@ -227,8 +228,11 @@ class _InputState extends State<Input> {
 
   void onChanged(String value) {
     List<String> contents = [];
-    if(value.contains('@${AppLocalizations.text(LangKey.all)}')) {
-      value.replaceAll('@${AppLocalizations.text(LangKey.all)}', '@all-all@');
+    List<String> tagListDetect = detectTag(value, widget.people);
+    for (var e in tagListDetect) {
+      if(!_idTagList.contains(e)) {
+        _idTagList.add(e);
+      }
     }
     if(value.contains('@')) {
       if(value[value.length-1] == "@") {
@@ -335,6 +339,7 @@ class _InputState extends State<Input> {
                             .repliedMessage,
                         showUserNames: true,
                         onMessageTap: widget.onMessageTap,
+                        people: widget.people,
                       )
                   ),
                 Container(
@@ -793,7 +798,7 @@ class _InputState extends State<Input> {
   void requestFocus({types.TextMessage? editContent}) {
     if(editContent != null) {
       this.editContent = editContent;
-      _textController.text = checkTag(editContent.text);
+      _textController.text = checkTag(editContent.text,widget.people);
       for (var e in widget.people!) {
         if(editContent.text.contains('@${e.firstName}${e.lastName}-${e.sId}')) {
           if(!_idTagList.contains(e.sId)) {
@@ -804,25 +809,6 @@ class _InputState extends State<Input> {
       _isEdit = true;
     }
     _inputFocusNode.requestFocus();
-  }
-
-
-  String checkTag(String message) {
-    List<String> contents = message.split(' ');
-    String result = '';
-    for (int i = 0; i < contents.length; i++) {
-      var element = contents[i];
-      if(element == '@all-all@') {
-        element = '@${AppLocalizations.text(LangKey.all)}';
-      }
-      try {
-        if(element[element.length-1] == '@' && element.contains('-')) {
-          element = element.split('-').first;
-        }
-      }catch(_) {}
-      result += '$element ';
-    }
-    return result.trim();
   }
 
   @override

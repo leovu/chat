@@ -9,6 +9,7 @@ import 'package:chat/connection/http_connection.dart';
 import 'package:chat/data_model/chat_message.dart' as c;
 import 'package:chat/data_model/room.dart' as r;
 import 'package:chat/localization/app_localizations.dart';
+import 'package:chat/localization/check_tag.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
@@ -561,10 +562,15 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   }
 
   void copyMessage(types.TextMessage message) {
-    Clipboard.setData(ClipboardData(text: checkCopyTagMessage(message.text))).then((_){
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(AppLocalizations.text(LangKey.copyAlert)),duration: const Duration(seconds: 2),));
-    });
+    String copyText = checkTag(message.text,data?.room?.people);
+    if(copyText.isNotEmpty) {
+      try{
+        Clipboard.setData(ClipboardData(text: copyText)).then((_){
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(AppLocalizations.text(LangKey.copyAlert)),duration: const Duration(seconds: 2),));
+        });
+      }catch(_){}
+    }
   }
 
   void pinMesage(types.Message message, c.Messages? value) async {
@@ -736,46 +742,10 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
             notificationData['room']['isGroup'] == true ?
             '${notificationData['message']['author']['firstName']} ${notificationData['message']['author']['lastName']} in ${notificationData['room']['title']}'
             : '${notificationData['message']['author']['firstName']} ${notificationData['message']['author']['lastName']}',
-            checkTagMessage(notificationData['message']['content']),
+            checkTag(notificationData['message']['content'],null),
             notificationData, ChatConnection.appIcon, _notificationHandler);
       }
     }
-  }
-
-  String checkTagMessage(String message) {
-    List<String> contents = message.split(' ');
-    String result = '';
-    for (int i = 0; i < contents.length; i++) {
-      var element = contents[i];
-      if(element == '@all-all@') {
-        element = '@${AppLocalizations.text(LangKey.all)}';
-      }
-      try {
-        if(element[element.length-1] == '@' && element.contains('-')) {
-          element = element.split('-').first;
-        }
-      }catch(_) {}
-      result += '$element ';
-    }
-    return result.trim();
-  }
-
-  String checkCopyTagMessage(String message) {
-    List<String> contents = message.split(' ');
-    String result = '';
-    for (int i = 0; i < contents.length; i++) {
-      var element = contents[i];
-      if(element == '@all-all@') {
-        element = '@${AppLocalizations.text(LangKey.all)}';
-      }
-      try {
-        if(element[element.length-1] == '@' && element.contains('-')) {
-          element = element.split('-').first.substring(1);
-        }
-      }catch(_) {}
-      result += '$element ';
-    }
-    return result.trim();
   }
 
   Future<dynamic> _notificationHandler(Map<String, dynamic> message) async {
@@ -886,7 +856,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                                 errorWidget: (context, url, error) => const Icon(Icons.error),
                             ),
                               ),)
-                           : checkTag(data?.room?.pinMessage?.content ?? ''),
+                           : checkTagWidget(data?.room?.pinMessage?.content ?? ''),
                           ],
                         ),
                       )),
@@ -1337,7 +1307,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     }
   }
 
-  Widget checkTag(String message) {
+  Widget checkTagWidget(String message) {
     Widget _widget;
     List<InlineSpan> _arr = [];
     List<String> contents = message.split(' ');

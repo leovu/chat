@@ -1,4 +1,5 @@
 import 'package:chat/chat_ui/widgets/replied_message.dart';
+import 'package:chat/data_model/room.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import '../conditional/conditional.dart';
@@ -18,10 +19,13 @@ class ImageMessage extends StatefulWidget {
     required this.messageWidth,
     required this.showUserNameForRepliedMessage,
     required this.onMessageTap,
+    required this.people,
   }) : super(key: key);
 
   /// [types.ImageMessage]
   final types.ImageMessage message;
+
+  final List<People>? people;
 
   /// Maximum message width
   final int messageWidth;
@@ -75,6 +79,7 @@ class _ImageMessageState extends State<ImageMessage> {
         repliedMessage: widget.message.repliedMessage,
         showUserNames: widget.showUserNameForRepliedMessage,
         onMessageTap: widget.onMessageTap,
+        people: widget.people,
       ),
     );
   }

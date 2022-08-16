@@ -10,7 +10,7 @@ import 'package:chat/chat_ui/util.dart';
 import 'package:chat/chat_ui/widgets/inherited_replied_message.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/download.dart';
-import 'package:chat/data_model/room.dart';
+import 'package:chat/data_model/room.dart' as r;
 import 'package:chat/draft.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -191,7 +191,7 @@ class Chat extends StatefulWidget {
   /// List of [types.Message] to render in the chat widget
   final List<types.Message> messages;
 
-  final List<People>? people;
+  final List<r.People>? people;
 
   /// See [Input.onAttachmentPressed]
   final void Function()? onAttachmentPressed;
@@ -445,6 +445,7 @@ class _ChatState extends State<Chat> {
         onMessageLongPress: widget.onMessageLongPress,
         onMessageStatusLongPress: widget.onMessageStatusLongPress,
         onMessageStatusTap: widget.onMessageStatusTap,
+        people: widget.people,
         onMessageTap: (context, tappedMessage, isRepliedMessage) {
           if (tappedMessage is types.ImageMessage &&
               widget.disableImageGallery != true && !isRepliedMessage) {

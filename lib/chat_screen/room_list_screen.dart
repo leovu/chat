@@ -8,6 +8,7 @@ import 'package:chat/data_model/room.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/draft.dart';
 import 'package:chat/localization/app_localizations.dart';
+import 'package:chat/localization/check_tag.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -493,7 +494,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                           children: [
                             Expanded(child:
                               FutureBuilder<String>(
-                                future: draftMessage(data.sId!,'$author''${checkTag(_checkContent(data))}'),
+                                future: draftMessage(data.sId!,'$author''${checkTag(_checkContent(data),null)}'),
                                 builder:
                                     (BuildContext context, AsyncSnapshot<String> snapshot) {
                                   if (snapshot.hasData) {
@@ -550,27 +551,6 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
       return AppLocalizations.text(LangKey.forwardMessage);
     }
     return model.lastMessage!.content!;
-  }
-
-  String checkTag(String message) {
-    List<String> contents = message.split(' ');
-    String result = '';
-    if(message.trim() == '') {
-      return '';
-    }
-    for (int i = 0; i < contents.length; i++) {
-      var element = contents[i];
-      if(element == '@all-all@') {
-        element = '@${AppLocalizations.text(LangKey.all)}';
-      }
-      try {
-        if(element[element.length-1] == '@' && element.contains('-')) {
-          element = element.split('-').first;
-        }
-      }catch(_){}
-      result += '$element ';
-    }
-    return result.trim();
   }
   People getPeople(List<People>? people) {
     return people!.first.sId != ChatConnection.user!.id ? people.first : people.last;

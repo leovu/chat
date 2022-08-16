@@ -1,11 +1,11 @@
 import 'package:chat/chat_ui/widgets/replied_message.dart';
-import 'package:chat/localization/app_localizations.dart';
-import 'package:chat/localization/lang_key.dart';
+import 'package:chat/localization/check_tag.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_link_previewer/flutter_link_previewer.dart' show LinkPreview;
 import 'package:url_launcher/url_launcher.dart';
+import '../../data_model/room.dart' as r;
 import '../models/emoji_enlargement_behavior.dart';
 import '../util.dart';
 import 'inherited_chat_theme.dart';
@@ -24,6 +24,7 @@ class TextMessage extends StatelessWidget {
     required this.searchController,
     required this.showUserNameForRepliedMessage,
     required this.onMessageTap,
+    required this.people,
   }) : super(key: key);
 
   /// See [Message.emojiEnlargementBehavior]
@@ -52,6 +53,8 @@ class TextMessage extends StatelessWidget {
 
   /// See [Message.onMessageTap]
   final void Function(BuildContext context, types.Message, bool isRepliedMessage)? onMessageTap;
+
+  final List<r.People>? people;
 
   void _onPreviewDataFetched(types.PreviewData previewData) {
     if (message.previewData == null) {
@@ -103,7 +106,7 @@ class TextMessage extends StatelessWidget {
         vertical: InheritedChatTheme.of(context).theme.messageInsetsVertical,
       ),
       previewData: message.previewData,
-      text: checkTagLinkPreview(message.text),
+      text: checkTag(message.text,people),
       textWidget: Text.rich(
         TextSpan(
           children: contentMessages(message.text, user, context, color, false),
@@ -132,6 +135,7 @@ class TextMessage extends StatelessWidget {
             repliedMessage: message.repliedMessage,
             showUserNames: showUserNameForRepliedMessage,
             onMessageTap: onMessageTap,
+            people: people,
           ),
         if (showName)
           Padding(
@@ -159,7 +163,7 @@ class TextMessage extends StatelessWidget {
       bool enlargeEmojis) {
     List<InlineSpan> arr = [];
     value.splitMapJoin(RegExp('@((?!@).)*-((?!@).)*@'), onMatch: (match){
-      arr.add(contentMessage(checkTag('${match[0]}'), user, context, color, enlargeEmojis, true, false));
+      arr.add(contentMessage(checkTag('${match[0]}',people), user, context, color, enlargeEmojis, true, false));
       return match.input;
     }, onNonMatch: (text){
       text.splitMapJoin(RegExp(r'(?:https?://)?\S+\.\S+\.\S+'), onMatch: (match){
@@ -230,41 +234,6 @@ class TextMessage extends StatelessWidget {
               : theme.receivedMessageBodyTextStyle)
       ;
     }
-  }
-  String checkTag(String message) {
-    List<String> contents = message.split(' ');
-    String result = '';
-    for (int i = 0; i < contents.length; i++) {
-      var element = contents[i];
-      if(element == '@all-all@') {
-        element = '@${AppLocalizations.text(LangKey.all)}';
-      }
-      try {
-        if(element[element.length-1] == '@' && element.contains('-')) {
-          element = element.split('-').first;
-        }
-      }catch(_) {}
-      result += element;
-    }
-    return result;
-  }
-
-  String checkTagLinkPreview(String message) {
-    List<String> contents = message.split(' ');
-    String result = '';
-    for (int i = 0; i < contents.length; i++) {
-      var element = contents[i];
-      if(element == '@all-all@') {
-        element = '@${AppLocalizations.text(LangKey.all)}';
-      }
-      try {
-        if(element[element.length-1] == '@' && element.contains('-')) {
-          element = element.split('-').first;
-        }
-      }catch(_) {}
-      result += '$element ';
-    }
-    return result.trimRight();
   }
 
   @override

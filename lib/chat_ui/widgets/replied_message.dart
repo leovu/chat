@@ -1,9 +1,11 @@
 import 'package:chat/localization/app_localizations.dart';
+import 'package:chat/localization/check_tag.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:chat/chat_ui/widgets/inherited_user.dart';
 import 'inherited_chat_theme.dart';
+import '../../data_model/room.dart' as r;
 
 class RepliedMessage extends StatelessWidget {
   const RepliedMessage({
@@ -13,7 +15,11 @@ class RepliedMessage extends StatelessWidget {
     required this.repliedMessage,
     this.showUserNames = false,
     required this.onMessageTap,
+    required this.people,
   }) : super(key: key);
+
+
+  final List<r.People>? people;
 
   /// Called when user presses cancel reply button
   final void Function()? onCancelReplyPressed;
@@ -54,7 +60,7 @@ class RepliedMessage extends StatelessWidget {
           break;
         case types.MessageType.text:
           final textMessage = repliedMessage as types.TextMessage;
-          _text = checkTag(textMessage.text);
+          _text = checkTag(textMessage.text,people);
           break;
         default:
           break;
@@ -192,23 +198,5 @@ class RepliedMessage extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  String checkTag(String message) {
-    List<String> contents = message.split(' ');
-    String result = '';
-    for (int i = 0; i < contents.length; i++) {
-      var element = contents[i];
-      if (element == '@all-all@') {
-        element = '@${AppLocalizations.text(LangKey.all)}';
-      }
-      try {
-        if (element[element.length - 1] == '@' && element.contains('-')) {
-          element = element.split('-').first;
-        }
-      } catch (_) {}
-      result += '$element ';
-    }
-    return result.trim();
   }
 }

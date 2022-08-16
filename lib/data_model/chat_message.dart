@@ -1,4 +1,5 @@
 import 'package:chat/connection/http_connection.dart';
+import 'package:chat/data_model/room.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:intl/intl.dart';
@@ -135,55 +136,6 @@ class Room {
     }
     if (pinMessage != null) {
       data['pinMessage'] = pinMessage!.toJson();
-    }
-    return data;
-  }
-}
-
-class People {
-  String? level;
-  String? sId;
-  String? username;
-  String? firstName;
-  String? phone;
-  String? lastName;
-  String? lastOnline;
-  Picture? picture;
-
-  People(
-      {level,
-        favorites,
-        sId,
-        username,
-        firstName,
-        phone,
-        lastName,
-        lastOnline,
-        picture});
-
-  People.fromJson(Map<String, dynamic> json) {
-    level = json['level'];
-    sId = json['_id'];
-    username = json['username'];
-    firstName = json['firstName'];
-    phone = json['phone'];
-    lastName = json['lastName'];
-    lastOnline = json['lastOnline'];
-    picture =
-    json['picture'] != null ? Picture.fromJson(json['picture']) : null;
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['level'] = level;
-    data['_id'] = sId;
-    data['username'] = username;
-    data['firstName'] = firstName;
-    data['phone'] = phone;
-    data['lastName'] = lastName;
-    data['lastOnline'] = lastOnline;
-    if (picture != null) {
-      data['picture'] = picture!.toJson();
     }
     return data;
   }

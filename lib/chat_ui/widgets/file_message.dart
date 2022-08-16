@@ -1,4 +1,5 @@
 import 'package:chat/chat_ui/widgets/replied_message.dart';
+import 'package:chat/data_model/room.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import '../util.dart';
@@ -14,10 +15,13 @@ class FileMessage extends StatelessWidget {
     required this.message,
     required this.showUserNameForRepliedMessage,
     required this.onMessageTap,
+    required this.people,
   }) : super(key: key);
 
   /// [types.FileMessage]
   final types.FileMessage message;
+
+  final List<People>? people;
 
   /// Show user name for replied message.
   final bool showUserNameForRepliedMessage;
@@ -73,6 +77,7 @@ class FileMessage extends StatelessWidget {
                 repliedMessage: message.repliedMessage,
                 showUserNames: showUserNameForRepliedMessage,
                 onMessageTap: onMessageTap,
+                people: people,
               ),
             Row(
               mainAxisSize: MainAxisSize.min,

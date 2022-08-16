@@ -15,6 +15,7 @@ import 'inherited_user.dart';
 import 'text_message.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:chat/data_model/chat_message.dart' as c;
+import '../../data_model/room.dart' as r;
 
 /// Base widget for all message types in the chat. Renders bubbles around
 /// messages and status. Sets maximum width for a message for
@@ -50,6 +51,7 @@ class Message extends StatelessWidget {
     required this.focusSearch,
     required this.replySwipeDirection,
     required this.onMessageReply,
+    required this.people,
     this.seenPeople,
   }) : super(key: key);
 
@@ -151,6 +153,7 @@ class Message extends StatelessWidget {
   final bool usePreviewData;
 
   final List<c.Author?>? seenPeople;
+  final List<r.People>? people;
 
   Widget _avatarBuilder(BuildContext context) {
     final color = getUserAvatarNameColor(
@@ -231,6 +234,7 @@ class Message extends StatelessWidget {
                 message: fileMessage,
                 showUserNameForRepliedMessage: true,
                 onMessageTap: onMessageTap,
+                people: people,
               );
       case types.MessageType.image:
         final imageMessage = message as types.ImageMessage;
@@ -241,6 +245,7 @@ class Message extends StatelessWidget {
                 messageWidth: messageWidth,
                 showUserNameForRepliedMessage: true,
                 onMessageTap: onMessageTap,
+          people: people,
               );
       case types.MessageType.text:
         final textMessage = message as types.TextMessage;
@@ -259,6 +264,7 @@ class Message extends StatelessWidget {
                 usePreviewData: usePreviewData,
                 searchController: searchController,
                 showUserNameForRepliedMessage: true,
+                people: people,
                 onMessageTap: onMessageTap,
               );
       default:

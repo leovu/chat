@@ -7,6 +7,7 @@ import 'package:chat/chat_screen/notification_screen.dart';
 import 'package:chat/chat_screen/room_list_screen.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/localization/app_localizations.dart';
+import 'package:chat/localization/check_tag.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -126,31 +127,13 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
           notificationData['room']['isGroup'] == true ?
           '${notificationData['message']['author']['firstName']} ${notificationData['message']['author']['lastName']} in ${notificationData['room']['title']}'
           : '${notificationData['message']['author']['firstName']} ${notificationData['message']['author']['lastName']}',
-          checkTag(notificationData['message']['content']),
+          checkTag(notificationData['message']['content'],null),
           notificationData, ChatConnection.appIcon, _notificationHandler);
       try{
         ChatConnection.refreshRoom.call();
         ChatConnection.refreshFavorites.call();
       }catch(_){}
     }
-  }
-
-  String checkTag(String message) {
-    List<String> contents = message.split(' ');
-    String result = '';
-    for (int i = 0; i < contents.length; i++) {
-      var element = contents[i];
-      if(element == '@all-all@') {
-        element = '@${AppLocalizations.text(LangKey.all)}';
-      }
-      try {
-        if(element[element.length-1] == '@' && element.contains('-')) {
-          element = element.split('-').first;
-        }
-      }catch(_) {}
-      result += '$element ';
-    }
-    return result.trim();
   }
 
   Future<dynamic> _notificationHandler(Map<String, dynamic> message) async {
