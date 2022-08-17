@@ -40,7 +40,18 @@ String checkTag(String message,List<People>? list) {
       }catch(_){}
       resultNull += '$element ';
     }
-    return resultNull.trim();
+    List<String> contentsChecked = resultNull.split('\n');
+    String resultNullChecked = "";
+    for (int i = 0; i < contentsChecked.length; i++) {
+      var element = contentsChecked[i];
+      try {
+        if(element[element.length-1] == '@' && element.contains('-')) {
+          element = element.split('-').first;
+        }
+      }catch(_){}
+      resultNullChecked += '$element ';
+    }
+    return resultNullChecked.trim();
   }
   return result.trim();
 }

@@ -227,54 +227,41 @@ class _InputState extends State<Input> {
   }
 
   void onChanged(String value) {
-    List<String> contents = [];
     List<String> tagListDetect = detectTag(value, widget.people);
     for (var e in tagListDetect) {
       if(!_idTagList.contains(e)) {
         _idTagList.add(e);
       }
     }
-    if(value.contains('@')) {
-      if(value[value.length-1] == "@") {
-        contents.add('');
+    //TODO: Check cursor to show tag list
+    var cursorPos = _textController.selection.base.offset;
+    int? index;
+    String textBeforeCursor = _textController.text.substring(0, cursorPos);
+    for(int i=textBeforeCursor.length-1;i>=0;i--) {
+      if(textBeforeCursor[i] == ' ' || textBeforeCursor[i] == '\n' ) {
+        break;
       }
-      else {
-        final selection = _textController.value.selection;
-        final text = _textController.value.text;
-        if(text == selection.textBefore(text)) {
-          if(text[text.length-1] == "@") {
-            contents.add('');
-          }
-          else {
-            List<String> splits = text.split(' ');
-            if(splits.last.contains('@')) {
-              contents.add(splits.last.substring(1));
-            }
-          }
-        }
-        else {
-          final before = selection.textBefore(text);
-          if(before.contains('@')) {
-            contents = before.split('@');
-          }
-        }
+      if(textBeforeCursor[i] == '@') {
+        index = i;
       }
     }
-    if(contents.isNotEmpty) {
-      try {
-        for (var e in contents) {
-          detectTagInTextField(e);
-        }
-      }catch(_) {
+    if(index!=null) {
+      //TODO: Null string
+      if(_textController.text == '') {
         setState(() {
           _taggingSuggestList = null;
         });
       }
-    }
-    else {
-      setState(() {
-        _taggingSuggestList = null;
-      });
+      else {
+        //TODO: Has Tag
+        String tagString;
+        try {
+          tagString = textBeforeCursor.substring(index+1,textBeforeCursor.length);
+        }catch(_) {
+          tagString = '';
+        }
+        detectTagInTextField(tagString);
+      }
     }
   }
   detectTagInTextField(String data) {
@@ -625,10 +612,9 @@ class _InputState extends State<Input> {
         padding: const EdgeInsets.only(left: 8.0,right: 8.0,bottom: 8.0),
         child: InkWell(
           onTap: (){
-            String val = replaceTagInTextField(null, _textController.value.text);
+            int val = replaceTagInTextField(null, _textController.value.text);
             setState(() {
-              _textController.text = val;
-              _textController.selection = TextSelection.fromPosition(TextPosition(offset: _textController.text.length));
+              _textController.selection = TextSelection.fromPosition(TextPosition(offset: val));
               _taggingSuggestList = null;
             });
           },
@@ -654,10 +640,9 @@ class _InputState extends State<Input> {
             if(!_idTagList.contains(e.sId!)) {
               _idTagList.add(e.sId!);
             }
-            String val = replaceTagInTextField(e, _textController.value.text);
+            int val = replaceTagInTextField(e, _textController.value.text);
             setState(() {
-              _textController.text = val;
-              _textController.selection = TextSelection.fromPosition(TextPosition(offset: _textController.text.length));
+              _textController.selection = TextSelection.fromPosition(TextPosition(offset: val));
               _taggingSuggestList = null;
             });
           },
@@ -695,49 +680,43 @@ class _InputState extends State<Input> {
     return _arr;
   }
 
-  String replaceTagInTextField(People? p, String value) {
-    String result = value;
-    List<String> contents = [];
-    final selection = _textController.value.selection;
-    final text = _textController.value.text;
-    if(text == selection.textBefore(text)) {
-
-      if(text[text.length-1] == "@") {
+  int replaceTagInTextField(People? p, String value) {
+    var cursorPos = _textController.selection.base.offset;
+    String textBeforeCursor = _textController.text.substring(0, cursorPos);
+    String textAfterCursor =  _textController.text.substring(cursorPos);
+    String result = _textController.text;
+    int? indexing;
+    if(textBeforeCursor != '') {
+      int? index;
+      for(int i=0;i<=textBeforeCursor.length-1;i++ ) {
+        if(textBeforeCursor[i] == '@') {
+          index = i;
+        }
+      }
+      if(index!=null) {
+        int? indexSpace;
+        for(int i=index;i<=textBeforeCursor.length-1;i++ ) {
+          if(textBeforeCursor[i] == ' '|| textBeforeCursor[i] == '\n' ) {
+            indexSpace = i;
+          }
+          if(indexSpace == null && i == textBeforeCursor.length-1) {
+            indexSpace = i;
+          }
+        }
+        result = textBeforeCursor.substring(0, index);
         if(p == null) {
-          result += AppLocalizations.text(LangKey.all);
+          result += '@${AppLocalizations.text(LangKey.all)}';
         }
         else {
-          result += '${p.firstName}${p.lastName}';
+          result += '@${p.firstName}${p.lastName}';
         }
-      }
-      else {
-        List<String> splits = text.split(' ');
-        if(p == null) {
-          result = result.replaceFirst(splits.last, '@${AppLocalizations.text(LangKey.all)}');
-        } else {
-          result = result.replaceFirst(splits.last, '@${p.firstName}${p.lastName}');
-        }
+        indexing = result.length;
+        result += textBeforeCursor.substring(indexSpace!, textBeforeCursor.length-1);
+        result += textAfterCursor;
       }
     }
-    else {
-      final before = selection.textBefore(text);
-      contents = before.split('@');
-      if(contents.last != '') {
-        if(p == null) {
-          result = result.replaceFirst(contents.last, '@${AppLocalizations.text(LangKey.all)}');
-        } else {
-          result = result.replaceFirst(contents.last, '@${p.firstName}${p.lastName}');
-        }
-      }
-      else {
-        if(p == null) {
-          result = result.replaceFirst(before, '@${AppLocalizations.text(LangKey.all)}');
-        } else {
-          result = result.replaceFirst(before, '$before${p.firstName}${p.lastName}');
-        }
-      }
-    }
-    return result;
+    _textController.text = result;
+    return indexing ?? _textController.text.length-1;
   }
 
   _onEmojiSelected(Emoji emoji) {
