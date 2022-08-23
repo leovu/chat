@@ -106,7 +106,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   }
 
   void addTaskInstance(String textMessage) {
-    ChatConnection.addOnModules!.firstWhere((e) => e['key']=='create_jobs')['function'](textMessage);
+    ChatConnection.addOnModules!.firstWhere((e) => e['key']=='create_jobs')['function'](checkTag(textMessage, data?.room?.people));
   }
 
   void _handleAttachmentPressed() {

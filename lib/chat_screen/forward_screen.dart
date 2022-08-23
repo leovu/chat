@@ -388,19 +388,18 @@ class ForwardScreenState extends State<ForwardScreen> {
                                 ButtonTheme(
                                   minWidth: 50.0,
                                   child: MaterialButton(onPressed: () async {
-                                    bool result = await ChatConnection.forwardMessage(_controllerContent.text,
-                                        c.Room.fromJson(data.toJson()),
-                                        ChatConnection.user!.id, widget.message.id);
-                                    if(result) {
-                                      if(idSent.contains(data.sId)) {
-                                        return;
+                                      if(!idSent.contains(data.sId)) {
+                                        bool result = await ChatConnection.forwardMessage(_controllerContent.text,
+                                            c.Room.fromJson(data.toJson()),
+                                            ChatConnection.user!.id, widget.message.id);
+                                        if(result) {
+                                          idSent.add(data.sId);
+                                          if(data.sId == ChatConnection.roomId) {
+                                            _isSentCurrentChatRoom = true;
+                                          }
+                                          setState(() {});
+                                        }
                                       }
-                                      idSent.add(data.sId);
-                                      if(data.sId == ChatConnection.roomId) {
-                                        _isSentCurrentChatRoom = true;
-                                      }
-                                      setState(() {});
-                                    }
                                   },
                                   child: AutoSizeText(idSent.contains(data.sId) ? AppLocalizations.text(LangKey.sent) : AppLocalizations.text(LangKey.send)),
                                     color: idSent.contains(data.sId) ? Colors.grey : Colors.blue,

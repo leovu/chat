@@ -62,7 +62,18 @@ String checkTag(String message,List<People>? list) {
       }catch(_){}
       resultNullChecked += '$element ';
     }
-    return resultNullChecked.trim();
+    result = resultNullChecked;
+  }
+  RegExp regexp = RegExp(r'@([^]*?)-([^]*?)@');
+  final resultMatches = regexp.allMatches(result);
+  List<String> matches = resultMatches.map(
+          (urlMatch) => (result).substring(urlMatch.start, urlMatch.end))
+      .toList();
+  if(matches.isNotEmpty) {
+    for (var e in matches) {
+      List<String> spkli = e.split('-');
+      result = result.replaceAll(e, spkli[0]);
+    }
   }
   return result.trim();
 }

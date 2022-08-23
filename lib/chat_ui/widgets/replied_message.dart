@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/check_tag.dart';
 import 'package:chat/localization/lang_key.dart';
@@ -60,11 +61,12 @@ class RepliedMessage extends StatelessWidget {
           break;
         case types.MessageType.text:
           final textMessage = repliedMessage as types.TextMessage;
-          _text = checkTag(textMessage.text,people);
+          _text = textMessage.text;
           break;
         default:
           break;
       }
+      _text = checkTag(_text, people);
     }
 
     return InkWell(
@@ -130,12 +132,10 @@ class RepliedMessage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (repliedMessage?.author.firstName != null && showUserNames)
-                    Text(
+                    AutoSizeText(
                       _closable
                           ? '${AppLocalizations.text(LangKey.replying)} ${repliedMessage!.author.firstName!} ${repliedMessage!.author.lastName!}'
                           : _text,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: _closable
                             ? Colors.black
