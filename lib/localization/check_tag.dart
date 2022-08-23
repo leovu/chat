@@ -16,11 +16,22 @@ String checkTag(String message,List<People>? list) {
       if(result.contains('@${e.firstName}${e.lastName}-${e.sId}@')) {
         if(!_tagList.contains(e.sId!)) {
           _tagList.add(e.sId!);
-          result = result.replaceAll('@${e.firstName}${e.lastName}-${e.sId}@', '@${e.firstName}${e.lastName}');
+          result = result.replaceAll('@${e.firstName}${e.lastName}-${e.sId}@', '@${e.firstName} ${e.lastName}');
+        }
+      }
+      else if(result.contains('@${e.firstName} ${e.lastName}-${e.sId}@')) {
+        if(!_tagList.contains(e.sId!)) {
+          _tagList.add(e.sId!);
+          result = result.replaceAll('@${e.firstName} ${e.lastName}-${e.sId}@', '@${e.firstName} ${e.lastName}');
         }
       }
       else {
         if(result.contains('@${e.firstName}${e.lastName}')) {
+          if(!_tagList.contains(e.sId!)) {
+            _tagList.add(e.sId!);
+          }
+        }
+        else if(result.contains('@${e.firstName} ${e.lastName}')) {
           if(!_tagList.contains(e.sId!)) {
             _tagList.add(e.sId!);
           }
@@ -67,11 +78,22 @@ List<String> detectTag(String message,List<People>? list) {
       if(result.contains('@${e.firstName}${e.lastName}-${e.sId}@')) {
         if(!_tagList.contains(e.sId!)) {
           _tagList.add(e.sId!);
-          result = result.replaceAll('@${e.firstName}${e.lastName}-${e.sId}@', '@${e.firstName}${e.lastName}');
+          result = result.replaceAll('@${e.firstName}${e.lastName}-${e.sId}@', '@${e.firstName} ${e.lastName}');
+        }
+      }
+      else if(result.contains('@${e.firstName} ${e.lastName}-${e.sId}@')) {
+        if(!_tagList.contains(e.sId!)) {
+          _tagList.add(e.sId!);
+          result = result.replaceAll('@${e.firstName} ${e.lastName}-${e.sId}@', '@${e.firstName}${e.lastName}');
         }
       }
       else {
         if(result.contains('@${e.firstName}${e.lastName}')) {
+          if(!_tagList.contains(e.sId!)) {
+            _tagList.add(e.sId!);
+          }
+        }
+        else if(result.contains('@${e.firstName} ${e.lastName}')) {
           if(!_tagList.contains(e.sId!)) {
             _tagList.add(e.sId!);
           }
