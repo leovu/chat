@@ -27,6 +27,7 @@ class ChatConnection {
   static late String appIcon;
   static String? roomId;
   static User? user;
+  static String? brandCode;
   static late BuildContext buildContext;
   static List<Map<String,dynamic>>? addOnModules;
   static bool isLoadMore = false;
@@ -129,7 +130,6 @@ class ChatConnection {
       if(!refresh) {
         streamSocket.joinRoom(id);
       }
-      print(responseData.data);
       return c.ChatMessage.fromJson(responseData.data);
     }
     return null;

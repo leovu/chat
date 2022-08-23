@@ -9,6 +9,9 @@ class HTTPConnection {
     final uri = Uri.parse('$domain$path');
     var request = http.MultipartRequest('POST', uri);
     request.headers.addAll({'Content-Type': 'multipart/form-data','Authorization':'Bearer ${ChatConnection.user!.token}'});
+    if(ChatConnection.brandCode != null) {
+      request.headers['brand-code'] = ChatConnection.brandCode!;
+    }
     request.files.add(
       http.MultipartFile(
         isImage ? 'image' : 'file',
@@ -36,6 +39,9 @@ class HTTPConnection {
     final headers = {'Content-Type': 'application/json'};
     if(ChatConnection.user != null) {
       headers['Authorization'] = 'Bearer ${ChatConnection.user!.token}';
+    }
+    if(ChatConnection.brandCode != null) {
+      headers['brand-code'] = ChatConnection.brandCode!;
     }
     String jsonBody = json.encode(body);
     final encoding = Encoding.getByName('utf-8');

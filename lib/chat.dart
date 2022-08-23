@@ -32,6 +32,7 @@ class Chat {
   static open(BuildContext context, String email, String password,
       String appIcon,Locale locale,
       { String? domain, String? token,
+        String? brandCode,
         Map<String, dynamic>? notificationData,
         List<Map<String,dynamic>>? addOnModules}) async {
     showLoading(context);
@@ -43,6 +44,7 @@ class Chat {
     ChatConnection.locale = locale;
     ChatConnection.buildContext = context;
     ChatConnection.appIcon = appIcon;
+    ChatConnection.brandCode = brandCode;
     if(notificationData != null) {
       ChatConnection.initialData = notificationData;
     }
