@@ -141,6 +141,7 @@ class ForwardScreenState extends State<ForwardScreen> {
                                       child: CachedNetworkImage(
                                         imageUrl:
                                         (widget.message as types.ImageMessage).uri,
+                                        httpHeaders: {'brand-code':ChatConnection.brandCode!},
                                         placeholder: (context, url) => const CupertinoActivityIndicator(),
                                         errorWidget: (context, url, error) => const Icon(Icons.error),
                                         fit: BoxFit.contain,
@@ -361,7 +362,7 @@ class ForwardScreenState extends State<ForwardScreen> {
                   ) : CircleAvatar(
                     radius: 10.0,
                     backgroundImage:
-                    CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${info.picture!.shieldedID}/256'),
+                    CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${info.picture!.shieldedID}/256',headers: {'brand-code':ChatConnection.brandCode!}),
                     backgroundColor: Colors.transparent,
                   ) : data.picture == null ? CircleAvatar(
                     radius: 10.0,
@@ -371,7 +372,7 @@ class ForwardScreenState extends State<ForwardScreen> {
                   ) : CircleAvatar(
                     radius: 10.0,
                     backgroundImage:
-                    CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${data.picture!.shieldedID}/256'),
+                    CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${data.picture!.shieldedID}/256',headers: {'brand-code':ChatConnection.brandCode!}),
                     backgroundColor: Colors.transparent,
                   ),
                   Expanded(child: Container(

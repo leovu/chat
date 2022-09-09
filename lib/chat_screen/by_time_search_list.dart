@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/chat_ui/widgets/link_preview.dart';
+import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/download.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/localization/app_localizations.dart';
@@ -339,6 +340,7 @@ class _State extends State<ByTimeResultScreen>
         child: CachedNetworkImage(
           imageUrl:
           '${HTTPConnection.domain}api/images/$content/256',
+          httpHeaders: {'brand-code':ChatConnection.brandCode!},
           fit: BoxFit.cover,
           placeholder: (context, url) => const CupertinoActivityIndicator(),
           errorWidget: (context, url, error) => const Icon(Icons.error),

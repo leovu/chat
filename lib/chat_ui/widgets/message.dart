@@ -1,5 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -174,7 +175,7 @@ class Message extends StatelessWidget {
                         .userAvatarImageBackgroundColor
                     : color,
                 backgroundImage:
-                    hasImage ? NetworkImage(message.author.imageUrl!) : null,
+                    hasImage ? NetworkImage(message.author.imageUrl!,headers: {'brand-code':ChatConnection.brandCode!}) : null,
                 radius: 16,
                 child: !hasImage
                     ? Text(
@@ -546,7 +547,7 @@ class Message extends StatelessWidget {
                                       ) : CircleAvatar(
                                         radius: 10.0,
                                         backgroundImage:
-                                        CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${e!.picture!.shieldedID}/256'),
+                                        CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${e!.picture!.shieldedID}/256',headers: {'brand-code':ChatConnection.brandCode!}),
                                         backgroundColor: Colors.transparent,
                                       ),
                                       Expanded(child: Padding(
@@ -594,7 +595,7 @@ class Message extends StatelessWidget {
           child: CircleAvatar(
             radius: 8.0,
             backgroundImage:
-            CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${e!.picture!.shieldedID}/256'),
+            CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${e!.picture!.shieldedID}/256',headers: {'brand-code':ChatConnection.brandCode!}),
             backgroundColor: Colors.transparent,
           ),
         ));

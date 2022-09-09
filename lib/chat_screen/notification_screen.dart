@@ -150,7 +150,7 @@ class _NotificationScreenState extends State<NotificationScreen> with AutomaticK
                 ) : CircleAvatar(
                   radius: 20.0,
                   backgroundImage:
-                  CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${data.createdBy!.picture!.shieldedID}/256'),
+                  CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${data.createdBy!.picture!.shieldedID}/256',headers: {'brand-code':ChatConnection.brandCode!}),
                   backgroundColor: Colors.transparent,
                 ),
                 Expanded(child: Container(

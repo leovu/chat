@@ -184,6 +184,7 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
             child: CachedNetworkImage(
               imageUrl:
                   '${HTTPConnection.domain}api/images/${widget.chatMessage?.room?.images?[position].content}/512',
+              httpHeaders: {'brand-code':ChatConnection.brandCode!},
               placeholder: (context, url) => const CupertinoActivityIndicator(),
               fit: BoxFit.cover,
               errorWidget: (context, url, error) => const Icon(Icons.error),

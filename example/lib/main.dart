@@ -133,7 +133,7 @@ class _MyAppState extends State<MyApp> {
                     errorDialog('Domain Empty');
                     return;
                   }
-                  Chat.open(context,_userNameController.value.text, _passwordController.value.text, 'assets/icon-app.png',const Locale(LangKey.langVi, 'VN'), domain: _domainController.value.text);
+                  Chat.open(context,_userNameController.value.text, _passwordController.value.text, 'assets/icon-app.png',const Locale(LangKey.langVi, 'VN'), domain: _domainController.value.text,brandCode: 'matthewsliquor');
                 },
                 child: Container(
                     height: 40.0,

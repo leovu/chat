@@ -1,4 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/data_model/chat_message.dart';
 import 'package:chat/chat_screen/detail_group_image_screen.dart';
@@ -47,6 +48,7 @@ class GroupImageItem extends StatelessWidget {
               CachedNetworkImage(
                 imageUrl:
                 '${HTTPConnection.domain}api/images/${people.picture!.shieldedID}/256',
+                httpHeaders: {'brand-code':ChatConnection.brandCode!},
                 fit: BoxFit.cover,
                 placeholder: (context, url) => const CupertinoActivityIndicator(),
                 errorWidget: (context, url, error) => const Icon(Icons.error),

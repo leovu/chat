@@ -1,3 +1,4 @@
+import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/cupertino.dart';
@@ -113,6 +114,7 @@ class BannerNotificationState extends State<BannerNotification> {
                             left: 5.0, top: 5.0, bottom: 5.0),
                         child: CachedNetworkImage(
                           imageUrl: widget.notificationDescription,
+                          httpHeaders: {'brand-code':ChatConnection.brandCode!},
                           placeholder: (context, url) => const CupertinoActivityIndicator(),
                           errorWidget: (context, url, error) => const Icon(Icons.error),
                         ),

@@ -656,7 +656,7 @@ class _InputState extends State<Input> {
               ) : CircleAvatar(
                 radius: 12.0,
                 backgroundImage:
-                CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${e.picture!.shieldedID}/256'),
+                CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${e.picture!.shieldedID}/256',headers: {'brand-code':ChatConnection.brandCode!}),
                 backgroundColor: Colors.transparent,
               ),
               Expanded(child: Padding(

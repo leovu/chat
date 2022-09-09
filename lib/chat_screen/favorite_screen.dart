@@ -242,7 +242,7 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen> with AutomaticKee
                   ) : CircleAvatar(
                     radius: 25.0,
                     backgroundImage:
-                    CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${info.picture!.shieldedID}/256'),
+                    CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${info.picture!.shieldedID}/256',headers: {'brand-code':ChatConnection.brandCode!}),
                     backgroundColor: Colors.transparent,
                   ) : data.picture == null ? CircleAvatar(
                     radius: 25.0,
@@ -252,7 +252,7 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen> with AutomaticKee
                   ) : CircleAvatar(
                     radius: 25.0,
                     backgroundImage:
-                    CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${data.picture!.shieldedID}/256'),
+                    CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${data.picture!.shieldedID}/256',headers: {'brand-code':ChatConnection.brandCode!}),
                     backgroundColor: Colors.transparent,
                   ),
                   Expanded(child: Container(
