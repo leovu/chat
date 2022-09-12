@@ -65,6 +65,12 @@ Future<String?> download(BuildContext context,String url,String filename, {bool 
       await Dio().download(
         url,
         urlPath,
+        options: Options(
+          headers: {
+            'brand-code' : ChatConnection.brandCode!,
+            'Authorization':'Bearer ${ChatConnection.user!.token}'
+          },
+        ),
       );
       if (Platform.isAndroid) {
         final params = SaveFileDialogParams(
