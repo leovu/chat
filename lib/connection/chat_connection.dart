@@ -26,6 +26,7 @@ class ChatConnection {
   static HTTPConnection connection = HTTPConnection();
   static late String appIcon;
   static String? roomId;
+  static bool isChatHub = false;
   static User? user;
   static String? brandCode;
   static late BuildContext buildContext;
@@ -91,8 +92,12 @@ class ChatConnection {
     }
     return null;
   }
-  static Future<r.Room?>roomList() async {
-    ResponseData responseData = await connection.post('api/rooms/list', {'limit':500});
+  static Future<r.Room?>roomList({String? source, String? channelId, String? status}) async {
+    Map<String,dynamic> json = {'limit':500};
+    if(source != null) json['source'] = source;
+    if(channelId != null) json['channel_id'] = channelId;
+    if(status != null) json['status'] = status;
+    ResponseData responseData = await connection.post('api/rooms/list', json);
     if(responseData.isSuccess) {
       return r.Room.fromJson(responseData.data);
     }

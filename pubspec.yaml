@@ -103,6 +103,10 @@ flutter:
     - assets/icon-seen.png
     - assets/icon-send.png
     - assets/icon-reply.png
+    - assets/icon-facebook.png
+    - assets/icon-zalo.png
+    - assets/icon-facebook-main.png
+    - assets/icon-chathub-main.png
     - assets/2.0x/icon-attachment.png
     - assets/2.0x/icon-delivered.png
     - assets/2.0x/icon-document.png

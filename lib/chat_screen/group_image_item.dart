@@ -47,7 +47,7 @@ class GroupImageItem extends StatelessWidget {
               textScaleFactor: 2.5,)) :
               CachedNetworkImage(
                 imageUrl:
-                '${HTTPConnection.domain}api/images/${people.picture!.shieldedID}/256',
+                '${HTTPConnection.domain}api/images/${people.picture!.shieldedID}/256/${ChatConnection.brandCode!}',
                 httpHeaders: {'brand-code':ChatConnection.brandCode!},
                 fit: BoxFit.cover,
                 placeholder: (context, url) => const CupertinoActivityIndicator(),

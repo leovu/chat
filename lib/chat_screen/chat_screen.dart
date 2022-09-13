@@ -792,7 +792,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
             ) : CircleAvatar(
               radius: 18.0,
               backgroundImage:
-              CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${info.picture!.shieldedID}/256',headers: {'brand-code':ChatConnection.brandCode!}),
+              CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${info.picture!.shieldedID}/256/${ChatConnection.brandCode!}',headers: {'brand-code':ChatConnection.brandCode!}),
               backgroundColor: Colors.transparent,
             ) : widget.data.picture == null ? CircleAvatar(
               radius: 18.0,
@@ -802,7 +802,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
             ) : CircleAvatar(
               radius: 18.0,
               backgroundImage:
-              CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${widget.data.picture!.shieldedID}/256',headers: {'brand-code':ChatConnection.brandCode!}),
+              CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${widget.data.picture!.shieldedID}/256/${ChatConnection.brandCode!}',headers: {'brand-code':ChatConnection.brandCode!}),
               backgroundColor: Colors.transparent,
             ),
             mini: true,
@@ -851,7 +851,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                                 padding: const EdgeInsets.all(3.0),
                                 child: CachedNetworkImage(
                                   fit: BoxFit.cover,
-                                imageUrl: '${HTTPConnection.domain}api/images/${data?.room?.pinMessage?.content}/256',
+                                imageUrl: '${HTTPConnection.domain}api/images/${data?.room?.pinMessage?.content}/256/${ChatConnection.brandCode!}',
                                   httpHeaders: {'brand-code':ChatConnection.brandCode!},
                                 placeholder: (context, url) => const CupertinoActivityIndicator(),
                                 errorWidget: (context, url, error) => const Icon(Icons.error),
@@ -1222,7 +1222,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                   ) : CircleAvatar(
                     radius: 15.0,
                     backgroundImage:
-                    CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${info.picture!.shieldedID}/256',headers: {'brand-code':ChatConnection.brandCode!}),
+                    CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${info.picture!.shieldedID}/256/${ChatConnection.brandCode!}',headers: {'brand-code':ChatConnection.brandCode!}),
                     backgroundColor: Colors.transparent,
                   ) : widget.data.picture == null ? CircleAvatar(
                     radius: 15.0,
@@ -1232,7 +1232,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                   ) : CircleAvatar(
                     radius: 15.0,
                     backgroundImage:
-                    CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${widget.data.picture!.shieldedID}/256',headers: {'brand-code':ChatConnection.brandCode!}),
+                    CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${widget.data.picture!.shieldedID}/256/${ChatConnection.brandCode!}',headers: {'brand-code':ChatConnection.brandCode!}),
                     backgroundColor: Colors.transparent,
                   )),
               Expanded(

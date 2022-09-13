@@ -183,7 +183,7 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
                     ) : CircleAvatar(
                       radius: 25.0,
                       backgroundImage:
-                      CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${data.picture!.shieldedID}/256',headers: {'brand-code':ChatConnection.brandCode!}),
+                      CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${data.picture!.shieldedID}/256/${ChatConnection.brandCode!}',headers: {'brand-code':ChatConnection.brandCode!}),
                       backgroundColor: Colors.transparent,
                     ),
                     Expanded(child: Container(

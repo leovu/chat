@@ -339,7 +339,7 @@ class _State extends State<ByTimeResultScreen>
         height: MediaQuery.of(context).size.width * 0.3,
         child: CachedNetworkImage(
           imageUrl:
-          '${HTTPConnection.domain}api/images/$content/256',
+          '${HTTPConnection.domain}api/images/$content/256/${ChatConnection.brandCode!}',
           httpHeaders: {'brand-code':ChatConnection.brandCode!},
           fit: BoxFit.cover,
           placeholder: (context, url) => const CupertinoActivityIndicator(),

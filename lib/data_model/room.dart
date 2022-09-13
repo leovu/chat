@@ -41,6 +41,9 @@ class Rooms {
   Picture? picture;
   List<MessagesReceived>? messagesReceived;
   String? createdAt;
+  String? source;
+  int? messageUnSeen;
+  Channel? channel;
 
   Rooms(
       {people,
@@ -53,7 +56,10 @@ class Rooms {
         lastUpdate,
         owner,
         messagesReceived,
-        createdAt,});
+        createdAt,
+        source,
+        messageUnSeen,
+        channel,});
 
   Rooms.fromJson(Map<String, dynamic> json) {
     if (json['people'] != null) {
@@ -63,12 +69,15 @@ class Rooms {
       });
     }
     isGroup = json['isGroup'];
+    source = json['source'];
+    channel = json['channel'] != null ? Channel.fromJson(json['channel']) : null;
     sId = json['_id'];
     title = json['title'];
     createdAt = json['createdAt'];
     iV = json['__v'];
     lastAuthor = json['lastAuthor'];
     owner = json['owner'];
+    messageUnSeen = json['messageUnSeen'];
     try{
       lastMessage = json['lastMessage'] != null
           ? LastMessage.fromJson(json['lastMessage'])
@@ -110,6 +119,10 @@ class Rooms {
       data['people'] = people!.map((v) => v.toJson()).toList();
     }
     data['isGroup'] = isGroup;
+    data['source'] = source;
+    if (channel != null) {
+      data['channel'] = channel!.toJson();
+    }
     data['_id'] = sId;
     data['title'] = title;
     data['__v'] = iV;
@@ -125,6 +138,7 @@ class Rooms {
     data['lastUpdate'] = lastUpdate;
     data['picture'] = picture;
     data['owner'] = owner;
+    data['messageUnSeen'] = messageUnSeen;
     return data;
   }
 
@@ -146,6 +160,72 @@ class Rooms {
     return avatarName;
   }
 }
+
+class Channel {
+  String? sId;
+  bool? status;
+  String? nameApp;
+  String? oaSecrectKey;
+  String? source;
+  String? socialChanelId;
+  String? accessToken;
+  String? refreshToken;
+  String? expiresIn;
+  String? refreshExpiresIn;
+  String? createdAt;
+  String? updatedAt;
+  int? iV;
+
+  Channel(
+      {this.sId,
+        this.status,
+        this.nameApp,
+        this.oaSecrectKey,
+        this.source,
+        this.socialChanelId,
+        this.accessToken,
+        this.refreshToken,
+        this.expiresIn,
+        this.refreshExpiresIn,
+        this.createdAt,
+        this.updatedAt,
+        this.iV});
+
+  Channel.fromJson(Map<String, dynamic> json) {
+    sId = json['_id'];
+    status = json['status'];
+    nameApp = json['nameApp'];
+    oaSecrectKey = json['oaSecrectKey'];
+    source = json['source'];
+    socialChanelId = json['socialChanelId'];
+    accessToken = json['accessToken'];
+    refreshToken = json['refreshToken'];
+    expiresIn = json['expiresIn'];
+    refreshExpiresIn = json['refreshExpiresIn'];
+    createdAt = json['createdAt'];
+    updatedAt = json['updatedAt'];
+    iV = json['__v'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['_id'] = sId;
+    data['status'] = status;
+    data['nameApp'] = nameApp;
+    data['oaSecrectKey'] = oaSecrectKey;
+    data['source'] = source;
+    data['socialChanelId'] = socialChanelId;
+    data['accessToken'] = accessToken;
+    data['refreshToken'] = refreshToken;
+    data['expiresIn'] = expiresIn;
+    data['refreshExpiresIn'] = refreshExpiresIn;
+    data['createdAt'] = createdAt;
+    data['updatedAt'] = updatedAt;
+    data['__v'] = iV;
+    return data;
+  }
+}
+
 
 class People {
   String? level;

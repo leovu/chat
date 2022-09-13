@@ -62,6 +62,7 @@ class HTTPConnection {
     else {
       ResponseData data = ResponseData();
       data.isSuccess = false;
+      print(response.body);
       return data;
     }
   }

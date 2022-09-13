@@ -277,7 +277,7 @@ class _ConversationInformationScreenState
     if (url != null) {
       child = CircleAvatar(
         radius: radius,
-        backgroundImage: CachedNetworkImageProvider(url,headers: {'brand-code':ChatConnection.brandCode!}),
+        backgroundImage: CachedNetworkImageProvider('$url/${ChatConnection.brandCode!}',headers: {'brand-code':ChatConnection.brandCode!}),
         backgroundColor: Colors.transparent,
       );
     }

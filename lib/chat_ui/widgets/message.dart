@@ -547,7 +547,7 @@ class Message extends StatelessWidget {
                                       ) : CircleAvatar(
                                         radius: 10.0,
                                         backgroundImage:
-                                        CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${e!.picture!.shieldedID}/256',headers: {'brand-code':ChatConnection.brandCode!}),
+                                        CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${e!.picture!.shieldedID}/256/${ChatConnection.brandCode!}',headers: {'brand-code':ChatConnection.brandCode!}),
                                         backgroundColor: Colors.transparent,
                                       ),
                                       Expanded(child: Padding(
@@ -595,7 +595,7 @@ class Message extends StatelessWidget {
           child: CircleAvatar(
             radius: 8.0,
             backgroundImage:
-            CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${e!.picture!.shieldedID}/256',headers: {'brand-code':ChatConnection.brandCode!}),
+            CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${e!.picture!.shieldedID}/256/${ChatConnection.brandCode!}',headers: {'brand-code':ChatConnection.brandCode!}),
             backgroundColor: Colors.transparent,
           ),
         ));

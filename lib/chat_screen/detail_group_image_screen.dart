@@ -73,7 +73,7 @@ class _State extends State<DetailGroupImageScreen>
             },
             child: CachedNetworkImage(
               imageUrl:
-              '${HTTPConnection.domain}api/images/${widget.images?[position].content}/512',
+              '${HTTPConnection.domain}api/images/${widget.images?[position].content}/512/${ChatConnection.brandCode!}',
               httpHeaders: {'brand-code':ChatConnection.brandCode!},
               placeholder: (context, url) => const CupertinoActivityIndicator(),
               errorWidget: (context, url, error) => const Icon(Icons.error),

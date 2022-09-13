@@ -33,6 +33,7 @@ class Chat {
       String appIcon,Locale locale,
       { String? domain, String? token,
         String? brandCode,
+        bool isChatHub = false,
         Map<String, dynamic>? notificationData,
         List<Map<String,dynamic>>? addOnModules}) async {
     showLoading(context);
@@ -45,6 +46,7 @@ class Chat {
     ChatConnection.buildContext = context;
     ChatConnection.appIcon = appIcon;
     ChatConnection.brandCode = brandCode;
+    ChatConnection.isChatHub = isChatHub;
     if(notificationData != null) {
       ChatConnection.initialData = notificationData;
     }

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:chat/chat_screen/home_screen.dart';
 import 'package:chat/chat_ui/vietnamese_text.dart';
 import 'package:chat/chat_ui/widgets/chat_room_widget.dart';
@@ -22,7 +23,8 @@ class RoomListScreen extends StatefulWidget {
   final RefreshBuilder builder;
   final Function? homeCallback;
   final Function? openCreateChatRoom;
-  const RoomListScreen({Key? key, required this.builder, this.homeCallback , this.openCreateChatRoom}) : super(key: key);
+  final String? source;
+  const RoomListScreen({Key? key, required this.builder, this.homeCallback , this.openCreateChatRoom, this.source}) : super(key: key);
   @override
   _RoomListScreenState createState() => _RoomListScreenState();
 }
@@ -35,6 +37,8 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
   Room? roomListVisible;
   Room? roomListData;
   bool isInitScreen = true;
+  Map<String,dynamic> colorAppName = {};
+  List<Color> hexColor = [Colors.red, Colors.purple, Colors.indigo, Colors.blue, Colors.cyan, Colors.teal, Colors.deepOrange, Colors.brown];
 
   @override
   void initState() {
@@ -56,14 +60,16 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
   }
   _getRooms() async {
     if(mounted) {
-      roomListData = await ChatConnection.roomList();
+      roomListData = await ChatConnection.roomList(source: widget.source);
+      hexColor = [Colors.red, Colors.purple, Colors.indigo, Colors.blue, Colors.cyan, Colors.teal, Colors.deepOrange, Colors.brown];
       _getRoomVisible();
       isInitScreen = false;
       setState(() {});
     }
     else {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
-        roomListData = await ChatConnection.roomList();
+        roomListData = await ChatConnection.roomList(source: widget.source);
+        hexColor = [Colors.red, Colors.purple, Colors.indigo, Colors.blue, Colors.cyan, Colors.teal, Colors.deepOrange, Colors.brown];
         _getRoomVisible();
         isInitScreen = false;
         setState(() {});
@@ -103,9 +109,10 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
     return GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: Scaffold(
+          backgroundColor: Colors.white,
           body: SafeArea(
               child: Column(children: [
-                Column(
+                if(!ChatConnection.isChatHub) Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
@@ -133,7 +140,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                           child: Text(AppLocalizations.text(LangKey.chats),style: const TextStyle(fontSize: 25.0,color: Colors.black)),
                         ),
                         Expanded(child: Container()),
-                        Padding(
+                        if(!ChatConnection.isChatHub) Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20.0),
                           child: SizedBox(width:30.0,height: 30.0,
                               child: InkWell(onTap: () async {
@@ -437,11 +444,16 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
   Widget _room(Rooms data, bool isLast) {
     People info = getPeople(data.people);
     String? author = findAuthor(data.people,data.lastMessage?.author);
+    if(!colorAppName.keys.contains(data.channel?.nameApp??'')) {
+      Color color = RandomHexColor().colorRandom(hexColor);
+      hexColor.remove(color);
+      colorAppName[data.channel?.nameApp??''] = color;
+    }
     return Column(
       children: [
         SizedBox(
           child: SizedBox(
-            height: 50.0,
+            height: ChatConnection.isChatHub ? 80.0 : 50.0,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10.0),
               child: Row(
@@ -456,7 +468,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                   ) : CircleAvatar(
                     radius: 25.0,
                     backgroundImage:
-                    CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${info.picture!.shieldedID}/256',headers: {'brand-code':ChatConnection.brandCode!}),
+                    CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${info.picture!.shieldedID}/256/${ChatConnection.brandCode!}',headers: {'brand-code':ChatConnection.brandCode!}),
                     backgroundColor: Colors.transparent,
                   ) : data.picture == null ? CircleAvatar(
                     radius: 25.0,
@@ -466,7 +478,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                   ) : CircleAvatar(
                     radius: 25.0,
                     backgroundImage:
-                    CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${data.picture!.shieldedID}/256',headers: {'brand-code':ChatConnection.brandCode!}),
+                    CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${data.picture!.shieldedID}/256/${ChatConnection.brandCode!}',headers: {'brand-code':ChatConnection.brandCode!}),
                     backgroundColor: Colors.transparent,
                   ),
                   Expanded(child: Container(
@@ -478,10 +490,14 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                         Expanded(
                           child: Row(
                             children: [
+                              if(data.source != null) Padding(
+                                padding: const EdgeInsets.only(right: 6.0),
+                                child: Image.asset(data.source == 'zalo' ? 'assets/icon-zalo.png' : 'assets/icon-facebook.png',package: 'chat',width: 15.0,height: 15.0,),
+                              ),
                               Expanded(child: AutoSizeText(!data.isGroup! ?
                               '${info.firstName} ${info.lastName}' : data.title ?? 'Group ${info.firstName} ${info.lastName}',
                                   overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(fontWeight: findUnread(data.messagesReceived) != '0' ? FontWeight.bold : FontWeight.normal),
+                                  style: TextStyle(fontWeight: findUnread(data.messagesReceived,data.messageUnSeen) != '0' ? FontWeight.bold : FontWeight.normal),
                                 ),
                               ),
                               AutoSizeText(data.lastMessage?.lastMessageDate() ?? data.createdDate(),style: const TextStyle(fontSize: 11,color: Colors.grey),),
@@ -503,14 +519,28 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                                   }return Container();
                                 },
                               )),
-                            if(findUnread(data.messagesReceived) != '0') CircleAvatar(
+                            if(findUnread(data.messagesReceived,data.messageUnSeen) != '0') CircleAvatar(
                               radius: 18.0,
                               child: Text(
-                                findUnread(data.messagesReceived),
+                                findUnread(data.messagesReceived,data.messageUnSeen),
                                 style: const TextStyle(color: Colors.white,fontSize: 12),),
                             )
                           ],
                         )),
+                        if(data.channel != null) Expanded(child: Padding(
+                          padding: const EdgeInsets.only(top: 5.0),
+                          child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: colorAppName[data.channel?.nameApp??''],
+                                  borderRadius: BorderRadius.circular(10.0)
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.only(left: 8.0,right: 8.0,top: 6.0,bottom: 6.0),
+                                  child: AutoSizeText(data.channel?.nameApp??'',textAlign: TextAlign.center,style: const TextStyle(color: Colors.white),textScaleFactor: 0.85,),
+                                ))),
+                        ),flex: 2,)
                       ],
                     ),
                   ))
@@ -536,8 +566,10 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
     }
   }
   String _checkContent(Rooms model) {
-    if((model.messagesReceived?.length ?? 0) == 0){
-      return (findAuthor(model.people,model.owner,isGroupOwner: true) ?? '') + AppLocalizations.text(LangKey.justCreatedRoom);
+    if(!ChatConnection.isChatHub) {
+      if((model.messagesReceived?.length ?? 0) == 0){
+        return (findAuthor(model.people,model.owner,isGroupOwner: true) ?? '') + AppLocalizations.text(LangKey.justCreatedRoom);
+      }
     }
     if(model.lastMessage?.type == 'image'){
       return AppLocalizations.text(LangKey.sentPicture);
@@ -555,16 +587,26 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
   People getPeople(List<People>? people) {
     return people!.first.sId != ChatConnection.user!.id ? people.first : people.last;
   }
-  String findUnread(List<MessagesReceived>? messagesRecived) {
-    MessagesReceived? m;
-    try {
-      m = messagesRecived?.firstWhere((e) => e.people == ChatConnection.user!.id);
-      if((m?.total ?? 0) > 99) {
-        return '99+';
+  String findUnread(List<MessagesReceived>? messagesRecived,int? messageUnSeen) {
+    if(!ChatConnection.isChatHub) {
+      MessagesReceived? m;
+      try {
+        m = messagesRecived?.firstWhere((e) => e.people == ChatConnection.user!.id);
+        if((m?.total ?? 0) > 99) {
+          return '99+';
+        }
+        return '${m?.total ?? '0'}';
+      }catch(_){
+        return '0';
       }
-      return '${m?.total ?? '0'}';
-    }catch(_){
-      return '0';
+    }
+    else {
+      if(messageUnSeen == null) {
+        return '0';
+      }
+      else {
+        return '$messageUnSeen';
+      }
     }
   }
   String? findAuthor(List<People>? people, String? author,{bool isGroupOwner = false}) {
@@ -578,4 +620,10 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
   }
   @override
   bool get wantKeepAlive => true;
+}
+class RandomHexColor {
+  static final random = Random();
+  Color colorRandom(List<Color> hexColor) {
+    return hexColor[random.nextInt(hexColor.length)];
+  }
 }

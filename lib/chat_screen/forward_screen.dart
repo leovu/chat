@@ -140,7 +140,7 @@ class ForwardScreenState extends State<ForwardScreen> {
                                       height: MediaQuery.of(context).size.width*0.25,
                                       child: CachedNetworkImage(
                                         imageUrl:
-                                        (widget.message as types.ImageMessage).uri,
+                                        '${(widget.message as types.ImageMessage).uri}/${ChatConnection.brandCode!}',
                                         httpHeaders: {'brand-code':ChatConnection.brandCode!},
                                         placeholder: (context, url) => const CupertinoActivityIndicator(),
                                         errorWidget: (context, url, error) => const Icon(Icons.error),
@@ -362,7 +362,7 @@ class ForwardScreenState extends State<ForwardScreen> {
                   ) : CircleAvatar(
                     radius: 10.0,
                     backgroundImage:
-                    CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${info.picture!.shieldedID}/256',headers: {'brand-code':ChatConnection.brandCode!}),
+                    CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${info.picture!.shieldedID}/256/${ChatConnection.brandCode!}',headers: {'brand-code':ChatConnection.brandCode!}),
                     backgroundColor: Colors.transparent,
                   ) : data.picture == null ? CircleAvatar(
                     radius: 10.0,
@@ -372,7 +372,7 @@ class ForwardScreenState extends State<ForwardScreen> {
                   ) : CircleAvatar(
                     radius: 10.0,
                     backgroundImage:
-                    CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${data.picture!.shieldedID}/256',headers: {'brand-code':ChatConnection.brandCode!}),
+                    CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${data.picture!.shieldedID}/256/${ChatConnection.brandCode!}',headers: {'brand-code':ChatConnection.brandCode!}),
                     backgroundColor: Colors.transparent,
                   ),
                   Expanded(child: Container(

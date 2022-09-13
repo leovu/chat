@@ -113,7 +113,7 @@ class BannerNotificationState extends State<BannerNotification> {
                         padding: const EdgeInsets.only(
                             left: 5.0, top: 5.0, bottom: 5.0),
                         child: CachedNetworkImage(
-                          imageUrl: widget.notificationDescription,
+                          imageUrl: '${widget.notificationDescription}/${ChatConnection.brandCode!}',
                           httpHeaders: {'brand-code':ChatConnection.brandCode!},
                           placeholder: (context, url) => const CupertinoActivityIndicator(),
                           errorWidget: (context, url, error) => const Icon(Icons.error),

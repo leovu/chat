@@ -242,7 +242,7 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen> with AutomaticKee
                   ) : CircleAvatar(
                     radius: 25.0,
                     backgroundImage:
-                    CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${info.picture!.shieldedID}/256',headers: {'brand-code':ChatConnection.brandCode!}),
+                    CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${info.picture!.shieldedID}/256/${ChatConnection.brandCode!}',headers: {'brand-code':ChatConnection.brandCode!}),
                     backgroundColor: Colors.transparent,
                   ) : data.picture == null ? CircleAvatar(
                     radius: 25.0,
@@ -252,7 +252,7 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen> with AutomaticKee
                   ) : CircleAvatar(
                     radius: 25.0,
                     backgroundImage:
-                    CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${data.picture!.shieldedID}/256',headers: {'brand-code':ChatConnection.brandCode!}),
+                    CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${data.picture!.shieldedID}/256/${ChatConnection.brandCode!}',headers: {'brand-code':ChatConnection.brandCode!}),
                     backgroundColor: Colors.transparent,
                   ),
                   Expanded(child: Container(
@@ -323,7 +323,7 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen> with AutomaticKee
   }
   String _checkContent(Rooms model){
     if((model.messagesReceived?.length ?? 0) == 0){
-      return (findAuthor(model.people,model.owner,isGroupOwner: true) ?? '') + AppLocalizations.text(LangKey.justCreatedRoom);
+      return ((findAuthor(model.people,model.owner,isGroupOwner: true) ?? '') + AppLocalizations.text(LangKey.justCreatedRoom)).replaceAll(':', '');
     }
     if(model.lastMessage?.type == 'image'){
       return AppLocalizations.text(LangKey.sentPicture);
