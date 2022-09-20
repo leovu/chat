@@ -1,5 +1,9 @@
+import 'dart:convert';
+
 import 'package:chat/chat_ui/notification.dart';
 import 'package:chat/data_model/chat_message.dart' as c;
+import 'package:chat/data_model/chathub_channel.dart';
+import 'package:chat/data_model/customer_account.dart';
 import 'package:chat/data_model/notifications.dart' as n;
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/connection/socket.dart';
@@ -103,6 +107,13 @@ class ChatConnection {
     }
     return null;
   }
+  static Future<ChathubChannel?>channelList() async {
+    ResponseData responseData = await connection.post('api/channels/list', {});
+    if(responseData.isSuccess) {
+      return ChathubChannel.fromJson(responseData.data);
+    }
+    return null;
+  }
   static Future<r.Room?>favoritesList() async {
     ResponseData responseData = await connection.post('api/favorites/list', {});
     if(responseData.isSuccess) {
@@ -135,7 +146,38 @@ class ChatConnection {
       if(!refresh) {
         streamSocket.joinRoom(id);
       }
+      await autoUpdateChatSeenWhenJoinRoom(id);
       return c.ChatMessage.fromJson(responseData.data);
+    }
+    return null;
+  }
+  static Future<bool> autoUpdateChatSeenWhenJoinRoom(String id) async {
+    ResponseData responseData = await connection.post('api/notification/update-chat', {'id':id});
+    if(responseData.isSuccess) {
+      return true;
+    }
+    return false;
+  }
+  static Future<CustomerAccount?> detect(String userId) async {
+    ResponseData responseData = await connection.post('api/customer/detect', {'user_id':userId});
+    if(responseData.isSuccess) {
+      return CustomerAccount.fromJson(responseData.data);
+    }
+    return null;
+  }
+  static Future<List<CustomerAccount?>?> searchCustomer(String keyword) async {
+    ResponseData responseData = await connection.post('api/customer/search', {'keyword':keyword,'limit':50});
+    if(responseData.isSuccess) {
+      try{
+        List<CustomerAccount?> arr = [];
+        List<dynamic> data = responseData.data['data'];
+        for (var e in data) {
+          arr.add(CustomerAccount.fromJson({'data':e}));
+        }
+        return arr;
+      }catch(_) {
+        return null;
+      }
     }
     return null;
   }

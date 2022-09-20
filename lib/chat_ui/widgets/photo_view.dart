@@ -1,6 +1,6 @@
 import 'dart:io';
-
 import 'package:chat/chat_ui/conditional/conditional.dart';
+import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/download.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

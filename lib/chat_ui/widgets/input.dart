@@ -53,6 +53,7 @@ class Input extends StatefulWidget {
     required this.isGroup,
     required this.onStickerPressed,
     required this.onMessageTap,
+    required this.isVisible,
   }) : super(key: key);
 
   final ChatEmojiBuilder builder;
@@ -62,6 +63,8 @@ class Input extends StatefulWidget {
   final void Function()? onCameraPressed;
 
   final types.Message? repliedMessage;
+
+  final bool isVisible;
 
   /// See [Message.onMessageTap]
   final void Function(BuildContext context, types.Message, bool isRepliedMessage)? onMessageTap;
@@ -796,7 +799,8 @@ class _InputState extends State<Input> {
     widget.inputBuilder.call(context, requestFocus);
     final isAndroid = Theme.of(context).platform == TargetPlatform.android;
     final isIOS = Theme.of(context).platform == TargetPlatform.iOS;
-    return GestureDetector(
+    return !widget.isVisible ? Container(height: MediaQuery.of(context).padding.bottom,) :
+      GestureDetector(
       onTap: () => _inputFocusNode.requestFocus(),
       child: isAndroid || isIOS
           ? _inputBuilder()

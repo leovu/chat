@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:math';
+import 'package:chat/chat_screen/filter_chathub_screen.dart';
 import 'package:chat/chat_screen/home_screen.dart';
 import 'package:chat/chat_ui/vietnamese_text.dart';
 import 'package:chat/chat_ui/widgets/chat_room_widget.dart';
@@ -19,12 +20,15 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 
+typedef ChatHubListFilerBuilder = void Function(void Function() filter);
+
 class RoomListScreen extends StatefulWidget {
+  final ChatHubListFilerBuilder? chatHubBuilder;
   final RefreshBuilder builder;
   final Function? homeCallback;
   final Function? openCreateChatRoom;
   final String? source;
-  const RoomListScreen({Key? key, required this.builder, this.homeCallback , this.openCreateChatRoom, this.source}) : super(key: key);
+  const RoomListScreen({Key? key, required this.builder, this.homeCallback , this.openCreateChatRoom, this.source, this.chatHubBuilder}) : super(key: key);
   @override
   _RoomListScreenState createState() => _RoomListScreenState();
 }
@@ -33,6 +37,8 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
 
   final _focusSearch = FocusNode();
   final _controllerSearch = TextEditingController();
+  String? channel;
+  String? status;
 
   Room? roomListVisible;
   Room? roomListData;
@@ -60,7 +66,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
   }
   _getRooms() async {
     if(mounted) {
-      roomListData = await ChatConnection.roomList(source: widget.source);
+      roomListData = await ChatConnection.roomList(source: widget.source,channelId: channel,status: status);
       hexColor = [Colors.red, Colors.purple, Colors.indigo, Colors.blue, Colors.cyan, Colors.teal, Colors.deepOrange, Colors.brown];
       _getRoomVisible();
       isInitScreen = false;
@@ -68,7 +74,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
     }
     else {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
-        roomListData = await ChatConnection.roomList(source: widget.source);
+        roomListData = await ChatConnection.roomList(source: widget.source,channelId: channel,status: status);
         hexColor = [Colors.red, Colors.purple, Colors.indigo, Colors.blue, Colors.cyan, Colors.teal, Colors.deepOrange, Colors.brown];
         _getRoomVisible();
         isInitScreen = false;
@@ -102,10 +108,25 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
     }
   }
 
+  void filter() async {
+    Map<String,dynamic>? result = await Navigator.of(ChatConnection.buildContext).push(
+        MaterialPageRoute(
+            builder: (context) => FilterChathubScreen(channel: channel,status: status,)));
+    if(result != null) {
+      channel = result['channel'];
+      status = result['status'];
+      isInitScreen = true;
+      setState(() {
+        _getRooms();
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
     widget.builder.call(context, _getRooms);
+    widget.chatHubBuilder?.call(filter);
     return GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: Scaffold(
@@ -227,7 +248,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                             child: InkWell(
                                 onTap: () async {
                                   await Navigator.of(context,rootNavigator: true).push(
-                                    MaterialPageRoute(builder: (context) => ChatScreen(data: roomListVisible!.rooms![position]),settings:const RouteSettings(name: 'chat_screen')),
+                                    MaterialPageRoute(builder: (context) => ChatScreen(data: roomListVisible!.rooms![position],source: roomListVisible!.rooms![position].source,),settings:const RouteSettings(name: 'chat_screen')),
                                   );
                                   setState(() {});
                                   _getRooms();

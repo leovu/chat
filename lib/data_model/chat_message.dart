@@ -1,3 +1,4 @@
+import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/data_model/room.dart';
 import 'package:chat/localization/app_localizations.dart';
@@ -269,7 +270,7 @@ class Messages {
         'firstName': author!.firstName,
         'lastName': author!.lastName,
         'id':author!.sId,
-        'imageUrl':author!.picture != null ? '${HTTPConnection.domain}api/images/${author!.picture!.shieldedID}/512' : null,
+        'imageUrl':author!.picture != null ? '${HTTPConnection.domain}api/images/${author!.picture!.shieldedID}/512/${ChatConnection.brandCode}' : null,
       };
     }
     if(date != null) {
@@ -285,13 +286,13 @@ class Messages {
       data['mimeType'] = mimeType;
       data['size'] = file!.size;
       data['name'] = file!.name;
-      data['uri'] = '${HTTPConnection.domain}api/files/${file!.shieldedID}';
+      data['uri'] = '${HTTPConnection.domain}api/files/${file!.shieldedID}/${ChatConnection.brandCode}';
     }
     else if(type == 'image') {
       data['size'] = 0;
       data['type'] = 'image';
       data['name'] = 'image';
-      data['uri'] = '${HTTPConnection.domain}api/images/$content';
+      data['uri'] = '${HTTPConnection.domain}api/images/$content/${ChatConnection.brandCode}';
     }
     else {
       data['type'] = 'text';
@@ -305,7 +306,7 @@ class Messages {
           'firstName': replies?.author?.firstName,
           'lastName': replies?.author?.lastName,
           'id':replies?.author?.sId,
-          'imageUrl':replies?.author?.picture != null ? '${HTTPConnection.domain}api/images/${replies?.author?.picture!.shieldedID}/512' : null,
+          'imageUrl':replies?.author?.picture != null ? '${HTTPConnection.domain}api/images/${replies?.author?.picture!.shieldedID}/512/${ChatConnection.brandCode}' : null,
         },
       };
       json['id'] = replies!.sId!;
@@ -319,13 +320,13 @@ class Messages {
         json['mimeType'] = mimeType;
         json['size'] = replies!.file!.size;
         json['name'] = replies!.file!.name;
-        json['uri'] = '${HTTPConnection.domain}api/files/${replies!.file!.shieldedID}';
+        json['uri'] = '${HTTPConnection.domain}api/files/${replies!.file!.shieldedID}/${ChatConnection.brandCode}';
       }
       else if(replies?.type == 'image') {
         json['size'] = 0;
         json['type'] = 'image';
         json['name'] = 'image';
-        json['uri'] = '${HTTPConnection.domain}api/images/${replies!.content}';
+        json['uri'] = '${HTTPConnection.domain}api/images/${replies!.content}/${ChatConnection.brandCode}';
       }
       else {
         json['type'] = 'text';

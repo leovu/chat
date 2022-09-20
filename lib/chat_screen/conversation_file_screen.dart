@@ -179,7 +179,7 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
         itemBuilder: (BuildContext context, int position) {
           return InkWell(
             onTap: () async {
-              openImage(context,'${HTTPConnection.domain}api/images/${widget.chatMessage?.room?.images?[position].content}/512');
+              openImage(context,'${HTTPConnection.domain}api/images/${widget.chatMessage?.room?.images?[position].content}/512/${ChatConnection.brandCode}');
             },
             child: CachedNetworkImage(
               imageUrl:

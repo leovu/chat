@@ -332,7 +332,7 @@ class _State extends State<ByTimeResultScreen>
   Widget widgetCacheImage(String content) {
     return InkWell(
       onTap: () async {
-        openImage(context,'${HTTPConnection.domain}api/images/$content/512');
+        openImage(context,'${HTTPConnection.domain}api/images/$content/512/${ChatConnection.brandCode}');
       },
       child: SizedBox(
         width: MediaQuery.of(context).size.width * 0.3,

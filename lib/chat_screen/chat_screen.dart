@@ -30,7 +30,8 @@ import 'package:flutter/services.dart';
 class ChatScreen extends StatefulWidget {
   final Function? callback;
   final r.Rooms data;
-  const ChatScreen({Key? key, required this.data, this.callback}) : super(key: key);
+  final String? source;
+  const ChatScreen({Key? key, required this.data, this.callback, this.source}) : super(key: key);
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
@@ -130,11 +131,13 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       label: AppLocalizations.text(LangKey.photo),
       key: 'Photo',
     ));
-    _list.add(const SheetAction(
-      icon: Icons.video_collection_sharp,
-      label: 'Video',
-      key: 'Video',
-    ));
+    if(widget.source == null) {
+        _list.add(const SheetAction(
+        icon: Icons.video_collection_sharp,
+        label: 'Video',
+        key: 'Video',
+      ));
+    }
     _list.add(SheetAction(
       icon: Icons.file_copy,
       label: AppLocalizations.text(LangKey.file),
@@ -185,11 +188,22 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       return;
     }
     try {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.any,
-        allowCompression: false,
-        withData: false,
-      );
+      FilePickerResult? result;
+      if(widget.source != null && widget.source == 'zalo') {
+        result = await FilePicker.platform.pickFiles(
+          type: FileType.any,
+          allowCompression: false,
+          withData: false,
+          allowedExtensions: ['pdf', 'doc'],
+        );
+      }
+      else {
+        result = await FilePicker.platform.pickFiles(
+          type: FileType.any,
+          allowCompression: false,
+          withData: false
+        );
+      }
       if (result != null && result.files.single.path != null) {
         String id = const Uuid().v4();
         final message = types.FileMessage(
@@ -757,7 +771,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         r.Room? room = await ChatConnection.roomList();
         r.Rooms? rooms = room?.rooms?.firstWhere((element) => element.sId == message['room']['_id']);
         Navigator.of(context).popUntil((route) => route.settings.name == "home_screen");
-        Navigator.of(context,rootNavigator: true).push(MaterialPageRoute(builder: (context) => ChatScreen(data: rooms!),settings:const RouteSettings(name: 'chat_screen')),);
+        Navigator.of(context,rootNavigator: true).push(MaterialPageRoute(builder: (context) => ChatScreen(data: rooms!,source: rooms.source),settings:const RouteSettings(name: 'chat_screen')),);
         try{
           ChatConnection.refreshRoom.call();
           ChatConnection.refreshContact.call();
@@ -887,6 +901,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
               Expanded(child:
               isInitScreen ? Center(child: Platform.isAndroid ? const CircularProgressIndicator() : const CupertinoActivityIndicator()) :
               Chat(
+                source: widget.source,
                 messages: _messages,
                 isGroup: data?.room?.isGroup ?? false,
                 people: widget.data.people,
@@ -904,7 +919,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                     r.Rooms? rooms = await ChatConnection.createRoom(user.id);
                     Navigator.of(context).pop();
                     await Navigator.of(context,rootNavigator: true).pushReplacement(
-                      MaterialPageRoute(builder: (context) => ChatScreen(data: rooms!),settings:const RouteSettings(name: 'chat_screen')),
+                      MaterialPageRoute(builder: (context) => ChatScreen(data: rooms!,source: rooms.source),settings:const RouteSettings(name: 'chat_screen')),
                     );
                     try{
                       ChatConnection.refreshRoom.call();
@@ -1150,7 +1165,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     bool f = isFavorite(widget.data.people,widget.data.sId);
     return AppBar(
         actions: <Widget>[
-          IconButton(
+          if(!ChatConnection.isChatHub) IconButton(
             visualDensity: const VisualDensity(horizontal: -4.0, vertical: -4.0),
             padding: EdgeInsets.zero,
             icon: Icon(

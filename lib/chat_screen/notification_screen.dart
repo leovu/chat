@@ -117,7 +117,7 @@ class _NotificationScreenState extends State<NotificationScreen> with AutomaticK
                             try{
                               Room? room = await ChatConnection.roomList();
                               Rooms? rooms = room?.rooms?.firstWhere((element) => element.sId == notificationListData!.notifications![position].actionParams!.message!.room);
-                              await Navigator.of(context,rootNavigator: true).push(MaterialPageRoute(builder: (context) => ChatScreen(data: rooms!),settings:const RouteSettings(name: 'chat_screen')),);
+                              await Navigator.of(context,rootNavigator: true).push(MaterialPageRoute(builder: (context) => ChatScreen(data: rooms!,source: rooms.source),settings:const RouteSettings(name: 'chat_screen')),);
                             }catch(_) {}
                             if(widget.homeCallback != null) {
                               widget.homeCallback!();

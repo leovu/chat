@@ -95,6 +95,7 @@ class Chat extends StatefulWidget {
     required this.people,
     required this.isGroup,
     required this.onStickerPressed,
+    this.source
   }) : super(key: key);
 
   /// See [Message.bubbleBuilder]
@@ -116,6 +117,8 @@ class Chat extends StatefulWidget {
 
   final Function? loadMore;
   final TextEditingController searchController;
+
+  final String? source;
 
   /// If [dateFormat], [dateLocale] and/or [timeFormat] is not enough to
   /// customize date headers in your case, use rn an arbitrary
@@ -551,27 +554,7 @@ class _ChatState extends State<Chat> {
                               ),
                       ),
                       !widget.isSearchChat ? widget.customBottomWidget ??
-                          Input(
-                            isGroup: widget.isGroup,
-                            isAttachmentUploading: widget.isAttachmentUploading,
-                            onAttachmentPressed: widget.onAttachmentPressed,
-                            onCameraPressed: widget.onCameraPressed,
-                            onTextChanged: widget.onTextChanged,
-                            onTextFieldTap: widget.onTextFieldTap,
-                            people: widget.people,
-                            sendButtonVisibilityMode:
-                                widget.sendButtonVisibilityMode,
-                            onCancelReplyPressed: _onCancelReplyPressed,
-                            onSendPressed: _onSendPressed,
-                            onStickerPressed: _onStickerPressed,
-                            inputBuilder: (BuildContext context, void Function({types.TextMessage? editContent}) method) {
-                              requestFocusTextField = method;
-                            },
-                            repliedMessage: _repliedMessage,
-                            onMessageTap: widget.onMessageTap,
-                            builder: (void Function() method) {
-                                hideEmoji = method;
-                        },) : Container(),
+                          checkSourceAvailableChat() : Container(),
                     ],
                   ),
                 ),
@@ -581,5 +564,36 @@ class _ChatState extends State<Chat> {
         ),
       ),
     );
+  }
+
+  Widget checkSourceAvailableChat() {
+    var date = DateTime.fromMillisecondsSinceEpoch(widget.messages.first.createdAt??0);
+    final difference = DateTime.now().difference(date).inDays;
+    bool isVisible = true;
+    if(widget.source == 'facebook' && difference >= 1) {
+      isVisible = false;
+    }
+    return Input(
+      isGroup: widget.isGroup,
+      isVisible: isVisible,
+      isAttachmentUploading: widget.isAttachmentUploading,
+      onAttachmentPressed: widget.onAttachmentPressed,
+      onCameraPressed: widget.onCameraPressed,
+      onTextChanged: widget.onTextChanged,
+      onTextFieldTap: widget.onTextFieldTap,
+      people: widget.people,
+      sendButtonVisibilityMode:
+      widget.sendButtonVisibilityMode,
+      onCancelReplyPressed: _onCancelReplyPressed,
+      onSendPressed: _onSendPressed,
+      onStickerPressed: _onStickerPressed,
+      inputBuilder: (BuildContext context, void Function({types.TextMessage? editContent}) method) {
+        requestFocusTextField = method;
+      },
+      repliedMessage: _repliedMessage,
+      onMessageTap: widget.onMessageTap,
+      builder: (void Function() method) {
+        hideEmoji = method;
+      },);
   }
 }

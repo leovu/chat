@@ -5,6 +5,7 @@ import 'package:chat/chat_screen/conversation_file_screen.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/data_model/chat_message.dart' as c;
+import 'package:chat/data_model/customer_account.dart';
 import 'package:chat/data_model/room.dart' as r;
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:chat/localization/app_localizations.dart';
@@ -25,11 +26,31 @@ class ConversationInformationScreen extends StatefulWidget {
 
 class _ConversationInformationScreenState
     extends State<ConversationInformationScreen> {
+
   final TextEditingController _controller = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
+  bool isInitScreen = true;
+  CustomerAccount? customerAccount;
+  List<CustomerAccount?>? customerAccountSearch;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAccount();
+  }
+
+  void _loadAccount() async {
+    r.People info = getPeople(widget.roomData.people);
+    customerAccount = await ChatConnection.detect(info.sId??'');
+    isInitScreen = false;
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     r.People info = getPeople(widget.roomData.people);
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: AutoSizeText(
           AppLocalizations.text(LangKey.conversationInformation),
@@ -59,6 +80,37 @@ class _ConversationInformationScreenState
       body: SafeArea(
         child: Column(
           children: [
+            if(!isInitScreen && customerAccount?.data?.type != null) Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Row(
+                children: [
+                  Expanded(child: Container()),
+                  InkWell(
+                    onTap: () {
+
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0,vertical: 3.0),
+                        child: Row(
+                          children: [
+                            Container(width: 3.0,),
+                            const Icon(Icons.link_off,color: Colors.white,),
+                            Container(width: 3.0,),
+                            AutoSizeText(AppLocalizations.text(LangKey.link),style: const TextStyle(color: Colors.white),),
+                            Container(width: 3.0,),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 17.0),
               child: Center(
@@ -153,109 +205,398 @@ class _ConversationInformationScreenState
                                 );
                               }: null)),
             ),
-            Padding(
+            if(!ChatConnection.isChatHub) Padding(
               padding: const EdgeInsets.only(top: 10.0),
               child: Container(
                 height: 1.0,
                 color: const Color(0xFFE5E5E5),
               ),
             ),
-            Expanded(
-              child: ListView(
-                physics: const ClampingScrollPhysics(),
-                children: [
-                  _section(
-                      const Icon(
-                        Icons.folder,
-                        color: Color(0xff5686E1),
-                        size: 35,
-                      ),
-                      AppLocalizations.text(LangKey.file), () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => ConversationFileScreen(
-                              roomData: widget.roomData,
-                              chatMessage: widget.chatMessage,
-                            )));
-                  }),
-                  if (widget.roomData.isGroup!)
-                    Padding(
-                      padding: const EdgeInsets.only(
-                          left: 50.0, right: 50.0, top: 13.0),
-                      child: Container(
-                        height: 1.0,
-                        color: const Color(0xFFE5E5E5),
-                      ),
+            if(!ChatConnection.isChatHub) actionView(),
+            if(!isInitScreen && customerAccount?.data?.type == null) Column(
+              children: [
+                AutoSizeText(AppLocalizations.text(LangKey.unknownCustomer),style: const TextStyle(color: Colors.black),),
+                Container(height: 10.0,),
+                Center(
+                  child: Container(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10.0),
+                        border: Border.all(color: Colors.grey.shade400)
                     ),
-                  if (widget.roomData.isGroup!)
-                    _section(
-                        const Icon(
-                          Icons.group,
-                          color: Color(0xff5686E1),
-                          size: 35,
-                        ),
-                        AppLocalizations.text(LangKey.viewMembers), () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => ChatGroupMembersScreen(
-                              roomData: widget.roomData)));
-                    }),
-                  if (widget.roomData.isGroup!)
-                    Padding(
-                      padding: const EdgeInsets.only(
-                          left: 50.0, right: 50.0, top: 13.0),
-                      child: Container(
-                        height: 1.0,
-                        color: const Color(0xFFE5E5E5),
-                      ),
+                    height: 40.0,
+                    width: MediaQuery.of(context).size.width*0.85,
+                    child: Row(
+                      children: [
+                        Container(width: 10.0,),
+                        Expanded(child: TextField(
+                          decoration: InputDecoration.collapsed(
+                            hintText: AppLocalizations.text(LangKey.inputCustomerHint)
+                          ),
+                          onSubmitted: (value) {
+                            searchCustomer(value);
+                          },
+                          controller: _searchController,
+                        )),
+                        Container(width: 5.0,),
+                        InkWell(
+                          onTap: () {
+                            searchCustomer(_searchController.text);
+                          },
+                            child: const Icon(Icons.search_outlined,color: Colors.blue,)),
+                        Container(width: 5.0,),
+                      ],
                     ),
-                  if (widget.roomData.isGroup!)
-                    _section(
-                        const Icon(
-                          Icons.remove_circle,
-                          color: Color(0xff5686E1),
-                          size: 35,
-                        ),
-                        AppLocalizations.text(LangKey.leaveConversation), () {
-                      _leaveRoom(widget.roomData.sId!);
-                    }, textColor: Colors.black),
-                  if (!widget.roomData.isGroup! ||
-                      (widget.roomData.owner == ChatConnection.user!.id &&
-                          widget.roomData.isGroup!))
-                    Padding(
-                      padding: const EdgeInsets.only(
-                          left: 50.0, right: 50.0, top: 13.0),
-                      child: Container(
-                        height: 1.0,
-                        color: const Color(0xFFE5E5E5),
-                      ),
-                    ),
-                  if (!widget.roomData.isGroup! ||
-                      (widget.roomData.owner == ChatConnection.user!.id &&
-                          widget.roomData.isGroup!))
-                    _section(
-                        const Icon(
-                          Icons.delete,
-                          color: Colors.red,
-                          size: 35,
-                        ),
-                        AppLocalizations.text(LangKey.deleteConversation), () {
-                      !widget.roomData.isGroup! ? _removeLeaveRoom(widget.roomData.sId!) :
-                          _removeRoom(widget.roomData.sId!);
-                    }, textColor: Colors.red)
-                ],
-              ),
-            )
+                  ),
+                ),
+              ],
+            ),
+            if(ChatConnection.isChatHub) isInitScreen ? Expanded(child: Center(child: Platform.isAndroid ? const CircularProgressIndicator() : const CupertinoActivityIndicator())) :
+              actionChatHubView(),
           ],
         ),
       ),
     );
   }
 
-  void errorDialog() {
+  void searchCustomer(String keyword) async {
+    if(keyword != '') {
+      showLoading();
+      customerAccountSearch = await ChatConnection.searchCustomer(keyword);
+      Navigator.of(context).pop();
+      setState(() {});
+    }
+    else {
+      errorDialog(content: AppLocalizations.text(LangKey.notInputSearch));
+    }
+  }
+  
+  Future showLoading() async {
+    return await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return SimpleDialog(
+            elevation: 0.0,
+            backgroundColor: Colors.transparent,
+            children: <Widget>[
+              Center(
+                child: Platform.isAndroid ? const CircularProgressIndicator() : const CupertinoActivityIndicator(),
+              )
+            ],
+          );
+        });
+  }
+
+  Widget listCustomerSearch() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (customerAccountSearch != null) Padding(
+            padding: const EdgeInsets.only(bottom: 5.0,top: 20.0),
+            child: AutoSizeText(AppLocalizations.text(LangKey.searchingResult),style: const TextStyle(fontWeight: FontWeight.bold),textScaleFactor: 1.15,),
+          ),
+          Column(
+            children:
+            customerAccountSearch == null ? [] :
+            customerAccountSearch!.map((e) => Column(
+              children: [
+                Container(height: 10.0,),
+                Row(
+                  children: [
+                    Expanded(child: AutoSizeText(e?.data?.fullName??'')),
+                    InkWell(
+                      onTap: () {
+
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.green,
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0,vertical: 3.0),
+                          child: Row(
+                            children: [
+                              Container(width: 3.0,),
+                              const Icon(Icons.link_outlined,color: Colors.black,),
+                              Container(width: 3.0,),
+                              AutoSizeText(AppLocalizations.text(LangKey.link),style: const TextStyle(color: Colors.black),),
+                              Container(width: 3.0,),
+                            ],
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+                Container(height: 8.0,),
+                Row(
+                  children: [
+                    Expanded(child: AutoSizeText(e?.data?.customerCode??e?.data?.customerLeadCode??'',style: const TextStyle(color: Colors.black),),),
+                    AutoSizeText(e?.data?.phone??e?.data?.phone2??'')
+                  ],
+                ),
+                Container(height: 8.0,),
+                Row(
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.orangeAccent,
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 3.0,horizontal: 8.0),
+                        child: AutoSizeText(AppLocalizations.text(e?.data?.type == 'cpo' ? LangKey.cpo : LangKey.customer),style: const TextStyle(color: Colors.white),),
+                      ),
+                    ),
+                    Container(width: 15.0,),
+                    Expanded(child: Align(alignment:Alignment.centerRight, child: AutoSizeText(e?.data?.email??'')))
+                  ],
+                ),
+                Container(height: 8.0,),
+                Container(height: 1.0,color: Colors.grey,)
+              ],
+            )).toList(),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget actionChatHubView() {
+    return Expanded(child: ListView(
+      padding: const EdgeInsets.symmetric(horizontal: 10.0),
+      physics: const ClampingScrollPhysics(),
+      children: [
+        Container(height: 10.0,),
+        if (customerAccount?.data != null) _customerAccount(),
+        listCustomerSearch(),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 15.0),
+          child: Container(
+            height: 1.0,
+            color: const Color(0xFFE5E5E5),
+          ),
+        ),
+        InkWell(
+          onTap: () {},
+          child: Center(
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10.0),
+                border: Border.all(color: Colors.grey.shade400)
+              ),
+              height: 40.0,
+              width: MediaQuery.of(context).size.width*0.85,
+              child: Row(
+                children: [
+                  Container(width: 5.0,),
+                  const Icon(Icons.search_outlined,color: Colors.blue,),
+                  Container(width: 5.0,),
+                  Expanded(child: AutoSizeText(AppLocalizations.text(LangKey.productSearch)))
+                ],
+              ),
+            ),
+          ),
+        ),
+        Container(height: 10.0,),
+        InkWell(
+          onTap: () {},
+          child: Center(
+            child: Container(
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10.0),
+                  border: Border.all(color: Colors.grey.shade400)
+              ),
+              height: 40.0,
+              width: MediaQuery.of(context).size.width*0.85,
+              child: Row(
+                children: [
+                  Container(width: 5.0,),
+                  const Icon(Icons.search_outlined,color: Colors.blue,),
+                  Container(width: 5.0,),
+                  Expanded(child: AutoSizeText(AppLocalizations.text(LangKey.orderSearch)))
+                ],
+              ),
+            ),
+          ),
+        ),
+        Container(height: 10.0,),
+        InkWell(
+          onTap: () {},
+          child: Center(
+            child: Container(
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10.0),
+                  border: Border.all(color: Colors.grey.shade400)
+              ),
+              height: 40.0,
+              width: MediaQuery.of(context).size.width*0.85,
+              child: Row(
+                children: [
+                  Container(width: 5.0,),
+                  const Icon(Icons.accessibility,color: Colors.blue,),
+                  Container(width: 5.0,),
+                  Expanded(child: AutoSizeText(AppLocalizations.text(LangKey.actions)))
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    ));
+  }
+
+  Widget _customerAccount() {
+    return customerAccount!.data!.type == null ? Container() :
+      Column(
+      children: [
+        if((customerAccount!.data!.customerCode??customerAccount!.data!.customerLeadCode??'') != '') Row(
+          children: [
+            const Icon(Icons.account_box,color: Colors.blueAccent,),
+            Expanded(child: Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: AutoSizeText(customerAccount!.data!.customerCode??customerAccount!.data!.customerLeadCode??'',overflow: TextOverflow.ellipsis,),
+            )),
+          ],
+        ),
+        if((customerAccount!.data!.phone??customerAccount!.data!.phone2??'') != '') Container(height: 8.0,),
+        if((customerAccount!.data!.phone??customerAccount!.data!.phone2??'') != '') Row(
+          children: [
+            const Icon(Icons.phone,color: Colors.blueAccent,),
+            Expanded(child: Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: AutoSizeText(customerAccount!.data!.phone??customerAccount!.data!.phone2??'',overflow: TextOverflow.ellipsis,),
+            )),
+          ],
+        ),
+        if((customerAccount!.data!.email??'') != '') Container(height: 8.0,),
+        if((customerAccount!.data!.email??'') != '')Row(
+          children: [
+            const Icon(Icons.email,color: Colors.blueAccent,),
+            Expanded(child: Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: AutoSizeText(customerAccount!.data!.email??'',overflow: TextOverflow.ellipsis,),
+            )),
+          ],
+        ),
+        if((customerAccount!.data!.address??'') != '') Container(height: 8.0,),
+        if((customerAccount!.data!.address??'') != '') Row(
+          children: [
+            const Icon(Icons.location_pin,color: Colors.blueAccent,),
+            Expanded(child: Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: AutoSizeText(customerAccount!.data!.address??'',overflow: TextOverflow.ellipsis,),
+            )),
+          ],
+        ),
+        Center(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 20.0),
+            child: SizedBox(
+                height: 40.0,
+                child: InkWell(child: AutoSizeText(AppLocalizations.text(LangKey.viewDetail),style: const TextStyle(color: Colors.blue,fontWeight: FontWeight.w600),))),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget actionView() {
+    return Expanded(
+      child: ListView(
+        physics: const ClampingScrollPhysics(),
+        children: [
+          _section(
+              const Icon(
+                Icons.folder,
+                color: Color(0xff5686E1),
+                size: 35,
+              ),
+              AppLocalizations.text(LangKey.file), () {
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => ConversationFileScreen(
+                  roomData: widget.roomData,
+                  chatMessage: widget.chatMessage,
+                )));
+          }),
+          if (widget.roomData.isGroup!)
+            Padding(
+              padding: const EdgeInsets.only(
+                  left: 50.0, right: 50.0, top: 13.0),
+              child: Container(
+                height: 1.0,
+                color: const Color(0xFFE5E5E5),
+              ),
+            ),
+          if (widget.roomData.isGroup!)
+            _section(
+                const Icon(
+                  Icons.group,
+                  color: Color(0xff5686E1),
+                  size: 35,
+                ),
+                AppLocalizations.text(LangKey.viewMembers), () {
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => ChatGroupMembersScreen(
+                      roomData: widget.roomData)));
+            }),
+          if (widget.roomData.isGroup!)
+            Padding(
+              padding: const EdgeInsets.only(
+                  left: 50.0, right: 50.0, top: 13.0),
+              child: Container(
+                height: 1.0,
+                color: const Color(0xFFE5E5E5),
+              ),
+            ),
+          if (widget.roomData.isGroup!)
+            _section(
+                const Icon(
+                  Icons.remove_circle,
+                  color: Color(0xff5686E1),
+                  size: 35,
+                ),
+                AppLocalizations.text(LangKey.leaveConversation), () {
+              _leaveRoom(widget.roomData.sId!);
+            }, textColor: Colors.black),
+          if (!widget.roomData.isGroup! ||
+              (widget.roomData.owner == ChatConnection.user!.id &&
+                  widget.roomData.isGroup!))
+            Padding(
+              padding: const EdgeInsets.only(
+                  left: 50.0, right: 50.0, top: 13.0),
+              child: Container(
+                height: 1.0,
+                color: const Color(0xFFE5E5E5),
+              ),
+            ),
+          if (!widget.roomData.isGroup! ||
+              (widget.roomData.owner == ChatConnection.user!.id &&
+                  widget.roomData.isGroup!))
+            _section(
+                const Icon(
+                  Icons.delete,
+                  color: Colors.red,
+                  size: 35,
+                ),
+                AppLocalizations.text(LangKey.deleteConversation), () {
+              !widget.roomData.isGroup! ? _removeLeaveRoom(widget.roomData.sId!) :
+              _removeRoom(widget.roomData.sId!);
+            }, textColor: Colors.red)
+        ],
+      ),
+    );
+  }
+
+  void errorDialog({String? content}) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(AppLocalizations.text(LangKey.warning)),
-        content: Text(AppLocalizations.text(LangKey.changeGroupNameError)),
+        content: Text(content ?? AppLocalizations.text(LangKey.changeGroupNameError)),
         actions: [
           ElevatedButton(
               onPressed: () {
