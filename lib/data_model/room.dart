@@ -239,6 +239,7 @@ class People {
   String? lastOnline;
   Picture? picture;
   bool? isSelected;
+  List<Customer>? customer;
 
   People(
       {level,
@@ -250,6 +251,7 @@ class People {
         phone,
         lastName,
         lastOnline,
+        customer,
         picture});
 
   People.fromJson(Map<String, dynamic> json) {
@@ -264,6 +266,12 @@ class People {
     phone = json['phone'];
     lastName = json['lastName'];
     lastOnline = json['lastOnline'];
+    if (json['customer'] != null) {
+      customer = <Customer>[];
+      json['customer'].forEach((v) {
+        customer!.add(Customer.fromJson(v));
+      });
+    }
     try{
       picture = json['picture'] != null ? Picture.fromJson(json['picture']) : null;
     }catch(_){}
@@ -280,6 +288,9 @@ class People {
     data['phone'] = phone;
     data['lastName'] = lastName;
     data['lastOnline'] = lastOnline;
+    if (customer != null) {
+      data['customer'] = customer!.map((v) => v.toJson()).toList();
+    }
     if (picture != null) {
       data['picture'] = picture!.toJson();
     }
@@ -306,6 +317,59 @@ class People {
       avatarName += lastName![0];
     }
     return avatarName;
+  }
+}
+
+class Customer {
+  String? sId;
+  List<String>? users;
+  bool? status;
+  String? createdAt;
+  String? updatedAt;
+  int? iV;
+  int? customerId;
+  String? cpoCustomerCode;
+  int? cpoCustomerId;
+  String? customerCode;
+
+  Customer(
+      {this.sId,
+        this.users,
+        this.status,
+        this.createdAt,
+        this.updatedAt,
+        this.iV,
+        this.customerId,
+        this.cpoCustomerCode,
+        this.cpoCustomerId,
+        this.customerCode});
+
+  Customer.fromJson(Map<String, dynamic> json) {
+    sId = json['_id'];
+    users = json['users'].cast<String>();
+    status = json['status'];
+    createdAt = json['createdAt'];
+    updatedAt = json['updatedAt'];
+    iV = json['__v'];
+    customerId = int.tryParse(json['customerId'].toString());
+    cpoCustomerCode = json['cpoCustomerCode'];
+    cpoCustomerId = int.tryParse(json['cpoCustomerId'].toString());
+    customerCode = json['customerCode'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['_id'] = sId;
+    data['users'] = users;
+    data['status'] = status;
+    data['createdAt'] = createdAt;
+    data['updatedAt'] = updatedAt;
+    data['__v'] = iV;
+    data['customerId'] = customerId;
+    data['cpoCustomerCode'] = cpoCustomerCode;
+    data['cpoCustomerId'] = cpoCustomerId;
+    data['customerCode'] = customerCode;
+    return data;
   }
 }
 

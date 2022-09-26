@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:chat/chat_ui/notification.dart';
 import 'package:chat/data_model/chat_message.dart' as c;
 import 'package:chat/data_model/chathub_channel.dart';
@@ -160,6 +158,40 @@ class ChatConnection {
   }
   static Future<CustomerAccount?> detect(String userId) async {
     ResponseData responseData = await connection.post('api/customer/detect', {'user_id':userId});
+    if(responseData.isSuccess) {
+      return CustomerAccount.fromJson(responseData.data);
+    }
+    return null;
+  }
+  static Future<bool> customerLink(String userId, int? customerId, int? customerLeadId, String typeCustomer , String mappingId) async {
+    Map<String,dynamic> json = {
+      'user_id':userId,
+      'mapping_id':mappingId,
+      'type_customer':typeCustomer
+    };
+    if(customerId != null) {
+      json['customer_id'] = customerId;
+    }
+    if(customerLeadId != null) {
+      json['customer_id'] = customerLeadId;
+    }
+    ResponseData responseData = await connection.post('api/customer/link', json);
+    if(responseData.isSuccess) {
+      return true;
+    }
+    return false;
+  }
+  static Future<CustomerAccount?> customerUnlink(String userId, int? customerId, int? customerLeadId) async {
+    Map<String,dynamic> json = {
+      'user_id':userId
+    };
+    if(customerId != null) {
+      json['customer_id'] = customerId;
+    }
+    if(customerLeadId != null) {
+      json['customer_lead_id'] = customerLeadId;
+    }
+    ResponseData responseData = await connection.post('api/customer/remove-link', json);
     if(responseData.isSuccess) {
       return CustomerAccount.fromJson(responseData.data);
     }
@@ -380,6 +412,10 @@ class ChatConnection {
       return ct.Contacts.fromJson(responseData.data);
     }
     return null;
+  }
+  static Future<bool>updateNameChatHub(String id, String typeCustomer,String fullName) async {
+    ResponseData responseData = await connection.post('api/customer/update/$id', {'type_customer': typeCustomer, 'data': {'full_name': fullName}});
+    return responseData.isSuccess;
   }
   static File convertToFile(XFile xFile) => File(xFile.path);
   static reconnect() {

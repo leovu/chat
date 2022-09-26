@@ -86,8 +86,15 @@ class _ConversationInformationScreenState
                 children: [
                   Expanded(child: Container()),
                   InkWell(
-                    onTap: () {
-
+                    onTap: () async {
+                      showLoading();
+                      r.People info = getPeople(widget.roomData.people);
+                      await ChatConnection.customerUnlink(info.sId??'',
+                          customerAccount?.data?.customerId, customerAccount?.data?.customerLeadId);
+                      Navigator.of(context).pop();
+                      isShowListSearch = false;
+                      customerAccountSearch = null;
+                      _loadAccount();
                     },
                     child: Container(
                       decoration: BoxDecoration(
@@ -115,9 +122,18 @@ class _ConversationInformationScreenState
               padding: const EdgeInsets.symmetric(vertical: 17.0),
               child: Center(
                   child: !widget.roomData.isGroup!
-                      ? _buildAvatar(
-                          info.getName(),
-                          info.getAvatarName(),
+                      ?
+                    customerAccount?.data?.type != null? _buildAvatar(
+                        customerAccount?.data?.fullName != null ? customerAccount!.data!.getName() : info.getName(),
+                        customerAccount?.data?.fullName != null ? customerAccount!.data!.getAvatarName(): info.getAvatarName(),
+                        info.picture == null
+                            ? null
+                            : '${HTTPConnection.domain}api/images/${info.picture!.shieldedID}/256', onTap: () {
+                      editName();
+                    }) :
+                  _buildAvatar(
+                    customerAccount?.data?.fullName != null ? customerAccount!.data!.getName() : info.getName(),
+                    customerAccount?.data?.fullName != null ? customerAccount!.data!.getAvatarName(): info.getAvatarName(),
                           info.picture == null
                               ? null
                               : '${HTTPConnection.domain}api/images/${info.picture!.shieldedID}/256')
@@ -128,81 +144,7 @@ class _ConversationInformationScreenState
                               ? null
                               : '${HTTPConnection.domain}api/images/${widget.roomData.picture!.shieldedID}/256',
                               onTap: widget.roomData.owner == ChatConnection.user!.id? () async {
-                                _controller.text = widget.roomData.title!;
-                                final FocusNode _focusNode = FocusNode();
-                                await showDialog<bool>(
-                                  context: context,
-                                  builder: (context) {
-                                    _focusNode.requestFocus();
-                                    return StatefulBuilder(
-                                        builder: (BuildContext cxtx, StateSetter setState) {
-                                          return CupertinoAlertDialog(
-                                            title:
-                                            Text(AppLocalizations.text(LangKey.renameGroup)),
-                                            content: Card(
-                                              color: Colors.transparent,
-                                              elevation: 0.0,
-                                              child: Column(
-                                                children: <Widget>[
-                                                  Padding(
-                                                    padding: const EdgeInsets.only(
-                                                        top: 8.0, bottom: 3.0),
-                                                    child: CupertinoTextField(
-                                                      controller: _controller,
-                                                      focusNode: _focusNode,
-                                                      placeholder: AppLocalizations.text(
-                                                          LangKey.enterGroupName),
-                                                    ),
-                                                  ),
-                                                  Row(
-                                                    children: [
-                                                      Expanded(
-                                                        child: CupertinoButton(
-                                                            child: Text(AppLocalizations.text(
-                                                                LangKey.accept)),
-                                                            onPressed: () async {
-                                                              FocusManager.instance.primaryFocus
-                                                                  ?.unfocus();
-                                                              Navigator.of(context).pop();
-                                                              bool result = await ChatConnection
-                                                                  .updateRoomName(
-                                                                  widget.roomData.sId!,
-                                                                  _controller.value.text);
-                                                              if (result) {
-                                                                FocusManager.instance.primaryFocus
-                                                                    ?.unfocus();
-                                                                widget.roomData.title =
-                                                                    _controller.value.text;
-                                                                reload();
-                                                              } else {
-                                                                errorDialog();
-                                                              }
-                                                            }),
-                                                      ),
-                                                      Container(
-                                                        width: 1.0,
-                                                        height: 25.0,
-                                                        color: Colors.blue,
-                                                      ),
-                                                      Expanded(
-                                                        child: CupertinoButton(
-                                                            child: Text(AppLocalizations.text(
-                                                                LangKey.cancel)),
-                                                            onPressed: () {
-                                                              FocusManager.instance.primaryFocus
-                                                                  ?.unfocus();
-                                                              Navigator.of(context).pop();
-                                                            }),
-                                                      ),
-                                                    ],
-                                                  )
-                                                ],
-                                              ),
-                                            ),
-                                          );
-                                        });
-                                  },
-                                );
+                                editName();
                               }: null)),
             ),
             if(!ChatConnection.isChatHub) Padding(
@@ -250,6 +192,20 @@ class _ConversationInformationScreenState
                 ),
               ],
             ),
+            if (customerAccountSearch != null) Padding(
+              padding: const EdgeInsets.only(bottom: 5.0,top: 20.0,left: 15.0,right: 15.0),
+              child: Row(
+                children: [
+                  Expanded(child: AutoSizeText(AppLocalizations.text(LangKey.searchingResult),style: const TextStyle(fontWeight: FontWeight.bold),textScaleFactor: 1.15,),),
+                  InkWell(
+                      onTap: () {
+                        setState(() {
+                          isShowListSearch = !isShowListSearch;});
+                      },
+                      child: const Center(child: Icon(Icons.arrow_drop_down_outlined,color: Colors.grey,size: 30.0,)))
+                ],
+              ),
+            ),
             if(ChatConnection.isChatHub) isInitScreen ? Expanded(child: Center(child: Platform.isAndroid ? const CircularProgressIndicator() : const CupertinoActivityIndicator())) :
               actionChatHubView(),
           ],
@@ -258,12 +214,87 @@ class _ConversationInformationScreenState
     );
   }
 
+  void editName() async {
+    _controller.text = widget.roomData.title??customerAccount?.data?.fullName??'';
+    final FocusNode _focusNode = FocusNode();
+    await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        _focusNode.requestFocus();
+        return StatefulBuilder(
+            builder: (BuildContext cxtx, StateSetter setState) {
+              return CupertinoAlertDialog(
+                title:
+                Text(AppLocalizations.text(LangKey.members)),
+                content: Card(
+                  color: Colors.transparent,
+                  elevation: 0.0,
+                  child: Column(
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            top: 8.0, bottom: 3.0),
+                        child: CupertinoTextField(
+                          controller: _controller,
+                          focusNode: _focusNode,
+                          placeholder: AppLocalizations.text(
+                              LangKey.members),
+                        ),
+                      ),
+                      CupertinoButton(
+                          child: Text(AppLocalizations.text(
+                              LangKey.accept)),
+                          onPressed: () async {
+                            FocusManager.instance.primaryFocus
+                                ?.unfocus();
+                            Navigator.of(context).pop();
+                            bool result = false;
+                            if(ChatConnection.isChatHub) {
+                              result = await ChatConnection
+                                  .updateNameChatHub(
+                                customerAccount?.data?.customerId != null ? customerAccount!.data!.customerId.toString() :
+                                customerAccount!.data!.customerLeadId.toString(),
+                                  customerAccount?.data?.type??'',
+                                  _controller.value.text);
+                            }
+                            else {
+                              result = await ChatConnection
+                                  .updateRoomName(
+                                  widget.roomData.sId!,
+                                  _controller.value.text);
+                            }
+                            if (result) {
+                              FocusManager.instance.primaryFocus
+                                  ?.unfocus();
+                              if(ChatConnection.isChatHub) {
+                                customerAccount?.data?.fullName = _controller.value.text;
+                              }
+                              else {
+                                widget.roomData.title =
+                                    _controller.value.text;
+                              }
+                              reload();
+                            } else {
+                              errorDialog(content: ChatConnection.isChatHub?LangKey.getFileError:null);
+                            }
+                          }),
+                    ],
+                  ),
+                ),
+              );
+            });
+      },
+    );
+  }
+
   void searchCustomer(String keyword) async {
     if(keyword != '') {
       showLoading();
       customerAccountSearch = await ChatConnection.searchCustomer(keyword);
       Navigator.of(context).pop();
-      setState(() {});
+      setState(() {
+        isShowListSearch = true;
+      });
     }
     else {
       errorDialog(content: AppLocalizations.text(LangKey.notInputSearch));
@@ -286,78 +317,129 @@ class _ConversationInformationScreenState
           );
         });
   }
-
+  bool isShowListSearch = false;
   Widget listCustomerSearch() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (customerAccountSearch != null) Padding(
-            padding: const EdgeInsets.only(bottom: 5.0,top: 20.0),
-            child: AutoSizeText(AppLocalizations.text(LangKey.searchingResult),style: const TextStyle(fontWeight: FontWeight.bold),textScaleFactor: 1.15,),
-          ),
-          Column(
+          if(isShowListSearch) Column(
             children:
             customerAccountSearch == null ? [] :
-            customerAccountSearch!.map((e) => Column(
-              children: [
-                Container(height: 10.0,),
-                Row(
+            customerAccountSearch!.map((e) => Padding(
+              padding: const EdgeInsets.only(bottom: 10.0),
+              child: Container(
+                decoration: BoxDecoration(
+                    color: const Color(0xFF28A17D),
+                  borderRadius: BorderRadius.circular(10.0),
+                  border: Border.all(color: Colors.grey)
+                ),
+                child: Row(
                   children: [
-                    Expanded(child: AutoSizeText(e?.data?.fullName??'')),
-                    InkWell(
-                      onTap: () {
-
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.green,
-                          borderRadius: BorderRadius.circular(10.0),
+                    Expanded(child: Container(
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(10),
+                          bottomLeft: Radius.circular(10),
                         ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0,vertical: 3.0),
-                          child: Row(
+                    ),
+                      padding: const EdgeInsets.only(left: 10.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(height: 10.0,),
+                          Row(
                             children: [
-                              Container(width: 3.0,),
-                              const Icon(Icons.link_outlined,color: Colors.black,),
-                              Container(width: 3.0,),
-                              AutoSizeText(AppLocalizations.text(LangKey.link),style: const TextStyle(color: Colors.black),),
-                              Container(width: 3.0,),
+                              Expanded(
+                                child: Row(
+                                  children: [
+                                    const Padding(
+                                      padding: EdgeInsets.only(right: 5.0),
+                                      child: Icon(Icons.account_circle_rounded,color: Colors.blueAccent,),
+                                    ),
+                                    Expanded(child: AutoSizeText(e?.data?.fullName??''),
+                                    )],
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.orangeAccent,
+                                    borderRadius: BorderRadius.circular(10.0),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 3.0,horizontal: 8.0),
+                                    child: AutoSizeText(AppLocalizations.text(e?.data?.type == 'cpo' ? LangKey.cpo : LangKey.customer),style: const TextStyle(color: Colors.white),),
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
+                          Container(height: 8.0,),
+                          if((e?.data?.customerCode != null) || (e?.data?.customerLeadCode != null)) Row(
+                            children: [
+                              const Padding(
+                                padding: EdgeInsets.only(right: 5.0),
+                                child: Icon(Icons.code,color: Colors.blueAccent,),
+                              ),
+                              Expanded(child: AutoSizeText(e?.data?.customerCode??e?.data?.customerLeadCode??'',style: const TextStyle(color: Colors.black),),
+                              )],
+                          ),
+                          Container(height: 8.0,),
+                          if((e?.data?.phone != null) || (e?.data?.phone2 != null)) Row(
+                            children: [
+                              const Padding(
+                                padding: EdgeInsets.only(right: 5.0),
+                                child: Icon(Icons.phone,color: Colors.blueAccent,),
+                              ),
+                              Expanded(child: AutoSizeText(e?.data?.phone??e?.data?.phone2??''),
+                              )],
+                          ),
+                          Container(height: 8.0,),
+                          if((e?.data?.email != null)) Row(
+                            children: [
+                              const Padding(
+                                padding: EdgeInsets.only(right: 5.0),
+                                child: Icon(Icons.email,color: Colors.blueAccent,),
+                              ),
+                              Expanded(child: AutoSizeText(e?.data?.email??''),
+                              )],
+                          ),
+                          Container(height: 8.0,),
+                        ],
+                      ),
+                    )),
+                    InkWell(
+                      onTap: () async {
+                        showLoading();
+                        r.People info = getPeople(widget.roomData.people);
+                        await ChatConnection.customerLink(info.sId??'',
+                            e?.data?.customerId, e?.data?.customerLeadId,
+                            e?.data?.type??'',
+                            customerAccount?.data?.mappingId??'');
+                        Navigator.of(context).pop();
+                        isShowListSearch = false;
+                        customerAccountSearch = null;
+                        _loadAccount();
+                      },
+                      child: Container(
+                        width: 70,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF28A17D),
+                        ),
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 8.0,vertical: 3.0),
+                          child:
+                          Icon(Icons.link_outlined,color: Colors.white,),
                         ),
                       ),
                     )
                   ],
                 ),
-                Container(height: 8.0,),
-                Row(
-                  children: [
-                    Expanded(child: AutoSizeText(e?.data?.customerCode??e?.data?.customerLeadCode??'',style: const TextStyle(color: Colors.black),),),
-                    AutoSizeText(e?.data?.phone??e?.data?.phone2??'')
-                  ],
-                ),
-                Container(height: 8.0,),
-                Row(
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.orangeAccent,
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 3.0,horizontal: 8.0),
-                        child: AutoSizeText(AppLocalizations.text(e?.data?.type == 'cpo' ? LangKey.cpo : LangKey.customer),style: const TextStyle(color: Colors.white),),
-                      ),
-                    ),
-                    Container(width: 15.0,),
-                    Expanded(child: Align(alignment:Alignment.centerRight, child: AutoSizeText(e?.data?.email??'')))
-                  ],
-                ),
-                Container(height: 8.0,),
-                Container(height: 1.0,color: Colors.grey,)
-              ],
+              ),
             )).toList(),
           )
         ],

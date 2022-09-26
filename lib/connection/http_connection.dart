@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:chat/connection/chat_connection.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 class HTTPConnection {
@@ -22,6 +23,13 @@ class HTTPConnection {
     );
     var streamResponse = await request.send();
     var response = await http.Response.fromStream(streamResponse);
+    if (kDebugMode) {
+      print('***** Upload *****');
+      print(uri);
+      print(request.headers);
+      print(response.statusCode);
+      print('***** Upload *****');
+    }
     if(response.statusCode == 200) {
       ResponseData data = ResponseData();
       data.isSuccess = true;
@@ -51,6 +59,14 @@ class HTTPConnection {
       body: jsonBody,
       encoding: encoding,
     );
+    if (kDebugMode) {
+      print('***** POST *****');
+      print(uri);
+      print(headers);
+      print(jsonBody);
+      print(response.statusCode);
+      print('***** POST *****');
+    }
     int statusCode = response.statusCode;
     if(statusCode == 200) {
       String responseBody = response.body;

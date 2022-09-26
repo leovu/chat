@@ -17,10 +17,10 @@ dependencies:
   flutter_chat_types: ^3.3.2
   flutter_link_previewer: ^2.6.4
   flutter_lints: ^1.0.0
-  file_picker: ^4.5.1
+  file_picker: ^5.2.0
   image_picker: ^0.8.5+3
   mime: ^1.0.1
-  open_file: ^3.2.1
+  open_filex: ^4.1.1
   uuid: ^3.0.6
   intl: ^0.17.0
   photo_view: ^0.13.0
@@ -107,6 +107,8 @@ flutter:
     - assets/icon-zalo.png
     - assets/icon-facebook-main.png
     - assets/icon-chathub-main.png
+    - assets/icon-crown.png
+    - assets/icon-star.png
     - assets/2.0x/icon-attachment.png
     - assets/2.0x/icon-delivered.png
     - assets/2.0x/icon-document.png

@@ -198,63 +198,7 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                   child: MaterialButton(
                     color: const Color(0xFF5686E1),
                     onPressed: () async {
-                      List<String> people = [];
-                      try{
-                        contactsListData?.users?.forEach((element) {
-                          if(element.isSelected != null && element.isSelected == true) {
-                            people.add(element.sId!);
-                          }
-                        });
-                      }catch(_){}
-                      if(people.isEmpty) {
-                        showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            title: Text(AppLocalizations.text(LangKey.warning)),
-                            content: Text(AppLocalizations.text(LangKey.selectAtleastOneUser)),
-                            actions: [
-                              ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text(AppLocalizations.text(LangKey.accept)))
-                            ],
-                          ),
-                        );
-                      }
-                      else {
-                        bool result = await ChatConnection.addMemberGroup(people,widget.roomData.sId!);
-                        if(result) {
-                          try{
-                            contactsListData?.users?.forEach((element) {
-                              if(element.isSelected != null && element.isSelected == true) {
-                                widget.roomData.people?.add(element);
-                              }
-                            });
-                          }catch(_){}
-                          Navigator.of(context).pop();
-                          try{
-                            ChatConnection.refreshRoom.call();
-                            ChatConnection.refreshFavorites.call();
-                          }catch(_){}
-                        }
-                        else {
-                          showDialog(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              title: Text(AppLocalizations.text(LangKey.warning)),
-                              content: Text(AppLocalizations.text(LangKey.addMemberFailed)),
-                              actions: [
-                                ElevatedButton(
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                    },
-                                    child: Text(AppLocalizations.text(LangKey.accept)))
-                              ],
-                            ),
-                          );
-                        }
-                      }
+                      addMember();
                     },
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0),
@@ -268,6 +212,65 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
         ),
       ),
     );
+  }
+  void addMember() async {
+    List<String> people = [];
+    try{
+      contactsListData?.users?.forEach((element) {
+        if(element.isSelected != null && element.isSelected == true) {
+          people.add(element.sId!);
+        }
+      });
+    }catch(_){}
+    if(people.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(AppLocalizations.text(LangKey.warning)),
+          content: Text(AppLocalizations.text(LangKey.selectAtleastOneUser)),
+          actions: [
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text(AppLocalizations.text(LangKey.accept)))
+          ],
+        ),
+      );
+    }
+    else {
+      bool result = await ChatConnection.addMemberGroup(people,widget.roomData.sId!);
+      if(result) {
+        try{
+          contactsListData?.users?.forEach((element) {
+            if(element.isSelected != null && element.isSelected == true) {
+              widget.roomData.people?.add(element);
+            }
+          });
+        }catch(_){}
+        Navigator.of(context).pop();
+        try{
+          ChatConnection.refreshRoom.call();
+          ChatConnection.refreshFavorites.call();
+        }catch(_){}
+      }
+      else {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text(AppLocalizations.text(LangKey.warning)),
+            content: Text(AppLocalizations.text(LangKey.addMemberFailed)),
+            actions: [
+              ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text(AppLocalizations.text(LangKey.accept)))
+            ],
+          ),
+        );
+      }
+    }
   }
   bool isSelectedMember(List<People>? data) {
     try {

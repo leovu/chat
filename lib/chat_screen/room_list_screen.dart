@@ -481,26 +481,44 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  !data.isGroup! ? info.picture == null ? CircleAvatar(
-                    radius: 25.0,
-                    child: Text(
-                        info.getAvatarName(),
-                        style: const TextStyle(color: Colors.white),),
-                  ) : CircleAvatar(
-                    radius: 25.0,
-                    backgroundImage:
-                    CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${info.picture!.shieldedID}/256/${ChatConnection.brandCode!}',headers: {'brand-code':ChatConnection.brandCode!}),
-                    backgroundColor: Colors.transparent,
-                  ) : data.picture == null ? CircleAvatar(
-                    radius: 25.0,
-                    child: Text(
-                        data.getAvatarGroupName(),
-                      style: const TextStyle(color: Colors.white),),
-                  ) : CircleAvatar(
-                    radius: 25.0,
-                    backgroundImage:
-                    CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${data.picture!.shieldedID}/256/${ChatConnection.brandCode!}',headers: {'brand-code':ChatConnection.brandCode!}),
-                    backgroundColor: Colors.transparent,
+                  Stack(
+                    children: [
+                      !data.isGroup! ? info.picture == null ? CircleAvatar(
+                        radius: 25.0,
+                        child: Text(
+                          info.getAvatarName(),
+                          style: const TextStyle(color: Colors.white),),
+                      ) : CircleAvatar(
+                        radius: 25.0,
+                        backgroundImage:
+                        CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${info.picture!.shieldedID}/256/${ChatConnection.brandCode!}',headers: {'brand-code':ChatConnection.brandCode!}),
+                        backgroundColor: Colors.transparent,
+                      ) : data.picture == null ? CircleAvatar(
+                        radius: 25.0,
+                        child: Text(
+                          data.getAvatarGroupName(),
+                          style: const TextStyle(color: Colors.white),),
+                      ) : CircleAvatar(
+                        radius: 25.0,
+                        backgroundImage:
+                        CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${data.picture!.shieldedID}/256/${ChatConnection.brandCode!}',headers: {'brand-code':ChatConnection.brandCode!}),
+                        backgroundColor: Colors.transparent,
+                      ),
+                      if(data.source != null) Positioned(
+                        bottom: 0.0,
+                          child:
+                      Padding(
+                        padding: const EdgeInsets.only(right: 6.0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20.0)
+                          ),
+                          child: Image.asset(data.source == 'zalo' ? 'assets/icon-zalo.png' : 'assets/icon-facebook.png',
+                            package: 'chat',width: 25.0,height: 25.0,),
+                        ),
+                      )),
+                    ],
                   ),
                   Expanded(child: Container(
                     padding: const EdgeInsets.only(top: 5.0,bottom: 5.0,left: 10.0),
@@ -511,10 +529,15 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                         Expanded(
                           child: Row(
                             children: [
-                              if(data.source != null) Padding(
-                                padding: const EdgeInsets.only(right: 6.0),
-                                child: Image.asset(data.source == 'zalo' ? 'assets/icon-zalo.png' : 'assets/icon-facebook.png',package: 'chat',width: 15.0,height: 15.0,),
-                              ),
+                              if(ChatConnection.isChatHub)
+                                if(checkCustomerTypeChatHub(data.people) != null)
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 6.0),
+                                    child: Image.asset(checkCustomerTypeChatHub(data.people) == 'customer' ?
+                                      'assets/icon-crown.png' : 'assets/icon-star.png',
+                                      package: 'chat',
+                                      width: 15.0,height: 15.0,),
+                                  ),
                               Expanded(child: AutoSizeText(!data.isGroup! ?
                               '${info.firstName} ${info.lastName}' : data.title ?? 'Group ${info.firstName} ${info.lastName}',
                                   overflow: TextOverflow.ellipsis,
@@ -577,6 +600,20 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
         ) : Container()
       ],
     );
+  }
+  String? checkCustomerTypeChatHub(List<People>? list) {
+    String? result;
+    try{
+      if(list?.where((element) => element.sId!=ChatConnection.user!.id).first.customer!.first.customerId != null) {
+        result = 'customer';
+      }
+      else {
+        if (list?.where((element) => element.sId!=ChatConnection.user!.id).first.customer!.first.cpoCustomerId != null) {
+          result = 'cpo';
+        }
+      }
+    }catch(_) {}
+    return result;
   }
   Future<String> draftMessage(String roomId,String content) async {
     Map<String, dynamic>? draft = await getDraftInput(roomId);

@@ -8,7 +8,7 @@ import 'package:chat/localization/lang_key.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:mime/mime.dart';
-import 'package:open_file/open_file.dart';
+import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:permission/permission.dart';
@@ -150,7 +150,7 @@ void openFile(String? result,BuildContext context,String fileName) async {
       }));
     }
     else if(isVideo(mimeType)) {
-      await OpenFile.open(result);
+      await OpenFilex.open(result);
     }
     else if(isImage(mimeType)) {
       Navigator.of(context).push(MaterialPageRoute(builder: (ctx) {
@@ -158,7 +158,7 @@ void openFile(String? result,BuildContext context,String fileName) async {
       }));
     }
     else {
-      await OpenFile.open(result);
+      await OpenFilex.open(result);
     }
   }
   return null;

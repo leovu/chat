@@ -44,6 +44,9 @@ class _MyAppState extends State<MyApp> {
         _userNameController.text = 'admin';
         _passwordController.text = 'admin';
         _domainController.text = 'https://chat-hub-stag.epoints.vn/';
+        // _userNameController.text = 'waosupport@pioapps.vn';
+        // _passwordController.text = '123456';
+        // _domainController.text = 'https://chat-matthewsliquor.epoints.vn/';
       });
     });
   }
@@ -134,6 +137,7 @@ class _MyAppState extends State<MyApp> {
                     return;
                   }
                   Chat.open(context,_userNameController.value.text, _passwordController.value.text, 'assets/icon-app.png',const Locale(LangKey.langVi, 'VN'), domain: _domainController.value.text,brandCode: 'qc',isChatHub: true);
+                  // Chat.open(context,_userNameController.value.text, _passwordController.value.text, 'assets/icon-app.png',const Locale(LangKey.langVi, 'VN'), domain: _domainController.value.text,brandCode: 'matthewsliquor',isChatHub: false);
                 },
                 child: Container(
                     height: 40.0,

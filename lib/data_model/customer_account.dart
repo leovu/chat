@@ -74,4 +74,25 @@ class Data {
     data['type'] = type;
     return data;
   }
+
+  String getName(){
+    return fullName??"";
+  }
+
+  String getAvatarName() {
+    String avatarName = '';
+    if(fullName != null) {
+      avatarName += fullName![0];
+      if(fullName!.contains(' ')) {
+        final splits = fullName!.split(' ');
+        avatarName += splits[1][0];
+      }
+      else {
+        if(fullName!.length >= 2) {
+          avatarName += fullName![1];
+        }
+      }
+    }
+    return avatarName;
+  }
 }
