@@ -112,4 +112,7 @@ class LangKey {
   static const String notInputSearch = "notInputSearch";
   static const String customer = "customer";
   static const String cpo = "cpo";
+  static const String addCustomer = "addCustomer";
+  static const String addCustomerPotential = "addCustomerPotential";
+  static const String inputNewLabel = "inputNewLabel";
 }

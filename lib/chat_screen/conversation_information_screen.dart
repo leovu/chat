@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:chat/chat_screen/action_list_user_chathub_screen.dart';
 import 'package:chat/chat_screen/chat_group_members_screen.dart';
 import 'package:chat/chat_screen/conversation_file_screen.dart';
 import 'package:chat/connection/chat_connection.dart';
@@ -507,7 +508,24 @@ class _ConversationInformationScreenState
         ),
         Container(height: 10.0,),
         InkWell(
-          onTap: () {},
+          onTap: () async {
+            r.People info = getPeople(widget.roomData.people);
+            Map<String,dynamic>? result = await Navigator.of(context).push(MaterialPageRoute(builder: (ctx) {
+              return ActionListUserChathubScreen(data: info, customerAccount: customerAccount);
+            }));
+            if(result != null) {
+              showLoading();
+              r.People info = getPeople(widget.roomData.people);
+              await ChatConnection.customerLink(info.sId??'',
+                  result['customerId'], result['customerLeadId'],
+                  result['type'],
+                  customerAccount?.data?.mappingId??'');
+              Navigator.of(context).pop();
+              isShowListSearch = false;
+              customerAccountSearch = null;
+              _loadAccount();
+            }
+          },
           child: Center(
             child: Container(
               decoration: BoxDecoration(

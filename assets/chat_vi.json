@@ -100,7 +100,7 @@
   "createOrder": "Tạo đơn hàng",
   "createAppointment": "Tạo lịch hẹn",
   "createDeal": "Tạo cơ hội bán hàng",
-  "change": "Tạo công việc",
+  "change": "Đổi",
   "create": "Tạo",
   "saveLabel": "Lưu nhãn",
   "unknownCustomer": "Chưa có thông tin khách hàng",
@@ -108,5 +108,8 @@
   "searchingResult": "Kết quả tìm kiếm",
   "notInputSearch": "Bạn chưa nhập từ khóa cần tìm",
   "customer": "Khách hàng",
-  "cpo": "Khách hàng tiềm năng"
+  "cpo": "Khách hàng tiềm năng",
+  "addCustomer": "Thêm khách hàng",
+  "addCustomerPotential": "Thêm khách hàng tiềm năng",
+  "inputNewLabel": "Nhập tên nhãn mới"
 }

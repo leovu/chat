@@ -158,6 +158,18 @@
       "languageVersion": "2.17"
     },
     {
+      "name": "flex_color_picker",
+      "rootUri": "file:///Users/longvu/.pub-cache/hosted/pub.dartlang.org/flex_color_picker-2.6.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
+    },
+    {
+      "name": "flex_seed_scheme",
+      "rootUri": "file:///Users/longvu/.pub-cache/hosted/pub.dartlang.org/flex_seed_scheme-1.0.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
+    },
+    {
       "name": "flutter",
       "rootUri": "file:///Users/longvu/Downloads/flutter/packages/flutter",
       "packageUri": "lib/",
@@ -722,7 +734,7 @@
       "languageVersion": "2.16"
     }
   ],
-  "generated": "2022-09-26T05:57:11.159910Z",
+  "generated": "2022-09-26T09:25:26.560503Z",
   "generator": "pub",
   "generatorVersion": "2.19.0-229.0.dev"
 }

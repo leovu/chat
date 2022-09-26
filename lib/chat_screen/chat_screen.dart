@@ -3,11 +3,13 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/chat_screen/conversation_information_screen.dart';
 import 'package:chat/chat_screen/forward_screen.dart';
+import 'package:chat/chat_ui/hex_color.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/download.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/data_model/chat_message.dart' as c;
 import 'package:chat/data_model/room.dart' as r;
+import 'package:chat/data_model/tag.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/check_tag.dart';
 import 'package:chat/localization/lang_key.dart';
@@ -54,10 +56,12 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   double progress = 0;
   late void Function() focusTextField;
   bool isInitScreen = true;
+  Tag? tag;
   @override
   void initState() {
     super.initState();
     ChatConnection.chatScreenNotificationHandler = _notificationHandler;
+    _getTagList();
     _loadMessages();
     ChatConnection.listenChat(_refreshMessage);
   }
@@ -69,6 +73,10 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     itemPositionsListener.itemPositions.removeListener(() {});
     ChatConnection.isLoadMore = false;
     ChatConnection.roomId = null;
+  }
+
+  Future<void> _getTagList() async {
+    tag = await ChatConnection.getTagList();
   }
 
   void _addMessage(types.Message message, String id,{String? text, String? repliedMessageId,types.TextMessage? isEdit}) async {
@@ -782,6 +790,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     }catch(_){
     }
   }
+  bool isShowUserTag = true;
   @override
   Widget build(BuildContext context) {
     r.People info = getPeople(widget.data.people);
@@ -834,6 +843,42 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if(info.userTag != null && tag?.data != null)
+                Container(
+                  width: MediaQuery.of(context).size.width,
+                  color: Colors.white,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(child: Padding(
+                        padding: const EdgeInsets.only(top: 10.0),
+                        child:
+                        !isShowUserTag ? Container() :
+                        Wrap(
+                          children: info.userTag!.map((e) => _tagChip(
+                            e
+                          )).toList())
+                      )),
+                      Padding(
+                        padding: const EdgeInsets.only(right: 5.0),
+                        child: InkWell(
+                          splashColor: Colors.transparent,
+                          onTap: () {
+                            setState(() {
+                              isShowUserTag = !isShowUserTag;
+                            });
+                          },
+                          child: Container(
+                              color: Colors.white,
+                              constraints: const BoxConstraints(
+                                  minHeight: 30
+                              ),
+                              child: Icon(isShowUserTag ? Icons.remove_red_eye : Icons.remove_red_eye_outlined,color: Colors.grey,)),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
               if(data?.room?.pinMessage != null)
                 Container(
                   color: Colors.white,
@@ -956,6 +1001,32 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         ),
       ),
     );
+  }
+  Widget _tagChip(String e) {
+    if(tag?.data == null) {
+      return Container();
+    }
+    for (var h in tag!.data!) {
+      if (h.sId == e) {
+        return Padding(
+          padding: const EdgeInsets.only(left: 5.0,right: 5.0,bottom: 5.0),
+          child: Container(
+            height: 30.0,
+            decoration: BoxDecoration(
+                color: HexColor.fromHex(tag!.data!.where((h) => h.sId == e).first.color??''),
+                borderRadius: BorderRadius.circular(10.0)
+            ),
+            child: Padding(
+              padding: const EdgeInsets.only(top: 5.0,left: 5.0,right: 5.0),
+              child: AutoSizeText(
+                tag!.data!.where((h) => h.sId == e).first.name??'',style: const TextStyle(color: Colors.white),
+              ),
+            ),
+          ),
+        );
+      }
+    }
+    return Container();
   }
   void loadMore() async {
     List<c.Messages>? value = await ChatConnection.loadMoreMessageRoom(ChatConnection.roomId!,_messages.last.id);
@@ -1213,7 +1284,14 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
               await Navigator.of(context).push(
                   MaterialPageRoute(builder: (context) => ConversationInformationScreen(roomData: widget.data,chatMessage: data),
                       settings:const RouteSettings(name: 'conversation_information_screen')));
-              setState(() {});
+              if(getPeople(widget.data.people).isUpdateTagList) {
+                getPeople(widget.data.people).isUpdateTagList = false;
+                await _getTagList();
+                setState(() {});
+              }
+              else {
+                setState(() {});
+              }
             },
           )
         ],

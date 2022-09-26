@@ -81,6 +81,43 @@ class HTTPConnection {
       return data;
     }
   }
+  Future<ResponseData>get(String path) async {
+    final uri = Uri.parse('$domain$path');
+    Map<String, String> headers = {};
+    if(ChatConnection.user != null) {
+      headers['Authorization'] = 'Bearer ${ChatConnection.user!.token}';
+    }
+    if(ChatConnection.brandCode != null) {
+      headers['brand-code'] = ChatConnection.brandCode!;
+    }
+    if (kDebugMode) {
+      print('***** GET *****');
+      print(uri);
+      print(headers);
+      print('***** GET *****');
+    }
+    http.Response response = await http.get(
+      uri,
+      headers: headers,
+    );
+    int statusCode = response.statusCode;
+    if(statusCode == 200) {
+      String responseBody = response.body;
+      ResponseData data = ResponseData();
+      data.isSuccess = true;
+      data.data = jsonDecode(responseBody);
+      return data;
+    }
+    else {
+      ResponseData data = ResponseData();
+      data.isSuccess = false;
+      try {
+        String responseBody = response.body;
+        data.data = jsonDecode(responseBody);
+      }catch(_) {}
+      return data;
+    }
+  }
 }
 
 class ResponseData {

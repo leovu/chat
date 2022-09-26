@@ -107,5 +107,8 @@
   "searchingResult": "Searching results",
   "notInputSearch": "You have not entered the keyword you are looking for",
   "customer": "Customers",
-  "cpo": "Potential customers"
+  "cpo": "Potential customers",
+  "addCustomer": "Add customer",
+  "addCustomerPotential": "Add potential customer",
+  "inputNewLabel": "Input new label name"
 }

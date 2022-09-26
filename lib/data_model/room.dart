@@ -240,6 +240,8 @@ class People {
   Picture? picture;
   bool? isSelected;
   List<Customer>? customer;
+  List<String>? userTag;
+  bool isUpdateTagList = false;
 
   People(
       {level,
@@ -252,7 +254,8 @@ class People {
         lastName,
         lastOnline,
         customer,
-        picture});
+        picture,
+        userTag});
 
   People.fromJson(Map<String, dynamic> json) {
     level = json['level'];
@@ -266,6 +269,12 @@ class People {
     phone = json['phone'];
     lastName = json['lastName'];
     lastOnline = json['lastOnline'];
+    if (json['userTag'] != null) {
+      userTag = <String>[];
+      json['userTag'].forEach((v) {
+        userTag!.add(v);
+      });
+    }
     if (json['customer'] != null) {
       customer = <Customer>[];
       json['customer'].forEach((v) {

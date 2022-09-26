@@ -35,7 +35,17 @@ class Chat {
         String? brandCode,
         bool isChatHub = false,
         Map<String, dynamic>? notificationData,
-        List<Map<String,dynamic>>? addOnModules}) async {
+        List<Map<String,dynamic>>? addOnModules,
+        Function? searchProducts,
+        Function? searchOrders,
+        Function? createOrder,
+        Function? createAppointment,
+        Function? createDeal,
+        Function? createLead,
+        Function? createTask,
+        Function? addCustomer,
+        Function? addPotentialCustomer
+      }) async {
     showLoading(context);
     await initializeDateFormatting();
     if(domain != null) {
@@ -47,6 +57,15 @@ class Chat {
     ChatConnection.appIcon = appIcon;
     ChatConnection.brandCode = brandCode;
     ChatConnection.isChatHub = isChatHub;
+    ChatConnection.searchProducts = searchProducts;
+    ChatConnection.searchOrders = searchOrders;
+    ChatConnection.createOrder = createOrder;
+    ChatConnection.createAppointment = createAppointment;
+    ChatConnection.createDeal = createDeal;
+    ChatConnection.createLead = createLead;
+    ChatConnection.createTask = createTask;
+    ChatConnection.addCustomer = addCustomer;
+    ChatConnection.addPotentialCustomer= addPotentialCustomer;
     if(notificationData != null) {
       ChatConnection.initialData = notificationData;
     }

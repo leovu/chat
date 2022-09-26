@@ -6,6 +6,7 @@ import 'package:chat/data_model/notifications.dart' as n;
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/connection/socket.dart';
 import 'package:chat/data_model/contact.dart' as ct;
+import 'package:chat/data_model/tag.dart';
 import 'package:chat/data_model/user.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
@@ -38,6 +39,15 @@ class ChatConnection {
   static late Function(Map<String, dynamic> message) homeScreenNotificationHandler;
   static late Function(Map<String, dynamic> message) chatScreenNotificationHandler;
   static ValueNotifier<String> notificationNotifier = ValueNotifier('0');
+  static Function? searchProducts;
+  static Function? searchOrders;
+  static Function? createOrder;
+  static Function? createAppointment;
+  static Function? createDeal;
+  static Function? createLead;
+  static Function? createTask;
+  static Function? addCustomer;
+  static Function? addPotentialCustomer;
   static Future<bool>init(String email,String password,{String? token}) async {
     HttpOverrides.global = MyHttpOverrides();
     String? resultToken;
@@ -415,6 +425,25 @@ class ChatConnection {
   }
   static Future<bool>updateNameChatHub(String id, String typeCustomer,String fullName) async {
     ResponseData responseData = await connection.post('api/customer/update/$id', {'type_customer': typeCustomer, 'data': {'full_name': fullName}});
+    return responseData.isSuccess;
+  }
+  static Future<Tag?>getTagList() async {
+    ResponseData responseData = await connection.get('api/tags/lists');
+    if(responseData.isSuccess) {
+      return Tag.fromJson(responseData.data);
+    }
+    return null;
+  }
+  static Future<bool>createTag(String name, String color) async {
+    ResponseData responseData = await connection.post('api/tags/create', {'name': name, 'color': color});
+    return responseData.isSuccess;
+  }
+  static Future<bool>removeTag(String tagId, String userId) async {
+    ResponseData responseData = await connection.post('api/tags/remove', {'tag_id': tagId, 'user_id': userId});
+    return responseData.isSuccess;
+  }
+  static Future<bool>updateTag(List<String> tagIds, String userId) async {
+    ResponseData responseData = await connection.post('api/tags/user-add', {'tag_ids': tagIds, 'user_id': userId});
     return responseData.isSuccess;
   }
   static File convertToFile(XFile xFile) => File(xFile.path);
