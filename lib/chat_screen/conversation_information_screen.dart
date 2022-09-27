@@ -464,7 +464,11 @@ class _ConversationInformationScreenState
           ),
         ),
         InkWell(
-          onTap: () {},
+          onTap: () {
+            if(ChatConnection.searchProducts != null) {
+              ChatConnection.searchProducts!();
+            }
+          },
           child: Center(
             child: Container(
               decoration: BoxDecoration(
@@ -486,7 +490,10 @@ class _ConversationInformationScreenState
         ),
         Container(height: 10.0,),
         InkWell(
-          onTap: () {},
+          onTap: () {
+            if(ChatConnection.searchOrders != null) {
+              ChatConnection.searchOrders!();
+            }},
           child: Center(
             child: Container(
               decoration: BoxDecoration(

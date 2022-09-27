@@ -571,7 +571,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                             )
                           ],
                         )),
-                        if(data.channel != null) Expanded(child: Padding(
+                        if(data.channel != null && ChatConnection.isChatHub) Expanded(child: Padding(
                           padding: const EdgeInsets.only(top: 5.0),
                           child: Align(
                               alignment: Alignment.centerLeft,
