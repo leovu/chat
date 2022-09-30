@@ -39,6 +39,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
   final _controllerSearch = TextEditingController();
   String? channel;
   String? status;
+  List<String?>? tagIds;
 
   Room? roomListVisible;
   Room? roomListData;
@@ -66,7 +67,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
   }
   _getRooms() async {
     if(mounted) {
-      roomListData = await ChatConnection.roomList(source: widget.source,channelId: channel,status: status);
+      roomListData = await ChatConnection.roomList(source: widget.source,channelId: channel,status: status, tagIds: tagIds);
       hexColor = [Colors.red, Colors.purple, Colors.indigo, Colors.blue, Colors.cyan, Colors.teal, Colors.deepOrange, Colors.brown];
       _getRoomVisible();
       isInitScreen = false;
@@ -74,7 +75,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
     }
     else {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
-        roomListData = await ChatConnection.roomList(source: widget.source,channelId: channel,status: status);
+        roomListData = await ChatConnection.roomList(source: widget.source,channelId: channel,status: status, tagIds: tagIds);
         hexColor = [Colors.red, Colors.purple, Colors.indigo, Colors.blue, Colors.cyan, Colors.teal, Colors.deepOrange, Colors.brown];
         _getRoomVisible();
         isInitScreen = false;
@@ -111,10 +112,11 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
   void filter() async {
     Map<String,dynamic>? result = await Navigator.of(ChatConnection.buildContext).push(
         MaterialPageRoute(
-            builder: (context) => FilterChathubScreen(channel: channel,status: status,)));
+            builder: (context) => FilterChathubScreen(channel: channel,status: status,arrLabel: tagIds,)));
     if(result != null) {
       channel = result['channel'];
       status = result['status'];
+      tagIds = result['tag_ids'];
       isInitScreen = true;
       setState(() {
         _getRooms();

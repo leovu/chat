@@ -494,7 +494,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     showModalActionSheet<String>(
       context: context,
       actions: [
-        SheetAction(
+        if(!ChatConnection.isChatHub) SheetAction(
           icon: Icons.reply,
           label: AppLocalizations.text(LangKey.reply),
           key: 'Reply',
@@ -509,27 +509,27 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
           label: AppLocalizations.text(LangKey.copy),
           key: 'Copy',
         ),
-        SheetAction(
+        if(!ChatConnection.isChatHub) SheetAction(
           icon: Icons.forward,
           label: AppLocalizations.text(LangKey.forward),
           key: 'Forward',
         ),
-        if(mess?.author?.sId == ChatConnection.user?.id) SheetAction(
+        if(mess?.author?.sId == ChatConnection.user?.id && !ChatConnection.isChatHub) SheetAction(
           icon: Icons.refresh,
           label: AppLocalizations.text(LangKey.recall),
           key: 'Recall',
         ),
-        if(mess?.author?.sId == ChatConnection.user?.id && message.type.name == 'text') SheetAction(
+        if(mess?.author?.sId == ChatConnection.user?.id && message.type.name == 'text' && !ChatConnection.isChatHub) SheetAction(
           icon: Icons.edit,
           label: AppLocalizations.text(LangKey.edit),
           key: 'Edit',
         ),
-        SheetAction(
+        if(!ChatConnection.isChatHub) SheetAction(
           icon: Icons.push_pin,
           label: AppLocalizations.text(LangKey.pinMessage),
           key: 'Pin Message',
         ),
-        if(checkAddTaskIntanceAvailable() && message is types.TextMessage) SheetAction(
+        if(checkAddTaskIntanceAvailable() && message is types.TextMessage && !ChatConnection.isChatHub) SheetAction(
           icon: Icons.add_task,
           label: AppLocalizations.text(LangKey.createTask),
           key: 'Create Task',

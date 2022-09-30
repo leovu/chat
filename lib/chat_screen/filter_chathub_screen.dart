@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/data_model/chathub_channel.dart';
+import 'package:chat/data_model/tag.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/cupertino.dart';
@@ -11,7 +12,8 @@ import 'package:flutter/material.dart';
 class FilterChathubScreen extends StatefulWidget {
   final String? status;
   final String? channel;
-  const FilterChathubScreen({Key? key, this.status, this.channel}) : super(key: key);
+  final List<String?>? arrLabel;
+  const FilterChathubScreen({Key? key, this.status, this.channel , this.arrLabel}) : super(key: key);
   @override
   _FilterChathubScreenState createState() => _FilterChathubScreenState();
 }
@@ -21,12 +23,17 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
   ChathubChannel? channels;
   String? status;
   String? channel;
+  List<String?> arrLabel = [];
+  Tag? tag;
   List<String> arrStatus = ['not_seen','seen','replied'];
   @override
   void initState() {
     super.initState();
     status = widget.status;
     channel = widget.channel;
+    if(widget.arrLabel != null) {
+      arrLabel = widget.arrLabel!;
+    }
     _getChannel();
   }
   @override
@@ -71,6 +78,12 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
                     Container(height: 15.0,),
                     Wrap(
                       children: channels?.channels == null ? [] : _listStatusWidget(),
+                    ),
+                    Container(height: 30.0,),
+                    AutoSizeText(AppLocalizations.text(LangKey.byLabel),style: const TextStyle(color: Colors.blueAccent,fontWeight: FontWeight.bold),textScaleFactor: 1.15,),
+                    Container(height: 15.0,),
+                    Wrap(
+                      children: tag?.data == null ? [] : _listLabelWidget(),
                     )
                   ],
                 ),),
@@ -84,7 +97,8 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
                       onPressed: () async {
                         Navigator.of(context).pop({
                           'status':status,
-                          'channel':channel
+                          'channel':channel,
+                          'tag_ids': arrLabel.isEmpty ? null : arrLabel
                         });
                       },
                       shape: RoundedRectangleBorder(
@@ -120,6 +134,44 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
             )
           )),
     );
+  }
+
+  List<Widget> _listLabelWidget() {
+    List<Widget> arr = [];
+    arr = tag!.data!.map((e) =>
+        Padding(
+          padding: const EdgeInsets.only(right: 8.0),
+          child: InkWell(
+            onTap: () {
+              if(arrLabel.contains(e.sId)) {
+                arrLabel.remove(e.sId);
+              }
+              else {
+                arrLabel.add(e.sId);
+              }
+              setState(() {});
+            },
+            child: Chip(label: Text(e.name??'',
+              style: TextStyle(color: arrLabel.contains(e.sId) ? Colors.blueAccent : Colors.grey),),
+              backgroundColor: arrLabel.contains(e.sId) ? Colors.white :Colors.grey.shade200,
+              shape: StadiumBorder(side: BorderSide(color: arrLabel.contains(e.sId) ? Colors.blueAccent : Colors.grey)),),
+          ),
+        ),).toList();
+    arr.insert(0, Padding(
+      padding: const EdgeInsets.only(right: 8.0),
+      child: InkWell(
+        onTap: () {
+          setState(() {
+            arrLabel.clear();
+          });
+        },
+        child: Chip(label: Text(AppLocalizations.text(LangKey.all),
+          style: TextStyle(color: arrLabel.isEmpty ? Colors.blueAccent : Colors.grey),),
+          backgroundColor: arrLabel.isEmpty ? Colors.white :Colors.grey.shade200,
+          shape: StadiumBorder(side: BorderSide(color: arrLabel.isEmpty ? Colors.blueAccent : Colors.grey)),),
+      ),
+    ));
+    return arr;
   }
 
   List<Widget> _listStatusWidget() {
@@ -192,6 +244,7 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
 
   void _getChannel() async {
     channels = await ChatConnection.channelList();
+    tag = await ChatConnection.getTagList();
     isInitScreen = false;
     setState(() {});
   }

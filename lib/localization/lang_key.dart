@@ -93,6 +93,7 @@ class LangKey {
   static const String replied = "replied";
   static const String byChannel = "byChannel";
   static const String byStatus = "byStatus";
+  static const String byLabel = "byLabel";
   static const String viewDetail = "viewDetail";
   static const String removeLink = "removeLink";
   static const String link = "link";

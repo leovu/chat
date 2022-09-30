@@ -104,11 +104,12 @@ class ChatConnection {
     }
     return null;
   }
-  static Future<r.Room?>roomList({String? source, String? channelId, String? status}) async {
+  static Future<r.Room?>roomList({String? source, String? channelId, String? status, List<String?>? tagIds}) async {
     Map<String,dynamic> json = {'limit':500};
     if(source != null) json['source'] = source;
     if(channelId != null) json['channel_id'] = channelId;
     if(status != null) json['status'] = status;
+    if(tagIds != null) if(tagIds.isNotEmpty) json['tag_ids'] = tagIds;
     ResponseData responseData = await connection.post('api/rooms/list', json);
     if(responseData.isSuccess) {
       return r.Room.fromJson(responseData.data);
