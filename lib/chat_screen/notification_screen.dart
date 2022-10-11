@@ -128,7 +128,8 @@ class _NotificationScreenState extends State<NotificationScreen> with AutomaticK
                     );
                   }),
             ) : Container(),
-          )
+          ),
+          if (ChatConnection.isChatHub) Container(height: 3.0,color: Colors.grey.shade200,),
         ],),
       ),
     );

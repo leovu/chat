@@ -92,56 +92,47 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen> with Sing
               Expanded(
                 child: Scaffold(
                   appBar: PreferredSize(
-                    preferredSize: Size.fromHeight(MediaQuery.of(context).padding.top+5.0),
+                    preferredSize: const Size.fromHeight(48),
                     child: AppBar(
                       backgroundColor: Colors.white,
                       elevation: 0.0,
                       bottom: TabBar(
                         controller: _tabController,
                         tabs: [
-                          Tab(icon: Row(
-                            children: [
-                              Image.asset('assets/icon-chathub-main.png',package: 'chat',width: 30.0,height: 30.0,),
-                              Expanded(child: AutoSizeText(' ${AppLocalizations.text(LangKey.all)}',style: const TextStyle(color: Colors.black)))
-                            ],
-                          )),
-                          Tab(icon: Row(
-                            children: [
-                            Image.asset('assets/icon-facebook-main.png',package: 'chat',width: 20.0,height: 20.0,),
-                              const Expanded(child: AutoSizeText('  Facebook',style: TextStyle(color: Colors.black),))
-                            ],
-                          )),
-                          Tab(icon: Row(
-                            children: [
-                              Image.asset('assets/icon-zalo.png',package: 'chat',width: 20.0,height: 20.0,),
-                              const Expanded(child: AutoSizeText('   Zalo',style: TextStyle(color: Colors.black)))
-                            ],
-                          )),
+                          Tab(icon: AutoSizeText(AppLocalizations.text(LangKey.all),style: const TextStyle(color: Colors.black))),
+                          const Tab(icon: AutoSizeText('Facebook',style: TextStyle(color: Colors.black),)),
+                          const Tab(icon: AutoSizeText('Zalo',style: TextStyle(color: Colors.black))),
                         ],
                       ),
                     ),
                   ),
-                  body: TabBarView(
-                      controller: _tabController,
-                      children: [
-                        RoomListScreen(builder: (BuildContext context, void Function() method) {
-                          ChatConnection.refreshRoom = method;
-                        },openCreateChatRoom: widget.openCreateChatRoom,chatHubBuilder: (void Function() filter) {
-                          filterAll = filter;
-                        },),
-                        RoomListScreen(builder: (BuildContext context, void Function() method) {
-                          ChatConnection.refreshRoom = method;
-                        },openCreateChatRoom: widget.openCreateChatRoom,source: 'facebook',
-                            chatHubBuilder: (void Function() filter) {
-                          filterFacebook = filter;
-                        }),
-                        RoomListScreen(builder: (BuildContext context, void Function() method) {
-                          ChatConnection.refreshRoom = method;
-                        },openCreateChatRoom: widget.openCreateChatRoom,source: 'zalo',
-                            chatHubBuilder: (void Function() filter) {
-                          filterZalo = filter;
-                        })
-                      ]
+                  body: Column(
+                    children: [
+                      if (ChatConnection.isChatHub) Container(height: 3.0,color: Colors.grey.shade200,),
+                      Expanded(child: TabBarView(
+                          controller: _tabController,
+                          children: [
+                            RoomListScreen(builder: (BuildContext context, void Function() method) {
+                              ChatConnection.refreshRoom = method;
+                            },openCreateChatRoom: widget.openCreateChatRoom,chatHubBuilder: (void Function() filter) {
+                              filterAll = filter;
+                            },),
+                            RoomListScreen(builder: (BuildContext context, void Function() method) {
+                              ChatConnection.refreshRoom = method;
+                            },openCreateChatRoom: widget.openCreateChatRoom,source: 'facebook',
+                                chatHubBuilder: (void Function() filter) {
+                                  filterFacebook = filter;
+                                }),
+                            RoomListScreen(builder: (BuildContext context, void Function() method) {
+                              ChatConnection.refreshRoom = method;
+                            },openCreateChatRoom: widget.openCreateChatRoom,source: 'zalo',
+                                chatHubBuilder: (void Function() filter) {
+                                  filterZalo = filter;
+                                })
+                          ]
+                      )),
+                      if (ChatConnection.isChatHub) Container(height: 3.0,color: Colors.grey.shade200,),
+                    ],
                   ),
                 ),
               )]
