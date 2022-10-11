@@ -98,6 +98,7 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen> with Sing
                       elevation: 0.0,
                       bottom: TabBar(
                         controller: _tabController,
+                        indicatorColor: Colors.blue,
                         tabs: [
                           Tab(icon: AutoSizeText(AppLocalizations.text(LangKey.all),style: const TextStyle(color: Colors.black))),
                           const Tab(icon: AutoSizeText('Facebook',style: TextStyle(color: Colors.black),)),
