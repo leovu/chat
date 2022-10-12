@@ -41,9 +41,9 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       setState(() {
-        _userNameController.text = 'admin';
-        _passwordController.text = 'admin';
-        _domainController.text = 'https://chat-hub-stag.epoints.vn/';
+        _userNameController.text = 'linhgard';
+        _passwordController.text = '123456';
+        _domainController.text = 'https://chat-stag-new.epoints.vn/';
         // _userNameController.text = 'waosupport@pioapps.vn';
         // _passwordController.text = '123456';
         // _domainController.text = 'https://chat-matthewsliquor.epoints.vn/';
@@ -136,8 +136,8 @@ class _MyAppState extends State<MyApp> {
                     errorDialog('Domain Empty');
                     return;
                   }
-                  Chat.open(context,_userNameController.value.text, _passwordController.value.text, 'assets/icon-app.png',const Locale(LangKey.langVi, 'VN'), domain: _domainController.value.text,brandCode: 'qc',isChatHub: true);
-                  // Chat.open(context,_userNameController.value.text, _passwordController.value.text, 'assets/icon-app.png',const Locale(LangKey.langVi, 'VN'), domain: _domainController.value.text,brandCode: 'matthewsliquor',isChatHub: false);
+                  // Chat.open(context,_userNameController.value.text, _passwordController.value.text, 'assets/icon-app.png',const Locale(LangKey.langVi, 'VN'), domain: _domainController.value.text,brandCode: 'qc',isChatHub: true);
+                  Chat.open(context,_userNameController.value.text, _passwordController.value.text, 'assets/icon-app.png',const Locale(LangKey.langVi, 'VN'), domain: _domainController.value.text,brandCode: 'qc',isChatHub: false);
                 },
                 child: Container(
                     height: 40.0,
