@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/chat_screen/chat_screen.dart';
+import 'package:chat/chat_ui/vietnamese_text.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/data_model/contact.dart';
@@ -43,12 +44,12 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
   }
 
   _getContactsVisible() {
-    String val = _controllerSearch.value.text.toLowerCase();
-    if(val != '') {
+    String val = _controllerSearch.value.text.toLowerCase().removeAccents();
+    if(val!= '') {
       contactsListVisible!.users = contactsListVisible!.users!.where((element) {
         try {
           if(
-          ('${element.firstName} ${element.lastName}'.toLowerCase()).contains(val)) {
+          ('${element.firstName} ${element.lastName}'.toLowerCase().removeAccents()).contains(val)) {
             return true;
           }
           return false;
@@ -123,11 +124,6 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
                         Expanded(child: TextField(
                           focusNode: _focusGroupName,
                           controller: _controllerGroupName,
-                          onChanged: (_) {
-                            setState(() {
-                              _getContactsVisible();
-                            });
-                          },
                           decoration: InputDecoration.collapsed(
                             hintText: AppLocalizations.text(LangKey.groupName),
                           ),

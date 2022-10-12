@@ -41,8 +41,10 @@ class _ConversationInformationScreenState
   }
 
   void _loadAccount() async {
-    r.People info = getPeople(widget.roomData.people);
-    customerAccount = await ChatConnection.detect(info.sId??'');
+    if(ChatConnection.isChatHub) {
+      r.People info = getPeople(widget.roomData.people);
+      customerAccount = await ChatConnection.detect(info.sId??'');
+    }
     isInitScreen = false;
     setState(() {});
   }
@@ -156,7 +158,7 @@ class _ConversationInformationScreenState
               ),
             ),
             if(!ChatConnection.isChatHub) actionView(),
-            if(!isInitScreen && customerAccount?.data?.type == null) Column(
+            if(!isInitScreen && customerAccount?.data?.type == null && ChatConnection.isChatHub) Column(
               children: [
                 AutoSizeText(AppLocalizations.text(LangKey.unknownCustomer),style: const TextStyle(color: Colors.black),),
                 Container(height: 10.0,),
