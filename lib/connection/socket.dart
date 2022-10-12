@@ -19,6 +19,7 @@ class StreamSocket {
     socket = io.io(HTTPConnection.domain,
         io.OptionBuilder().setTransports(['websocket'])
             .setExtraHeaders({'brand-code': ChatConnection.brandCode})
+            .setQuery({'brand-code': ChatConnection.brandCode})
             .build());
     socket!.onConnectError((data) {});
     socket!.on('authenticated', (data) {
