@@ -336,10 +336,8 @@ class ChatConnection {
             height: (listMessage[index] as types.ImageMessage).height,
             name: (listMessage[index] as types.ImageMessage).name,
             size: (listMessage[index] as types.ImageMessage).size,
-            uri: '${HTTPConnection.domain}api/images/${valueResponse.content}',
+            uri: '${HTTPConnection.domain}api/images/${valueResponse.content}/${ChatConnection.brandCode}',
             width: (listMessage[index] as types.ImageMessage).width,
-            showStatus: true,
-            status: s,
             repliedMessage: listMessage[index].repliedMessage
         );
         data?.room?.messages?.insert(0,valueResponse);

@@ -303,7 +303,7 @@ class Message extends StatelessWidget {
       case types.Status.sending:
         return InheritedChatTheme.of(context).theme.sendingIcon != null
             ? InheritedChatTheme.of(context).theme.sendingIcon!
-            : Center(
+            : const Center(
                 child: SizedBox(
                   height: 10,
                   width: 10,
@@ -311,7 +311,7 @@ class Message extends StatelessWidget {
                     backgroundColor: Colors.transparent,
                     strokeWidth: 1.5,
                     valueColor: AlwaysStoppedAnimation<Color>(
-                      InheritedChatTheme.of(context).theme.primaryColor,
+                      Colors.blue,
                     ),
                   ),
                 ),
