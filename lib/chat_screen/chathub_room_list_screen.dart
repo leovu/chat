@@ -23,12 +23,16 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen> with Sing
   late void Function() filterZalo;
   late TabController _tabController;
   int _activeTabIndex = 0;
+  Function? reloadAll;
+  Function? reloadFacebook;
+  Function? reloadZalo;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(vsync: this, length: 3);
     _tabController.addListener(_setActiveTabIndex);
+    ChatConnection.refreshRoom = refresh;
   }
 
   @override
@@ -100,9 +104,24 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen> with Sing
                         controller: _tabController,
                         indicatorColor: Colors.blue,
                         tabs: [
-                          Tab(icon: AutoSizeText(AppLocalizations.text(LangKey.all),style: const TextStyle(color: Colors.black))),
-                          const Tab(icon: AutoSizeText('Facebook',style: TextStyle(color: Colors.black),)),
-                          const Tab(icon: AutoSizeText('Zalo',style: TextStyle(color: Colors.black))),
+                          Tab(icon: Row(
+                            children: [
+                              Image.asset('assets/icon-chathub-main.png',package: 'chat',width: 30.0,height: 30.0,),
+                              Expanded(child: AutoSizeText(' ${AppLocalizations.text(LangKey.all)}',style: const TextStyle(color: Colors.black)))
+                            ],
+                          )),
+                          Tab(icon: Row(
+                            children: [
+                              Image.asset('assets/icon-facebook-main.png',package: 'chat',width: 20.0,height: 20.0,),
+                              const Expanded(child: AutoSizeText('  Facebook',style: TextStyle(color: Colors.black),))
+                            ],
+                          )),
+                          Tab(icon: Row(
+                            children: [
+                              Image.asset('assets/icon-zalo.png',package: 'chat',width: 20.0,height: 20.0,),
+                              const Expanded(child: AutoSizeText('   Zalo',style: TextStyle(color: Colors.black)))
+                            ],
+                          )),
                         ],
                       ),
                     ),
@@ -114,18 +133,18 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen> with Sing
                           controller: _tabController,
                           children: [
                             RoomListScreen(builder: (BuildContext context, void Function() method) {
-                              ChatConnection.refreshRoom = method;
+                              reloadAll = method;
                             },openCreateChatRoom: widget.openCreateChatRoom,chatHubBuilder: (void Function() filter) {
                               filterAll = filter;
                             },),
                             RoomListScreen(builder: (BuildContext context, void Function() method) {
-                              ChatConnection.refreshRoom = method;
+                              reloadFacebook = method;
                             },openCreateChatRoom: widget.openCreateChatRoom,source: 'facebook',
                                 chatHubBuilder: (void Function() filter) {
                                   filterFacebook = filter;
                                 }),
                             RoomListScreen(builder: (BuildContext context, void Function() method) {
-                              ChatConnection.refreshRoom = method;
+                              reloadZalo = method;
                             },openCreateChatRoom: widget.openCreateChatRoom,source: 'zalo',
                                 chatHubBuilder: (void Function() filter) {
                                   filterZalo = filter;
@@ -140,5 +159,16 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen> with Sing
             )),
       ),
     );
+  }
+  void refresh() {
+    if(reloadAll != null) {
+      reloadAll!();
+    }
+    if(reloadFacebook != null) {
+      reloadFacebook!();
+    }
+    if(reloadZalo != null) {
+      reloadZalo!();
+    }
   }
 }

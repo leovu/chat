@@ -209,6 +209,7 @@ class _State extends State<TagListScreen> {
                       widget.data.userTag = arr;
                       widget.data.isUpdateTagList = true;
                     }
+                    Navigator.of(context).pop();
                   }
                 },
                 shape: RoundedRectangleBorder(

@@ -135,10 +135,10 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
           backgroundColor: Colors.white,
           body: SafeArea(
               child: Column(children: [
-                if(!ChatConnection.isChatHub) Column(
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
+                    if(!ChatConnection.isChatHub) Container(
                       height: 30.0,
                       margin: const EdgeInsets.symmetric(horizontal: 10.0,vertical: 5.0),
                       child: Row(
@@ -156,7 +156,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                         ],
                       ),
                     ),
-                    Row(
+                    if(!ChatConnection.isChatHub) Row(
                       children: [
                         Padding(
                           padding: const EdgeInsets.only(bottom: 3.0,left: 10.0,right: 10.0),
@@ -256,6 +256,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                                   _getRooms();
                                 },
                                 child: Slidable(
+                                    enabled: !ChatConnection.isChatHub,
                                     endActionPane: ActionPane(
                                       motion: const StretchMotion(),
                                       children: [
