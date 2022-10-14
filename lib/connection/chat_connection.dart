@@ -48,6 +48,9 @@ class ChatConnection {
   static Function? createTask;
   static Function? addCustomer;
   static Function? addPotentialCustomer;
+  static int? notiChatHubAll;
+  static int? notiChatHubFacebook;
+  static int? notiChatHubZalo;
   static Future<bool>init(String email,String password,{String? token}) async {
     HttpOverrides.global = MyHttpOverrides();
     String? resultToken;
@@ -112,7 +115,13 @@ class ChatConnection {
     if(tagIds != null) if(tagIds.isNotEmpty) json['tag_ids'] = tagIds;
     ResponseData responseData = await connection.post('api/rooms/list', json);
     if(responseData.isSuccess) {
-      return r.Room.fromJson(responseData.data);
+      r.Room room = r.Room.fromJson(responseData.data);
+      if(ChatConnection.isChatHub) {
+        ChatConnection.notiChatHubAll = room.notifications?.total;
+        ChatConnection.notiChatHubFacebook = room.notifications?.facebook;
+        ChatConnection.notiChatHubZalo = room.notifications?.zalo;
+      }
+      return room;
     }
     return null;
   }

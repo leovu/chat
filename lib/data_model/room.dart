@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 class Room {
   int? limit;
   List<Rooms>? rooms;
+  Notifications? notifications;
 
   Room({limit, rooms});
 
@@ -16,6 +17,9 @@ class Room {
         rooms!.add(Rooms.fromJson(v));
       });
     }
+    notifications = json['notifications'] != null
+        ? Notifications.fromJson(json['notifications'])
+        : null;
   }
 
   Map<String, dynamic> toJson({bool isFavorite = false}) {
@@ -23,6 +27,9 @@ class Room {
     data['limit'] = limit;
     if (rooms != null) {
       data[!isFavorite ? 'rooms' : 'favorites'] = rooms!.map((v) => v.toJson()).toList();
+    }
+    if (notifications != null) {
+      data['notifications'] = notifications!.toJson();
     }
     return data;
   }
@@ -527,5 +534,26 @@ extension DateHelpers on DateTime {
     return yesterday.day == day &&
         yesterday.month == month &&
         yesterday.year == year;
+  }
+}
+class Notifications {
+  int? total;
+  int? facebook;
+  int? zalo;
+
+  Notifications({this.total, this.facebook, this.zalo});
+
+  Notifications.fromJson(Map<String, dynamic> json) {
+    total = json['total'];
+    facebook = json['facebook'];
+    zalo = json['zalo'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['total'] = total;
+    data['facebook'] = facebook;
+    data['zalo'] = zalo;
+    return data;
   }
 }

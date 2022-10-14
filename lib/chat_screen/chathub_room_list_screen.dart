@@ -107,19 +107,54 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen> with Sing
                           Tab(icon: Row(
                             children: [
                               Image.asset('assets/icon-chathub-main.png',package: 'chat',width: 30.0,height: 30.0,),
-                              Expanded(child: AutoSizeText(' ${AppLocalizations.text(LangKey.all)}',style: const TextStyle(color: Colors.black)))
+                              Expanded(child: AutoSizeText.rich(TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: ' ${AppLocalizations.text(LangKey.all)}',
+                                    style: const TextStyle(color: Colors.black)
+                                  ),
+                                  if((ChatConnection.notiChatHubAll??0) > 0) TextSpan(
+                                        text: ' (${ChatConnection.notiChatHubAll})',
+                                        style: const TextStyle(color: Colors.red,fontSize: 12,fontWeight: FontWeight.bold)
+                                  ),
+                                ]
+                              ),maxLines: 1,))
                             ],
                           )),
                           Tab(icon: Row(
                             children: [
                               Image.asset('assets/icon-facebook-main.png',package: 'chat',width: 20.0,height: 20.0,),
-                              const Expanded(child: AutoSizeText('  Facebook',style: TextStyle(color: Colors.black),))
+                              Expanded(child:
+                              AutoSizeText.rich(TextSpan(
+                                  children: [
+                                    const TextSpan(
+                                        text: '  Facebook',
+                                        style: TextStyle(color: Colors.black)
+                                    ),
+                                    if((ChatConnection.notiChatHubFacebook??0) > 0) TextSpan(
+                                        text: ' (${ChatConnection.notiChatHubFacebook})',
+                                        style: const TextStyle(color: Colors.red,fontSize: 12,fontWeight: FontWeight.bold)
+                                    )
+                                  ]
+                              ),maxLines: 1))
                             ],
                           )),
                           Tab(icon: Row(
                             children: [
                               Image.asset('assets/icon-zalo.png',package: 'chat',width: 20.0,height: 20.0,),
-                              const Expanded(child: AutoSizeText('   Zalo',style: TextStyle(color: Colors.black)))
+                              Expanded(child:
+                              AutoSizeText.rich(TextSpan(
+                                  children: [
+                                    const TextSpan(
+                                        text: '   Zalo',
+                                        style: TextStyle(color: Colors.black)
+                                    ),
+                                    if((ChatConnection.notiChatHubZalo??0) > 0) TextSpan(
+                                        text: ' (${ChatConnection.notiChatHubZalo})',
+                                        style: const TextStyle(color: Colors.red,fontSize: 12,fontWeight: FontWeight.bold)
+                                    )
+                                  ]
+                              ),maxLines: 1))
                             ],
                           )),
                         ],
@@ -136,19 +171,19 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen> with Sing
                               reloadAll = method;
                             },openCreateChatRoom: widget.openCreateChatRoom,chatHubBuilder: (void Function() filter) {
                               filterAll = filter;
-                            },),
+                            },refreshTabNoti: refreshTabNoti,),
                             RoomListScreen(builder: (BuildContext context, void Function() method) {
                               reloadFacebook = method;
                             },openCreateChatRoom: widget.openCreateChatRoom,source: 'facebook',
                                 chatHubBuilder: (void Function() filter) {
                                   filterFacebook = filter;
-                                }),
+                                },refreshTabNoti: refreshTabNoti,),
                             RoomListScreen(builder: (BuildContext context, void Function() method) {
                               reloadZalo = method;
                             },openCreateChatRoom: widget.openCreateChatRoom,source: 'zalo',
                                 chatHubBuilder: (void Function() filter) {
                                   filterZalo = filter;
-                                })
+                                },refreshTabNoti: refreshTabNoti,)
                           ]
                       )),
                       if (ChatConnection.isChatHub) Container(height: 3.0,color: Colors.grey.shade200,),
@@ -170,5 +205,9 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen> with Sing
     if(reloadZalo != null) {
       reloadZalo!();
     }
+    refreshTabNoti();
+  }
+  void refreshTabNoti() {
+    setState(() {});
   }
 }

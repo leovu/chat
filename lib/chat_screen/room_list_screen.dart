@@ -28,7 +28,8 @@ class RoomListScreen extends StatefulWidget {
   final Function? homeCallback;
   final Function? openCreateChatRoom;
   final String? source;
-  const RoomListScreen({Key? key, required this.builder, this.homeCallback , this.openCreateChatRoom, this.source, this.chatHubBuilder}) : super(key: key);
+  final Function? refreshTabNoti;
+  const RoomListScreen({Key? key, required this.builder, this.homeCallback , this.openCreateChatRoom, this.source, this.chatHubBuilder, this.refreshTabNoti}) : super(key: key);
   @override
   _RoomListScreenState createState() => _RoomListScreenState();
 }
@@ -72,6 +73,11 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
       _getRoomVisible();
       isInitScreen = false;
       setState(() {});
+      if(ChatConnection.isChatHub) {
+        if(widget.refreshTabNoti != null) {
+          widget.refreshTabNoti!();
+        }
+      }
     }
     else {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -80,6 +86,11 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
         _getRoomVisible();
         isInitScreen = false;
         setState(() {});
+        if(ChatConnection.isChatHub) {
+          if(widget.refreshTabNoti != null) {
+            widget.refreshTabNoti!();
+          }
+        }
       });
     }
   }
