@@ -41,10 +41,10 @@ class Chat {
         Function? createOrder,
         Function? createAppointment,
         Function? createDeal,
-        Function? createLead,
         Function? createTask,
         Function? addCustomer,
-        Function? addPotentialCustomer
+        String? productDomain,
+        String? productToken
       }) async {
     showLoading(context);
     await initializeDateFormatting();
@@ -62,10 +62,10 @@ class Chat {
     ChatConnection.createOrder = createOrder;
     ChatConnection.createAppointment = createAppointment;
     ChatConnection.createDeal = createDeal;
-    ChatConnection.createLead = createLead;
     ChatConnection.createTask = createTask;
     ChatConnection.addCustomer = addCustomer;
-    ChatConnection.addPotentialCustomer= addPotentialCustomer;
+    ChatConnection.productDomain = productDomain;
+    ChatConnection.productToken = productToken;
     if(notificationData != null) {
       ChatConnection.initialData = notificationData;
     }

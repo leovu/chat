@@ -44,13 +44,13 @@ class ChatConnection {
   static Function? createOrder;
   static Function? createAppointment;
   static Function? createDeal;
-  static Function? createLead;
   static Function? createTask;
   static Function? addCustomer;
-  static Function? addPotentialCustomer;
   static int? notiChatHubAll;
   static int? notiChatHubFacebook;
   static int? notiChatHubZalo;
+  static String? productDomain;
+  static String? productToken;
   static Future<bool>init(String email,String password,{String? token}) async {
     HttpOverrides.global = MyHttpOverrides();
     String? resultToken;
@@ -337,7 +337,7 @@ class ChatConnection {
         types.Message val = listMessage.firstWhere((element) => element.id == id);
         int index = listMessage.indexOf(val);
         c.Messages valueResponse =  c.Messages.fromJson(responseData.data['message']);
-        types.Status s = valueResponse.sId==null ? types.Status.error : types.Status.sent;
+        // types.Status s = valueResponse.sId==null ? types.Status.error : types.Status.sent;
         listMessage[index] = types.ImageMessage(
             author: listMessage[index].author,
             createdAt: listMessage[index].createdAt,

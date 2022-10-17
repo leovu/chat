@@ -53,6 +53,10 @@ dependencies:
     git:
       url: https://github.com/leovu/permission.git
       ref: 1.0.1
+  lead_plugin_epoint:
+    git:
+      url: https://github.com/leovu/epoints_lead.git
+      ref: 1.0.1
 
 dependency_overrides:
   photo_view:
