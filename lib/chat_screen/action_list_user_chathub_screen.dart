@@ -53,15 +53,8 @@ class _State extends State<ActionListUserChathubScreen> {
             }),
             if(widget.customerAccount?.data?.type == null) Container(height: 15.0,),
             if(widget.customerAccount?.data?.type == null) _action(AppLocalizations.text(LangKey.addCustomerPotential), Icons.emoji_people,  () async {
-              Map<String,dynamic> addCustomer;
-              Map<String,dynamic>? event = await LeadPluginEpoint.open(context, ChatConnection.locale, ChatConnection.productToken, 0, domain: ChatConnection.productDomain?.substring(0, ChatConnection.productDomain?.length??1 - 1), brandCode: ChatConnection.brandCode);
-              if (event != null) {
-                addCustomer = {
-                  'customerLeadId' : event['customer_lead_id'],
-                  'type' : 'cpo'
-                };
-                Navigator.of(context).pop(addCustomer);
-              }
+              LeadPluginEpoint.open(context, ChatConnection.locale, ChatConnection.productToken, 0, domain: ChatConnection.productDomain?.substring(0, ChatConnection.productDomain?.length??1 - 1),
+                  brandCode: ChatConnection.brandCode, action: addPotentialCustomer);
             }),
             if(widget.customerAccount?.data?.type == null) Container(height: 15.0,),
             _action(AppLocalizations.text(LangKey.addLabel), Icons.label_important_outline, () {
@@ -81,6 +74,10 @@ class _State extends State<ActionListUserChathubScreen> {
           ],
         ),)
     );
+  }
+
+  void addPotentialCustomer(Map<String,dynamic> addCustomer) {
+    Navigator.of(context).pop(addCustomer);
   }
   
   Widget _action(String title, IconData icon, Function? action) {
