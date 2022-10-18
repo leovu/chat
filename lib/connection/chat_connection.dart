@@ -46,11 +46,10 @@ class ChatConnection {
   static Function? createDeal;
   static Function? createTask;
   static Function? addCustomer;
+  static Function? addCustomerPotential;
   static int? notiChatHubAll;
   static int? notiChatHubFacebook;
   static int? notiChatHubZalo;
-  static String? productDomain;
-  static String? productToken;
   static Future<bool>init(String email,String password,{String? token}) async {
     HttpOverrides.global = MyHttpOverrides();
     String? resultToken;
