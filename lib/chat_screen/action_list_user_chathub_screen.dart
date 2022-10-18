@@ -52,7 +52,7 @@ class _State extends State<ActionListUserChathubScreen> {
             if(widget.customerAccount?.data?.type == null || widget.customerAccount?.data?.type == 'cpo') Container(height: 15.0,),
             if(widget.customerAccount?.data?.type == null) _action(AppLocalizations.text(LangKey.addCustomerPotential), Icons.emoji_people,  () async {
               if(ChatConnection.addCustomerPotential != null) {
-                Map<String,dynamic>? addCustomer = await ChatConnection.addCustomerPotential!();
+                Map<String,dynamic>? addCustomer = await ChatConnection.addCustomerPotential!(widget.data.phone,'${widget.data.firstName} ${widget.data.lastName}');
                 if(addCustomer != null) {
                   Navigator.of(context).pop(addCustomer);
                 }
