@@ -624,7 +624,8 @@ class _ConversationInformationScreenState
                     if(ChatConnection.viewProfileChatHub != null) {
                       ChatConnection.viewProfileChatHub!(
                           customerAccount?.data?.type == 'customer' ? customerAccount?.data?.customerId : customerAccount?.data?.customerLeadId,
-                          customerAccount?.data?.type == 'customer' ? customerAccount?.data?.customerCode : customerAccount?.data?.customerLeadCode
+                          customerAccount?.data?.type == 'customer' ? customerAccount?.data?.customerCode : customerAccount?.data?.customerLeadCode,
+                          customerAccount?.data?.type
                       );
                     }
                   },
