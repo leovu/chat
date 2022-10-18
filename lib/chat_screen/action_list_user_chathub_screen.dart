@@ -7,8 +7,6 @@ import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/data_model/room.dart' as r;
-// ignore: import_of_legacy_library_into_null_safe
-import 'package:lead_plugin_epoint/lead_plugin_epoint.dart';
 
 class ActionListUserChathubScreen extends StatefulWidget {
   final r.People data;
@@ -53,8 +51,12 @@ class _State extends State<ActionListUserChathubScreen> {
             }),
             if(widget.customerAccount?.data?.type == null) Container(height: 15.0,),
             if(widget.customerAccount?.data?.type == null) _action(AppLocalizations.text(LangKey.addCustomerPotential), Icons.emoji_people,  () async {
-              LeadPluginEpoint.open(context, ChatConnection.locale, ChatConnection.productToken, 0, domain: ChatConnection.productDomain?.substring(0, ChatConnection.productDomain?.length??1 - 1),
-                  brandCode: ChatConnection.brandCode, action: addPotentialCustomer);
+              if(ChatConnection.addCustomerPotential != null) {
+                Map<String,dynamic>? addCustomer = await ChatConnection.addCustomerPotential!();
+                if(addCustomer != null) {
+                  Navigator.of(context).pop(addCustomer);
+                }
+              }
             }),
             if(widget.customerAccount?.data?.type == null) Container(height: 15.0,),
             _action(AppLocalizations.text(LangKey.addLabel), Icons.label_important_outline, () {

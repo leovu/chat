@@ -406,15 +406,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.3.1"
-  lead_plugin_epoint:
-    dependency: transitive
-    description:
-      path: "."
-      ref: "1.0.1"
-      resolved-ref: "9384e6baa20da51e9b560aac9f82e7bdb2d52098"
-      url: "https://github.com/leovu/epoints_lead.git"
-    source: git
-    version: "0.0.1"
   linkify:
     dependency: transitive
     description:
