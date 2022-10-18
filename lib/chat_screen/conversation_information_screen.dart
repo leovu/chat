@@ -562,51 +562,73 @@ class _ConversationInformationScreenState
     return customerAccount!.data!.type == null ? Container() :
       Column(
       children: [
-        if((customerAccount!.data!.customerCode??customerAccount!.data!.customerLeadCode??'') != '') Row(
-          children: [
-            const Icon(Icons.account_box,color: Colors.blueAccent,),
-            Expanded(child: Padding(
-              padding: const EdgeInsets.only(left: 8.0),
-              child: AutoSizeText(customerAccount!.data!.customerCode??customerAccount!.data!.customerLeadCode??'',overflow: TextOverflow.ellipsis,),
-            )),
-          ],
+        if((customerAccount!.data!.customerCode??customerAccount!.data!.customerLeadCode??'') != '') SizedBox(
+          width: MediaQuery.of(context).size.width*0.65,
+          child: Row(
+            children: [
+              const Icon(Icons.account_box,color: Colors.blueAccent,),
+              Expanded(child: Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: AutoSizeText(customerAccount!.data!.customerCode??customerAccount!.data!.customerLeadCode??'',overflow: TextOverflow.ellipsis,),
+              )),
+            ],
+          ),
         ),
         if((customerAccount!.data!.phone??customerAccount!.data!.phone2??'') != '') Container(height: 8.0,),
-        if((customerAccount!.data!.phone??customerAccount!.data!.phone2??'') != '') Row(
-          children: [
-            const Icon(Icons.phone,color: Colors.blueAccent,),
-            Expanded(child: Padding(
-              padding: const EdgeInsets.only(left: 8.0),
-              child: AutoSizeText(customerAccount!.data!.phone??customerAccount!.data!.phone2??'',overflow: TextOverflow.ellipsis,),
-            )),
-          ],
+        if((customerAccount!.data!.phone??customerAccount!.data!.phone2??'') != '') SizedBox(
+          width: MediaQuery.of(context).size.width*0.65,
+          child: Row(
+            children: [
+              const Icon(Icons.phone,color: Colors.blueAccent,),
+              Expanded(child: Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: AutoSizeText(customerAccount!.data!.phone??customerAccount!.data!.phone2??'',overflow: TextOverflow.ellipsis,),
+              )),
+            ],
+          ),
         ),
         if((customerAccount!.data!.email??'') != '') Container(height: 8.0,),
-        if((customerAccount!.data!.email??'') != '')Row(
-          children: [
-            const Icon(Icons.email,color: Colors.blueAccent,),
-            Expanded(child: Padding(
-              padding: const EdgeInsets.only(left: 8.0),
-              child: AutoSizeText(customerAccount!.data!.email??'',overflow: TextOverflow.ellipsis,),
-            )),
-          ],
+        if((customerAccount!.data!.email??'') != '')SizedBox(
+          width: MediaQuery.of(context).size.width*0.65,
+          child: Row(
+            children: [
+              const Icon(Icons.email,color: Colors.blueAccent,),
+              Expanded(child: Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: AutoSizeText(customerAccount!.data!.email??'',overflow: TextOverflow.ellipsis,),
+              )),
+            ],
+          ),
         ),
         if((customerAccount!.data!.address??'') != '') Container(height: 8.0,),
-        if((customerAccount!.data!.address??'') != '') Row(
-          children: [
-            const Icon(Icons.location_pin,color: Colors.blueAccent,),
-            Expanded(child: Padding(
-              padding: const EdgeInsets.only(left: 8.0),
-              child: AutoSizeText(customerAccount!.data!.address??'',overflow: TextOverflow.ellipsis,),
-            )),
-          ],
+        if((customerAccount!.data!.address??'') != '') SizedBox(
+          width: MediaQuery.of(context).size.width*0.65,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(Icons.location_pin,color: Colors.blueAccent,),
+              Expanded(child: Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: AutoSizeText('${customerAccount!.data!.address??''} ${customerAccount!.data!.address??''}'),
+              )),
+            ],
+          ),
         ),
         Center(
           child: Padding(
             padding: const EdgeInsets.only(top: 20.0),
             child: SizedBox(
                 height: 40.0,
-                child: InkWell(child: AutoSizeText(AppLocalizations.text(LangKey.viewDetail),style: const TextStyle(color: Colors.blue,fontWeight: FontWeight.w600),))),
+                child: InkWell(
+                  onTap: () {
+                    if(ChatConnection.viewProfileChatHub != null) {
+                      ChatConnection.viewProfileChatHub!(
+                          customerAccount?.data?.type == 'customer' ? customerAccount?.data?.customerId : customerAccount?.data?.customerLeadId,
+                          customerAccount?.data?.type == 'customer' ? customerAccount?.data?.customerCode : customerAccount?.data?.customerLeadCode
+                      );
+                    }
+                  },
+                    child: AutoSizeText(AppLocalizations.text(LangKey.viewDetail),style: const TextStyle(color: Colors.blue,fontWeight: FontWeight.w600),))),
           ),
         ),
       ],

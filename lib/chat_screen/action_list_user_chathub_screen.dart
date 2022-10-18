@@ -41,7 +41,7 @@ class _State extends State<ActionListUserChathubScreen> {
           padding: const EdgeInsets.only(top: 20.0),
           physics: const ClampingScrollPhysics(),
           children: [
-            if(widget.customerAccount?.data?.type == null) _action(AppLocalizations.text(LangKey.addCustomer), Icons.people, () async {
+            if(widget.customerAccount?.data?.type == null || widget.customerAccount?.data?.type == 'cpo') _action(AppLocalizations.text(LangKey.addCustomer), Icons.people, () async {
               if(ChatConnection.addCustomer != null) {
                 Map<String,dynamic>? addCustomer = await ChatConnection.addCustomer!();
                 if(addCustomer != null) {
@@ -49,7 +49,7 @@ class _State extends State<ActionListUserChathubScreen> {
                 }
               }
             }),
-            if(widget.customerAccount?.data?.type == null) Container(height: 15.0,),
+            if(widget.customerAccount?.data?.type == null || widget.customerAccount?.data?.type == 'cpo') Container(height: 15.0,),
             if(widget.customerAccount?.data?.type == null) _action(AppLocalizations.text(LangKey.addCustomerPotential), Icons.emoji_people,  () async {
               if(ChatConnection.addCustomerPotential != null) {
                 Map<String,dynamic>? addCustomer = await ChatConnection.addCustomerPotential!();
@@ -65,12 +65,12 @@ class _State extends State<ActionListUserChathubScreen> {
               }));
             }),
             Container(height: 15.0,),
-            _action(AppLocalizations.text(LangKey.createOrder), Icons.backpack_outlined, ChatConnection.createOrder),
-            Container(height: 15.0,),
+            if(widget.customerAccount?.data?.type != 'cpo') _action(AppLocalizations.text(LangKey.createOrder), Icons.backpack_outlined, ChatConnection.createOrder),
+            if(widget.customerAccount?.data?.type != 'cpo') Container(height: 15.0,),
             _action(AppLocalizations.text(LangKey.createAppointment), Icons.calendar_today_outlined, ChatConnection.createAppointment),
             Container(height: 15.0,),
-            _action(AppLocalizations.text(LangKey.createDeal), Icons.star_border, ChatConnection.createDeal),
-            Container(height: 15.0,),
+            if(widget.customerAccount?.data?.type != null) _action(AppLocalizations.text(LangKey.createDeal), Icons.star_border, ChatConnection.createDeal),
+            if(widget.customerAccount?.data?.type != null) Container(height: 15.0,),
             _action(AppLocalizations.text(LangKey.createTask), Icons.add_task, ChatConnection.createTask),
             Container(height: 15.0,),
           ],

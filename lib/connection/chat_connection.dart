@@ -47,6 +47,7 @@ class ChatConnection {
   static Function? createTask;
   static Function? addCustomer;
   static Function? addCustomerPotential;
+  static Function? viewProfileChatHub;
   static int? notiChatHubAll;
   static int? notiChatHubFacebook;
   static int? notiChatHubZalo;
