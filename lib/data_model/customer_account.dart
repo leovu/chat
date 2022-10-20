@@ -85,18 +85,19 @@ class Data {
 
   String getAvatarName() {
     String avatarName = '';
-    if(fullName != null) {
-      avatarName += fullName![0];
-      if(fullName!.contains(' ')) {
-        final splits = fullName!.split(' ');
+    String? fullNameResult = fullName?.replaceAll(RegExp('[^A-Za-z0-9]'), '');
+    if(fullNameResult != null) {
+      avatarName += fullNameResult[0].toUpperCase();
+      if(fullNameResult.contains(' ')) {
+        final splits = fullNameResult.split(' ');
         avatarName += splits[1][0];
       }
       else {
-        if(fullName!.length >= 2) {
-          avatarName += fullName![1];
+        if(fullNameResult.length >= 2) {
+          avatarName += fullNameResult[1];
         }
       }
     }
-    return avatarName;
+    return avatarName == '' ? '*' : avatarName.toUpperCase();
   }
 }

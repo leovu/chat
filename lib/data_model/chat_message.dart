@@ -425,13 +425,15 @@ class Author {
 
   String getAvatarName() {
     String avatarName = '';
-    if(firstName != '' && firstName != null) {
-      avatarName += firstName![0];
+    String? firstNameResult = firstName?.replaceAll(RegExp('[^A-Za-z0-9]'), '');
+    if(firstNameResult != '' && firstNameResult != null) {
+      avatarName += firstNameResult[0];
     }
-    if(lastName != '' && lastName != null) {
-      avatarName += lastName![0];
+    String? lastNameResult = lastName?.replaceAll(RegExp('[^A-Za-z0-9]'), '');
+    if(lastNameResult != '' && lastNameResult != null) {
+      avatarName += lastNameResult[0];
     }
-    return avatarName;
+    return avatarName == '' ? '*' : avatarName.toUpperCase();
   }
 }
 

@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:math';
 import 'package:chat/chat_screen/filter_chathub_screen.dart';
 import 'package:chat/chat_screen/home_screen.dart';
 import 'package:chat/chat_ui/vietnamese_text.dart';
@@ -11,6 +10,7 @@ import 'package:chat/connection/http_connection.dart';
 import 'package:chat/draft.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/check_tag.dart';
+import 'package:chat/localization/color_platform_chathub.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -46,7 +46,6 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
   Room? roomListData;
   bool isInitScreen = true;
   Map<String,dynamic> colorAppName = {};
-  List<Color> hexColor = [Colors.red, Colors.purple, Colors.indigo, Colors.blue, Colors.cyan, Colors.teal, Colors.deepOrange, Colors.brown];
 
   @override
   void initState() {
@@ -69,7 +68,6 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
   _getRooms() async {
     if(mounted) {
       roomListData = await ChatConnection.roomList(source: widget.source,channelId: channel,status: status, tagIds: tagIds);
-      hexColor = [Colors.red, Colors.purple, Colors.indigo, Colors.blue, Colors.cyan, Colors.teal, Colors.deepOrange, Colors.brown];
       _getRoomVisible();
       isInitScreen = false;
       setState(() {});
@@ -82,7 +80,6 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
     else {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         roomListData = await ChatConnection.roomList(source: widget.source,channelId: channel,status: status, tagIds: tagIds);
-        hexColor = [Colors.red, Colors.purple, Colors.indigo, Colors.blue, Colors.cyan, Colors.teal, Colors.deepOrange, Colors.brown];
         _getRoomVisible();
         isInitScreen = false;
         setState(() {});
@@ -480,8 +477,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
     People info = getPeople(data.people);
     String? author = findAuthor(data.people,data.lastMessage?.author);
     if(!colorAppName.keys.contains(data.channel?.nameApp??'')) {
-      Color color = RandomHexColor().colorRandom(hexColor);
-      hexColor.remove(color);
+      Color color = RandomHexColor().colorRandom(data.channel?.nameApp??'');
       colorAppName[data.channel?.nameApp??''] = color;
     }
     return Column(
@@ -552,9 +548,10 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                                       package: 'chat',
                                       width: 15.0,height: 15.0,),
                                   ),
-                              Expanded(child: AutoSizeText(!data.isGroup! ?
+                              Expanded(child: Text(!data.isGroup! ?
                               '${info.firstName} ${info.lastName}' : data.title ?? 'Group ${info.firstName} ${info.lastName}',
                                   overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
                                   style: TextStyle(fontWeight: findUnread(data.messagesReceived,data.messageUnSeen) != '0' ? FontWeight.bold : FontWeight.normal),
                                 ),
                               ),
@@ -692,10 +689,4 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
   }
   @override
   bool get wantKeepAlive => true;
-}
-class RandomHexColor {
-  static final random = Random();
-  Color colorRandom(List<Color> hexColor) {
-    return hexColor[random.nextInt(hexColor.length)];
-  }
 }

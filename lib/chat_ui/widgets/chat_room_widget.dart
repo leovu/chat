@@ -1,4 +1,3 @@
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 
 class ChatRoomWidget extends StatefulWidget {
@@ -18,7 +17,7 @@ class _ChatRoomWidgetState extends State<ChatRoomWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return AutoSizeText(
+    return Text(
       widget.content,
       textScaleFactor: 0.8,
       maxLines: 1,
