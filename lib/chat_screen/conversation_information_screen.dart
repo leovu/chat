@@ -600,8 +600,8 @@ class _ConversationInformationScreenState
             ],
           ),
         ),
-        if((customerAccount!.data!.address??'') != '') Container(height: 8.0,),
-        if((customerAccount!.data!.address??'') != '') SizedBox(
+        if((customerAccount!.data!.fullAddress??'') != '') Container(height: 8.0,),
+        if((customerAccount!.data!.fullAddress??'') != '') SizedBox(
           width: MediaQuery.of(context).size.width*0.65,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -609,7 +609,7 @@ class _ConversationInformationScreenState
               const Icon(Icons.location_pin,color: Colors.blueAccent,),
               Expanded(child: Padding(
                 padding: const EdgeInsets.only(left: 8.0),
-                child: AutoSizeText('${customerAccount!.data!.address??''} ${customerAccount!.data!.address??''}'),
+                child: AutoSizeText(customerAccount!.data!.fullAddress??''),
               )),
             ],
           ),

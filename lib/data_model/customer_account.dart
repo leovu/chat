@@ -26,6 +26,7 @@ class Data {
   String? phone;
   String? phone2;
   String? address;
+  String? fullAddress;
   String? email;
   String? mappingId;
   int? customerLeadId;
@@ -39,6 +40,7 @@ class Data {
         phone,
         phone2,
         address,
+        fullAddress,
         email,
         mappingId,
         customerLeadId,
@@ -52,6 +54,7 @@ class Data {
     phone = json['phone'];
     phone2 = json['phone2'];
     address = json['address'];
+    fullAddress = json['full_address'];
     email = json['email'];
     mappingId = json['mapping_id'];
     customerLeadId = json['customer_lead_id'];
@@ -67,6 +70,7 @@ class Data {
     data['phone'] = phone;
     data['phone2'] = phone2;
     data['address'] = address;
+    data['full_address'] = fullAddress;
     data['email'] = email;
     data['mapping_id'] = mappingId;
     data['customer_lead_id'] = customerLeadId;
