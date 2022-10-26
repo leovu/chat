@@ -1274,8 +1274,8 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
             visualDensity: const VisualDensity(horizontal: -4.0, vertical: -4.0),
             padding: EdgeInsets.zero,
             icon: const Icon(
-              Icons.info,
-              color: Color(0xFF787878),
+              Icons.format_list_bulleted,
+              color: Colors.black,
             ),
             onPressed: () async{
               showLoading();
