@@ -569,11 +569,14 @@ class _ChatState extends State<Chat> {
   Widget checkSourceAvailableChat() {
     bool isVisible = true;
     if(ChatConnection.isChatHub) {
-      var date = DateTime.fromMillisecondsSinceEpoch(widget.messages.first.createdAt??0);
-      final difference = DateTime.now().difference(date).inDays;
-      if(widget.source == 'facebook' && difference >= 1) {
-        isVisible = false;
-      }
+      try {
+        List<types.Message> customerMessage = widget.messages.where((e) => e.author.id != ChatConnection.user!.id).toList();
+        var date = DateTime.fromMillisecondsSinceEpoch(customerMessage.first.createdAt??0);
+        final difference = DateTime.now().difference(date).inDays;
+        if(widget.source == 'facebook' && difference >= 1) {
+          isVisible = false;
+        }
+      }catch(_) {}
     }
     return Input(
       isGroup: widget.isGroup,
