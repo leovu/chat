@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:chat/chat.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_file_view/flutter_file_view.dart';
 
 void main() {
   runApp(const OverlaySupport.global(
@@ -15,7 +14,6 @@ void main() {
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
-        ViewerLocalizationsDelegate.delegate,
       ],
       title: 'Navigation Basics',
       debugShowCheckedModeBanner: false,
@@ -41,12 +39,12 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       setState(() {
-        _userNameController.text = 'admin';
-        _passwordController.text = 'admin';
-        _domainController.text = 'https://chat-hub-stag.epoints.vn/';
-        // _userNameController.text = 'linhkpi';
-        // _passwordController.text = '123456';
-        // _domainController.text = 'https://chat-stag-new.epoints.vn/';
+        // _userNameController.text = 'admin';
+        // _passwordController.text = 'admin';
+        // _domainController.text = 'https://chat-hub-stag.epoints.vn/';
+        _userNameController.text = 'linhkpi';
+        _passwordController.text = '123456';
+        _domainController.text = 'https://chat-stag-new.epoints.vn/';
         // _userNameController.text = 'waosupport@pioapps.vn';
         // _passwordController.text = '123456';
         // _domainController.text = 'https://chat-matthewsliquor.epoints.vn/';
@@ -139,8 +137,8 @@ class _MyAppState extends State<MyApp> {
                     errorDialog('Domain Empty');
                     return;
                   }
-                  Chat.open(context,_userNameController.value.text, _passwordController.value.text, 'assets/icon-app.png',const Locale(LangKey.langVi, 'VN'), domain: _domainController.value.text,brandCode: 'qc',isChatHub: true);
-                  // Chat.open(context,_userNameController.value.text, _passwordController.value.text, 'assets/icon-app.png',const Locale(LangKey.langVi, 'VN'), domain: _domainController.value.text,brandCode: 'qc',isChatHub: false);
+                  // Chat.open(context,_userNameController.value.text, _passwordController.value.text, 'assets/icon-app.png',const Locale(LangKey.langVi, 'VN'), domain: _domainController.value.text,brandCode: 'qc',isChatHub: true);
+                  Chat.open(context,_userNameController.value.text, _passwordController.value.text, 'assets/icon-app.png',const Locale(LangKey.langVi, 'VN'), domain: _domainController.value.text,brandCode: 'qc',isChatHub: false);
                 },
                 child: Container(
                     height: 40.0,
