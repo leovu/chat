@@ -117,13 +117,20 @@ class ChatConnection {
     if(responseData.isSuccess) {
       r.Room room = r.Room.fromJson(responseData.data);
       if(ChatConnection.isChatHub) {
-        ChatConnection.notiChatHubAll = room.notifications?.total;
-        ChatConnection.notiChatHubFacebook = room.notifications?.facebook;
-        ChatConnection.notiChatHubZalo = room.notifications?.zalo;
+        await notificationCount();
       }
       return room;
     }
     return null;
+  }
+  static Future<void> notificationCount() async {
+    ResponseData responseData = await connection.post('api/notification/user', {});
+    if(responseData.isSuccess) {
+      n.NotificationCount result = n.NotificationCount.fromJson(responseData.data);
+      ChatConnection.notiChatHubAll = result.total;
+      ChatConnection.notiChatHubFacebook = result.facebook;
+      ChatConnection.notiChatHubZalo = result.zalo;
+    }
   }
   static Future<ChathubChannel?>channelList() async {
     ResponseData responseData = await connection.post('api/channels/list', {});

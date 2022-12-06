@@ -150,3 +150,25 @@ class ActionParams {
     return data;
   }
 }
+
+class NotificationCount {
+  int? total;
+  int? facebook;
+  int? zalo;
+
+  NotificationCount({this.total, this.facebook, this.zalo});
+
+  NotificationCount.fromJson(Map<String, dynamic> json) {
+    total = json['total'];
+    facebook = json['facebook'];
+    zalo = json['zalo'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['total'] = total;
+    data['facebook'] = facebook;
+    data['zalo'] = zalo;
+    return data;
+  }
+}
