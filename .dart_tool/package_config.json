@@ -459,7 +459,7 @@
     },
     {
       "name": "permission",
-      "rootUri": "file:///Users/longvu/.pub-cache/git/permission-37f9bde10d9dd6be4108f3280a4f8a5a9d9efae1/",
+      "rootUri": "file:///Users/longvu/.pub-cache/git/permission-3f447b9adf611fffb5fba9c932d7d3e59824f864/",
       "packageUri": "lib/",
       "languageVersion": "2.16"
     },
@@ -728,7 +728,7 @@
       "languageVersion": "2.16"
     }
   ],
-  "generated": "2022-11-16T09:14:07.919385Z",
+  "generated": "2022-12-21T04:29:14.026434Z",
   "generator": "pub",
-  "generatorVersion": "2.18.2"
+  "generatorVersion": "2.18.5"
 }

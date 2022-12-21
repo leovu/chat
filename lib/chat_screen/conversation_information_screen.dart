@@ -111,7 +111,7 @@ class _ConversationInformationScreenState
                             Container(width: 3.0,),
                             const Icon(Icons.link_off,color: Colors.white,),
                             Container(width: 3.0,),
-                            AutoSizeText(AppLocalizations.text(LangKey.link),style: const TextStyle(color: Colors.white),),
+                            AutoSizeText(AppLocalizations.text(LangKey.removeLink),style: const TextStyle(color: Colors.white),),
                             Container(width: 3.0,),
                           ],
                         ),

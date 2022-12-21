@@ -453,9 +453,9 @@ class ChatConnection {
     ResponseData responseData = await connection.post('api/tags/create', {'name': name, 'color': color});
     return responseData.isSuccess;
   }
-  static Future<bool>removeTag(String tagId, String userId) async {
+  static Future<Map<String,dynamic>>removeTag(String tagId, String userId) async {
     ResponseData responseData = await connection.post('api/tags/remove', {'tag_id': tagId, 'user_id': userId});
-    return responseData.isSuccess;
+    return responseData.data;
   }
   static Future<bool>updateTag(List<String> tagIds, String userId) async {
     ResponseData responseData = await connection.post('api/tags/user-add', {'tag_ids': tagIds, 'user_id': userId});
@@ -496,12 +496,12 @@ class ChatConnection {
       );
     }, duration: const Duration(seconds: 2));
   }
-  static void showError(BuildContext context) {
+  static void showError(BuildContext context, {String? content}) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(AppLocalizations.text(LangKey.warning)),
-        content: Text(AppLocalizations.text(LangKey.limitSizeUpload)),
+        content: Text(content ?? AppLocalizations.text(LangKey.limitSizeUpload)),
         actions: [
           ElevatedButton(
               onPressed: () {

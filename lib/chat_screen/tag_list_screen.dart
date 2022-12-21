@@ -168,13 +168,16 @@ class _State extends State<TagListScreen> {
                         child: InkWell(
                           onTap: () async {
                             showLoading();
-                            bool result = await ChatConnection.removeTag(e.sId??'',widget.data.sId??'');
+                            Map<String,dynamic> result = await ChatConnection.removeTag(e.sId??'',widget.data.sId??'');
                             Navigator.of(context).pop();
-                            if(result) {
-                              _getTagList();
-                              widget.data.userTag?.remove(e.sId??'');
-                              widget.data.isUpdateTagList = true;
-                            }
+                            try {
+                              if(result['error'] == 0) {
+                                _getTagList();
+                                widget.data.userTag?.remove(e.sId??'');
+                                widget.data.isUpdateTagList = true;
+                              }
+                              ChatConnection.showError(context,content: result['message']);
+                            }catch(_){}
                           },
                           child: const SizedBox(
                               height: 40.0,
