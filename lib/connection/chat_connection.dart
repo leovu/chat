@@ -48,6 +48,7 @@ class ChatConnection {
   static Function? addCustomer;
   static Function? addCustomerPotential;
   static Function? viewProfileChatHub;
+  static Function? editCustomerLead;
   static int? notiChatHubAll;
   static int? notiChatHubFacebook;
   static int? notiChatHubZalo;

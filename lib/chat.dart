@@ -44,13 +44,15 @@ class Chat {
         Function? createTask,
         Function? addCustomer,
         Function? addCustomerPotential,
-        Function? viewProfileChatHub
+        Function? viewProfileChatHub,
+        Function? editCustomerLead
       }) async {
     showLoading(context);
     await initializeDateFormatting();
     if(domain != null) {
       HTTPConnection.domain = domain;
     }
+
     ChatConnection.addOnModules = addOnModules;
     ChatConnection.locale = locale;
     ChatConnection.buildContext = context;
@@ -66,6 +68,8 @@ class Chat {
     ChatConnection.addCustomer = addCustomer;
     ChatConnection.addCustomerPotential = addCustomerPotential;
     ChatConnection.viewProfileChatHub = viewProfileChatHub;
+    ChatConnection.editCustomerLead = editCustomerLead;
+
     if(notificationData != null) {
       ChatConnection.initialData = notificationData;
     }

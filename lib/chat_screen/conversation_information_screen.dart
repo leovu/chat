@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:chat/chat.dart';
 import 'package:chat/chat_screen/action_list_user_chathub_screen.dart';
 import 'package:chat/chat_screen/chat_group_members_screen.dart';
 import 'package:chat/chat_screen/conversation_file_screen.dart';
@@ -218,76 +219,83 @@ class _ConversationInformationScreenState
   }
 
   void editName() async {
-    _controller.text = widget.roomData.title??customerAccount?.data?.fullName??'';
-    final FocusNode _focusNode = FocusNode();
-    await showDialog<bool>(
-      context: context,
-      builder: (context) {
-        _focusNode.requestFocus();
-        return StatefulBuilder(
-            builder: (BuildContext cxtx, StateSetter setState) {
-              return CupertinoAlertDialog(
-                title:
-                Text(AppLocalizations.text(LangKey.members)),
-                content: Card(
-                  color: Colors.transparent,
-                  elevation: 0.0,
-                  child: Column(
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.only(
-                            top: 8.0, bottom: 3.0),
-                        child: CupertinoTextField(
-                          controller: _controller,
-                          focusNode: _focusNode,
-                          placeholder: AppLocalizations.text(
-                              LangKey.members),
+    if(ChatConnection.isChatHub) {
+      if(ChatConnection.editCustomerLead != null) {
+        ChatConnection.editCustomerLead!();
+      }
+    }
+    else {
+      _controller.text = widget.roomData.title??customerAccount?.data?.fullName??'';
+      final FocusNode _focusNode = FocusNode();
+      await showDialog<bool>(
+        context: context,
+        builder: (context) {
+          _focusNode.requestFocus();
+          return StatefulBuilder(
+              builder: (BuildContext cxtx, StateSetter setState) {
+                return CupertinoAlertDialog(
+                  title:
+                  Text(AppLocalizations.text(LangKey.members)),
+                  content: Card(
+                    color: Colors.transparent,
+                    elevation: 0.0,
+                    child: Column(
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.only(
+                              top: 8.0, bottom: 3.0),
+                          child: CupertinoTextField(
+                            controller: _controller,
+                            focusNode: _focusNode,
+                            placeholder: AppLocalizations.text(
+                                LangKey.members),
+                          ),
                         ),
-                      ),
-                      CupertinoButton(
-                          child: Text(AppLocalizations.text(
-                              LangKey.accept)),
-                          onPressed: () async {
-                            FocusManager.instance.primaryFocus
-                                ?.unfocus();
-                            Navigator.of(context).pop();
-                            bool result = false;
-                            if(ChatConnection.isChatHub) {
-                              result = await ChatConnection
-                                  .updateNameChatHub(
-                                customerAccount?.data?.customerId != null ? customerAccount!.data!.customerId.toString() :
-                                customerAccount!.data!.customerLeadId.toString(),
-                                  customerAccount?.data?.type??'',
-                                  _controller.value.text);
-                            }
-                            else {
-                              result = await ChatConnection
-                                  .updateRoomName(
-                                  widget.roomData.sId!,
-                                  _controller.value.text);
-                            }
-                            if (result) {
+                        CupertinoButton(
+                            child: Text(AppLocalizations.text(
+                                LangKey.accept)),
+                            onPressed: () async {
                               FocusManager.instance.primaryFocus
                                   ?.unfocus();
+                              Navigator.of(context).pop();
+                              bool result = false;
                               if(ChatConnection.isChatHub) {
-                                customerAccount?.data?.fullName = _controller.value.text;
+                                result = await ChatConnection
+                                    .updateNameChatHub(
+                                    customerAccount?.data?.customerId != null ? customerAccount!.data!.customerId.toString() :
+                                    customerAccount!.data!.customerLeadId.toString(),
+                                    customerAccount?.data?.type??'',
+                                    _controller.value.text);
                               }
                               else {
-                                widget.roomData.title =
-                                    _controller.value.text;
+                                result = await ChatConnection
+                                    .updateRoomName(
+                                    widget.roomData.sId!,
+                                    _controller.value.text);
                               }
-                              reload();
-                            } else {
-                              errorDialog(content: ChatConnection.isChatHub?LangKey.getFileError:null);
-                            }
-                          }),
-                    ],
+                              if (result) {
+                                FocusManager.instance.primaryFocus
+                                    ?.unfocus();
+                                if(ChatConnection.isChatHub) {
+                                  customerAccount?.data?.fullName = _controller.value.text;
+                                }
+                                else {
+                                  widget.roomData.title =
+                                      _controller.value.text;
+                                }
+                                reload();
+                              } else {
+                                errorDialog(content: ChatConnection.isChatHub?LangKey.getFileError:null);
+                              }
+                            }),
+                      ],
+                    ),
                   ),
-                ),
-              );
-            });
-      },
-    );
+                );
+              });
+        },
+      );
+    }
   }
 
   void searchCustomer(String keyword) async {
