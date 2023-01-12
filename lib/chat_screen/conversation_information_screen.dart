@@ -221,7 +221,8 @@ class _ConversationInformationScreenState
   void editName() async {
     if(ChatConnection.isChatHub) {
       if(ChatConnection.editCustomerLead != null) {
-        ChatConnection.editCustomerLead!();
+        await ChatConnection.editCustomerLead!(customerAccount?.data?.type == 'customer' ? customerAccount?.data?.customerCode : customerAccount?.data?.customerLeadCode, customerAccount?.data?.type );
+        _loadAccount();
       }
     }
     else {
