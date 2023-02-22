@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:chat/chat.dart';
 import 'package:chat/chat_screen/action_list_user_chathub_screen.dart';
 import 'package:chat/chat_screen/chat_group_members_screen.dart';
 import 'package:chat/chat_screen/conversation_file_screen.dart';

@@ -29,11 +29,6 @@ class _State extends State<DetailGroupImageScreen>
   }
 
   @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(

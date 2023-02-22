@@ -80,11 +80,6 @@ class _ChatListState extends State<ChatList>
     _calculateDiffs(oldWidget.items);
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
   void _calculateDiffs(List<Object> oldList) async {
     final diffResult = calculateListDiff<Object>(
       oldList,

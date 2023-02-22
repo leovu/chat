@@ -14,7 +14,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/data_model/room.dart' as r;
 import 'package:chat/connection/app_lifecycle.dart';
-import 'package:badges/badges.dart';
+import 'package:badges/badges.dart' as bdg;
 
 typedef RefreshBuilder = void Function(BuildContext context, void Function() refresh);
 
@@ -68,7 +68,7 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
           BottomNavigationBarItem(
               icon: ValueListenableBuilder(
                 builder: (BuildContext context, value, Widget? child) {
-                  return Badge(
+                  return bdg.Badge(
                     child: const Icon(Icons.notifications),
                     badgeContent: Text('$value',style: const TextStyle(color: Colors.white,fontSize: 10)),
                     showBadge: value == '0' ? false : true,
@@ -131,7 +131,7 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
           BottomNavigationBarItem(
               icon: ValueListenableBuilder(
                 builder: (BuildContext context, value, Widget? child) {
-                  return Badge(
+                  return bdg.Badge(
                     child: const Icon(Icons.notifications),
                     badgeContent: Text('$value',style: const TextStyle(color: Colors.white,fontSize: 10)),
                     showBadge: value == '0' ? false : true,

@@ -480,7 +480,6 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
       Color color = RandomHexColor().colorRandom(data.channel?.nameApp??'');
       colorAppName[data.channel?.nameApp??''] = color;
     }
-    print('${HTTPConnection.domain}api/images/${info.picture?.shieldedID?? 'null'}/256/${ChatConnection.brandCode!}');
     return Column(
       children: [
         SizedBox(

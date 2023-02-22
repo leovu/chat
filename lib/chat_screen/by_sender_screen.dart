@@ -24,11 +24,6 @@ class _State extends State<BySenderResultScreen>
     super.initState();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
   Widget totalText(){
     List<r.People?>? senders = widget.roomData.people?.map((e) {
       try{

@@ -32,11 +32,6 @@ class _State extends State<ByTimeResultScreen>
   }
 
   @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
