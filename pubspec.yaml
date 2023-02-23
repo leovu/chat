@@ -83,6 +83,7 @@ flutter:
     - assets/meme/usagyuun/
     - assets/meme/mimicat/
     - assets/messages.json
+    - assets/icon-chat-gpt.png
     - assets/icon-rabbit.png
     - assets/icon-panda.png
     - assets/icon-cat.png

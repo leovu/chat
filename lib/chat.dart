@@ -45,7 +45,8 @@ class Chat {
         Function? addCustomer,
         Function? addCustomerPotential,
         Function? viewProfileChatHub,
-        Function? editCustomerLead
+        Function? editCustomerLead,
+        Function? openChatGPT
       }) async {
     showLoading(context);
     await initializeDateFormatting();
@@ -69,6 +70,7 @@ class Chat {
     ChatConnection.addCustomerPotential = addCustomerPotential;
     ChatConnection.viewProfileChatHub = viewProfileChatHub;
     ChatConnection.editCustomerLead = editCustomerLead;
+    ChatConnection.openChatGPT = openChatGPT;
 
     if(notificationData != null) {
       ChatConnection.initialData = notificationData;

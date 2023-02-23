@@ -251,8 +251,12 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                     header: const WaterDropHeader(),
                     child: ListView.builder(
                         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                        itemCount: roomListVisible!.rooms?.length ?? 0,
-                        itemBuilder: (BuildContext context, int position) {
+                        itemCount: (ChatConnection.openChatGPT != null) ? (roomListVisible!.rooms?.length ?? 0) + 1 : (roomListVisible!.rooms?.length ?? 0),
+                        itemBuilder: (BuildContext context, int index) {
+                          int position = (ChatConnection.openChatGPT != null) ? index-1 : index;
+                          if(ChatConnection.openChatGPT != null && index == 0) {
+                            return _gptRoom(!(roomListVisible?.rooms != null && roomListVisible!.rooms!.isNotEmpty));
+                          }
                           return Padding(
                             padding: const EdgeInsets.symmetric(vertical: 5.0),
                             child: InkWell(
@@ -471,6 +475,41 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
               child: Text(AppLocalizations.text(LangKey.cancel))),
         ],
       ),
+    );
+  }
+  Widget _gptRoom(bool isLast) {
+    return Column(
+      children: [
+        SizedBox(
+          child: SizedBox(
+            height: ChatConnection.isChatHub ? 80.0 : 50.0,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const CircleAvatar(
+                    radius: 25.0,
+                    backgroundImage:
+                    AssetImage('assets/icon-chat-gpt.png',package: 'chat'),
+                    backgroundColor: Colors.transparent,
+                  ),
+                  Expanded(child: Container(
+                    padding: const EdgeInsets.only(top: 5.0,bottom: 5.0,left: 10.0),
+                    child: const Text('ChatGPT',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.green),),
+                  ))
+                ],
+              ),
+            ),
+          ),
+        ),
+        !isLast ? Container(height: 5.0,) : Container(),
+        !isLast ?  Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10.0),
+          child: Container(height: 1.0,color: Colors.grey.shade300,),
+        ) : Container()
+      ],
     );
   }
   Widget _room(Rooms data, bool isLast) {

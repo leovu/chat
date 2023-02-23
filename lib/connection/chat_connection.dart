@@ -52,6 +52,7 @@ class ChatConnection {
   static int? notiChatHubAll;
   static int? notiChatHubFacebook;
   static int? notiChatHubZalo;
+  static Function? openChatGPT;
   static Future<bool>init(String email,String password,{String? token}) async {
     HttpOverrides.global = MyHttpOverrides();
     String? resultToken;
