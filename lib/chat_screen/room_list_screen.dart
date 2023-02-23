@@ -255,7 +255,9 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                         itemBuilder: (BuildContext context, int index) {
                           int position = (ChatConnection.openChatGPT != null) ? index-1 : index;
                           if(ChatConnection.openChatGPT != null && index == 0) {
-                            return _gptRoom(!(roomListVisible?.rooms != null && roomListVisible!.rooms!.isNotEmpty));
+                            return InkWell(
+                                onTap: ChatConnection.openChatGPT!(context),
+                                child: _gptRoom(!(roomListVisible?.rooms != null && roomListVisible!.rooms!.isNotEmpty)));
                           }
                           return Padding(
                             padding: const EdgeInsets.symmetric(vertical: 5.0),
