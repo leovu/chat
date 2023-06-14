@@ -105,9 +105,9 @@
     },
     {
       "name": "dio",
-      "rootUri": "file:///Users/trungnt110/.pub-cache/hosted/pub.dev/dio-4.0.6",
+      "rootUri": "file:///Users/trungnt110/.pub-cache/hosted/pub.dev/dio-5.2.1+1",
       "packageUri": "lib/",
-      "languageVersion": "2.12"
+      "languageVersion": "2.15"
     },
     {
       "name": "dynamic_color",
@@ -728,7 +728,7 @@
       "languageVersion": "2.16"
     }
   ],
-  "generated": "2023-06-14T07:41:37.853848Z",
+  "generated": "2023-06-14T07:42:50.084283Z",
   "generator": "pub",
   "generatorVersion": "2.19.6"
 }
