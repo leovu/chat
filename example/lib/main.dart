@@ -3,18 +3,12 @@ import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/material.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:chat/chat.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() {
   runApp(const OverlaySupport.global(
     child: MaterialApp(
       supportedLocales: [Locale('en', 'US')],
       locale: Locale('en','US'),
-      localizationsDelegates: <LocalizationsDelegate<dynamic>>[
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
       title: 'Navigation Basics',
       debugShowCheckedModeBanner: false,
       home: MyApp(),

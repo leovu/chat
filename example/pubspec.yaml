@@ -17,8 +17,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_localizations:
-    sdk: flutter
   chat:
     # When depending on this package from a real application you should use:
     #   chat: ^x.y.z
