@@ -72,8 +72,6 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
                     child: const Icon(Icons.notifications),
                     badgeContent: Text('$value',style: const TextStyle(color: Colors.white,fontSize: 10)),
                     showBadge: value == '0' ? false : true,
-                    badgeColor: Colors.red,
-                    toAnimate: false,
                   );
                 },
                 valueListenable: ChatConnection.notificationNotifier,
@@ -135,8 +133,6 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
                     child: const Icon(Icons.notifications),
                     badgeContent: Text('$value',style: const TextStyle(color: Colors.white,fontSize: 10)),
                     showBadge: value == '0' ? false : true,
-                    badgeColor: Colors.red,
-                    toAnimate: false,
                   );
                 },
                 valueListenable: ChatConnection.notificationNotifier,

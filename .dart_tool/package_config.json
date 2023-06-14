@@ -21,9 +21,45 @@
     },
     {
       "name": "audioplayers",
-      "rootUri": "file:///Users/trungnt110/.pub-cache/hosted/pub.dev/audioplayers-0.20.1",
+      "rootUri": "file:///Users/trungnt110/.pub-cache/hosted/pub.dev/audioplayers-4.1.0",
       "packageUri": "lib/",
-      "languageVersion": "2.12"
+      "languageVersion": "2.18"
+    },
+    {
+      "name": "audioplayers_android",
+      "rootUri": "file:///Users/trungnt110/.pub-cache/hosted/pub.dev/audioplayers_android-3.0.2",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
+    },
+    {
+      "name": "audioplayers_darwin",
+      "rootUri": "file:///Users/trungnt110/.pub-cache/hosted/pub.dev/audioplayers_darwin-4.1.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
+    },
+    {
+      "name": "audioplayers_linux",
+      "rootUri": "file:///Users/trungnt110/.pub-cache/hosted/pub.dev/audioplayers_linux-2.1.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
+    },
+    {
+      "name": "audioplayers_platform_interface",
+      "rootUri": "file:///Users/trungnt110/.pub-cache/hosted/pub.dev/audioplayers_platform_interface-5.0.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
+    },
+    {
+      "name": "audioplayers_web",
+      "rootUri": "file:///Users/trungnt110/.pub-cache/hosted/pub.dev/audioplayers_web-3.1.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
+    },
+    {
+      "name": "audioplayers_windows",
+      "rootUri": "file:///Users/trungnt110/.pub-cache/hosted/pub.dev/audioplayers_windows-2.0.2",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
     },
     {
       "name": "auto_size_text",
@@ -411,9 +447,9 @@
     },
     {
       "name": "path_provider",
-      "rootUri": "file:///Users/trungnt110/.pub-cache/hosted/pub.dev/path_provider-2.0.11",
+      "rootUri": "file:///Users/trungnt110/.pub-cache/hosted/pub.dev/path_provider-2.0.15",
       "packageUri": "lib/",
-      "languageVersion": "2.14"
+      "languageVersion": "2.17"
     },
     {
       "name": "path_provider_android",
@@ -422,20 +458,14 @@
       "languageVersion": "2.14"
     },
     {
-      "name": "path_provider_ios",
-      "rootUri": "file:///Users/trungnt110/.pub-cache/hosted/pub.dev/path_provider_ios-2.0.11",
+      "name": "path_provider_foundation",
+      "rootUri": "file:///Users/trungnt110/.pub-cache/hosted/pub.dev/path_provider_foundation-2.2.3",
       "packageUri": "lib/",
-      "languageVersion": "2.14"
+      "languageVersion": "2.18"
     },
     {
       "name": "path_provider_linux",
       "rootUri": "file:///Users/trungnt110/.pub-cache/hosted/pub.dev/path_provider_linux-2.1.7",
-      "packageUri": "lib/",
-      "languageVersion": "2.12"
-    },
-    {
-      "name": "path_provider_macos",
-      "rootUri": "file:///Users/trungnt110/.pub-cache/hosted/pub.dev/path_provider_macos-2.0.6",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
@@ -693,7 +723,7 @@
     },
     {
       "name": "uuid",
-      "rootUri": "file:///Users/trungnt110/.pub-cache/hosted/pub.dev/uuid-3.0.6",
+      "rootUri": "file:///Users/trungnt110/.pub-cache/hosted/pub.dev/uuid-3.0.7",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
@@ -728,7 +758,7 @@
       "languageVersion": "2.16"
     }
   ],
-  "generated": "2023-06-14T07:42:50.084283Z",
+  "generated": "2023-06-14T07:44:40.856335Z",
   "generator": "pub",
   "generatorVersion": "2.19.6"
 }
