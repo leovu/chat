@@ -201,7 +201,7 @@
     },
     {
       "name": "flutter_file_dialog",
-      "rootUri": "file:///Users/trungnt110/.pub-cache/hosted/pub.dev/flutter_file_dialog-2.3.2",
+      "rootUri": "file:///Users/trungnt110/.pub-cache/hosted/pub.dev/flutter_file_dialog-3.0.1",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
@@ -728,7 +728,7 @@
       "languageVersion": "2.16"
     }
   ],
-  "generated": "2023-06-14T07:37:28.725614Z",
+  "generated": "2023-06-14T07:41:37.853848Z",
   "generator": "pub",
   "generatorVersion": "2.19.6"
 }

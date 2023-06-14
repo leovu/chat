@@ -313,10 +313,10 @@ packages:
     dependency: transitive
     description:
       name: flutter_file_dialog
-      sha256: fb19d8b7c811a70947344695001e82777921fdc0ed5c80289440f096ae22b10f
+      sha256: "5a1507833473b38839056d63c5125750a6d12e904f78131324fa4632504de513"
       url: "https://pub.dev"
     source: hosted
-    version: "2.3.2"
+    version: "3.0.1"
   flutter_link_previewer:
     dependency: transitive
     description:
