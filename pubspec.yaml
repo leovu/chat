@@ -41,7 +41,7 @@ dependencies:
   swipeable_tile: ^1.0.0+6
   flutter_file_dialog: ^3.0.1
   dio: ^5.2.1+1
-  audioplayers: ^0.20.1
+  audioplayers: ^4.1.0
   rich_text_controller: ^1.4.0
   badges: ^2.0.2
   url_launcher: ^6.1.2
