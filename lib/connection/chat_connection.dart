@@ -254,7 +254,7 @@ class ChatConnection {
   static void listenChat(Function callback) {
     streamSocket.listenChat(callback);
   }
-  static Future<void>sendChat(c.ChatMessage? data,List<types.Message> listMessage,String id,
+  static Future<String?>sendChat(c.ChatMessage? data,List<types.Message> listMessage,String id,
       String? message, c.Room? room, String authorId, {String? reppliedMessageId}) async {
     Map<String,dynamic> json = {
       'authorID': authorId,
@@ -264,22 +264,35 @@ class ChatConnection {
     if(reppliedMessageId != null) {
       json['replies'] = reppliedMessageId;
     }
-    ResponseData responseData = await connection.post('api/message', json);
+    ResponseData responseData = await connection.post('api/v2/message', json);
     if(responseData.isSuccess) {
       streamSocket.sendMessage(message, room);
       types.Message val = listMessage.firstWhere((element) => element.id == id);
       int index = listMessage.indexOf(val);
-      c.Messages valueResponse =  c.Messages.fromJson(responseData.data['message']);
+      c.Messages valueResponse =  c.Messages.fromJson(responseData.data['data']['message']);
       listMessage[index] = types.TextMessage(
           author: listMessage[index].author,
           createdAt: listMessage[index].createdAt,
           id: valueResponse.sId!,
           text: (listMessage[index] as types.TextMessage).text,
-          repliedMessage: listMessage[index].repliedMessage
+          repliedMessage: listMessage[index].repliedMessage,
+          status: (responseData.data['error'] == 0) ? null : types.Status.error,
+          metadata: (responseData.data['message'] != null) ? {"error_message" : responseData.data['message']} : null
       );
       data?.room?.messages?.insert(0,valueResponse);
+      if(responseData.data['data']['quota'] != null) {
+        if(responseData.data['data']['quota']['type'] == 'OA Tier') {
+          return AppLocalizations.text(LangKey.zaloSendOATier);
+        }
+        else if(responseData.data['data']['quota']['type'] == 'reply') {
+          return '${AppLocalizations.text(LangKey.zaloSendReply1)}${responseData.data['data']['quota']['remain']}/${responseData.data['data']['quota']['total']}${AppLocalizations.text(LangKey.zaloSendReply2)}';
+        }
+        else {
+          return AppLocalizations.text(LangKey.zaloSendOther);
+        }
+      }
     }
-    return;
+    return null;
   }
   static Future<bool>forwardMessage(String? message, c.Room? room, String authorId, String? reppliedMessageId) async {
     ResponseData responseData = await connection.post('api/message', {

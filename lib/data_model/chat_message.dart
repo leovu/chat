@@ -198,6 +198,7 @@ class Messages {
   String? type;
   Picture? file;
   int? edit;
+  String? errorMessage;
 
   Messages(
       {sId,
@@ -209,7 +210,8 @@ class Messages {
         iV,
         type,
         file,
-        edit});
+        edit,
+        errorMessage});
 
   Messages.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
@@ -225,6 +227,7 @@ class Messages {
     iV = json['__v'];
     type = json['type'];
     edit = json['edit'];
+    errorMessage = json['error_message'];
     if(content == 'Message recalled') {
       content = AppLocalizations.text(LangKey.messageRecalled);
       edit = 0;
@@ -252,15 +255,25 @@ class Messages {
       data['file'] = file!.toJson();
     }
     data['edit'] = edit;
+    data['error_message'] = errorMessage;
     return data;
   }
 
   Map<String, dynamic> toMessageJson({List<MessageSeen>? messageSeen}) {
     final Map<String, dynamic> data = <String, dynamic>{};
-    if(messageSeen != null) {
-      data['metadata'] = {
-        'messageSeen': messageSeen.map((e) => e.toJson()).toList()
-      };
+    if(errorMessage != null) {
+      if(messageSeen != null) {
+        data['metadata'] = {
+          'error_message' : errorMessage,
+          'messageSeen': messageSeen.map((e) => e.toJson()).toList()
+        };
+      }
+      else {
+        data['metadata'] = {
+          'error_message': errorMessage
+        };
+      }
+      data['status'] = 'error';
     }
     if(edit != null){
       data['remoteId'] = '$edit';

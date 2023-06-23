@@ -116,4 +116,8 @@ class LangKey {
   static const String addCustomer = "addCustomer";
   static const String addCustomerPotential = "addCustomerPotential";
   static const String inputNewLabel = "inputNewLabel";
+  static const String zaloSendOATier = "zaloSendOATier";
+  static const String zaloSendReply1 = "zaloSendReply1";
+  static const String zaloSendReply2 = "zaloSendReply2";
+  static const String zaloSendOther = "zaloSendOther";
 }

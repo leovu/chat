@@ -57,6 +57,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   late void Function() focusTextField;
   bool isInitScreen = true;
   Tag? tag;
+  String? note;
   @override
   void initState() {
     super.initState();
@@ -106,7 +107,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         });
       }
       if(message.type.name == 'text') {
-        await ChatConnection.sendChat(data,_messages,id,text,data?.room,ChatConnection.user!.id,reppliedMessageId: repliedMessageId);
+        note = await ChatConnection.sendChat(data,_messages,id,text,data?.room,ChatConnection.user!.id,reppliedMessageId: repliedMessageId);
         if(mounted) {
           setState(() {});
         }
@@ -946,8 +947,16 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
               Expanded(child:
               isInitScreen ? Center(child: Platform.isAndroid ? const CircularProgressIndicator() : const CupertinoActivityIndicator()) :
               Chat(
+                note: note,
                 source: widget.source,
                 messages: _messages,
+                onMessageStatusTap: (context, message) {
+                  if(message.metadata != null) {
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    final snackBar = SnackBar(content: AutoSizeText(message.metadata!['error_message']));
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                  }
+                },
                 isGroup: data?.room?.isGroup ?? false,
                 people: widget.data.people,
                 progressUpdate: (value) {
@@ -995,7 +1004,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                   focusTextField = method;
                 },
               )),
-              _resultSearchChat()
+              _resultSearchChat(),
             ],
           ),
         ),

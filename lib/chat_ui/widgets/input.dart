@@ -176,10 +176,14 @@ class _InputState extends State<Input> {
       value['reply'] = widget.repliedMessage!.toJson();
     }
     if(value.isNotEmpty) {
-      saveDraftInput(value, ChatConnection.roomId!);
+      try{
+        saveDraftInput(value, ChatConnection.roomId!);
+      }catch(_) {}
     }
     else {
-      deleteDraftInput(ChatConnection.roomId!);
+      try{
+        deleteDraftInput(ChatConnection.roomId!);
+      }catch(_) {}
     }
     super.dispose();
   }
