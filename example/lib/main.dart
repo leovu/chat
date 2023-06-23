@@ -39,15 +39,9 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       setState(() {
-        // _userNameController.text = 'linhgard';
-        // _passwordController.text = '123456';
-        // _domainController.text = 'https://chat-hub-stag.epoints.vn/';
-        _userNameController.text = 'linhkpi';
-        _passwordController.text = '123456';
-        _domainController.text = 'https://chat-stag-new.epoints.vn/';
-        // _userNameController.text = 'waosupport@pioapps.vn';
-        // _passwordController.text = '123456';
-        // _domainController.text = 'https://chat-matthewsliquor.epoints.vn/';
+        _userNameController.text = 'admin@pioapps.vn';
+        _passwordController.text = 'piospa@2020';
+        _domainController.text = 'https://chat-hub-stag.epoints.vn/';
       });
     });
   }
@@ -140,7 +134,7 @@ class _MyAppState extends State<MyApp> {
                   // Chat.open(context,_userNameController.value.text, _passwordController.value.text, 'assets/icon-app.png',const Locale(LangKey.langVi, 'VN'), domain: _domainController.value.text,brandCode: 'qc',isChatHub: true,
                   //     token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzMDMwOTNjYzM3M2JkMTg5YjQ1NmFjMCIsInNpZCI6ImFkbWluIiwiZW1haWwiOiJ2dUBwaW9hcHBzLnZuIiwibGV2ZWwiOiJyb290IiwiZmlyc3ROYW1lIjoiQWRtaW4iLCJsYXN0TmFtZSI6IiIsInVzZXJuYW1lIjoiYWRtaW4iLCJicmFuZF9jb2RlIjoicWMiLCJpYXQiOjE2NzA5OTIwNDQsImV4cCI6MTY3NjE3NjA0NH0.U2UoNWnQnNkZOI3qGA5SiTetnggO5SlCKgV7NW0Ks-Q");
                   Chat.open(context,_userNameController.value.text, _passwordController.value.text, 'assets/icon-app.png',const Locale(LangKey.langVi, 'VN'),
-                      domain: _domainController.value.text,brandCode: 'qc',isChatHub: false);
+                      domain: _domainController.value.text,brandCode: 'qc',isChatHub: false, token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzMDMwOTNjYzM3M2JkMTg5YjQ1NmFjMCIsInNpZCI6ImFkbWluIiwiZW1haWwiOiJ2dUBwaW9hcHBzLnZuIiwibGV2ZWwiOiJyb290IiwiZmlyc3ROYW1lIjoiQWRtaW4iLCJsYXN0TmFtZSI6IiIsInVzZXJuYW1lIjoiYWRtaW4iLCJicmFuZF9jb2RlIjoicWMiLCJpYXQiOjE2ODc1MTQ5NTUsImV4cCI6MTY5MjY5ODk1NX0.gzRp1EjlSAcVinHj-cqfqkO6X3kBRduzb3hhNh_9uuQ");
                 },
                 child: Container(
                     height: 40.0,

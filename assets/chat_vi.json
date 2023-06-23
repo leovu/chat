@@ -112,5 +112,9 @@
   "cpo": "Khách hàng tiềm năng",
   "addCustomer": "Thêm khách hàng",
   "addCustomerPotential": "Thêm khách hàng tiềm năng",
-  "inputNewLabel": "Nhập tên nhãn mới"
+  "inputNewLabel": "Nhập tên nhãn mới",
+  "zaloSendOATier": "Tin tiếp theo bạn gửi đi là tin tư vấn miễn phí",
+  "zaloSendReply1": "Bạn còn ",
+  "zaloSendReply2": " tin nhắn chủ động miễn phí",
+  "zaloSendOther": "Tin tiếp theo bạn gửi đi là tin có tính phí"
 }

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:math';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:chat/chat_ui/chat_l10n.dart';
 import 'package:chat/chat_ui/chat_theme.dart';
 import 'package:chat/chat_ui/models/date_header.dart';
@@ -95,7 +96,8 @@ class Chat extends StatefulWidget {
     required this.people,
     required this.isGroup,
     required this.onStickerPressed,
-    this.source
+    this.source,
+    this.note
   }) : super(key: key);
 
   /// See [Message.bubbleBuilder]
@@ -292,6 +294,8 @@ class Chat extends StatefulWidget {
   final types.User user;
 
   final bool isSearchChat;
+
+  final String? note;
 
   @override
   _ChatState createState() => _ChatState();
@@ -552,6 +556,13 @@ class _ChatState extends State<Chat> {
                                   ),
                                 ),
                               ),
+                      ),
+                      if(widget.note!=null) Padding(
+                        padding: const EdgeInsets.only(left: 5.0,right: 5.0,bottom: 8.0),
+                        child: AutoSizeText(widget.note!,style: const TextStyle(
+                          color: Colors.green,
+                          fontWeight: FontWeight.bold
+                        ),),
                       ),
                       !widget.isSearchChat ? widget.customBottomWidget ??
                           checkSourceAvailableChat() : Container(),
