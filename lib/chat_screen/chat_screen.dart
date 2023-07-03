@@ -344,11 +344,9 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       maxWidth: 1440,
       maxHeight: 1440
     );
-    if (listResult != null) {
-      if(listResult.isNotEmpty) {
-        for (var result in listResult) {
-          pickedImageFromMulti(result);
-        }
+    if(listResult.isNotEmpty) {
+      for (var result in listResult) {
+        pickedImageFromMulti(result);
       }
     }
   }
