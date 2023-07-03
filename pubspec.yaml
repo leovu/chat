@@ -15,7 +15,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   flutter_chat_types: ^3.3.2
-  flutter_link_previewer: ^2.6.4
+  flutter_link_previewer: ^3.2.0
   flutter_lints: ^1.0.0
   file_picker: ^5.2.0
   image_picker: ^0.8.5+3
