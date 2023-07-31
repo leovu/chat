@@ -5,9 +5,8 @@ class PlayAudio extends StatefulWidget {
   final String url;
 
   const PlayAudio({Key? key, required this.url}) : super(key: key);
-
   @override
-  _PlayAudioState createState() => _PlayAudioState();
+  State<PlayAudio> createState() => _PlayAudioState();
 }
 
 class _PlayAudioState extends State<PlayAudio> with TickerProviderStateMixin{
@@ -32,7 +31,7 @@ class _PlayAudioState extends State<PlayAudio> with TickerProviderStateMixin{
     _progress =
         Tween<double>(begin: 0.0, end: 1.0).animate(_animationIconController1!);
     audioPlayer = AudioPlayer();
-    audioCache = AudioCache(fixedPlayer: audioPlayer);
+    audioCache = AudioCache();
     audioPlayer?.onDurationChanged.listen((Duration d) {
       if(mounted) {
         setState(() {
@@ -40,7 +39,7 @@ class _PlayAudioState extends State<PlayAudio> with TickerProviderStateMixin{
         });
       }
     });
-    audioPlayer?.onAudioPositionChanged.listen((p) {
+    audioPlayer?.onPositionChanged.listen((p) {
       if(mounted) {
         setState(() {
           _position = p;
@@ -112,7 +111,7 @@ class _PlayAudioState extends State<PlayAudio> with TickerProviderStateMixin{
       isPlaying = !isPlaying;
     });
     if (!isSongPlaying){
-      audioPlayer?.play(widget.url,isLocal: true);
+      audioPlayer?.play(DeviceFileSource(widget.url));
       setState(() {
         isSongPlaying = true;
       });

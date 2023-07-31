@@ -360,9 +360,9 @@ class Message extends StatelessWidget {
     );
     return Column(
       children: [
-          SwipeableTile.swipeToTigger(
+          SwipeableTile.swipeToTrigger(
           behavior: HitTestBehavior.translucent,
-          isEelevated: false,
+            isElevated: false,
           color: InheritedChatTheme.of(context).theme.backgroundColor,
           swipeThreshold: 0.3,
           direction: replySwipeDirection,

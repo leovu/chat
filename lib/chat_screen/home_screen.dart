@@ -69,11 +69,15 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
               icon: ValueListenableBuilder(
                 builder: (BuildContext context, value, Widget? child) {
                   return bdg.Badge(
-                    child: const Icon(Icons.notifications),
                     badgeContent: Text('$value',style: const TextStyle(color: Colors.white,fontSize: 10)),
                     showBadge: value == '0' ? false : true,
-                    badgeColor: Colors.red,
-                    toAnimate: false,
+                    badgeAnimation: const bdg.BadgeAnimation.rotation(
+                      toAnimate: false,
+                    ),
+                    badgeStyle: const bdg.BadgeStyle(
+                      badgeColor: Colors.red,
+                    ),
+                    child: const Icon(Icons.notifications),
                   );
                 },
                 valueListenable: ChatConnection.notificationNotifier,
@@ -132,11 +136,15 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
               icon: ValueListenableBuilder(
                 builder: (BuildContext context, value, Widget? child) {
                   return bdg.Badge(
-                    child: const Icon(Icons.notifications),
-                    badgeContent: Text('$value',style: const TextStyle(color: Colors.white,fontSize: 10)),
+                    badgeContent: Text(value,style: const TextStyle(color: Colors.white,fontSize: 10)),
                     showBadge: value == '0' ? false : true,
-                    badgeColor: Colors.red,
-                    toAnimate: false,
+                    badgeAnimation: const bdg.BadgeAnimation.rotation(
+                      toAnimate: false,
+                    ),
+                    badgeStyle: const bdg.BadgeStyle(
+                      badgeColor: Colors.red,
+                    ),
+                    child: const Icon(Icons.notifications),
                   );
                 },
                 valueListenable: ChatConnection.notificationNotifier,

@@ -515,7 +515,7 @@ class _InputState extends State<Input> {
                                 child:
                                 emojiIndex == 0 ?
                                   EmojiPicker(
-                                  onEmojiSelected: (Category category, Emoji emoji) {
+                                  onEmojiSelected: (Category? category, Emoji? emoji) {
                                     _onEmojiSelected(emoji);
                                   },
                                   onBackspacePressed: _onBackspacePressed,
@@ -529,12 +529,10 @@ class _InputState extends State<Input> {
                                       indicatorColor: Colors.blue,
                                       iconColor: Colors.grey,
                                       iconColorSelected: Colors.blue,
-                                      progressIndicatorColor: Colors.blue,
                                       backspaceColor: Colors.blue,
                                       skinToneDialogBgColor: Colors.white,
                                       skinToneIndicatorColor: Colors.grey,
                                       enableSkinTones: true,
-                                      showRecentsTab: true,
                                       recentsLimit: 28,
                                       noRecents: const Text(
                                         'No Recents',
@@ -726,11 +724,13 @@ class _InputState extends State<Input> {
     return indexing ?? _textController.text.length-1;
   }
 
-  _onEmojiSelected(Emoji emoji) {
-    _textController
-      ..text += emoji.emoji
-      ..selection = TextSelection.fromPosition(
-          TextPosition(offset: _textController.text.length));
+  _onEmojiSelected(Emoji? emoji) {
+    if(emoji != null) {
+      _textController
+        ..text += emoji.emoji
+        ..selection = TextSelection.fromPosition(
+            TextPosition(offset: _textController.text.length));
+    }
   }
 
   _onBackspacePressed() {
