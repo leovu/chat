@@ -18,7 +18,7 @@ dependencies:
   flutter_link_previewer: ^3.2.0
   flutter_lints: ^1.0.0
   file_picker: ^5.2.0
-  image_picker: ^0.8.5+3
+  image_picker: ^1.0.1
   mime: ^1.0.1
   open_filex: ^4.1.1
   uuid: ^3.0.6
