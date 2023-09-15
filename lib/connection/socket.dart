@@ -18,8 +18,8 @@ class StreamSocket {
   void connectAndListen(StreamSocket streamSocket, User user) {
     socket = io.io(HTTPConnection.domain,
         io.OptionBuilder().setTransports(['websocket'])
-            .setExtraHeaders({'brand-code': ChatConnection.brandCode})
-            .setQuery({'brand-code': ChatConnection.brandCode})
+            .setExtraHeaders({'brand-code': ChatConnection.brandCode, 'brand' : ChatConnection.brandCode})
+            .setQuery({'brand-code': ChatConnection.brandCode, 'brand' : ChatConnection.brandCode})
             .build());
     socket!.onConnectError((data) {});
     socket!.on('authenticated', (data) {
