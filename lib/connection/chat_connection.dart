@@ -264,7 +264,7 @@ class ChatConnection {
     if(reppliedMessageId != null) {
       json['replies'] = reppliedMessageId;
     }
-    ResponseData responseData = await connection.post('api/v2/message', json);
+    ResponseData responseData = await connection.post(ChatConnection.isChatHub ? 'api/v2/message' : 'api/message', json);
     if(responseData.isSuccess) {
       streamSocket.sendMessage(message, room);
       types.Message val = listMessage.firstWhere((element) => element.id == id);
