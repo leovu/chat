@@ -9,7 +9,12 @@ class HTTPConnection {
   Future<ResponseData> upload(String path, File file , {bool isImage = false}) async {
     final uri = Uri.parse('$domain$path');
     var request = http.MultipartRequest('POST', uri);
-    request.headers.addAll({'Content-Type': 'multipart/form-data','Authorization':'Bearer ${ChatConnection.user!.token}'});
+    request.headers.addAll({
+      'Content-Type': 'multipart/form-data',
+      'Authorization':'Bearer ${ChatConnection.user!.token}',
+      'uid': ChatConnection.user!.id,
+      'lang': ChatConnection.locale.languageCode
+    });
     if(ChatConnection.brandCode != null) {
       request.headers['brand-code'] = ChatConnection.brandCode!;
     }
@@ -47,10 +52,12 @@ class HTTPConnection {
     final headers = {'Content-Type': 'application/json'};
     if(ChatConnection.user != null) {
       headers['Authorization'] = 'Bearer ${ChatConnection.user!.token}';
+      headers['uid'] = ChatConnection.user!.id;
     }
     if(ChatConnection.brandCode != null) {
       headers['brand-code'] = ChatConnection.brandCode!;
     }
+    headers['lang'] = ChatConnection.locale.languageCode;
     String jsonBody = json.encode(body);
     final encoding = Encoding.getByName('utf-8');
     http.Response response = await http.post(
@@ -86,10 +93,12 @@ class HTTPConnection {
     Map<String, String> headers = {};
     if(ChatConnection.user != null) {
       headers['Authorization'] = 'Bearer ${ChatConnection.user!.token}';
+      headers['uid'] = ChatConnection.user!.id;
     }
     if(ChatConnection.brandCode != null) {
       headers['brand-code'] = ChatConnection.brandCode!;
     }
+    headers['lang'] = ChatConnection.locale.languageCode;
     if (kDebugMode) {
       print('***** GET *****');
       print(uri);
