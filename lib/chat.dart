@@ -81,6 +81,7 @@ class Chat {
     if(result) {
       await Navigator.of(context,rootNavigator: true).push(
           MaterialPageRoute(builder: (context) => AppChat(email: email,password: password),settings: const RouteSettings(name: 'home_screen')));
+      ChatConnection.dispose(isDispose: true);
     }else {
       loginError(context);
     }
