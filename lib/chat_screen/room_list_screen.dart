@@ -517,13 +517,14 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
     );
   }
   Widget _room(Rooms data, bool isLast) {
-    People info = getPeople(data.people);
+    /// bỏ việc check people naò là owner, API trả lun owner cho
+    // People info = getPeople(data.people);
     String? author = findAuthor(data.people,data.lastMessage?.author);
     if(!colorAppName.keys.contains(data.channel?.nameApp??'')) {
       Color color = RandomHexColor().colorRandom(data.channel?.nameApp??'');
       colorAppName[data.channel?.nameApp??''] = color;
     }
-    return Column(
+    return data.owner != null ? Column(
       children: [
         SizedBox(
           child: SizedBox(
@@ -536,15 +537,15 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                 children: [
                   Stack(
                     children: [
-                      !data.isGroup! ? info.picture == null ? CircleAvatar(
+                      !data.isGroup! ? data.owner!.picture == null ? CircleAvatar(
                         radius: 25.0,
                         child: Text(
-                          info.getAvatarName(),
+                          data.owner!.getAvatarName(),
                           style: const TextStyle(color: Colors.white),),
                       ) : CircleAvatar(
                         radius: 25.0,
                         backgroundImage:
-                        CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${info.picture!.shieldedID}/256/${ChatConnection.brandCode!}',headers: {'brand-code':ChatConnection.brandCode!}),
+                        CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${data.shieldedID}/256/${ChatConnection.brandCode!}',headers: {'brand-code':ChatConnection.brandCode!}),
                         backgroundColor: Colors.transparent,
                       ) : data.picture == null ? CircleAvatar(
                         radius: 25.0,
@@ -592,7 +593,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                                       width: 15.0,height: 15.0,),
                                   ),
                               Expanded(child: Text(!data.isGroup! ?
-                              '${info.firstName} ${info.lastName}' : data.title ?? 'Group ${info.firstName} ${info.lastName}',
+                              '${data.owner!.firstName} ${data.owner!.lastName}' : data.title ?? 'Group ${data.owner!.firstName} ${data.owner!.lastName}',
                                   overflow: TextOverflow.ellipsis,
                                   maxLines: 1,
                                   style: TextStyle(fontWeight: findUnread(data.messagesReceived,data.messageUnSeen) != '0' ? FontWeight.bold : FontWeight.normal),
@@ -653,7 +654,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
           child: Container(height: 1.0,color: Colors.grey.shade300,),
         ) : Container()
       ],
-    );
+    ) : Container();
   }
   String? checkCustomerTypeChatHub(List<People>? list) {
     String? result;
@@ -680,7 +681,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
   String _checkContent(Rooms model) {
     if(!ChatConnection.isChatHub) {
       if((model.messagesReceived?.length ?? 0) == 0){
-        return (findAuthor(model.people,model.owner,isGroupOwner: true) ?? '') + AppLocalizations.text(LangKey.justCreatedRoom);
+        return (findAuthor(model.people,model.owner!.sId ?? '',isGroupOwner: true) ?? '') + AppLocalizations.text(LangKey.justCreatedRoom);
       }
     }
     if(model.lastMessage?.type == 'image'){

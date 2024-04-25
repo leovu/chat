@@ -323,7 +323,7 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen> with AutomaticKee
   }
   String _checkContent(Rooms model){
     if((model.messagesReceived?.length ?? 0) == 0){
-      return ((findAuthor(model.people,model.owner,isGroupOwner: true) ?? '') + AppLocalizations.text(LangKey.justCreatedRoom)).replaceAll(':', '');
+      return ((findAuthor(model.people,model.owner!.sId,isGroupOwner: true) ?? '') + AppLocalizations.text(LangKey.justCreatedRoom)).replaceAll(':', '');
     }
     if(model.lastMessage?.type == 'image'){
       return AppLocalizations.text(LangKey.sentPicture);

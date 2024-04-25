@@ -42,8 +42,8 @@ class _ConversationInformationScreenState
 
   void _loadAccount() async {
     if(ChatConnection.isChatHub) {
-      r.People info = getPeople(widget.roomData.people);
-      customerAccount = await ChatConnection.detect(info.sId??'');
+      // r.People info = getPeople(widget.roomData.people);
+      customerAccount = await ChatConnection.detect(widget.roomData.sId??'');
     }
     isInitScreen = false;
     setState(() {});
@@ -51,7 +51,7 @@ class _ConversationInformationScreenState
 
   @override
   Widget build(BuildContext context) {
-    r.People info = getPeople(widget.roomData.people);
+    // r.People info = getPeople(widget.roomData.people);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -91,8 +91,8 @@ class _ConversationInformationScreenState
                   InkWell(
                     onTap: () async {
                       showLoading();
-                      r.People info = getPeople(widget.roomData.people);
-                      await ChatConnection.customerUnlink(info.sId??'',
+                      // r.People info = getPeople(widget.roomData.people);
+                      await ChatConnection.customerUnlink(widget.roomData.sId??'',
                           customerAccount?.data?.customerId, customerAccount?.data?.customerLeadId);
                       Navigator.of(context).pop();
                       isShowListSearch = false;
@@ -127,19 +127,19 @@ class _ConversationInformationScreenState
                   child: !widget.roomData.isGroup!
                       ?
                     customerAccount?.data?.type != null? _buildAvatar(
-                        customerAccount?.data?.fullName != null ? customerAccount!.data!.getName() : info.getName(),
-                        customerAccount?.data?.fullName != null ? customerAccount!.data!.getAvatarName(): info.getAvatarName(),
-                        info.picture == null
+                        customerAccount?.data?.fullName != null ? customerAccount!.data!.getName() : widget.roomData.owner!.getName(),
+                        customerAccount?.data?.fullName != null ? customerAccount!.data!.getAvatarName(): widget.roomData.owner!.getAvatarName(),
+                        widget.roomData.picture == null
                             ? null
-                            : '${HTTPConnection.domain}api/images/${info.picture!.shieldedID}/256', onTap: () {
+                            : '${HTTPConnection.domain}api/images/${widget.roomData.shieldedID}/256', onTap: () {
                       editName();
                     }) :
                   _buildAvatar(
-                    customerAccount?.data?.fullName != null ? customerAccount!.data!.getName() : info.getName(),
-                    customerAccount?.data?.fullName != null ? customerAccount!.data!.getAvatarName(): info.getAvatarName(),
-                          info.picture == null
+                    customerAccount?.data?.fullName != null ? customerAccount!.data!.getName() : widget.roomData.owner!.getName(),
+                    customerAccount?.data?.fullName != null ? customerAccount!.data!.getAvatarName(): widget.roomData.owner!.getAvatarName(),
+                      widget.roomData.picture == null
                               ? null
-                              : '${HTTPConnection.domain}api/images/${info.picture!.shieldedID}/256')
+                              : '${HTTPConnection.domain}api/images/${widget.roomData.picture!.shieldedID}/256')
                       : _buildAvatar(
                           widget.roomData.title ?? "",
                           widget.roomData.getAvatarGroupName(),
@@ -427,8 +427,8 @@ class _ConversationInformationScreenState
                     InkWell(
                       onTap: () async {
                         showLoading();
-                        r.People info = getPeople(widget.roomData.people);
-                        await ChatConnection.customerLink(info.sId??'',
+                        // r.People info = getPeople(widget.roomData.people);
+                        await ChatConnection.customerLink(widget.roomData.sId??'',
                             e?.data?.customerId, e?.data?.customerLeadId,
                             e?.data?.type??'',
                             customerAccount?.data?.mappingId??'');
@@ -527,14 +527,16 @@ class _ConversationInformationScreenState
         Container(height: 10.0,),
         InkWell(
           onTap: () async {
-            r.People info = getPeople(widget.roomData.people);
+            // r.People info = getPeople(widget.roomData.people);
             Map<String,dynamic>? result = await Navigator.of(context).push(MaterialPageRoute(builder: (ctx) {
-              return ActionListUserChathubScreen(data: info, customerAccount: customerAccount);
+              return Container();
+              /// TEST ẩn tạm để test
+              // return ActionListUserChathubScreen(data: info, customerAccount: customerAccount);
             }));
             if(result != null) {
               showLoading();
-              r.People info = getPeople(widget.roomData.people);
-              await ChatConnection.customerLink(info.sId??'',
+              // r.People info = getPeople(widget.roomData.people);
+              await ChatConnection.customerLink(widget.roomData.sId??'',
                   result['customerId'], result['customerLeadId'],
                   result['type'],
                   customerAccount?.data?.mappingId??'');

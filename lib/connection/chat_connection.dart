@@ -65,9 +65,9 @@ class ChatConnection {
     if(resultToken != null) {
       user = User(email:email,password:password,token:resultToken);
       Map<String, dynamic> payload = Jwt.parseJwt(resultToken);
-      user!.id = payload['id'];
-      user!.firstName = payload['firstName'];
-      user!.lastName = payload['lastName'];
+      user!.id = payload['sub'].toString();
+      user!.firstName = payload['firstName'] ?? '';
+      user!.lastName = payload['lastName'] ?? '';
       streamSocket.connectAndListen(streamSocket,user!);
       return true;
     }
@@ -109,14 +109,16 @@ class ChatConnection {
     }
     return null;
   }
-  static Future<r.Room?>roomList({String? source, String? channelId, String? status, List<String?>? tagIds}) async {
-    Map<String,dynamic> json = {'limit':500};
+  static Future<r.Room?>roomList({String? source, String? channelId, String? status, List<String?>? tagIds, int page = 1}) async {
+    /// thay đổi limit thành page, truyền page loadmore vô chỗ này + list truyền room ra
+    Map<String,dynamic> json = {'page':page};
     if(source != null) json['source'] = source;
     if(channelId != null) json['channel_id'] = channelId;
     if(status != null) json['status'] = status;
     if(tagIds != null) if(tagIds.isNotEmpty) json['tag_ids'] = tagIds;
-    ResponseData responseData = await connection.post('api/rooms/list', json);
+    ResponseData responseData = await connection.post('api/v2/rooms/list', json);
     if(responseData.isSuccess) {
+      /// xử lý add room với trường hợp loadmore
       r.Room room = r.Room.fromJson(responseData.data);
       if(ChatConnection.isChatHub) {
         await notificationCount();
@@ -168,7 +170,7 @@ class ChatConnection {
     return responseData.isSuccess;
   }
   static Future<c.ChatMessage?>joinRoom(String id ,{bool refresh = false}) async {
-    ResponseData responseData = await connection.post('api/room/join', {'id':id});
+    ResponseData responseData = await connection.post('api/v2room/join', {'id':id});
     if(responseData.isSuccess) {
       if(!refresh) {
         streamSocket.joinRoom(id);
@@ -458,14 +460,14 @@ class ChatConnection {
     return responseData.isSuccess;
   }
   static Future<Tag?>getTagList() async {
-    ResponseData responseData = await connection.get('api/tags/lists');
+    ResponseData responseData = await connection.get('api/v2/tags/lists');
     if(responseData.isSuccess) {
       return Tag.fromJson(responseData.data);
     }
     return null;
   }
   static Future<bool>createTag(String name, String color) async {
-    ResponseData responseData = await connection.post('api/tags/create', {'name': name, 'color': color});
+    ResponseData responseData = await connection.post('api/v2/tags/create', {'name': name, 'color': color});
     return responseData.isSuccess;
   }
   static Future<Map<String,dynamic>>removeTag(String tagId, String userId) async {
