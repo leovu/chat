@@ -137,7 +137,7 @@ class _MyAppState extends State<MyApp> {
                   /// An test
                   Chat.open(context,_userNameController.value.text, _passwordController.value.text, 'assets/icon-app.png',const Locale(LangKey.langVi, 'VN'),
                       domain: 'https://chathub.epoints.vn/',brandCode: 'sale',isChatHub: false,
-                      token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3dvcmtzcGFjZS5lcG9pbnRzLnZuL3YyL3VzZXIvbG9naW4iLCJpYXQiOjE3MTQwMzAyMjcsImV4cCI6MTcxNDA1MTgyNywibmJmIjoxNzE0MDMwMjI3LCJqdGkiOiI4akc5aVN5WER6YnNnWGdvIiwic3ViIjoxNSwicHJ2IjoiYTBmM2U3NGJlZGY1MTJjNDc3ODI5N2RlNWY5MjA4NmRhZDM5Y2E5ZiIsInNpZCI6InRhbSIsImJyYW5kX2NvZGUiOiJzYWxlIn0.6DLgFUFjY5u-rwZTB7Fxzj0Vo3_D0CqdAwy5kjFovUo");
+                      token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3dvcmtzcGFjZS5lcG9pbnRzLnZuL3YyL3VzZXIvbG9naW4iLCJpYXQiOjE3MTQ2MzYzMTgsImV4cCI6MTcxNDY1NzkxOCwibmJmIjoxNzE0NjM2MzE4LCJqdGkiOiJTWnUzV0hpQ3p2T1g3dFBLIiwic3ViIjoxNSwicHJ2IjoiYTBmM2U3NGJlZGY1MTJjNDc3ODI5N2RlNWY5MjA4NmRhZDM5Y2E5ZiIsInNpZCI6InRhbSIsImJyYW5kX2NvZGUiOiJzYWxlIn0.mnx5CsuUpaoGuwZF8WNWAAFnEuLzBHKUMDS1moQOla0");
 
                   /// A Long Test
                   // Chat.open(context,_userNameController.value.text, _passwordController.value.text, 'assets/icon-app.png',const Locale(LangKey.langVi, 'VN'),

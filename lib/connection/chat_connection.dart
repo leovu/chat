@@ -6,6 +6,10 @@ import 'package:chat/data_model/notifications.dart' as n;
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/connection/socket.dart';
 import 'package:chat/data_model/contact.dart' as ct;
+import 'package:chat/data_model/request/create_note_request_model.dart';
+import 'package:chat/data_model/request/delete_note_request_model.dart';
+import 'package:chat/data_model/request/notes_request_model.dart';
+import 'package:chat/data_model/response/notes_response_model.dart';
 import 'package:chat/data_model/tag.dart';
 import 'package:chat/data_model/user.dart';
 import 'package:chat/localization/app_localizations.dart';
@@ -478,6 +482,28 @@ class ChatConnection {
     ResponseData responseData = await connection.post('api/tags/user-add', {'tag_ids': tagIds, 'user_id': userId});
     return responseData.isSuccess;
   }
+  /// NOTES
+  static Future<NotesResponseModel?>notes(String roomId) async {
+    ResponseData responseData = await connection.post('api/v2/notes', {'room_id': roomId, 'offset': 0, 'limit': 100});
+    if(responseData.isSuccess) {
+      return NotesResponseModel.fromJson(responseData.data);
+    }
+    return null;
+  }
+  static Future<bool>createNotes(String roomId, String content) async {
+    ResponseData responseData = await connection.post('api/v2/notes/create', {'content': content, 'room_id': roomId});
+    return responseData.isSuccess;
+  }
+  static Future<bool>updateNotes(String roomId, String content, int noteId) async {
+    ResponseData responseData = await connection.post('api/v2/notes/update', {'room_id': roomId, 'content': content, 'note_id' : noteId});
+    return responseData.isSuccess;
+  }
+  static Future<bool>deleteNotes(String roomId, int noteId) async {
+    ResponseData responseData = await connection.post('api/v2/notes/delete', {'note_id': noteId, 'room_id': roomId});
+    return responseData.isSuccess;
+  }
+
+
   static File convertToFile(XFile xFile) => File(xFile.path);
   static reconnect() {
     streamSocket.socket!.connect();

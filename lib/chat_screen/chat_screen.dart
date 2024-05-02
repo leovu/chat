@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:chat/chat_screen/conversation_information_screen.dart';
+import 'package:chat/presentation/conversation_modules/ui/conversation_information_screen.dart';
 import 'package:chat/chat_screen/forward_screen.dart';
 import 'package:chat/chat_ui/hex_color.dart';
 import 'package:chat/connection/chat_connection.dart';
@@ -69,7 +69,6 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
     itemPositionsListener.itemPositions.removeListener(() {});
     ChatConnection.isLoadMore = false;

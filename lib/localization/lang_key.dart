@@ -120,4 +120,15 @@ class LangKey {
   static const String zaloSendReply1 = "zaloSendReply1";
   static const String zaloSendReply2 = "zaloSendReply2";
   static const String zaloSendOther = "zaloSendOther";
+
+  static const String socialInformation = "socialInformation";
+  static const String status = "status";
+  static const String createDate = "createDate";
+  static const String follow_oa = "follow_oa";
+  static const String not_follow_oa = "not_follow_oa";
+  static const String create_note = "create_note";
+  static const String input_note_hint = "input_note_hint";
+  static const String confirm = "confirm";
+  static const String note = "note";
+  static const String update_note = "update_note";
 }
