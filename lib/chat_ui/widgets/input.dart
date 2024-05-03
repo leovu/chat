@@ -586,8 +586,25 @@ class _InputState extends State<Input> {
     ) :  sendInteractionMessage();
   }
 
-  Widget popUpSendInteractionMessage(){
-    return Container();
+  popUpSendInteractionMessage(){
+    return showDialog(context: context, builder: (context) {
+      return AlertDialog(
+        contentPadding: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(5.0))),
+        content: Container(
+            decoration: BoxDecoration(
+                color: AppColors.white,
+                borderRadius: new BorderRadius.all(Radius.circular(5))),
+            height: 210,
+            padding: EdgeInsets.symmetric(vertical: 16, horizontal: 27),
+            child: Column(
+              children: <Widget>[
+
+              ],
+            )),
+      );
+    });
   }
 
   Widget sendInteractionMessage(){

@@ -3,6 +3,8 @@ import 'package:chat/chat_screen/filter_chathub_screen.dart';
 import 'package:chat/chat_screen/home_screen.dart';
 import 'package:chat/chat_ui/vietnamese_text.dart';
 import 'package:chat/chat_ui/widgets/chat_room_widget.dart';
+import 'package:chat/common/global.dart';
+import 'package:chat/common/shared_prefs/shared_prefs_key.dart';
 import 'package:chat/common/theme.dart';
 import 'package:chat/common/widges/widget.dart';
 import 'package:chat/connection/chat_connection.dart';
@@ -203,23 +205,22 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                                               child: Divider(),
                                             ),
                                             InkWell(
-                                              onTap: (){
+                                              onTap: () async {
                                                 Navigator.of(context, rootNavigator: true).pop();
                                                 RestartWidget.restartApp(context);
                                                 AppLocalizations.delegate.load(Locale("en"));
+                                                // Globals.prefs!.setString(SharedPrefsKey.language, 'en');
                                               },
                                               child: Container(
                                                 height: 40.0,
                                                   child: Row(
                                                     children: <Widget>[
-                                                      // Padding(
-                                                      //   padding: const EdgeInsets.only(left: 8.0, right: 12.0),
-                                                      //   child: Image.asset(
-                                                      //     'assets/icon_change_language.png',
-                                                      //     width: 30.0,
-                                                      //     height: 30.0, fit: BoxFit.fill,
-                                                      //   ),
-                                                      // ),
+                                                      Container(
+                                                        margin: EdgeInsets.only(right: 10.0),
+                                                        height: 30.0,
+                                                        width: 30.0,
+                                                        child: Image.asset("assets/icon_uk.png"),
+                                                      ),
                                                       Expanded(
                                                         child: Container(
                                                           height: 40.0,
@@ -235,24 +236,22 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                                             ),
                                             CustomLine(),
                                             InkWell(
-                                              onTap: (){
+                                              onTap: () async {
                                                 Navigator.of(context, rootNavigator: true).pop();
                                                 RestartWidget.restartApp(context);
                                                 AppLocalizations.delegate.load(Locale("vi"));
+                                                // Globals.prefs!.setString(SharedPrefsKey.language, 'vi');
                                               },
                                               child: Container(
                                                   height: 40.0,
                                                   child: Row(
                                                     children: <Widget>[
-                                                      // Padding(
-                                                      //   padding:
-                                                      //   const EdgeInsets.only(left: 8.0, right: 12.0),
-                                                      //   child: Image.asset(
-                                                      //     'assets/icon_change_language.png',
-                                                      //     width: 30.0,
-                                                      //     height: 30.0, fit: BoxFit.fill,
-                                                      //   ),
-                                                      // ),
+                                                      Container(
+                                                        margin: EdgeInsets.only(right: 10.0),
+                                                        height: 30.0,
+                                                        width: 30.0,
+                                                        child: Image.asset("assets/icon_viet.png"),
+                                                      ),
                                                       Expanded(
                                                         child: Container(
                                                           alignment: Alignment.centerLeft,

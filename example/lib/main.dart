@@ -1,11 +1,20 @@
+import 'package:chat/common/global.dart';
+import 'package:chat/common/shared_prefs/shared_prefs_key.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/material.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:chat/chat.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:chat/common/config.dart' as cf;
 
-void main() {
+Future<void> main() async {
+  // cf.Config.getPreferences().then((_) async {
+  //   print('aaaaa');
+  //   String language = await Globals.prefs!.getString(SharedPrefsKey.language);
+  //   language ??= 'vi';
+  //   AppLocalizations.delegate.load(Locale(language));
+  // });
   runApp(const OverlaySupport.global(
     child: MaterialApp(
       supportedLocales: [Locale('en', 'US')],
