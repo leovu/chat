@@ -10,6 +10,7 @@ import 'package:chat/data_model/request/create_note_request_model.dart';
 import 'package:chat/data_model/request/delete_note_request_model.dart';
 import 'package:chat/data_model/request/notes_request_model.dart';
 import 'package:chat/data_model/response/notes_response_model.dart';
+import 'package:chat/data_model/response/quota_response_model.dart';
 import 'package:chat/data_model/tag.dart';
 import 'package:chat/data_model/user.dart';
 import 'package:chat/localization/app_localizations.dart';
@@ -174,7 +175,7 @@ class ChatConnection {
     return responseData.isSuccess;
   }
   static Future<c.ChatMessage?>joinRoom(String id ,{bool refresh = false}) async {
-    ResponseData responseData = await connection.post('api/v2room/join', {'id':id});
+    ResponseData responseData = await connection.post('api/v2/room/join', {'id':id});
     if(responseData.isSuccess) {
       if(!refresh) {
         streamSocket.joinRoom(id);
@@ -500,6 +501,24 @@ class ChatConnection {
   }
   static Future<bool>deleteNotes(String roomId, int noteId) async {
     ResponseData responseData = await connection.post('api/v2/notes/delete', {'note_id': noteId, 'room_id': roomId});
+    return responseData.isSuccess;
+  }
+
+  /// QUOTA
+  static Future<QuotaResponseModel?>getQuota(String socialChannelId, String userSocialId) async {
+    ResponseData responseData = await connection.post('api/zalo/get-quota', {'social_channel_id': socialChannelId, 'user_social_id': userSocialId});
+    if(responseData.isSuccess) {
+      return QuotaResponseModel.fromJson(responseData.data);
+    }
+    return null;
+  }
+  static Future<bool>sendTransaction(String channelId, String type, String userSocialId) async {
+    ResponseData responseData = await connection.post('api/zalo/send-transaction', {'channel_id': channelId, 'type': type, 'user_social_id' : userSocialId});
+    return responseData.isSuccess;
+  }
+  static Future<bool>messageSystem(String authorID, String roomID) async {
+    ResponseData responseData = await connection.post('api/v2/message-system', {'action': 'message', 'authorID': authorID, 'content' : 'Đã gửi tin tương tác: Tin đánh giá',
+    'roomID' : roomID, 'type' : 'system'});
     return responseData.isSuccess;
   }
 

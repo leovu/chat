@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:chat/presentation/chat_module/bloc/chat_bloc.dart';
 import 'package:chat/presentation/conversation_modules/ui/conversation_information_screen.dart';
 import 'package:chat/chat_screen/forward_screen.dart';
 import 'package:chat/chat_ui/hex_color.dart';
@@ -58,13 +59,25 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   bool isInitScreen = true;
   Tag? tag;
   String? note;
+  late ChatBloc _bloc;
+  bool checkQuota = true;
+
   @override
   void initState() {
     super.initState();
+    _bloc = ChatBloc();
     ChatConnection.chatScreenNotificationHandler = _notificationHandler;
     _getTagList();
     _loadMessages();
     ChatConnection.listenChat(_refreshMessage);
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      getQuota();
+    });
+  }
+
+  getQuota() async{
+    checkQuota = await _bloc.getQuota(widget.data.channel!.socialChanelId!, widget.data.owner!.userSocialId!);
+    setState(() {});
   }
 
   @override
@@ -791,8 +804,6 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   bool isShowUserTag = true;
   @override
   Widget build(BuildContext context) {
-    /// Bỏ people dùng owner
-    // r.People info = getPeople(widget.data.people);
     return WillPopScope(
       onWillPop: () async {
         ChatConnection.roomId = null;
@@ -1001,7 +1012,9 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                 builder: (BuildContext context, void Function() method) {
                   focusTextField = method;
                 },
-              )),
+                canSend: checkQuota,
+              )
+              ),
               _resultSearchChat(),
             ],
           ),
@@ -1239,7 +1252,6 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     }catch(_) {}
   }
   AppBar _defaultAppbar() {
-    // r.People info = getPeople(widget.data.people);
     bool f = isFavorite(widget.data.people,widget.data.sId);
     return AppBar(
         actions: <Widget>[
@@ -1261,22 +1273,6 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
               }
             },
           ),
-          // IconButton(
-          //   visualDensity: const VisualDensity(horizontal: -4.0, vertical: -4.0),
-          //   padding: EdgeInsets.zero,
-          //   icon: const Icon(
-          //     Icons.search,
-          //     color: Color(0xFF787878),
-          //   ),
-          //   onPressed: () {
-          //     setState(() {
-          //       _isSearchMessage = !_isSearchMessage;
-          //       if(_isSearchMessage) {
-          //         _focusSearch.requestFocus();
-          //       }
-          //     });
-          //   },
-          // ),
           IconButton(
             visualDensity: const VisualDensity(horizontal: -4.0, vertical: -4.0),
             padding: EdgeInsets.zero,

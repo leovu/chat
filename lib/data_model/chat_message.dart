@@ -28,7 +28,7 @@ class Room {
   String? sId;
   List<People>? people;
   bool? isGroup;
-  String? owner;
+  Owner? owner;
   String? lastUpdate;
   String? lastAuthor;
   String? lastMessage;
@@ -73,7 +73,11 @@ class Room {
     isGroup = json['isGroup'];
     lastUpdate = json['lastUpdate'];
     lastAuthor = json['lastAuthor'];
-    owner = json['owner'];
+    try{
+      owner = json['owner'] != null
+          ? Owner.fromJson(json['owner'])
+          : null;
+    }catch(_){}
     try {
       lastMessage = json['lastMessage'];
     }catch(_) {}
@@ -128,7 +132,6 @@ class Room {
     data['lastUpdate'] = lastUpdate;
     data['lastAuthor'] = lastAuthor;
     data['lastMessage'] = lastMessage;
-    data['owner'] = owner;
     if (messages != null) {
       data['messages'] = messages!.map((v) => v.toJson()).toList();
     }
@@ -138,6 +141,175 @@ class Room {
     if (pinMessage != null) {
       data['pinMessage'] = pinMessage!.toJson();
     }
+    return data;
+  }
+}
+
+class Owner {
+  String? sId;
+  String? level;
+  // List<Null>? favorites;
+  List<String>? userTag;
+  String? tagLine;
+  bool? isIncognito;
+  String? username;
+  String? email;
+  String? firstName;
+  String? lastName;
+  String? userSocialId;
+  String? source;
+  String? password;
+  String? lastOnline;
+  int? iV;
+  String? picture;
+  String? cpoCustomerCode;
+  int? cpoCustomerId;
+  String? customerCode;
+  String? customerId;
+  String? createdAt;
+  bool? isBlocked;
+  int? isFollowed;
+  List<Tags>? tags;
+
+  Owner(
+      {this.sId,
+        this.level,
+        // this.favorites,
+        this.userTag,
+        this.tagLine,
+        this.isIncognito,
+        this.username,
+        this.email,
+        this.firstName,
+        this.lastName,
+        this.userSocialId,
+        this.source,
+        this.password,
+        this.lastOnline,
+        this.iV,
+        this.picture,
+        this.cpoCustomerCode,
+        this.cpoCustomerId,
+        this.customerCode,
+        this.customerId,
+        this.createdAt,
+        this.isBlocked,
+        this.isFollowed,
+        this.tags});
+
+  Owner.fromJson(Map<String, dynamic> json) {
+    sId = json['_id'];
+    level = json['level'];
+    // if (json['favorites'] != null) {
+    //   favorites = <Null>[];
+    //   json['favorites'].forEach((v) {
+    //     favorites!.add(new Null.fromJson(v));
+    //   });
+    // }
+    userTag = json['userTag'].cast<String>();
+    tagLine = json['tagLine'];
+    isIncognito = json['isIncognito'];
+    username = json['username'];
+    email = json['email'];
+    firstName = json['firstName'];
+    lastName = json['lastName'];
+    userSocialId = json['userSocialId'];
+    source = json['source'];
+    password = json['password'];
+    lastOnline = json['lastOnline'];
+    iV = json['__v'];
+    picture = json['picture'];
+    cpoCustomerCode = json['cpoCustomerCode'];
+    cpoCustomerId = json['cpoCustomerId'];
+    customerCode = json['customerCode'] ?? '';
+    customerId = json['customerId'] ?? '';
+    createdAt = json['createdAt'];
+    isBlocked = json['isBlocked'];
+    isFollowed = json['isFollowed'];
+    if (json['tags'] != null) {
+      tags = <Tags>[];
+      json['tags'].forEach((v) {
+        tags!.add(new Tags.fromJson(v));
+      });
+    }
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['_id'] = this.sId;
+    data['level'] = this.level;
+    // if (this.favorites != null) {
+    //   data['favorites'] = this.favorites!.map((v) => v.toJson()).toList();
+    // }
+    data['userTag'] = this.userTag;
+    data['tagLine'] = this.tagLine;
+    data['isIncognito'] = this.isIncognito;
+    data['username'] = this.username;
+    data['email'] = this.email;
+    data['firstName'] = this.firstName;
+    data['lastName'] = this.lastName;
+    data['userSocialId'] = this.userSocialId;
+    data['source'] = this.source;
+    data['password'] = this.password;
+    data['lastOnline'] = this.lastOnline;
+    data['__v'] = this.iV;
+    data['picture'] = this.picture;
+    data['cpoCustomerCode'] = this.cpoCustomerCode;
+    data['cpoCustomerId'] = this.cpoCustomerId;
+    data['customerCode'] = this.customerCode;
+    data['customerId'] = this.customerId;
+    data['createdAt'] = this.createdAt;
+    data['isBlocked'] = this.isBlocked;
+    data['isFollowed'] = this.isFollowed;
+    if (this.tags != null) {
+      data['tags'] = this.tags!.map((v) => v.toJson()).toList();
+    }
+    return data;
+  }
+
+  String getAvatarName() {
+    String avatarName = '';
+    String? firstNameResult = firstName?.replaceAll(RegExp('[^A-Za-z0-9]'), '');
+    if(firstNameResult != '' && firstNameResult != null) {
+      avatarName += firstNameResult[0];
+    }
+    String? lastNameResult = lastName?.replaceAll(RegExp('[^A-Za-z0-9]'), '');
+    if(lastNameResult != '' && lastNameResult != null) {
+      avatarName += lastNameResult[0];
+    }
+    return avatarName == '' ? '*' : avatarName.toUpperCase();
+  }
+
+  String getName(){
+    List<String> names = [];
+    if((firstName ?? "").isNotEmpty) {
+      names.add(firstName!);
+    }
+    if((lastName ?? "").isNotEmpty) {
+      names.add(lastName!);
+    }
+    return names.join(" ");
+  }
+}
+
+class Tags {
+  String? sId;
+  String? tag;
+  String? attachedDate;
+
+  Tags({this.sId, this.tag, this.attachedDate});
+
+  Tags.fromJson(Map<String, dynamic> json) {
+    sId = json['_id'];
+    tag = json['tag'];
+    attachedDate = json['attachedDate'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['_id'] = this.sId;
+    data['tag'] = this.tag;
+    data['attachedDate'] = this.attachedDate;
     return data;
   }
 }
@@ -287,7 +459,7 @@ class Messages {
       };
     }
     if(date != null) {
-      final format = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z");
+      final format = DateFormat("yyyy-MM-dd'T'HH:mm:ss");
       final dt = format.parse(date!, true);
       data['createdAt'] = dt.toUtc().millisecondsSinceEpoch;
     }

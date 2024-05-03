@@ -127,5 +127,10 @@
   "input_note_hint" : "Nhập nội dung ghi chú",
   "confirm" : "Xác nhận",
   "note" : "Ghi chú",
-  "update_note" : "Cập nhật ghi chú"
+  "update_note" : "Cập nhật ghi chú",
+
+  "change_language" : "Thay đổi ngôn ngữ",
+  "interaction_message" : "Gửi tin nhắn tương tác",
+  "banner_cant_send_OA" : "OA không thể gửi tin tư vấn cho người dùng không phát sinh tương tác với OA trong vòng 7 ngày gần nhất.",
+  "watch_detail" : "Xem chi tiết"
 }

@@ -3,6 +3,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/chat_ui/models/send_button_visibility_mode.dart';
 import 'package:chat/chat_ui/widgets/sticker.dart';
+import 'package:chat/common/theme.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/data_model/room.dart';
@@ -45,6 +46,7 @@ class Input extends StatefulWidget {
     this.onTextChanged,
     this.onTextFieldTap,
     this.repliedMessage,
+    required this.canSend,
     required this.sendButtonVisibilityMode,
     required this.builder,
     required this.onCancelReplyPressed,
@@ -56,6 +58,7 @@ class Input extends StatefulWidget {
     required this.isVisible,
   }) : super(key: key);
 
+  final bool canSend;
   final ChatEmojiBuilder builder;
   final InputBuilder inputBuilder;
   /// See [AttachmentButton.onPressed]
@@ -307,7 +310,8 @@ class _InputState extends State<Input> {
             _query.padding.right,
             (_query.viewInsets.bottom + _query.padding.bottom) * 0.4,
           );
-    return Focus(
+    /// dev
+    return widget.canSend ? Focus(
       autofocus: true,
       child: Padding(
         padding: InheritedChatTheme.of(context).theme.inputMargin,
@@ -579,8 +583,35 @@ class _InputState extends State<Input> {
           ),
         ),
       ),
+    ) :  sendInteractionMessage();
+  }
+
+  Widget popUpSendInteractionMessage(){
+    return Container();
+  }
+
+  Widget sendInteractionMessage(){
+    return InkWell(
+      // onTap: ,
+      child: Container(
+        margin: EdgeInsets.only(bottom: 10.0),
+        height: 40.0,
+        width: MediaQuery.of(context).size.width / 2,
+        decoration: BoxDecoration(
+            color: Colors.blue,
+            borderRadius: BorderRadius.circular(10.0)
+        ),
+        child: Center(
+          child: Text(
+            AppLocalizations.text(LangKey.interaction_message),
+            style: AppTextStyles.style15WhiteNormal,
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ),
     );
   }
+
   Widget stickerSelection(String icon, int index) {
     return Padding(
       padding: const EdgeInsets.only(right: 8.0),

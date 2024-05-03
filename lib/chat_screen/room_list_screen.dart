@@ -3,8 +3,10 @@ import 'package:chat/chat_screen/filter_chathub_screen.dart';
 import 'package:chat/chat_screen/home_screen.dart';
 import 'package:chat/chat_ui/vietnamese_text.dart';
 import 'package:chat/chat_ui/widgets/chat_room_widget.dart';
+import 'package:chat/common/theme.dart';
+import 'package:chat/common/widges/widget.dart';
 import 'package:chat/connection/chat_connection.dart';
-import 'package:chat/chat_screen/chat_screen.dart';
+import 'package:chat/presentation/chat_module/ui/chat_screen.dart';
 import 'package:chat/data_model/room.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/draft.dart';
@@ -167,10 +169,109 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                     if(!ChatConnection.isChatHub) Row(
                       children: [
                         Padding(
-                          padding: const EdgeInsets.only(bottom: 3.0,left: 10.0,right: 10.0),
+                          padding: const EdgeInsets.only(bottom: 3.0, left: 10.0),
                           child: Text(AppLocalizations.text(LangKey.chats),style: const TextStyle(fontSize: 25.0,color: Colors.black)),
                         ),
                         Expanded(child: Container()),
+                        if(!ChatConnection.isChatHub) Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                          child: SizedBox(width:30.0,height: 30.0,
+                              child: InkWell(onTap: () async {
+                                showDialog(context: context, builder: (context) {
+                                  return AlertDialog(
+                                    contentPadding: EdgeInsets.zero,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.all(Radius.circular(5.0))),
+                                    content: Container(
+                                        decoration: BoxDecoration(
+                                            color: AppColors.white,
+                                            borderRadius: new BorderRadius.all(Radius.circular(5))),
+                                        height: 210,
+                                        padding: EdgeInsets.symmetric(vertical: 16, horizontal: 27),
+                                        child: Column(
+                                          children: <Widget>[
+                                            Container(
+                                              alignment: Alignment.centerLeft,
+                                              margin: EdgeInsets.only(bottom: 11),
+                                              child: Text(
+                                                AppLocalizations.text(LangKey.change_language),
+                                                style: AppTextStyles.style18BlackBold,
+                                              ),
+                                            ),
+                                            const Padding(
+                                              padding: EdgeInsets.only(top: 8.0),
+                                              child: Divider(),
+                                            ),
+                                            InkWell(
+                                              onTap: (){
+                                                Navigator.of(context, rootNavigator: true).pop();
+                                                RestartWidget.restartApp(context);
+                                                AppLocalizations.delegate.load(Locale("en"));
+                                              },
+                                              child: Container(
+                                                height: 40.0,
+                                                  child: Row(
+                                                    children: <Widget>[
+                                                      // Padding(
+                                                      //   padding: const EdgeInsets.only(left: 8.0, right: 12.0),
+                                                      //   child: Image.asset(
+                                                      //     'assets/icon_change_language.png',
+                                                      //     width: 30.0,
+                                                      //     height: 30.0, fit: BoxFit.fill,
+                                                      //   ),
+                                                      // ),
+                                                      Expanded(
+                                                        child: Container(
+                                                          height: 40.0,
+                                                          alignment: Alignment.centerLeft,
+                                                          child: Text(
+                                                            'English',
+                                                            style: AppTextStyles.style14BlackWeight500,
+                                                          ),
+                                                        ),
+                                                      )
+                                                    ],
+                                                  )),
+                                            ),
+                                            CustomLine(),
+                                            InkWell(
+                                              onTap: (){
+                                                Navigator.of(context, rootNavigator: true).pop();
+                                                RestartWidget.restartApp(context);
+                                                AppLocalizations.delegate.load(Locale("vi"));
+                                              },
+                                              child: Container(
+                                                  height: 40.0,
+                                                  child: Row(
+                                                    children: <Widget>[
+                                                      // Padding(
+                                                      //   padding:
+                                                      //   const EdgeInsets.only(left: 8.0, right: 12.0),
+                                                      //   child: Image.asset(
+                                                      //     'assets/icon_change_language.png',
+                                                      //     width: 30.0,
+                                                      //     height: 30.0, fit: BoxFit.fill,
+                                                      //   ),
+                                                      // ),
+                                                      Expanded(
+                                                        child: Container(
+                                                          alignment: Alignment.centerLeft,
+                                                          child: Text(
+                                                            'Tiếng Việt',
+                                                            style: AppTextStyles.style14BlackWeight500,
+                                                          ),
+                                                        ),
+                                                      )
+                                                    ],
+                                                  )),
+                                            ),
+                                          ],
+                                        )),
+                                  );
+                                });
+                              },
+                                child: Image.asset('assets/icon_change_language.png',package: 'chat',),)),
+                        ),
                         if(!ChatConnection.isChatHub) Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20.0),
                           child: SizedBox(width:30.0,height: 30.0,
@@ -733,4 +834,35 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
   }
   @override
   bool get wantKeepAlive => true;
+}
+
+class RestartWidget extends StatefulWidget {
+  RestartWidget({required this.child});
+
+  final Widget child;
+
+  static void restartApp(BuildContext context) {
+    context.findAncestorStateOfType<_RestartWidgetState>()?.restartApp();
+  }
+
+  @override
+  _RestartWidgetState createState() => _RestartWidgetState();
+}
+
+class _RestartWidgetState extends State<RestartWidget> {
+  Key key = UniqueKey();
+
+  void restartApp() {
+    setState(() {
+      key = UniqueKey();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return KeyedSubtree(
+      key: key,
+      child: widget.child,
+    );
+  }
 }

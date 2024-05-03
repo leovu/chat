@@ -131,4 +131,9 @@ class LangKey {
   static const String confirm = "confirm";
   static const String note = "note";
   static const String update_note = "update_note";
+
+  static const String change_language = "change_language";
+  static const String interaction_message = "interaction_message";
+  static const String banner_cant_send_OA = "banner_cant_send_OA";
+  static const String watch_detail = "watch_detail";
 }

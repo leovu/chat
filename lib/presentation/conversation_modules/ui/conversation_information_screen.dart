@@ -53,7 +53,6 @@ class _ConversationInformationScreenState
 
   void _loadAccount() async {
     if(ChatConnection.isChatHub) {
-      // r.People info = getPeople(widget.roomData.people);
       customerAccount = await ChatConnection.detect(widget.roomData.sId??'');
     }
     isInitScreen = false;
@@ -1114,3 +1113,4 @@ class _ConversationInformationScreenState
     );
   }
 }
+

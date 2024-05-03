@@ -115,5 +115,18 @@
   "zaloSendOATier": "The next message you send is a free consultation message",
   "zaloSendReply1": "You still have ",
   "zaloSendReply2": " free proactive message",
-  "zaloSendOther": "The next message you send is a premium message"
+  "zaloSendOther": "The next message you send is a premium message",
+
+  "socialInformation" : "Social network information",
+  "status" : "Status",
+  "createDate" : "Next day",
+  "follow_oa" : "Interested in OA",
+  "not_follow_oa" : "Not interested in OA",
+  "create_note" : "Create note",
+  "input_note_hint" : "Enter note content",
+  "confirm" : "Confirm",
+  "note" : "Note",
+  "update_note" : "Update note",
+
+  "change_language" : "Change language"
 }

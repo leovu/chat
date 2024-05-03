@@ -12,7 +12,7 @@ import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/data_model/room.dart' as r;
-import 'chat_screen.dart';
+import '../presentation/chat_module/ui/chat_screen.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class ContactsScreen extends StatefulWidget {

@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:chat/chat_screen/chat_screen.dart';
+import 'package:chat/presentation/chat_module/ui/chat_screen.dart';
 import 'package:chat/chat_screen/chathub_room_list_screen.dart';
 import 'package:chat/chat_screen/contacts_screen.dart';
 import 'package:chat/chat_screen/create_group_screen.dart';

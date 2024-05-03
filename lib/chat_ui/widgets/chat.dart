@@ -9,10 +9,14 @@ import 'package:chat/chat_ui/models/message_spacer.dart';
 import 'package:chat/chat_ui/models/send_button_visibility_mode.dart';
 import 'package:chat/chat_ui/util.dart';
 import 'package:chat/chat_ui/widgets/inherited_replied_message.dart';
+import 'package:chat/common/constant.dart';
+import 'package:chat/common/theme.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/download.dart';
 import 'package:chat/data_model/room.dart' as r;
 import 'package:chat/draft.dart';
+import 'package:chat/localization/app_localizations.dart';
+import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
@@ -20,6 +24,7 @@ import 'package:chat/chat_ui/widgets/inherited_l10n.dart';
 import 'package:intl/intl.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:swipeable_tile/swipeable_tile.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'chat_list.dart';
 import 'inherited_chat_theme.dart';
 import 'inherited_user.dart';
@@ -38,6 +43,7 @@ class ChatController {
 }
 
 class Chat extends StatefulWidget {
+
   /// Creates a chat widget
   const Chat({
     Key? key,
@@ -97,7 +103,8 @@ class Chat extends StatefulWidget {
     required this.isGroup,
     required this.onStickerPressed,
     this.source,
-    this.note
+    this.note,
+    this.canSend = true,
   }) : super(key: key);
 
   /// See [Message.bubbleBuilder]
@@ -109,6 +116,8 @@ class Chat extends StatefulWidget {
 
   /// Allows you to replace the default Input widget e.g. if you want to create
   /// a channel view.
+  final bool canSend;
+
   final Widget? customBottomWidget;
 
   final bool isGroup;
@@ -526,6 +535,7 @@ class _ChatState extends State<Chat> {
                   color: widget.theme.backgroundColor,
                   child: Column(
                     children: [
+                      !widget.canSend ? bannerCantSendOA() : Container(),
                       Flexible(
                         child: widget.messages.isEmpty
                             ? SizedBox.expand(
@@ -565,7 +575,7 @@ class _ChatState extends State<Chat> {
                         ),),
                       ),
                       !widget.isSearchChat ? widget.customBottomWidget ??
-                          checkSourceAvailableChat() : Container(),
+                          checkSourceAvailableChat()  : Container(),
                     ],
                   ),
                 ),
@@ -573,6 +583,42 @@ class _ChatState extends State<Chat> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget bannerCantSendOA(){
+    return Container(
+      padding: const EdgeInsets.all(10.0),
+      width: MediaQuery.of(context).size.width,
+      color: AppColors.orange1.withOpacity(0.5),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            margin: const EdgeInsets.only(right: 10.0),
+            height: 20.0,
+            width: 20.0,
+            child: Icon(Icons.warning_amber, color: AppColors.orange1,),
+          ),
+          Expanded(child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                  AppLocalizations.text(LangKey.banner_cant_send_OA)
+              ),
+              InkWell(
+                onTap: ()=> launchUrl(Uri.parse(httpPolicyOA)),
+                child: Text(
+                  AppLocalizations.text(LangKey.watch_detail),
+                  style: TextStyle(color: AppColors.orange1),
+
+                ),
+              )
+            ],
+          ))
+        ],
       ),
     );
   }
@@ -591,6 +637,7 @@ class _ChatState extends State<Chat> {
       // }catch(_) {}
     }
     return Input(
+      canSend: widget.canSend,
       isGroup: widget.isGroup,
       isVisible: isVisible,
       isAttachmentUploading: widget.isAttachmentUploading,

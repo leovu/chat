@@ -118,6 +118,9 @@ flutter:
     - assets/3.0x/icon-error.png
     - assets/3.0x/icon-seen.png
     - assets/3.0x/icon-send.png
+    - assets/icon_change_language.png
+    - assets/icon_uk.png
+    - assets/icon_viet.png
     - assets/chat_en.json
     - assets/chat_vi.json
   #
