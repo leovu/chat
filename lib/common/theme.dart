@@ -4,6 +4,11 @@
 */
 import 'package:flutter/cupertino.dart';
 
+class AppKeys {
+  static const String keyHUD = "/HUD";
+  static const String keyLanguage = "LANGUAGE";
+}
+
 class AppColors {
   static const primaryColor = Color(0xFFF37021);
   static const primary50Color = Color(0xFFF9DECF);

@@ -49,6 +49,7 @@ dependencies:
   shared_preferences: ^2.0.15
   flex_color_picker: ^3.0.2
   rxdart: ^0.27.7
+  keyboard_actions: ^4.2.0
   permission:
     git:
       url: https://github.com/leovu/permission.git
@@ -82,45 +83,10 @@ flutter:
   # To add assets to your plugin package, add an assets section, like this:
   assets:
     - assets/meme/panda/
+    - assets/
     - assets/meme/usagyuun/
     - assets/meme/mimicat/
     - assets/messages.json
-    - assets/icon-chat-gpt.png
-    - assets/icon-rabbit.png
-    - assets/icon-panda.png
-    - assets/icon-cat.png
-    - assets/icon-attachment.png
-    - assets/icon-edit.png
-    - assets/icon-camera.png
-    - assets/icon-emoji.png
-    - assets/icon-chat-add.png
-    - assets/icon-delivered.png
-    - assets/icon-document.png
-    - assets/icon-error.png
-    - assets/icon-seen.png
-    - assets/icon-send.png
-    - assets/icon-reply.png
-    - assets/icon-facebook.png
-    - assets/icon-zalo.png
-    - assets/icon-facebook-main.png
-    - assets/icon-chathub-main.png
-    - assets/icon-crown.png
-    - assets/icon-star.png
-    - assets/2.0x/icon-attachment.png
-    - assets/2.0x/icon-delivered.png
-    - assets/2.0x/icon-document.png
-    - assets/2.0x/icon-error.png
-    - assets/2.0x/icon-seen.png
-    - assets/2.0x/icon-send.png
-    - assets/3.0x/icon-attachment.png
-    - assets/3.0x/icon-delivered.png
-    - assets/3.0x/icon-document.png
-    - assets/3.0x/icon-error.png
-    - assets/3.0x/icon-seen.png
-    - assets/3.0x/icon-send.png
-    - assets/icon_change_language.png
-    - assets/icon_uk.png
-    - assets/icon_viet.png
     - assets/chat_en.json
     - assets/chat_vi.json
   #

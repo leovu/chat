@@ -22,4 +22,14 @@ class ChatBloc extends BaseBloc {
     }
     return false;
   }
+
+  Future<bool> sendTransaction(String channelId, String type, String userSocialId) async {
+    bool? notes = await ChatConnection.sendTransaction(channelId, type, userSocialId);
+    return notes;
+  }
+
+  Future<bool> messageSystem(String authorID, String roomID) async {
+    bool? notes = await ChatConnection.messageSystem(authorID, roomID);
+    return notes;
+  }
 }

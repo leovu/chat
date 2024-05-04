@@ -2,6 +2,7 @@
 * Created by: nguyenan
 * Created at: 2024/05/02 10:25
 */
+import 'package:chat/common/custom_navigator.dart';
 import 'package:chat/common/theme.dart';
 import 'package:chat/common/widges/widget.dart';
 import 'package:chat/data_model/response/notes_response_model.dart';
@@ -78,8 +79,19 @@ class _State extends State<ListNoteComponent> {
               ),
               InkWell(
                 onTap: () async {
-                  bool? check = await widget.bloc.deleteNotes(widget.roomData.sId!, note.iId!);
-                  if(check != null) if(check) widget.refreshFunc();
+                  CustomNavigator.showCustomAlertDialog(context, null,
+                      AppLocalizations.text(LangKey.delete_note_des),
+                      titleHeader:
+                      AppLocalizations.text(LangKey.warning),
+                      enableCancel: true,
+                      textSubSubmitted:
+                      AppLocalizations.text(LangKey.cancel),
+                      textSubmitted: AppLocalizations.text(LangKey.confirm),
+                      onSubmitted: () async {
+                        CustomNavigator.pop(context);
+                        bool? check = await widget.bloc.deleteNotes(widget.roomData.sId!, note.iId!);
+                        if(check != null) if(check) widget.refreshFunc();
+                      });
                 },
                 child: Container(
                   margin: EdgeInsets.symmetric(horizontal: AppSizes.minPadding),

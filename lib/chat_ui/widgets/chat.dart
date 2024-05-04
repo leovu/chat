@@ -14,6 +14,7 @@ import 'package:chat/common/theme.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/download.dart';
 import 'package:chat/data_model/room.dart' as r;
+import 'package:chat/data_model/room.dart';
 import 'package:chat/draft.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
@@ -105,6 +106,7 @@ class Chat extends StatefulWidget {
     this.source,
     this.note,
     this.canSend = true,
+    required this.roomData,
   }) : super(key: key);
 
   /// See [Message.bubbleBuilder]
@@ -116,6 +118,8 @@ class Chat extends StatefulWidget {
 
   /// Allows you to replace the default Input widget e.g. if you want to create
   /// a channel view.
+  final Rooms roomData;
+
   final bool canSend;
 
   final Widget? customBottomWidget;
@@ -658,6 +662,8 @@ class _ChatState extends State<Chat> {
       onMessageTap: widget.onMessageTap,
       builder: (void Function() method) {
         hideEmoji = method;
-      },);
+      },
+      roomData: widget.roomData,
+    );
   }
 }

@@ -54,15 +54,15 @@ class CustomButton extends StatelessWidget {
                   ? (backgroundColor ?? AppColors.primaryColor)
                   : (backgroundColor ?? AppColors.primaryColor)
                   .withOpacity(0.3),
-              borderRadius: BorderRadius.all(Radius.circular(radius??AppSizes.border8)),
+              borderRadius: BorderRadius.all(Radius.circular(radius??8.0)),
               border: (borderColor == null)
                   ? null
                   : Border.all(
                   color: borderColor!,
                   width: 1.0,
                   style: BorderStyle.solid)),
-          height: heightButton ?? AppSizes.sizeOnTap,
-          padding: EdgeInsets.symmetric(horizontal: AppSizes.minPadding),
+          height: heightButton ?? 40.0,
+          padding: EdgeInsets.symmetric(horizontal: 10.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

@@ -3,6 +3,7 @@ import 'package:chat/chat_screen/filter_chathub_screen.dart';
 import 'package:chat/chat_screen/home_screen.dart';
 import 'package:chat/chat_ui/vietnamese_text.dart';
 import 'package:chat/chat_ui/widgets/chat_room_widget.dart';
+import 'package:chat/common/assets.dart';
 import 'package:chat/common/global.dart';
 import 'package:chat/common/shared_prefs/shared_prefs_key.dart';
 import 'package:chat/common/theme.dart';
@@ -219,7 +220,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                                                         margin: EdgeInsets.only(right: 10.0),
                                                         height: 30.0,
                                                         width: 30.0,
-                                                        child: Image.asset("assets/icon_uk.png"),
+                                                        child: Image.asset(Assets.iconUK),
                                                       ),
                                                       Expanded(
                                                         child: Container(
@@ -250,7 +251,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                                                         margin: EdgeInsets.only(right: 10.0),
                                                         height: 30.0,
                                                         width: 30.0,
-                                                        child: Image.asset("assets/icon_viet.png"),
+                                                        child: Image.asset(Assets.iconViet),
                                                       ),
                                                       Expanded(
                                                         child: Container(

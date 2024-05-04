@@ -1013,6 +1013,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                   focusTextField = method;
                 },
                 canSend: checkQuota,
+                roomData: widget.data,
               )
               ),
               _resultSearchChat(),

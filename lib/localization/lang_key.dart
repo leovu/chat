@@ -136,4 +136,10 @@ class LangKey {
   static const String interaction_message = "interaction_message";
   static const String banner_cant_send_OA = "banner_cant_send_OA";
   static const String watch_detail = "watch_detail";
+  static const String rating_message = "rating_message";
+  static const String promotion_message = "promotion_message";
+  static const String example_message = "example_message";
+  static const String send_message_2 = "send_message_2";
+  static const String charge_message = "charge_message";
+  static const String delete_note_des = "delete_note_des";
 }
