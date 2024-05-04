@@ -9,4 +9,5 @@ class Assets {
   static String iconWarning = "assets/ic_warning.png";
   static String iconUK = "assets/icon_uk.png";
   static String iconViet = "assets/icon_viet.png";
+  static String iconChangeLanguage = 'assets/icon_change_language.png';
 }

@@ -270,7 +270,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                                   );
                                 });
                               },
-                                child: Image.asset('assets/icon_change_language.png',package: 'chat',),)),
+                                child: Image.asset(Assets.iconChangeLanguage ,package: 'chat',),)),
                         ),
                         if(!ChatConnection.isChatHub) Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20.0),

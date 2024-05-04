@@ -128,5 +128,14 @@
   "note" : "Note",
   "update_note" : "Update note",
 
-  "change_language" : "Change language"
+  "change_language" : "Change language",
+  "interaction_message" : "Send interactive message",
+  "banner_cant_send_OA" : "OA cannot send advisory messages to users who have not interacted with OA within the last 7 days.",
+  "watch_detail" : "Watch details",
+  "rating_message" : "Rating message",
+  "promotion_message" : "Promotion news/Event",
+  "example_message" : "Example message",
+  "send_message_2" : "Send message",
+  "charge_message" : "This is a charged message (165 VND/message)",
+  "delete_note_des" : "Do you want to delete this note?"
 }
