@@ -51,13 +51,22 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
   Room? roomListData;
   bool isInitScreen = true;
   Map<String,dynamic> colorAppName = {};
+  late ScrollController _listViewController;
+  int _currentPage = 1;
 
   @override
   void initState() {
     super.initState();
     _getRooms();
+    _listViewController = ScrollController()..addListener(_scrollListener);
   }
   final RefreshController _refreshController = RefreshController(initialRefresh: false);
+
+  void _scrollListener() {
+    if (_listViewController.position.maxScrollExtent == _listViewController.offset) {
+      _getRooms(page: _currentPage + 1);
+    }
+  }
 
   void _onRefresh() async{
     await Future.delayed(const Duration(milliseconds: 1000));
@@ -70,9 +79,9 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
     await _getRooms();
     _refreshController.loadComplete();
   }
-  _getRooms() async {
+  _getRooms({int page = 1}) async {
     if(mounted) {
-      roomListData = await ChatConnection.roomList(source: widget.source,channelId: channel,status: status, tagIds: tagIds);
+      roomListData = await ChatConnection.roomList(source: widget.source,channelId: channel,status: status, tagIds: tagIds, page: page, roomData: roomListData);
       _getRoomVisible();
       isInitScreen = false;
       setState(() {});
@@ -84,7 +93,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
     }
     else {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
-        roomListData = await ChatConnection.roomList(source: widget.source,channelId: channel,status: status, tagIds: tagIds);
+        roomListData = await ChatConnection.roomList(source: widget.source,channelId: channel,status: status, tagIds: tagIds, page: page, roomData: roomListData);
         _getRoomVisible();
         isInitScreen = false;
         setState(() {});
@@ -351,6 +360,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                     onLoading: _onLoading,
                     header: const WaterDropHeader(),
                     child: ListView.builder(
+                        controller: _listViewController,
                         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                         itemCount: (ChatConnection.openChatGPT != null) ? (roomListVisible!.rooms?.length ?? 0) + 1 : (roomListVisible!.rooms?.length ?? 0),
                         itemBuilder: (BuildContext context, int index) {
@@ -618,9 +628,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
     );
   }
   Widget _room(Rooms data, bool isLast) {
-    /// bỏ việc check people naò là owner, API trả lun owner cho
-    // People info = getPeople(data.people);
-    String? author = findAuthor(data.people,data.lastMessage?.author);
+    String? author = findAuthor(data.owner,data.lastMessage?.author);
     if(!colorAppName.keys.contains(data.channel?.nameApp??'')) {
       Color color = RandomHexColor().colorRandom(data.channel?.nameApp??'');
       colorAppName[data.channel?.nameApp??''] = color;
@@ -715,7 +723,8 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                                     (BuildContext context, AsyncSnapshot<String> snapshot) {
                                   if (snapshot.hasData) {
                                     final text = snapshot.data;
-                                    return ChatRoomWidget(content: text ?? "");
+                                    print(text.toString() + " aaa");
+                                        return ChatRoomWidget(content: text ?? "");
                                   }return Container();
                                 },
                               )),
@@ -782,7 +791,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
   String _checkContent(Rooms model) {
     if(!ChatConnection.isChatHub) {
       if((model.messagesReceived?.length ?? 0) == 0){
-        return (findAuthor(model.people,model.owner!.sId ?? '',isGroupOwner: true) ?? '') + AppLocalizations.text(LangKey.justCreatedRoom);
+        return (findAuthor(model.owner,model.owner!.sId ?? '',isGroupOwner: true) ?? '') + AppLocalizations.text(LangKey.justCreatedRoom);
       }
     }
     if(model.lastMessage?.type == 'image'){
@@ -823,11 +832,13 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
       }
     }
   }
-  String? findAuthor(List<People>? people, String? author,{bool isGroupOwner = false}) {
-    People? p;
+  String? findAuthor(Owner? people, String? author,{bool isGroupOwner = false}) {
+    Owner? p;
     try {
-      p = people?.firstWhere((element) => element.sId == author);
-      return (p!.sId != ChatConnection.user!.id ? ((p.firstName ?? '').trim() + ' ' + (p.lastName ?? '').trim()).trim() : AppLocalizations.text(LangKey.you)) + (isGroupOwner ? ' ' : ': ');
+      p = people;
+      print('${p!.sId != ChatConnection.user!.id ? ('${(p.firstName ?? '').trim()} ${(p.lastName ?? '').trim()}').trim() : AppLocalizations.text(LangKey.you)}: ');
+      return "${p!.sId != ChatConnection.user!.id ? ('${(p.firstName ?? '').trim()} ${(p.lastName ?? '').trim()}').trim() : AppLocalizations.text(LangKey.you)}: ";
+      // + (isGroupOwner ? ' ' : ': ');
     }catch(_){
       return '';
     }

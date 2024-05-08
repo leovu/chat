@@ -584,10 +584,10 @@ class Owner {
   String? lastOnline;
   int? iV;
   String? picture;
-  String? cpoCustomerCode;
-  int? cpoCustomerId;
-  String? customerCode;
-  String? customerId;
+  // String? cpoCustomerCode;
+  // int? cpoCustomerId;
+  // String? customerCode;
+  // String? customerId;
   String? createdAt;
   bool? isBlocked;
   int? isFollowed;
@@ -610,10 +610,10 @@ class Owner {
         this.lastOnline,
         this.iV,
         this.picture,
-        this.cpoCustomerCode,
-        this.cpoCustomerId,
-        this.customerCode,
-        this.customerId,
+        // this.cpoCustomerCode,
+        // this.cpoCustomerId,
+        // this.customerCode,
+        // this.customerId,
         this.createdAt,
         this.isBlocked,
         this.isFollowed,
@@ -641,10 +641,10 @@ class Owner {
     lastOnline = json['lastOnline'];
     iV = json['__v'];
     picture = json['picture'];
-    cpoCustomerCode = json['cpoCustomerCode'];
-    cpoCustomerId = json['cpoCustomerId'];
-    customerCode = json['customerCode'] ?? '';
-    customerId = json['customerId'] ?? '';
+    // cpoCustomerCode = json['cpoCustomerCode'];
+    // cpoCustomerId = json['cpoCustomerId'];
+    // customerCode = json['customerCode'] ?? '';
+    // customerId = json['customerId'] ?? '';
     createdAt = json['createdAt'];
     isBlocked = json['isBlocked'];
     isFollowed = json['isFollowed'];
@@ -676,10 +676,10 @@ class Owner {
     data['lastOnline'] = this.lastOnline;
     data['__v'] = this.iV;
     data['picture'] = this.picture;
-    data['cpoCustomerCode'] = this.cpoCustomerCode;
-    data['cpoCustomerId'] = this.cpoCustomerId;
-    data['customerCode'] = this.customerCode;
-    data['customerId'] = this.customerId;
+    // data['cpoCustomerCode'] = this.cpoCustomerCode;
+    // data['cpoCustomerId'] = this.cpoCustomerId;
+    // data['customerCode'] = this.customerCode;
+    // data['customerId'] = this.customerId;
     data['createdAt'] = this.createdAt;
     data['isBlocked'] = this.isBlocked;
     data['isFollowed'] = this.isFollowed;

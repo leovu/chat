@@ -6,9 +6,6 @@ import 'package:chat/data_model/notifications.dart' as n;
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/connection/socket.dart';
 import 'package:chat/data_model/contact.dart' as ct;
-import 'package:chat/data_model/request/create_note_request_model.dart';
-import 'package:chat/data_model/request/delete_note_request_model.dart';
-import 'package:chat/data_model/request/notes_request_model.dart';
 import 'package:chat/data_model/response/notes_response_model.dart';
 import 'package:chat/data_model/response/quota_response_model.dart';
 import 'package:chat/data_model/tag.dart';
@@ -114,7 +111,7 @@ class ChatConnection {
     }
     return null;
   }
-  static Future<r.Room?>roomList({String? source, String? channelId, String? status, List<String?>? tagIds, int page = 1}) async {
+  static Future<r.Room?>roomList({String? source, String? channelId, String? status, List<String?>? tagIds, int page = 1, r.Room? roomData}) async {
     /// thay đổi limit thành page, truyền page loadmore vô chỗ này + list truyền room ra
     Map<String,dynamic> json = {'page':page};
     if(source != null) json['source'] = source;
@@ -128,7 +125,12 @@ class ChatConnection {
       if(ChatConnection.isChatHub) {
         await notificationCount();
       }
-      return room;
+      if(page != 1){
+        if(roomData != null){
+          roomData.rooms!.addAll(room.rooms!);
+          return roomData;
+        }
+      } else return room;
     }
     return null;
   }
