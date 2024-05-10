@@ -1,20 +1,18 @@
 import 'package:chat/common/global.dart';
-import 'package:chat/common/shared_prefs/shared_prefs_key.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/material.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:chat/chat.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:chat/common/config.dart' as cf;
+import 'package:chat/common/shared_prefs/shared_prefs.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> main() async {
-  // cf.Config.getPreferences().then((_) async {
-  //   print('aaaaa');
-  //   String language = await Globals.prefs!.getString(SharedPrefsKey.language);
-  //   language ??= 'vi';
-  //   AppLocalizations.delegate.load(Locale(language));
-  // });
+  WidgetsFlutterBinding.ensureInitialized();
+  await SharedPreferences.getInstance().then((event) async {
+    Globals.prefs = SharedPrefs(event);
+  });
   runApp(const OverlaySupport.global(
     child: MaterialApp(
       supportedLocales: [Locale('en', 'US')],
@@ -146,7 +144,7 @@ class _MyAppState extends State<MyApp> {
                   /// An test
                   Chat.open(context,_userNameController.value.text, _passwordController.value.text, 'assets/icon-app.png',const Locale(LangKey.langVi, 'VN'),
                       domain: 'https://chathub.epoints.vn/',brandCode: 'sale',isChatHub: false,
-                      token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3dvcmtzcGFjZS5lcG9pbnRzLnZuL3YyL3VzZXIvbG9naW4iLCJpYXQiOjE3MTUxMzU0OTgsImV4cCI6MTcxNTE1NzA5OCwibmJmIjoxNzE1MTM1NDk4LCJqdGkiOiJUckp4ZWpFOGhWZjQxZHhIIiwic3ViIjoxNSwicHJ2IjoiYTBmM2U3NGJlZGY1MTJjNDc3ODI5N2RlNWY5MjA4NmRhZDM5Y2E5ZiIsInNpZCI6InRhbSIsImJyYW5kX2NvZGUiOiJzYWxlIn0.0G-1pnAcNZlzVoFi4PGzh1W7C3eeRuOA0T1t4YfUgXo");
+                      token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3dvcmtzcGFjZS5lcG9pbnRzLnZuL3YyL3VzZXIvbG9naW4iLCJpYXQiOjE3MTUzMDg3MDUsImV4cCI6MTcxNTMzMDMwNSwibmJmIjoxNzE1MzA4NzA1LCJqdGkiOiJFWlFHaThvR3o0RkZucGdtIiwic3ViIjoxNSwicHJ2IjoiYTBmM2U3NGJlZGY1MTJjNDc3ODI5N2RlNWY5MjA4NmRhZDM5Y2E5ZiIsInNpZCI6InRhbSIsImJyYW5kX2NvZGUiOiJzYWxlIn0.XAlvWAudGpctUCIiDMox6zj45hXodP3-_z8JMpdTNkk");
 
                   /// A Long Test
                   // Chat.open(context,_userNameController.value.text, _passwordController.value.text, 'assets/icon-app.png',const Locale(LangKey.langVi, 'VN'),

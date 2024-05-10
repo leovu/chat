@@ -3,6 +3,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/chat_ui/models/send_button_visibility_mode.dart';
 import 'package:chat/chat_ui/widgets/sticker.dart';
+import 'package:chat/common/assets.dart';
 import 'package:chat/common/custom_navigator.dart';
 import 'package:chat/common/theme.dart';
 import 'package:chat/connection/chat_connection.dart';
@@ -11,6 +12,7 @@ import 'package:chat/data_model/room.dart';
 import 'package:chat/draft.dart';
 import 'package:chat/localization/check_tag.dart';
 import 'package:chat/presentation/chat_module/bloc/chat_bloc.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:rich_text_controller/rich_text_controller.dart';
 import 'package:chat/chat_ui/widgets/inherited_replied_message.dart';
 import 'package:chat/chat_ui/widgets/remove_edit_button.dart';
@@ -601,7 +603,7 @@ class _InputState extends State<Input> {
             decoration: BoxDecoration(
                 color: AppColors.white,
                 borderRadius: new BorderRadius.all(Radius.circular(5))),
-            height: 210,
+            height: MediaQuery.of(context).size.height * 0.5,
             width: MediaQuery.of(context).size.width,
             padding: EdgeInsets.symmetric(vertical: 16, horizontal: 27),
             child: Row(
@@ -649,10 +651,11 @@ class _InputState extends State<Input> {
               style: TextStyle(fontSize: 10.0),
             ),
           ),
-          Expanded(child: Container()),
-          // Container(
-          //   child: Image.asset(type == "rating" ? 'Assets/image_rating_message.png' : 'Assets/image_promotion_message/png'),
-          // ),
+          Expanded(
+            child: Container(
+              margin: EdgeInsets.symmetric(vertical: 10.0),
+                child: Image.asset(type == "rating" ? Assets.imageRatingMessage : Assets.imagePromotionMessage, package: 'chat', fit: BoxFit.fill,)),
+          ),
           InkWell(
             onTap: (){
               CustomNavigator.showCustomAlertDialog(context, null,

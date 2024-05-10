@@ -104,6 +104,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
         }
       });
     }
+    if(page != 1) setState(() {_currentPage++;});
   }
 
   _getRoomVisible() {
@@ -219,7 +220,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                                                 Navigator.of(context, rootNavigator: true).pop();
                                                 RestartWidget.restartApp(context);
                                                 AppLocalizations.delegate.load(Locale("en"));
-                                                // Globals.prefs!.setString(SharedPrefsKey.language, 'en');
+                                                await Globals.prefs!.setString(SharedPrefsKey.language, 'en');
                                               },
                                               child: Container(
                                                 height: 40.0,
@@ -229,7 +230,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                                                         margin: EdgeInsets.only(right: 10.0),
                                                         height: 30.0,
                                                         width: 30.0,
-                                                        child: Image.asset(Assets.iconUK),
+                                                        child: Image.asset(Assets.iconUK, package: 'chat',),
                                                       ),
                                                       Expanded(
                                                         child: Container(
@@ -250,9 +251,10 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                                                 Navigator.of(context, rootNavigator: true).pop();
                                                 RestartWidget.restartApp(context);
                                                 AppLocalizations.delegate.load(Locale("vi"));
-                                                // Globals.prefs!.setString(SharedPrefsKey.language, 'vi');
+                                                await Globals.prefs!.setString(SharedPrefsKey.language, 'vi');
                                               },
                                               child: Container(
+                                                  margin: EdgeInsets.only(top: 10.0),
                                                   height: 40.0,
                                                   child: Row(
                                                     children: <Widget>[
@@ -260,7 +262,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                                                         margin: EdgeInsets.only(right: 10.0),
                                                         height: 30.0,
                                                         width: 30.0,
-                                                        child: Image.asset(Assets.iconViet),
+                                                        child: Image.asset(Assets.iconViet, package: 'chat',),
                                                       ),
                                                       Expanded(
                                                         child: Container(
@@ -723,7 +725,6 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                                     (BuildContext context, AsyncSnapshot<String> snapshot) {
                                   if (snapshot.hasData) {
                                     final text = snapshot.data;
-                                    print(text.toString() + " aaa");
                                         return ChatRoomWidget(content: text ?? "");
                                   }return Container();
                                 },
@@ -836,7 +837,6 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
     Owner? p;
     try {
       p = people;
-      print('${p!.sId != ChatConnection.user!.id ? ('${(p.firstName ?? '').trim()} ${(p.lastName ?? '').trim()}').trim() : AppLocalizations.text(LangKey.you)}: ');
       return "${p!.sId != ChatConnection.user!.id ? ('${(p.firstName ?? '').trim()} ${(p.lastName ?? '').trim()}').trim() : AppLocalizations.text(LangKey.you)}: ";
       // + (isGroupOwner ? ' ' : ': ');
     }catch(_){
@@ -845,35 +845,4 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
   }
   @override
   bool get wantKeepAlive => true;
-}
-
-class RestartWidget extends StatefulWidget {
-  RestartWidget({required this.child});
-
-  final Widget child;
-
-  static void restartApp(BuildContext context) {
-    context.findAncestorStateOfType<_RestartWidgetState>()?.restartApp();
-  }
-
-  @override
-  _RestartWidgetState createState() => _RestartWidgetState();
-}
-
-class _RestartWidgetState extends State<RestartWidget> {
-  Key key = UniqueKey();
-
-  void restartApp() {
-    setState(() {
-      key = UniqueKey();
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return KeyedSubtree(
-      key: key,
-      child: widget.child,
-    );
-  }
 }

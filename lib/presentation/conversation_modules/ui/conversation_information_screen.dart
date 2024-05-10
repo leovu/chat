@@ -828,10 +828,10 @@ class _ConversationInformationScreenState
           ),
           Container(margin: EdgeInsets.symmetric(vertical: AppSizes.minPadding), child: CustomLine()),
           Container(height: 20.0,),
-          CustomRowInformation(title: widget.roomData.source == facebookConst ? 'PSI' : 'UID', content:  widget.roomData.owner!.userSocialId, ),
+          CustomRowInformation(title: widget.roomData.source == facebookConst ? 'PSI' : 'UID', content:  widget.roomData.owner!.userSocialId, contentStyle: AppTextStyles.style13BlackWeight400.copyWith(color: AppColors.primaryColor),),
           CustomRowInformation(title: widget.roomData.source == facebookConst ? 'Fanpage' : 'OA', content: widget.roomData.channel!.nameApp,),
           CustomRowInformation(title: widget.roomData.source == facebookConst ? 'Link Fanpage' : 'Link OA', content: widget.roomData.source == facebookConst
-              ? '$httpFacebook${widget.roomData.channel!.socialChanelId}' : '$httpOA${widget.roomData.channel!.socialChanelId}',),
+              ? '$httpFacebook${widget.roomData.channel!.socialChanelId}' : '$httpOA${widget.roomData.channel!.socialChanelId}', contentStyle: AppTextStyles.style13BlackWeight400.copyWith(color: AppColors.primaryColor),),
           widget.roomData.source == zaloConst ? CustomRowInformation(title: AppLocalizations.text(LangKey.status),
             content: widget.roomData.owner!.isFollowed == 1 ? AppLocalizations.text(LangKey.follow_oa) : AppLocalizations.text(LangKey.not_follow_oa),) : Container(),
           CustomRowInformation(title: AppLocalizations.text(LangKey.createDate), content: widget.roomData.createdAt,),
