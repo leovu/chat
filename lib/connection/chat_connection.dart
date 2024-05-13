@@ -6,6 +6,7 @@ import 'package:chat/data_model/notifications.dart' as n;
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/connection/socket.dart';
 import 'package:chat/data_model/contact.dart' as ct;
+import 'package:chat/data_model/response/check_user_token_response_model.dart';
 import 'package:chat/data_model/response/notes_response_model.dart';
 import 'package:chat/data_model/response/quota_response_model.dart';
 import 'package:chat/data_model/tag.dart';
@@ -33,6 +34,7 @@ class ChatConnection {
   static String? roomId;
   static bool isChatHub = false;
   static User? user;
+  static CheckUserTokenResponseModel? checkUserTokenResponseModel;
   static String? brandCode;
   static late BuildContext buildContext;
   static List<Map<String,dynamic>>? addOnModules;
@@ -273,7 +275,7 @@ class ChatConnection {
     if(reppliedMessageId != null) {
       json['replies'] = reppliedMessageId;
     }
-    ResponseData responseData = await connection.post(ChatConnection.isChatHub ? 'api/v2/message' : 'api/message', json);
+    ResponseData responseData = await connection.post('api/v2/message', json);
     if(responseData.isSuccess) {
       streamSocket.sendMessage(message, room);
       types.Message val = listMessage.firstWhere((element) => element.id == id);
@@ -522,6 +524,16 @@ class ChatConnection {
     ResponseData responseData = await connection.post('api/v2/message-system', {'action': 'message', 'authorID': authorID, 'content' : 'Đã gửi tin tương tác: Tin đánh giá',
     'roomID' : roomID, 'type' : 'system'});
     return responseData.isSuccess;
+  }
+
+  /// CHECK USER TOKEN
+  static Future<bool>checkUserToken() async {
+    ResponseData responseData = await connection.post('api/check-user-token', {'token': ChatConnection.user!.token});
+    if(responseData.isSuccess) {
+      ChatConnection.checkUserTokenResponseModel = CheckUserTokenResponseModel.fromJson(responseData.data);
+      return responseData.isSuccess;
+    }
+    return false;
   }
 
 

@@ -119,7 +119,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         });
       }
       if(message.type.name == 'text') {
-        note = await ChatConnection.sendChat(data,_messages,id,text,data?.room,ChatConnection.user!.id,reppliedMessageId: repliedMessageId);
+        note = await ChatConnection.sendChat(data,_messages,id,text,data?.room,ChatConnection.checkUserTokenResponseModel?.user?.sId ?? '',reppliedMessageId: repliedMessageId);
         if(mounted) {
           setState(() {});
         }

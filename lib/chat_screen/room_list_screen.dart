@@ -58,6 +58,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
   void initState() {
     super.initState();
     _getRooms();
+    checkUserToken();
     _listViewController = ScrollController()..addListener(_scrollListener);
   }
   final RefreshController _refreshController = RefreshController(initialRefresh: false);
@@ -79,6 +80,11 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
     await _getRooms();
     _refreshController.loadComplete();
   }
+
+  checkUserToken(){
+     ChatConnection.checkUserToken();
+  }
+
   _getRooms({int page = 1}) async {
     if(mounted) {
       roomListData = await ChatConnection.roomList(source: widget.source,channelId: channel,status: status, tagIds: tagIds, page: page, roomData: roomListData);
@@ -789,12 +795,13 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
       return content;
     }
   }
+  /// DEV
   String _checkContent(Rooms model) {
-    if(!ChatConnection.isChatHub) {
-      if((model.messagesReceived?.length ?? 0) == 0){
-        return (findAuthor(model.owner,model.owner!.sId ?? '',isGroupOwner: true) ?? '') + AppLocalizations.text(LangKey.justCreatedRoom);
-      }
-    }
+    // if(!ChatConnection.isChatHub) {
+    //   if((model.messagesReceived?.length ?? 0) == 0){
+    //     return (findAuthor(model.owner,model.owner!.sId ?? '',isGroupOwner: true) ?? '') + AppLocalizations.text(LangKey.justCreatedRoom);
+    //   }
+    // }
     if(model.lastMessage?.type == 'image'){
       return AppLocalizations.text(LangKey.sentPicture);
     }
