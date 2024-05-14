@@ -8,7 +8,9 @@ class QuotaResponseModel {
   QuotaResponseModel({this.canSend});
 
   QuotaResponseModel.fromJson(Map<String, dynamic> json) {
-    canSend = json['data']['can_send'];
+    try{
+      canSend = json['data']['can_send'];
+    } catch(e){}
   }
 
   Map<String, dynamic> toJson() {

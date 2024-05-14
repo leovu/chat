@@ -324,8 +324,7 @@ class Message extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final _query = MediaQuery.of(context);
-    final _user = InheritedUser.of(context).user;
-    final _currentUserIsAuthor = _user.id == message.author.id;
+    final _currentUserIsAuthor = ChatConnection.checkUserTokenResponseModel!.user!.sId == message.author.id;
     var _enlargeEmojis =
         emojiEnlargementBehavior != EmojiEnlargementBehavior.never &&
             message is types.TextMessage &&
