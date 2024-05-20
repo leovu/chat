@@ -73,6 +73,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
     await Future.delayed(const Duration(milliseconds: 1000));
     await _getRooms();
     _refreshController.refreshCompleted();
+    setState(() {_currentPage = 1;});
   }
 
   void _onLoading() async{
