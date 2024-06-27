@@ -67,6 +67,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     super.initState();
     _bloc = ChatBloc();
     ChatConnection.chatScreenNotificationHandler = _notificationHandler;
+    ChatConnection.chatHubScreenNotificationHandler = _notificationToChatHubRoomHandler;
     _getTagList();
     _loadMessages();
     ChatConnection.listenChat(_refreshMessage);
@@ -787,6 +788,27 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         await _loadMessages();
       }
       else {
+        r.Room? room = await ChatConnection.roomList();
+        r.Rooms? rooms = room?.rooms?.firstWhere((element) => element.sId == message['room']['_id']);
+        Navigator.of(context).popUntil((route) => route.settings.name == "home_screen");
+        Navigator.of(context,rootNavigator: true).push(MaterialPageRoute(builder: (context) => ChatScreen(data: rooms!,source: rooms.source),settings:const RouteSettings(name: 'chat_screen')),);
+        try{
+          ChatConnection.refreshRoom.call();
+          ChatConnection.refreshContact.call();
+          ChatConnection.refreshFavorites.call();
+        }catch(_){
+        }
+      }
+    }catch(_){
+    }
+  }
+  Future<dynamic> _notificationToChatHubRoomHandler(Map<String, dynamic> message) async {
+    try{
+      if(ChatConnection.roomId == message['room']['_id']) {
+        await _loadMessages();
+      }
+      else {
+        ChatConnection.isChatHub = true;
         r.Room? room = await ChatConnection.roomList();
         r.Rooms? rooms = room?.rooms?.firstWhere((element) => element.sId == message['room']['_id']);
         Navigator.of(context).popUntil((route) => route.settings.name == "home_screen");

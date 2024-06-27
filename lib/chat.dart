@@ -109,9 +109,15 @@ class Chat {
         ChatConnection.homeScreenNotificationHandler(notificationData);
       }
       else {
-        
         ChatConnection.chatScreenNotificationHandler(notificationData);
       }
+    }catch(_){}
+  }
+
+  static openNotificationToChatHubScreen(Map<String, dynamic> notificationData) {
+    ChatConnection.notificationList();
+    try{
+      ChatConnection.chatHubScreenNotificationHandler(notificationData);
     }catch(_){}
   }
 
