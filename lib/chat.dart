@@ -5,10 +5,12 @@ import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
+import 'package:chat/presentation/chat_module/ui/chat_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter/material.dart';
+import 'package:chat/data_model/room.dart' as r;
 
 class Chat {
   static const MethodChannel _channel = MethodChannel('chat');
@@ -47,6 +49,8 @@ class Chat {
         Function? viewProfileChatHub,
         Function? editCustomerLead,
         Function? openChatGPT,
+        bool pushToChatScreen = false,
+        String? roomId,
       }) async {
     showLoading(context);
     await initializeDateFormatting();
@@ -79,12 +83,29 @@ class Chat {
     bool result = await connectSocket(context,email,password,appIcon,domain:domain,token: token);
     Navigator.of(context).pop();
     if(result) {
-      await Navigator.of(context,rootNavigator: true).push(
-          MaterialPageRoute(builder: (context) => AppChat(email: email,password: password),settings: const RouteSettings(name: 'home_screen')));
-      ChatConnection.dispose(isDispose: true);
+      if(pushToChatScreen) {
+        openChatHubScreen(context, notificationData, email, password);
+      } else {
+        await Navigator.of(context,rootNavigator: true).push(
+            MaterialPageRoute(builder: (context) => AppChat(email: email,password: password),settings: const RouteSettings(name: 'home_screen')));
+        ChatConnection.dispose(isDispose: true);
+      }
     }else {
       loginError(context);
     }
+  }
+
+  static openChatHubScreen(BuildContext context, Map<String, dynamic>? notificationData, String email, String password) async {
+    if(notificationData != null) {
+      ChatConnection.isChatHub = true;
+      String roomId = notificationData['room']['_id'];
+      r.Room? room = await ChatConnection.roomList();
+      r.Rooms? rooms = room?.rooms?.firstWhere((element) => element.sId == roomId);
+      await Navigator.of(context,rootNavigator: true).push(MaterialPageRoute(builder: (context) => ChatScreen(data: rooms!,source: rooms.source),settings:const RouteSettings(name: 'chat_screen')),);
+      Navigator.of(context,rootNavigator: true).push(
+          MaterialPageRoute(builder: (context) => AppChat(email: email,password: password),settings: const RouteSettings(name: 'home_screen')));
+    } else Navigator.of(context,rootNavigator: true).push(
+        MaterialPageRoute(builder: (context) => AppChat(email: email,password: password),settings: const RouteSettings(name: 'home_screen')));
   }
   static Future showLoading(BuildContext context) async {
     return await showDialog(
@@ -111,13 +132,6 @@ class Chat {
       else {
         ChatConnection.chatScreenNotificationHandler(notificationData);
       }
-    }catch(_){}
-  }
-
-  static openNotificationToChatHubScreen(Map<String, dynamic> notificationData) {
-    ChatConnection.notificationList();
-    try{
-      ChatConnection.chatHubScreenNotificationHandler(notificationData);
     }catch(_){}
   }
 
