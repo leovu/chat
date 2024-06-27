@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:chat/chat_screen/chat_screen.dart';
+import 'package:chat/presentation/chat_module/ui/chat_screen.dart';
 import 'package:chat/chat_screen/home_screen.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';

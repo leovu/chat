@@ -1,8 +1,11 @@
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:chat/chat_screen/action_list_user_chathub_screen.dart';
+import 'package:chat/presentation/conversation_modules/bloc/conversation_bloc.dart';
 import 'package:chat/chat_screen/chat_group_members_screen.dart';
 import 'package:chat/chat_screen/conversation_file_screen.dart';
+import 'package:chat/common/constant.dart';
+import 'package:chat/common/theme.dart';
+import 'package:chat/common/widges/widget.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/data_model/chat_message.dart' as c;
@@ -11,6 +14,8 @@ import 'package:chat/data_model/room.dart' as r;
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
+import 'package:chat/presentation/conversation_modules/ui/list_note_component.dart';
+import 'package:chat/presentation/note_modules/ui/create_note_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -33,17 +38,22 @@ class _ConversationInformationScreenState
   bool isInitScreen = true;
   CustomerAccount? customerAccount;
   List<CustomerAccount?>? customerAccountSearch;
+  bool expandedSocialInfo = false;
+  late ConversationBloc _bloc;
 
   @override
   void initState() {
     super.initState();
+    _bloc = ConversationBloc();
     _loadAccount();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      _bloc.getNotes(widget.roomData.sId!);
+    });
   }
 
   void _loadAccount() async {
     if(ChatConnection.isChatHub) {
-      r.People info = getPeople(widget.roomData.people);
-      customerAccount = await ChatConnection.detect(info.sId??'');
+      customerAccount = await ChatConnection.detect(widget.roomData.sId??'');
     }
     isInitScreen = false;
     setState(() {});
@@ -51,7 +61,6 @@ class _ConversationInformationScreenState
 
   @override
   Widget build(BuildContext context) {
-    r.People info = getPeople(widget.roomData.people);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -91,8 +100,8 @@ class _ConversationInformationScreenState
                   InkWell(
                     onTap: () async {
                       showLoading();
-                      r.People info = getPeople(widget.roomData.people);
-                      await ChatConnection.customerUnlink(info.sId??'',
+                      // r.People info = getPeople(widget.roomData.people);
+                      await ChatConnection.customerUnlink(widget.roomData.sId??'',
                           customerAccount?.data?.customerId, customerAccount?.data?.customerLeadId);
                       Navigator.of(context).pop();
                       isShowListSearch = false;
@@ -127,19 +136,19 @@ class _ConversationInformationScreenState
                   child: !widget.roomData.isGroup!
                       ?
                     customerAccount?.data?.type != null? _buildAvatar(
-                        customerAccount?.data?.fullName != null ? customerAccount!.data!.getName() : info.getName(),
-                        customerAccount?.data?.fullName != null ? customerAccount!.data!.getAvatarName(): info.getAvatarName(),
-                        info.picture == null
+                        customerAccount?.data?.fullName != null ? customerAccount!.data!.getName() : widget.roomData.owner!.getName(),
+                        customerAccount?.data?.fullName != null ? customerAccount!.data!.getAvatarName(): widget.roomData.owner!.getAvatarName(),
+                        widget.roomData.picture == null
                             ? null
-                            : '${HTTPConnection.domain}api/images/${info.picture!.shieldedID}/256', onTap: () {
+                            : '${HTTPConnection.domain}api/images/${widget.roomData.shieldedID}/256', onTap: () {
                       editName();
                     }) :
                   _buildAvatar(
-                    customerAccount?.data?.fullName != null ? customerAccount!.data!.getName() : info.getName(),
-                    customerAccount?.data?.fullName != null ? customerAccount!.data!.getAvatarName(): info.getAvatarName(),
-                          info.picture == null
+                    customerAccount?.data?.fullName != null ? customerAccount!.data!.getName() : widget.roomData.owner!.getName(),
+                    customerAccount?.data?.fullName != null ? customerAccount!.data!.getAvatarName(): widget.roomData.owner!.getAvatarName(),
+                      widget.roomData.picture == null
                               ? null
-                              : '${HTTPConnection.domain}api/images/${info.picture!.shieldedID}/256')
+                              : '${HTTPConnection.domain}api/images/${widget.roomData.picture!.shieldedID}/256')
                       : _buildAvatar(
                           widget.roomData.title ?? "",
                           widget.roomData.getAvatarGroupName(),
@@ -427,8 +436,8 @@ class _ConversationInformationScreenState
                     InkWell(
                       onTap: () async {
                         showLoading();
-                        r.People info = getPeople(widget.roomData.people);
-                        await ChatConnection.customerLink(info.sId??'',
+                        // r.People info = getPeople(widget.roomData.people);
+                        await ChatConnection.customerLink(widget.roomData.sId??'',
                             e?.data?.customerId, e?.data?.customerLeadId,
                             e?.data?.type??'',
                             customerAccount?.data?.mappingId??'');
@@ -527,14 +536,16 @@ class _ConversationInformationScreenState
         Container(height: 10.0,),
         InkWell(
           onTap: () async {
-            r.People info = getPeople(widget.roomData.people);
+            // r.People info = getPeople(widget.roomData.people);
             Map<String,dynamic>? result = await Navigator.of(context).push(MaterialPageRoute(builder: (ctx) {
-              return ActionListUserChathubScreen(data: info, customerAccount: customerAccount);
+              return Container();
+              /// TEST ẩn tạm để test
+              // return ActionListUserChathubScreen(data: info, customerAccount: customerAccount);
             }));
             if(result != null) {
               showLoading();
-              r.People info = getPeople(widget.roomData.people);
-              await ChatConnection.customerLink(info.sId??'',
+              // r.People info = getPeople(widget.roomData.people);
+              await ChatConnection.customerLink(widget.roomData.sId??'',
                   result['customerId'], result['customerLeadId'],
                   result['type'],
                   customerAccount?.data?.mappingId??'');
@@ -663,6 +674,22 @@ class _ConversationInformationScreenState
                   chatMessage: widget.chatMessage,
                 )));
           }),
+          /// NOTE
+          _section(
+              const Icon(
+                Icons.note_add,
+                color: Color(0xff5686E1),
+                size: 35,
+              ),
+              AppLocalizations.text(LangKey.create_note), () async {
+            await Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => CreateNoteScreen(
+                  roomData: widget.roomData,
+                  chatMessage: widget.chatMessage,
+                )));
+            _bloc.getNotes(widget.roomData.sId!);
+          }),
+          ListNoteComponent(_bloc, ()=> _bloc.getNotes(widget.roomData.sId!), widget.roomData),
           if (widget.roomData.isGroup!)
             Padding(
               padding: const EdgeInsets.only(
@@ -706,14 +733,16 @@ class _ConversationInformationScreenState
           if (!widget.roomData.isGroup! ||
               (widget.roomData.owner == ChatConnection.user!.id &&
                   widget.roomData.isGroup!))
-            Padding(
-              padding: const EdgeInsets.only(
-                  left: 50.0, right: 50.0, top: 13.0),
-              child: Container(
-                height: 1.0,
-                color: const Color(0xFFE5E5E5),
-              ),
-            ),
+            // Padding(
+            //   padding: const EdgeInsets.only(
+            //       left: 50.0, right: 50.0, top: 13.0),
+            //   child: Container(
+            //     height: 1.0,
+            //     color: const Color(0xFFE5E5E5),
+            //   ),
+            // ),
+          /// CHƯA CHECK ĐIỀU KIỆN HIỂN THỊ
+          socialInformation(),
           if (!widget.roomData.isGroup! ||
               (widget.roomData.owner == ChatConnection.user!.id &&
                   widget.roomData.isGroup!))
@@ -731,6 +760,88 @@ class _ConversationInformationScreenState
       ),
     );
   }
+
+  /// DEV
+  Widget socialInformation(){
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 10.0),
+      padding: EdgeInsets.symmetric(horizontal: 20.0),
+      width: MediaQuery.of(context).size.width,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          InkWell(
+            onTap: ()=> setState(() {
+              expandedSocialInfo = !expandedSocialInfo;
+            }),
+            child: Container(
+              height: 50.0,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Text(
+                      AppLocalizations.text(LangKey.socialInformation),
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(right: 10.0),
+                    height: 50.0,
+                    width: AppSizes.iconSize,
+                    child: Icon(expandedSocialInfo ? Icons.arrow_drop_up : Icons.arrow_drop_down),
+                  )
+                ],
+              ),
+            ),
+          ),
+          CustomLine(),
+          expandedSocialInfo ? socialInfoTable() : Container()
+        ],
+      ),
+    );
+  }
+
+  Widget socialInfoTable(){
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 10.0),
+      margin: EdgeInsets.symmetric(vertical: AppSizes.maxPadding),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10.0),
+        border: Border.all(color: AppColors.lineColor)
+      ),
+      child: Column(
+        children: [
+          Container(
+            height: 70.0,
+            padding: EdgeInsets.all(AppSizes.maxPadding),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(height: 50.0, width: 50.0, margin: EdgeInsets.only(left: AppSizes.minPadding), padding: EdgeInsets.all(AppSizes.minPadding) , child: CommonAvatar(widget.roomData)),
+                Container(width: 10.0,),
+                Expanded(child: Text(widget.roomData.owner!.getName()))
+              ],
+            ),
+          ),
+          Container(margin: EdgeInsets.symmetric(vertical: AppSizes.minPadding), child: CustomLine()),
+          Container(height: 20.0,),
+          CustomRowInformation(title: widget.roomData.source == facebookConst ? 'PSI' : 'UID', content:  widget.roomData.owner!.userSocialId, contentStyle: AppTextStyles.style13BlackWeight400.copyWith(color: AppColors.primaryColor),),
+          CustomRowInformation(title: widget.roomData.source == facebookConst ? 'Fanpage' : 'OA', content: widget.roomData.channel!.nameApp,),
+          CustomRowInformation(title: widget.roomData.source == facebookConst ? 'Link Fanpage' : 'Link OA', content: widget.roomData.source == facebookConst
+              ? '$httpFacebook${widget.roomData.channel!.socialChanelId}' : '$httpOA${widget.roomData.channel!.socialChanelId}', contentStyle: AppTextStyles.style13BlackWeight400.copyWith(color: AppColors.primaryColor),),
+          widget.roomData.source == zaloConst ? CustomRowInformation(title: AppLocalizations.text(LangKey.status),
+            content: widget.roomData.owner!.isFollowed == 1 ? AppLocalizations.text(LangKey.follow_oa) : AppLocalizations.text(LangKey.not_follow_oa),) : Container(),
+          CustomRowInformation(title: AppLocalizations.text(LangKey.createDate), content: widget.roomData.createdAt,),
+          Container(height: 10.0,),
+        ],
+      ),
+    );
+  }
+
+
 
   void errorDialog({String? content}) {
     showDialog(
@@ -822,31 +933,41 @@ class _ConversationInformationScreenState
         onTap: () {
           function();
         },
-        child: Row(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 23.0, right: 10),
-              child: icon,
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: AutoSizeText(
-                  name,
-                  maxLines: 1,
-                  textScaleFactor: 1.2,
-                  style: TextStyle(color: textColor ?? Colors.black),
+            Row(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 10.0, right: 10),
+                  child: icon,
                 ),
-              ),
-            ),
-            if (textColor == null)
-              const Padding(
-                padding: EdgeInsets.only(left: 5.0, right: 23.0),
-                child: Icon(
-                  Icons.navigate_next_outlined,
-                  color: Color(0xFFE5E5E5),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: AutoSizeText(
+                      name,
+                      maxLines: 1,
+                      textScaleFactor: 1.2,
+                      style: TextStyle(color: textColor ?? Colors.black),
+                    ),
+                  ),
                 ),
-              ),
+                if (textColor == null)
+                  const Padding(
+                    padding: EdgeInsets.only(left: 5.0, right: 10.0),
+                    child: Icon(
+                      Icons.navigate_next_outlined,
+                      color: Color(0xFFE5E5E5),
+                    ),
+                  ),
+              ],
+            ),
+            Container(
+              margin: EdgeInsets.only(left: 20.0, right: 20.0, top: 10.0),
+              child: CustomLine(),
+            )
           ],
         ),
       ),
@@ -992,3 +1113,4 @@ class _ConversationInformationScreenState
     );
   }
 }
+

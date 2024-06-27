@@ -1,5 +1,7 @@
 import 'dart:convert';
-import 'package:chat/chat_screen/chat_screen.dart';
+import 'package:chat/common/global.dart';
+import 'package:chat/common/shared_prefs/shared_prefs_key.dart';
+import 'package:chat/presentation/chat_module/ui/chat_screen.dart';
 import 'package:chat/chat_screen/chathub_room_list_screen.dart';
 import 'package:chat/chat_screen/contacts_screen.dart';
 import 'package:chat/chat_screen/create_group_screen.dart';
@@ -27,6 +29,12 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    /// SET LANGUAGE
+    try{
+      AppLocalizations.delegate.load(Locale(Globals.prefs!.getString(SharedPrefsKey.language)));
+    } catch (e){
+      AppLocalizations.delegate.load(Locale('vi'));
+    }
     ChatConnection.homeScreenNotificationHandler = _notificationHandler;
     ChatConnection.listenChat(_getRooms);
     ChatConnection.notificationList();
@@ -217,5 +225,36 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
       ChatConnection.refreshContact.call();
       ChatConnection.refreshFavorites.call();
     }catch(_){}
+  }
+}
+
+class RestartWidget extends StatefulWidget {
+  RestartWidget({required this.child});
+
+  final Widget child;
+
+  static void restartApp(BuildContext context) {
+    context.findAncestorStateOfType<_RestartWidgetState>()?.restartApp();
+  }
+
+  @override
+  _RestartWidgetState createState() => _RestartWidgetState();
+}
+
+class _RestartWidgetState extends State<RestartWidget> {
+  Key key = UniqueKey();
+
+  void restartApp() {
+    setState(() {
+      key = UniqueKey();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return KeyedSubtree(
+      key: key,
+      child: widget.child,
+    );
   }
 }

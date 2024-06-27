@@ -28,31 +28,34 @@ dependencies:
   visibility_detector: ^0.4.0+2
   adaptive_dialog: ^1.5.0+1
   socket_io_client: ^1.0.2
-  cached_network_image: ^3.2.1
+  cached_network_image: 3.3.1
   jwt_decode: ^0.3.1
   auto_size_text: ^3.0.0
   overlay_support: ^2.0.1
   email_validator: ^2.0.1
   pull_to_refresh: ^2.0.0
   flutter_beep: ^1.0.0
-  flutter_slidable: ^3.0.0
+  flutter_slidable: ^3.1.0
   emoji_picker_flutter: ^1.6.1
   scrollable_positioned_list: ^0.3.2
   swipeable_tile: ^2.0.0+3
   flutter_file_dialog: ^3.0.1
   dio: ^5.3.0
-  audioplayers: ^6.0.0
+  audioplayers: 6.0.0
   rich_text_controller: ^1.4.0
   badges: ^3.1.1
   url_launcher: ^6.1.2
   gallery_saver: ^2.3.2
   shared_preferences: ^2.0.15
   flex_color_picker: ^3.0.2
+  rxdart: ^0.27.7
+  keyboard_actions: ^4.2.0
   permission:
     git:
       url: https://github.com/leovu/permission.git
       ref: 1.0.6
-
+dependency_overrides:
+  flutter_blurhash: ^0.8.2
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -80,42 +83,10 @@ flutter:
   # To add assets to your plugin package, add an assets section, like this:
   assets:
     - assets/meme/panda/
+    - assets/
     - assets/meme/usagyuun/
     - assets/meme/mimicat/
     - assets/messages.json
-    - assets/icon-chat-gpt.png
-    - assets/icon-rabbit.png
-    - assets/icon-panda.png
-    - assets/icon-cat.png
-    - assets/icon-attachment.png
-    - assets/icon-edit.png
-    - assets/icon-camera.png
-    - assets/icon-emoji.png
-    - assets/icon-chat-add.png
-    - assets/icon-delivered.png
-    - assets/icon-document.png
-    - assets/icon-error.png
-    - assets/icon-seen.png
-    - assets/icon-send.png
-    - assets/icon-reply.png
-    - assets/icon-facebook.png
-    - assets/icon-zalo.png
-    - assets/icon-facebook-main.png
-    - assets/icon-chathub-main.png
-    - assets/icon-crown.png
-    - assets/icon-star.png
-    - assets/2.0x/icon-attachment.png
-    - assets/2.0x/icon-delivered.png
-    - assets/2.0x/icon-document.png
-    - assets/2.0x/icon-error.png
-    - assets/2.0x/icon-seen.png
-    - assets/2.0x/icon-send.png
-    - assets/3.0x/icon-attachment.png
-    - assets/3.0x/icon-delivered.png
-    - assets/3.0x/icon-document.png
-    - assets/3.0x/icon-error.png
-    - assets/3.0x/icon-seen.png
-    - assets/3.0x/icon-send.png
     - assets/chat_en.json
     - assets/chat_vi.json
   #

@@ -3,11 +3,16 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/chat_ui/models/send_button_visibility_mode.dart';
 import 'package:chat/chat_ui/widgets/sticker.dart';
+import 'package:chat/common/assets.dart';
+import 'package:chat/common/custom_navigator.dart';
+import 'package:chat/common/theme.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/data_model/room.dart';
 import 'package:chat/draft.dart';
 import 'package:chat/localization/check_tag.dart';
+import 'package:chat/presentation/chat_module/bloc/chat_bloc.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:rich_text_controller/rich_text_controller.dart';
 import 'package:chat/chat_ui/widgets/inherited_replied_message.dart';
 import 'package:chat/chat_ui/widgets/remove_edit_button.dart';
@@ -45,6 +50,7 @@ class Input extends StatefulWidget {
     this.onTextChanged,
     this.onTextFieldTap,
     this.repliedMessage,
+    required this.canSend,
     required this.sendButtonVisibilityMode,
     required this.builder,
     required this.onCancelReplyPressed,
@@ -54,8 +60,11 @@ class Input extends StatefulWidget {
     required this.onStickerPressed,
     required this.onMessageTap,
     required this.isVisible,
+    required this.roomData
   }) : super(key: key);
 
+  final Rooms roomData;
+  final bool canSend;
   final ChatEmojiBuilder builder;
   final InputBuilder inputBuilder;
   /// See [AttachmentButton.onPressed]
@@ -115,10 +124,12 @@ class _InputState extends State<Input> {
   types.TextMessage? editContent;
   List<People>? _taggingSuggestList;
   List<String> _idTagList = [];
+  late ChatBloc _bloc;
 
   @override
   void initState() {
     super.initState();
+    _bloc = ChatBloc();
     String regex = '';
     if(widget.people != null) {
       regex = "r'@\b|";
@@ -307,7 +318,7 @@ class _InputState extends State<Input> {
             _query.padding.right,
             (_query.viewInsets.bottom + _query.padding.bottom) * 0.4,
           );
-    return Focus(
+    return widget.canSend ? Focus(
       autofocus: true,
       child: Padding(
         padding: InheritedChatTheme.of(context).theme.inputMargin,
@@ -579,8 +590,131 @@ class _InputState extends State<Input> {
           ),
         ),
       ),
+    ) :  sendInteractionMessage();
+  }
+
+  popUpSendInteractionMessage(BuildContext buildContext){
+    return showDialog(context: buildContext, builder: (buildContext) {
+      return AlertDialog(
+        contentPadding: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(5.0))),
+        content: Container(
+            decoration: BoxDecoration(
+                color: AppColors.white,
+                borderRadius: new BorderRadius.all(Radius.circular(5))),
+            height: MediaQuery.of(context).size.height * 0.5,
+            width: MediaQuery.of(context).size.width,
+            padding: EdgeInsets.symmetric(vertical: 16, horizontal: 27),
+            child: Row(
+              children: [
+                messageItem('rating'),
+                Container(width: 10.0,),
+                messageItem('promotion'),
+              ],
+            )),
+      );
+    });
+  }
+
+  Widget messageItem(String type){
+    return Expanded(child: Container(
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8.0),
+          color: AppColors.grayBackGround
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+            child: Text(
+              type == "rating" ? AppLocalizations.text(LangKey.rating_message) : AppLocalizations.text(LangKey.promotion_message),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Container(
+            width: MediaQuery.of(context).size.width,
+            height: 1.0,
+            color: AppColors.white,
+          ),
+          Container(
+            margin: EdgeInsets.symmetric(vertical: 10.0),
+            width: MediaQuery.of(context).size.width,
+            child: Text(
+              AppLocalizations.text(LangKey.example_message),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: 10.0),
+            ),
+          ),
+          Expanded(
+            child: Container(
+              margin: EdgeInsets.symmetric(vertical: 10.0),
+                child: Image.asset(type == "rating" ? Assets.imageRatingMessage : Assets.imagePromotionMessage, package: 'chat', fit: BoxFit.fill,)),
+          ),
+          InkWell(
+            onTap: (){
+              CustomNavigator.showCustomAlertDialog(context, null,
+                  AppLocalizations.text(LangKey.charge_message),
+                  titleHeader:
+                  AppLocalizations.text(LangKey.warning),
+                  enableCancel: true,
+                  textSubSubmitted:
+                  AppLocalizations.text(LangKey.cancel),
+                  textSubmitted: AppLocalizations.text(LangKey.confirm),
+                  onSubmitted: () async {
+                    CustomNavigator.pop(context);
+                    CustomNavigator.pop(context);
+                   await _bloc.sendTransaction(widget.roomData.channel!.socialChanelId!, type, widget.roomData.owner!.userSocialId!);
+                    _bloc.messageSystem(widget.roomData.owner!.sId!, widget.roomData.sId!);
+                  });
+            },
+            child: Center(
+              child: Container(
+                margin: EdgeInsets.only(bottom: 5.0),
+                padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 3),
+                decoration: BoxDecoration(
+                    color: Colors.blue,
+                    borderRadius: BorderRadius.circular(6.0)
+                ),
+                child: Text(
+                  AppLocalizations.text(LangKey.send_message_2),
+                  style: TextStyle(color: AppColors.white),
+                ),
+              ),
+            ),
+          )
+        ],
+      ),
+    ));
+  }
+
+  Widget sendInteractionMessage(){
+    return InkWell(
+      onTap: ()=> popUpSendInteractionMessage(context),
+      child: Container(
+        margin: EdgeInsets.only(bottom: 10.0),
+        height: 40.0,
+        width: MediaQuery.of(context).size.width / 2,
+        decoration: BoxDecoration(
+            color: Colors.blue,
+            borderRadius: BorderRadius.circular(10.0)
+        ),
+        child: Center(
+          child: Text(
+            AppLocalizations.text(LangKey.interaction_message),
+            style: AppTextStyles.style15WhiteNormal,
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ),
     );
   }
+
   Widget stickerSelection(String icon, int index) {
     return Padding(
       padding: const EdgeInsets.only(right: 8.0),

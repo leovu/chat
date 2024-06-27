@@ -3,8 +3,13 @@ import 'package:chat/chat_screen/filter_chathub_screen.dart';
 import 'package:chat/chat_screen/home_screen.dart';
 import 'package:chat/chat_ui/vietnamese_text.dart';
 import 'package:chat/chat_ui/widgets/chat_room_widget.dart';
+import 'package:chat/common/assets.dart';
+import 'package:chat/common/global.dart';
+import 'package:chat/common/shared_prefs/shared_prefs_key.dart';
+import 'package:chat/common/theme.dart';
+import 'package:chat/common/widges/widget.dart';
 import 'package:chat/connection/chat_connection.dart';
-import 'package:chat/chat_screen/chat_screen.dart';
+import 'package:chat/presentation/chat_module/ui/chat_screen.dart';
 import 'package:chat/data_model/room.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/draft.dart';
@@ -46,18 +51,29 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
   Room? roomListData;
   bool isInitScreen = true;
   Map<String,dynamic> colorAppName = {};
+  late ScrollController _listViewController;
+  int _currentPage = 1;
 
   @override
   void initState() {
     super.initState();
     _getRooms();
+    checkUserToken();
+    _listViewController = ScrollController()..addListener(_scrollListener);
   }
   final RefreshController _refreshController = RefreshController(initialRefresh: false);
+
+  void _scrollListener() {
+    if (_listViewController.position.maxScrollExtent == _listViewController.offset) {
+      _getRooms(page: _currentPage + 1);
+    }
+  }
 
   void _onRefresh() async{
     await Future.delayed(const Duration(milliseconds: 1000));
     await _getRooms();
     _refreshController.refreshCompleted();
+    setState(() {_currentPage = 1;});
   }
 
   void _onLoading() async{
@@ -65,9 +81,14 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
     await _getRooms();
     _refreshController.loadComplete();
   }
-  _getRooms() async {
+
+  checkUserToken(){
+     ChatConnection.checkUserToken();
+  }
+
+  _getRooms({int page = 1}) async {
     if(mounted) {
-      roomListData = await ChatConnection.roomList(source: widget.source,channelId: channel,status: status, tagIds: tagIds);
+      roomListData = await ChatConnection.roomList(source: widget.source,channelId: channel,status: status, tagIds: tagIds, page: page, roomData: roomListData);
       _getRoomVisible();
       isInitScreen = false;
       setState(() {});
@@ -79,7 +100,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
     }
     else {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
-        roomListData = await ChatConnection.roomList(source: widget.source,channelId: channel,status: status, tagIds: tagIds);
+        roomListData = await ChatConnection.roomList(source: widget.source,channelId: channel,status: status, tagIds: tagIds, page: page, roomData: roomListData);
         _getRoomVisible();
         isInitScreen = false;
         setState(() {});
@@ -90,6 +111,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
         }
       });
     }
+    if(page != 1) setState(() {_currentPage++;});
   }
 
   _getRoomVisible() {
@@ -167,10 +189,107 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                     if(!ChatConnection.isChatHub) Row(
                       children: [
                         Padding(
-                          padding: const EdgeInsets.only(bottom: 3.0,left: 10.0,right: 10.0),
+                          padding: const EdgeInsets.only(bottom: 3.0, left: 10.0),
                           child: Text(AppLocalizations.text(LangKey.chats),style: const TextStyle(fontSize: 25.0,color: Colors.black)),
                         ),
                         Expanded(child: Container()),
+                        if(!ChatConnection.isChatHub) Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                          child: SizedBox(width:30.0,height: 30.0,
+                              child: InkWell(onTap: () async {
+                                showDialog(context: context, builder: (context) {
+                                  return AlertDialog(
+                                    contentPadding: EdgeInsets.zero,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.all(Radius.circular(5.0))),
+                                    content: Container(
+                                        decoration: BoxDecoration(
+                                            color: AppColors.white,
+                                            borderRadius: new BorderRadius.all(Radius.circular(5))),
+                                        height: 210,
+                                        padding: EdgeInsets.symmetric(vertical: 16, horizontal: 27),
+                                        child: Column(
+                                          children: <Widget>[
+                                            Container(
+                                              alignment: Alignment.centerLeft,
+                                              margin: EdgeInsets.only(bottom: 11),
+                                              child: Text(
+                                                AppLocalizations.text(LangKey.change_language),
+                                                style: AppTextStyles.style18BlackBold,
+                                              ),
+                                            ),
+                                            const Padding(
+                                              padding: EdgeInsets.only(top: 8.0),
+                                              child: Divider(),
+                                            ),
+                                            InkWell(
+                                              onTap: () async {
+                                                Navigator.of(context, rootNavigator: true).pop();
+                                                RestartWidget.restartApp(context);
+                                                AppLocalizations.delegate.load(Locale("en"));
+                                                await Globals.prefs!.setString(SharedPrefsKey.language, 'en');
+                                              },
+                                              child: Container(
+                                                height: 40.0,
+                                                  child: Row(
+                                                    children: <Widget>[
+                                                      Container(
+                                                        margin: EdgeInsets.only(right: 10.0),
+                                                        height: 30.0,
+                                                        width: 30.0,
+                                                        child: Image.asset(Assets.iconUK, package: 'chat',),
+                                                      ),
+                                                      Expanded(
+                                                        child: Container(
+                                                          height: 40.0,
+                                                          alignment: Alignment.centerLeft,
+                                                          child: Text(
+                                                            'English',
+                                                            style: AppTextStyles.style14BlackWeight500,
+                                                          ),
+                                                        ),
+                                                      )
+                                                    ],
+                                                  )),
+                                            ),
+                                            CustomLine(),
+                                            InkWell(
+                                              onTap: () async {
+                                                Navigator.of(context, rootNavigator: true).pop();
+                                                RestartWidget.restartApp(context);
+                                                AppLocalizations.delegate.load(Locale("vi"));
+                                                await Globals.prefs!.setString(SharedPrefsKey.language, 'vi');
+                                              },
+                                              child: Container(
+                                                  margin: EdgeInsets.only(top: 10.0),
+                                                  height: 40.0,
+                                                  child: Row(
+                                                    children: <Widget>[
+                                                      Container(
+                                                        margin: EdgeInsets.only(right: 10.0),
+                                                        height: 30.0,
+                                                        width: 30.0,
+                                                        child: Image.asset(Assets.iconViet, package: 'chat',),
+                                                      ),
+                                                      Expanded(
+                                                        child: Container(
+                                                          alignment: Alignment.centerLeft,
+                                                          child: Text(
+                                                            'Tiếng Việt',
+                                                            style: AppTextStyles.style14BlackWeight500,
+                                                          ),
+                                                        ),
+                                                      )
+                                                    ],
+                                                  )),
+                                            ),
+                                          ],
+                                        )),
+                                  );
+                                });
+                              },
+                                child: Image.asset(Assets.iconChangeLanguage ,package: 'chat',),)),
+                        ),
                         if(!ChatConnection.isChatHub) Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20.0),
                           child: SizedBox(width:30.0,height: 30.0,
@@ -250,6 +369,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                     onLoading: _onLoading,
                     header: const WaterDropHeader(),
                     child: ListView.builder(
+                        controller: _listViewController,
                         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                         itemCount: (ChatConnection.openChatGPT != null) ? (roomListVisible!.rooms?.length ?? 0) + 1 : (roomListVisible!.rooms?.length ?? 0),
                         itemBuilder: (BuildContext context, int index) {
@@ -517,13 +637,12 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
     );
   }
   Widget _room(Rooms data, bool isLast) {
-    People info = getPeople(data.people);
-    String? author = findAuthor(data.people,data.lastMessage?.author);
+    String? author = findAuthor(data.owner,data.lastMessage?.author);
     if(!colorAppName.keys.contains(data.channel?.nameApp??'')) {
       Color color = RandomHexColor().colorRandom(data.channel?.nameApp??'');
       colorAppName[data.channel?.nameApp??''] = color;
     }
-    return Column(
+    return data.owner != null ? Column(
       children: [
         SizedBox(
           child: SizedBox(
@@ -536,15 +655,15 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                 children: [
                   Stack(
                     children: [
-                      !data.isGroup! ? info.picture == null ? CircleAvatar(
+                      !data.isGroup! ? data.owner!.picture == null ? CircleAvatar(
                         radius: 25.0,
                         child: Text(
-                          info.getAvatarName(),
+                          data.owner!.getAvatarName(),
                           style: const TextStyle(color: Colors.white),),
                       ) : CircleAvatar(
                         radius: 25.0,
                         backgroundImage:
-                        CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${info.picture!.shieldedID}/256/${ChatConnection.brandCode!}',headers: {'brand-code':ChatConnection.brandCode!}),
+                        CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${data.shieldedID}/256/${ChatConnection.brandCode!}',headers: {'brand-code':ChatConnection.brandCode!}),
                         backgroundColor: Colors.transparent,
                       ) : data.picture == null ? CircleAvatar(
                         radius: 25.0,
@@ -592,7 +711,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                                       width: 15.0,height: 15.0,),
                                   ),
                               Expanded(child: Text(!data.isGroup! ?
-                              '${info.firstName} ${info.lastName}' : data.title ?? 'Group ${info.firstName} ${info.lastName}',
+                              '${data.owner!.firstName} ${data.owner!.lastName}' : data.title ?? 'Group ${data.owner!.firstName} ${data.owner!.lastName}',
                                   overflow: TextOverflow.ellipsis,
                                   maxLines: 1,
                                   style: TextStyle(fontWeight: findUnread(data.messagesReceived,data.messageUnSeen) != '0' ? FontWeight.bold : FontWeight.normal),
@@ -613,7 +732,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                                     (BuildContext context, AsyncSnapshot<String> snapshot) {
                                   if (snapshot.hasData) {
                                     final text = snapshot.data;
-                                    return ChatRoomWidget(content: text ?? "");
+                                        return ChatRoomWidget(content: text ?? "");
                                   }return Container();
                                 },
                               )),
@@ -653,7 +772,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
           child: Container(height: 1.0,color: Colors.grey.shade300,),
         ) : Container()
       ],
-    );
+    ) : Container();
   }
   String? checkCustomerTypeChatHub(List<People>? list) {
     String? result;
@@ -677,12 +796,13 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
       return content;
     }
   }
+  /// DEV
   String _checkContent(Rooms model) {
-    if(!ChatConnection.isChatHub) {
-      if((model.messagesReceived?.length ?? 0) == 0){
-        return (findAuthor(model.people,model.owner,isGroupOwner: true) ?? '') + AppLocalizations.text(LangKey.justCreatedRoom);
-      }
-    }
+    // if(!ChatConnection.isChatHub) {
+    //   if((model.messagesReceived?.length ?? 0) == 0){
+    //     return (findAuthor(model.owner,model.owner!.sId ?? '',isGroupOwner: true) ?? '') + AppLocalizations.text(LangKey.justCreatedRoom);
+    //   }
+    // }
     if(model.lastMessage?.type == 'image'){
       return AppLocalizations.text(LangKey.sentPicture);
     }
@@ -721,11 +841,12 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
       }
     }
   }
-  String? findAuthor(List<People>? people, String? author,{bool isGroupOwner = false}) {
-    People? p;
+  String? findAuthor(Owner? people, String? author,{bool isGroupOwner = false}) {
+    Owner? p;
     try {
-      p = people?.firstWhere((element) => element.sId == author);
-      return (p!.sId != ChatConnection.user!.id ? ((p.firstName ?? '').trim() + ' ' + (p.lastName ?? '').trim()).trim() : AppLocalizations.text(LangKey.you)) + (isGroupOwner ? ' ' : ': ');
+      p = people;
+      return "${p!.sId != ChatConnection.user!.id ? ('${(p.firstName ?? '').trim()} ${(p.lastName ?? '').trim()}').trim() : AppLocalizations.text(LangKey.you)}: ";
+      // + (isGroupOwner ? ' ' : ': ');
     }catch(_){
       return '';
     }

@@ -116,5 +116,27 @@
   "zaloSendOATier": "Tin tiếp theo bạn gửi đi là tin tư vấn miễn phí",
   "zaloSendReply1": "Bạn còn ",
   "zaloSendReply2": " tin nhắn chủ động miễn phí",
-  "zaloSendOther": "Tin tiếp theo bạn gửi đi là tin có tính phí"
+  "zaloSendOther": "Tin tiếp theo bạn gửi đi là tin có tính phí",
+
+  "socialInformation" : "Thông tin mạng xã hội",
+  "status" : "Trạng thái",
+  "createDate" : "Ngày tiếp cận",
+  "follow_oa" : "Đã quan tâm OA",
+  "not_follow_oa" : "Chưa quan tâm OA",
+  "create_note" : "Tạo ghi chú",
+  "input_note_hint" : "Nhập nội dung ghi chú",
+  "confirm" : "Xác nhận",
+  "note" : "Ghi chú",
+  "update_note" : "Cập nhật ghi chú",
+
+  "change_language" : "Thay đổi ngôn ngữ",
+  "interaction_message" : "Gửi tin nhắn tương tác",
+  "banner_cant_send_OA" : "OA không thể gửi tin tư vấn cho người dùng không phát sinh tương tác với OA trong vòng 7 ngày gần nhất.",
+  "watch_detail" : "Xem chi tiết",
+  "rating_message" : "Tin đánh giá",
+  "promotion_message" : "Tin khuyến mãi/ Sự kiện",
+  "example_message" : "Tin nhắn mẫu",
+  "send_message_2" : "Gửi tin",
+  "charge_message" : "Đây là tin nhắn có tính phí (165đ/tin).",
+  "delete_note_des" : "Bạn có muốn xóa ghi chú này?"
 }
