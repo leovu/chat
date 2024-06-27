@@ -83,13 +83,16 @@ class Chat {
     bool result = await connectSocket(context,email,password,appIcon,domain:domain,token: token);
     Navigator.of(context).pop();
     if(result) {
-      if(pushToChatScreen) {
-        openChatHubScreen(context, notificationData, email, password);
-      } else {
-        await Navigator.of(context,rootNavigator: true).push(
-            MaterialPageRoute(builder: (context) => AppChat(email: email,password: password),settings: const RouteSettings(name: 'home_screen')));
-        ChatConnection.dispose(isDispose: true);
-      }
+      await Navigator.of(context,rootNavigator: true).push(
+          MaterialPageRoute(builder: (context) => AppChat(email: email,password: password),settings: const RouteSettings(name: 'home_screen')));
+      ChatConnection.dispose(isDispose: true);
+      // if(pushToChatScreen) {
+      //   openChatHubScreen(context, notificationData, email, password);
+      // } else {
+      //   await Navigator.of(context,rootNavigator: true).push(
+      //       MaterialPageRoute(builder: (context) => AppChat(email: email,password: password),settings: const RouteSettings(name: 'home_screen')));
+      //   ChatConnection.dispose(isDispose: true);
+      // }
     }else {
       loginError(context);
     }
@@ -97,7 +100,6 @@ class Chat {
 
   static openChatHubScreen(BuildContext context, Map<String, dynamic>? notificationData, String email, String password) async {
     if(notificationData != null) {
-      ChatConnection.isChatHub = true;
       String roomId = notificationData['room']['_id'];
       r.Room? room = await ChatConnection.roomList();
       r.Rooms? rooms = room?.rooms?.firstWhere((element) => element.sId == roomId);
