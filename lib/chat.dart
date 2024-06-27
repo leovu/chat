@@ -46,7 +46,7 @@ class Chat {
         Function? addCustomerPotential,
         Function? viewProfileChatHub,
         Function? editCustomerLead,
-        Function? openChatGPT
+        Function? openChatGPT,
       }) async {
     showLoading(context);
     await initializeDateFormatting();
@@ -109,10 +109,12 @@ class Chat {
         ChatConnection.homeScreenNotificationHandler(notificationData);
       }
       else {
+        ChatConnection.isChatHub = true;
         ChatConnection.chatScreenNotificationHandler(notificationData);
       }
     }catch(_){}
   }
+
   static void loginError(BuildContext context) {
     showDialog(
       context: context,
