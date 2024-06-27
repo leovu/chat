@@ -109,7 +109,7 @@ class Chat {
         ChatConnection.homeScreenNotificationHandler(notificationData);
       }
       else {
-        ChatConnection.isChatHub = true;
+        
         ChatConnection.chatScreenNotificationHandler(notificationData);
       }
     }catch(_){}
