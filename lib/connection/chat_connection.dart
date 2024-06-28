@@ -42,7 +42,6 @@ class ChatConnection {
   static Map<String, dynamic>? initialData;
   static late Function(Map<String, dynamic> message) homeScreenNotificationHandler;
   static late Function(Map<String, dynamic> message) chatScreenNotificationHandler;
-  static late Function(Map<String, dynamic> message) chatHubScreenNotificationHandler;
   static ValueNotifier<String> notificationNotifier = ValueNotifier('0');
   static Function? searchProducts;
   static Function? searchOrders;

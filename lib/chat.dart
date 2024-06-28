@@ -48,9 +48,7 @@ class Chat {
         Function? addCustomerPotential,
         Function? viewProfileChatHub,
         Function? editCustomerLead,
-        Function? openChatGPT,
-        bool pushToChatScreen = false,
-        String? roomId,
+        Function? openChatGPT
       }) async {
     showLoading(context);
     await initializeDateFormatting();
@@ -86,29 +84,11 @@ class Chat {
       await Navigator.of(context,rootNavigator: true).push(
           MaterialPageRoute(builder: (context) => AppChat(email: email,password: password),settings: const RouteSettings(name: 'home_screen')));
       ChatConnection.dispose(isDispose: true);
-      // if(pushToChatScreen) {
-      //   openChatHubScreen(context, notificationData, email, password);
-      // } else {
-      //   await Navigator.of(context,rootNavigator: true).push(
-      //       MaterialPageRoute(builder: (context) => AppChat(email: email,password: password),settings: const RouteSettings(name: 'home_screen')));
-      //   ChatConnection.dispose(isDispose: true);
-      // }
     }else {
       loginError(context);
     }
   }
 
-  static openChatHubScreen(BuildContext context, Map<String, dynamic>? notificationData, String email, String password) async {
-    if(notificationData != null) {
-      String roomId = notificationData['room']['_id'];
-      r.Room? room = await ChatConnection.roomList();
-      r.Rooms? rooms = room?.rooms?.firstWhere((element) => element.sId == roomId);
-      await Navigator.of(context,rootNavigator: true).push(MaterialPageRoute(builder: (context) => ChatScreen(data: rooms!,source: rooms.source),settings:const RouteSettings(name: 'chat_screen')),);
-      Navigator.of(context,rootNavigator: true).push(
-          MaterialPageRoute(builder: (context) => AppChat(email: email,password: password),settings: const RouteSettings(name: 'home_screen')));
-    } else Navigator.of(context,rootNavigator: true).push(
-        MaterialPageRoute(builder: (context) => AppChat(email: email,password: password),settings: const RouteSettings(name: 'home_screen')));
-  }
   static Future showLoading(BuildContext context) async {
     return await showDialog(
         context: context,
