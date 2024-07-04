@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:chat/connection/chat_connection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -45,7 +46,7 @@ class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
 }
 
 Future<Map<String, dynamic>> configLanguage(String lang) async{
-  String path = 'packages/chat/assets/chat_$lang.json';
+  String path = 'packages/chat/assets/chat_${ChatConnection.locale.languageCode}.json';
   var jsonString =
   await rootBundle.loadString(path,cache: false);
   Map<String, dynamic> jsonMap = json.decode(jsonString);
