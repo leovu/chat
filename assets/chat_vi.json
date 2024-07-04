@@ -138,5 +138,6 @@
   "example_message" : "Tin nhắn mẫu",
   "send_message_2" : "Gửi tin",
   "charge_message" : "Đây là tin nhắn có tính phí (165đ/tin).",
-  "delete_note_des" : "Bạn có muốn xóa ghi chú này?"
+  "delete_note_des" : "Bạn có muốn xóa ghi chú này?",
+  "client" : "K.Hàng"
 }
