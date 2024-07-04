@@ -20,9 +20,8 @@ dependencies:
   file_picker: ^5.2.0
   image_picker: ^1.0.1
   mime: ^1.0.1
-  open_filex: ^4.1.1
   uuid: ^3.0.6
-  intl: ^0.18.0
+  intl: ^0.19.0
   photo_view: ^0.14.0
   diffutil_dart: ^4.0.0
   visibility_detector: ^0.4.0+2
@@ -50,6 +49,7 @@ dependencies:
   flex_color_picker: ^3.0.2
   rxdart: ^0.27.7
   keyboard_actions: ^4.2.0
+  open_file_plus: ^3.4.1+1
   permission:
     git:
       url: https://github.com/leovu/permission.git

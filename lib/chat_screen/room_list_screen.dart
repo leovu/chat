@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:io';
 import 'package:chat/chat_screen/filter_chathub_screen.dart';
 import 'package:chat/chat_screen/home_screen.dart';
@@ -31,10 +32,11 @@ class RoomListScreen extends StatefulWidget {
   final ChatHubListFilerBuilder? chatHubBuilder;
   final RefreshBuilder builder;
   final Function? homeCallback;
+  final Function? filterCall;
   final Function? openCreateChatRoom;
   final String? source;
   final Function? refreshTabNoti;
-  const RoomListScreen({Key? key, required this.builder, this.homeCallback , this.openCreateChatRoom, this.source, this.chatHubBuilder, this.refreshTabNoti}) : super(key: key);
+  const RoomListScreen({Key? key, required this.builder, this.homeCallback , this.openCreateChatRoom, this.source, this.chatHubBuilder, this.refreshTabNoti, this.filterCall}) : super(key: key);
   @override
   _RoomListScreenState createState() => _RoomListScreenState();
 }
@@ -677,6 +679,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                         backgroundColor: Colors.transparent,
                       ),
                       if(data.source != null) Positioned(
+                          right: -8.0,
                         bottom: 0.0,
                           child:
                       Padding(
@@ -686,7 +689,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(20.0)
                           ),
-                          child: Image.asset(data.source == 'zalo' ? 'assets/icon-zalo.png' : 'assets/icon-facebook.png',
+                          child: Image.asset(data.source == 'zalo' ? 'assets/icon-zalo.png' : data.source == 'client' ? 'assets/icon_chat_client.png' : 'assets/icon-facebook.png',
                             package: 'chat',width: 25.0,height: 25.0,),
                         ),
                       )),

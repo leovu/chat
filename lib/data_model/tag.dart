@@ -14,6 +14,15 @@ class Tag {
     }
   }
 
+  Tag.fromListJson(List<dynamic> json) {
+    if (json.isNotEmpty) {
+      data = <Data>[];
+      for(var e in json) {
+        data!.add(Data.fromJson(e));
+      }
+    }
+  }
+
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['error'] = error;
@@ -32,6 +41,7 @@ class Data {
   String? createdAt;
   String? updatedAt;
   int? iV;
+  bool? isActive;
   bool isSelected = false;
 
   Data(
@@ -41,6 +51,7 @@ class Data {
         color,
         createdAt,
         updatedAt,
+        isActive,
         iV});
 
   Data.fromJson(Map<String, dynamic> json) {
@@ -51,6 +62,7 @@ class Data {
     createdAt = json['createdAt'];
     updatedAt = json['updatedAt'];
     iV = json['__v'];
+    isActive = json['isActive'];
   }
 
   Map<String, dynamic> toJson() {
@@ -62,6 +74,7 @@ class Data {
     data['createdAt'] = createdAt;
     data['updatedAt'] = updatedAt;
     data['__v'] = iV;
+    data['isActive'] = isActive;
     return data;
   }
 }

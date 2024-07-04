@@ -142,4 +142,6 @@ class LangKey {
   static const String send_message_2 = "send_message_2";
   static const String charge_message = "charge_message";
   static const String delete_note_des = "delete_note_des";
+  static const String client = "client";
+
 }
