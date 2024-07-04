@@ -1,14 +1,18 @@
-import 'dart:async';
 import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/chat_ui/models/send_button_visibility_mode.dart';
 import 'package:chat/chat_ui/widgets/sticker.dart';
+import 'package:chat/common/assets.dart';
+import 'package:chat/common/custom_navigator.dart';
+import 'package:chat/common/theme.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/data_model/room.dart';
 import 'package:chat/draft.dart';
 import 'package:chat/localization/check_tag.dart';
+import 'package:chat/presentation/chat_module/bloc/chat_bloc.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:rich_text_controller/rich_text_controller.dart';
 import 'package:chat/chat_ui/widgets/inherited_replied_message.dart';
 import 'package:chat/chat_ui/widgets/remove_edit_button.dart';
@@ -42,11 +46,11 @@ class Input extends StatefulWidget {
     this.isAttachmentUploading,
     this.onAttachmentPressed,
     this.onCameraPressed,
-    this.onMicroPressed,
     required this.onSendPressed,
     this.onTextChanged,
     this.onTextFieldTap,
     this.repliedMessage,
+    required this.canSend,
     required this.sendButtonVisibilityMode,
     required this.builder,
     required this.onCancelReplyPressed,
@@ -56,14 +60,16 @@ class Input extends StatefulWidget {
     required this.onStickerPressed,
     required this.onMessageTap,
     required this.isVisible,
+    required this.roomData
   }) : super(key: key);
 
+  final Rooms roomData;
+  final bool canSend;
   final ChatEmojiBuilder builder;
   final InputBuilder inputBuilder;
   /// See [AttachmentButton.onPressed]
   final void Function()? onAttachmentPressed;
   final void Function()? onCameraPressed;
-  final void Function()? onMicroPressed;
 
   final types.Message? repliedMessage;
 
@@ -118,15 +124,12 @@ class _InputState extends State<Input> {
   types.TextMessage? editContent;
   List<People>? _taggingSuggestList;
   List<String> _idTagList = [];
-<<<<<<< Updated upstream
-=======
   late ChatBloc _bloc;
-  Uint8List? _imageData;
->>>>>>> Stashed changes
 
   @override
   void initState() {
     super.initState();
+    _bloc = ChatBloc();
     String regex = '';
     if(widget.people != null) {
       regex = "r'@\b|";
@@ -315,7 +318,7 @@ class _InputState extends State<Input> {
             _query.padding.right,
             (_query.viewInsets.bottom + _query.padding.bottom) * 0.4,
           );
-    return Focus(
+    return widget.canSend ? Focus(
       autofocus: true,
       child: Padding(
         padding: InheritedChatTheme.of(context).theme.inputMargin,
@@ -587,14 +590,11 @@ class _InputState extends State<Input> {
           ),
         ),
       ),
-<<<<<<< Updated upstream
-=======
     ) :  sendInteractionMessage();
   }
 
   popUpSendInteractionMessage(BuildContext buildContext){
-    return showDialog(context: buildContext, builder: (
-        Context) {
+    return showDialog(context: buildContext, builder: (buildContext) {
       return AlertDialog(
         contentPadding: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
@@ -712,9 +712,9 @@ class _InputState extends State<Input> {
           ),
         ),
       ),
->>>>>>> Stashed changes
     );
   }
+
   Widget stickerSelection(String icon, int index) {
     return Padding(
       padding: const EdgeInsets.only(right: 8.0),
@@ -914,8 +914,6 @@ class _InputState extends State<Input> {
       );
     }
   }
-
-
 
   void requestFocus({types.TextMessage? editContent}) {
     if(editContent != null) {

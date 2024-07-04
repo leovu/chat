@@ -3,7 +3,7 @@ import 'package:chat/chat_screen/home_screen.dart';
 import 'package:chat/chat_ui/vietnamese_text.dart';
 import 'package:chat/chat_ui/widgets/chat_room_widget.dart';
 import 'package:chat/connection/chat_connection.dart';
-import 'package:chat/chat_screen/chat_screen.dart';
+import 'package:chat/presentation/chat_module/ui/chat_screen.dart';
 import 'package:chat/data_model/room.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/draft.dart';
@@ -323,7 +323,7 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen> with AutomaticKee
   }
   String _checkContent(Rooms model){
     if((model.messagesReceived?.length ?? 0) == 0){
-      return ((findAuthor(model.people,model.owner,isGroupOwner: true) ?? '') + AppLocalizations.text(LangKey.justCreatedRoom)).replaceAll(':', '');
+      return ((findAuthor(model.people,model.owner!.sId,isGroupOwner: true) ?? '') + AppLocalizations.text(LangKey.justCreatedRoom)).replaceAll(':', '');
     }
     if(model.lastMessage?.type == 'image'){
       return AppLocalizations.text(LangKey.sentPicture);

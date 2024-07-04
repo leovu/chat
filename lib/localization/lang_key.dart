@@ -120,8 +120,6 @@ class LangKey {
   static const String zaloSendReply1 = "zaloSendReply1";
   static const String zaloSendReply2 = "zaloSendReply2";
   static const String zaloSendOther = "zaloSendOther";
-<<<<<<< Updated upstream
-=======
 
   static const String socialInformation = "socialInformation";
   static const String status = "status";
@@ -146,5 +144,4 @@ class LangKey {
   static const String delete_note_des = "delete_note_des";
   static const String client = "client";
 
->>>>>>> Stashed changes
 }

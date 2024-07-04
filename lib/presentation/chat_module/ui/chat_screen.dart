@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:chat/chat_screen/conversation_information_screen.dart';
+import 'package:chat/presentation/chat_module/bloc/chat_bloc.dart';
+import 'package:chat/presentation/conversation_modules/ui/conversation_information_screen.dart';
 import 'package:chat/chat_screen/forward_screen.dart';
 import 'package:chat/chat_ui/hex_color.dart';
 import 'package:chat/connection/chat_connection.dart';
@@ -59,15 +60,17 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   Tag? tag;
   Tag? tagByUser;
   String? note;
+  late ChatBloc _bloc;
+  bool checkQuota = true;
+
   @override
   void initState() {
     super.initState();
+    _bloc = ChatBloc();
     ChatConnection.chatScreenNotificationHandler = _notificationHandler;
     _getTagList();
     _loadMessages();
     ChatConnection.listenChat(_refreshMessage);
-<<<<<<< Updated upstream:lib/chat_screen/chat_screen.dart
-=======
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       if(widget.source == 'zalo') {
         getQuota();
@@ -78,12 +81,10 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   getQuota() async{
     checkQuota = await _bloc.getQuota(widget.data.channel!.socialChanelId!, widget.data.owner!.userSocialId!);
     setState(() {});
->>>>>>> Stashed changes:lib/presentation/chat_module/ui/chat_screen.dart
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
     itemPositionsListener.itemPositions.removeListener(() {});
     ChatConnection.isLoadMore = false;
@@ -124,7 +125,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         });
       }
       if(message.type.name == 'text') {
-        note = await ChatConnection.sendChat(data,_messages,id,text,data?.room,ChatConnection.user!.id,reppliedMessageId: repliedMessageId);
+        note = await ChatConnection.sendChat(data,_messages,id,text,data?.room,ChatConnection.checkUserTokenResponseModel?.user?.sId ?? '',reppliedMessageId: repliedMessageId);
         if(mounted) {
           setState(() {});
         }
@@ -391,6 +392,9 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       status: Status.sending,
     );
     _addMessage(message,id);
+    if(mounted) {
+      setState(() {});
+    }
     ChatConnection.uploadImage(context,data,_messages,id,result,data?.room,ChatConnection.checkUserTokenResponseModel?.user?.sId ?? '').then((r) {
       if(r == 'limit') {
         try {
@@ -452,6 +456,9 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         status: Status.sending,
       );
       _addMessage(message,id);
+      if(mounted) {
+        setState(() {});
+      }
       ChatConnection.uploadImage(context,data,_messages,id,result,data?.room,ChatConnection.checkUserTokenResponseModel?.user?.sId ?? '').then((r) {
         if(r == 'limit') {
           try {
@@ -706,6 +713,9 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       status: Status.sending,
     );
     _addMessage(message, id);
+    if (mounted) {
+      setState(() {});
+    }
     ChatConnection.uploadImage(
         context, data, _messages, id, result, data?.room, ChatConnection.checkUserTokenResponseModel?.user?.sId ?? '')
         .then((r) {
@@ -812,10 +822,10 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     }catch(_){
     }
   }
+
   bool isShowUserTag = true;
   @override
   Widget build(BuildContext context) {
-    r.People info = getPeople(widget.data.people);
     return WillPopScope(
       onWillPop: () async {
         ChatConnection.roomId = null;
@@ -829,15 +839,15 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
             onPressed: () {
               itemScrollController.jumpTo(index: 0);
             },
-            child: !widget.data.isGroup! ? info.picture == null ? CircleAvatar(
+            child: !widget.data.isGroup! ? widget.data.picture == null ? CircleAvatar(
               radius: 18.0,
               child: Text(
-                info.getAvatarName(),
+                widget.data.owner!.getAvatarName(),
                 style: const TextStyle(color: Colors.white),),
             ) : CircleAvatar(
               radius: 18.0,
               backgroundImage:
-              CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${info.picture!.shieldedID}/256/${ChatConnection.brandCode!}',headers: {'brand-code':ChatConnection.brandCode!}),
+              CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${widget.data.shieldedID}/256/${ChatConnection.brandCode!}',headers: {'brand-code':ChatConnection.brandCode!}),
               backgroundColor: Colors.transparent,
             ) : widget.data.picture == null ? CircleAvatar(
               radius: 18.0,
@@ -865,11 +875,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-<<<<<<< Updated upstream:lib/chat_screen/chat_screen.dart
-              if(info.userTag != null && tag?.data != null)
-=======
               if(tagByUser != null && tagByUser?.data != null)
->>>>>>> Stashed changes:lib/presentation/chat_module/ui/chat_screen.dart
                 Container(
                   width: MediaQuery.of(context).size.width,
                   color: Colors.white,
@@ -881,13 +887,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                         child:
                         !isShowUserTag ? Container() :
                         Wrap(
-<<<<<<< Updated upstream:lib/chat_screen/chat_screen.dart
-                          children: info.userTag!.map((e) => _tagChip(
-=======
-                          children: tagByUser!.data!.map((e) => _tagChip(
->>>>>>> Stashed changes:lib/presentation/chat_module/ui/chat_screen.dart
-                            e
-                          )).toList())
+                            children: tagByUser!.data!.map((e) => _tagChip(e)).toList())
                       )),
                       Padding(
                         padding: const EdgeInsets.only(right: 5.0),
@@ -1032,7 +1032,10 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                 builder: (BuildContext context, void Function() method) {
                   focusTextField = method;
                 },
-              )),
+                canSend: checkQuota,
+                roomData: widget.data,
+              )
+              ),
               _resultSearchChat(),
             ],
           ),
@@ -1265,7 +1268,6 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     }catch(_) {}
   }
   AppBar _defaultAppbar() {
-    r.People info = getPeople(widget.data.people);
     bool f = isFavorite(widget.data.people,widget.data.sId);
     return AppBar(
         actions: <Widget>[
@@ -1287,22 +1289,6 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
               }
             },
           ),
-          // IconButton(
-          //   visualDensity: const VisualDensity(horizontal: -4.0, vertical: -4.0),
-          //   padding: EdgeInsets.zero,
-          //   icon: const Icon(
-          //     Icons.search,
-          //     color: Color(0xFF787878),
-          //   ),
-          //   onPressed: () {
-          //     setState(() {
-          //       _isSearchMessage = !_isSearchMessage;
-          //       if(_isSearchMessage) {
-          //         _focusSearch.requestFocus();
-          //       }
-          //     });
-          //   },
-          // ),
           IconButton(
             visualDensity: const VisualDensity(horizontal: -4.0, vertical: -4.0),
             padding: EdgeInsets.zero,
@@ -1317,14 +1303,16 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
               await Navigator.of(context).push(
                   MaterialPageRoute(builder: (context) => ConversationInformationScreen(roomData: widget.data,chatMessage: data),
                       settings:const RouteSettings(name: 'conversation_information_screen')));
-              if(getPeople(widget.data.people).isUpdateTagList) {
-                getPeople(widget.data.people).isUpdateTagList = false;
-                await _getTagList();
-                setState(() {});
-              }
-              else {
-                setState(() {});
-              }
+              await _getTagList();
+              setState(() {});
+              // if(getPeople(widget.data.people).isUpdateTagList) {
+              //   getPeople(widget.data.people).isUpdateTagList = false;
+              //   await _getTagList();
+              //   setState(() {});
+              // }
+              // else {
+              //   setState(() {});
+              // }
             },
           )
         ],
@@ -1340,15 +1328,15 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                 ),
               ),
               Padding(padding: const EdgeInsets.only(top: 10.0,bottom: 10.0),
-                  child: !widget.data.isGroup! ? info.picture == null ? CircleAvatar(
+                  child: !widget.data.isGroup! ? widget.data.picture == null ? CircleAvatar(
                     radius: 15.0,
                     child: Text(
-                        info.getAvatarName(),
+                        widget.data.owner!.getAvatarName(),
                         style: const TextStyle(color: Colors.white),),
                   ) : CircleAvatar(
                     radius: 15.0,
                     backgroundImage:
-                    CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${info.picture!.shieldedID}/256/${ChatConnection.brandCode!}',headers: {'brand-code':ChatConnection.brandCode!}),
+                    CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${widget.data.shieldedID}/256/${ChatConnection.brandCode!}',headers: {'brand-code':ChatConnection.brandCode!}),
                     backgroundColor: Colors.transparent,
                   ) : widget.data.picture == null ? CircleAvatar(
                     radius: 15.0,
@@ -1371,8 +1359,8 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         AutoSizeText(!widget.data.isGroup! ?
-                        '${info.firstName} ${info.lastName}' : widget.data.title ??
-                            '${AppLocalizations.text(LangKey.groupWith)} ${info.firstName} ${info.lastName}',
+                        '${widget.data.owner!.firstName} ${widget.data.owner!.lastName}' : widget.data.title ??
+                            '${AppLocalizations.text(LangKey.groupWith)} ${widget.data.owner!.firstName} ${widget.data.owner!.lastName}',
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
                           style:

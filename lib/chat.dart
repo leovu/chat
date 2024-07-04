@@ -1,14 +1,16 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:chat/chat_screen/home_screen.dart';
+import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';
+import 'package:chat/localization/app_localizations.dart';
+import 'package:chat/localization/lang_key.dart';
+import 'package:chat/presentation/chat_module/ui/chat_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter/material.dart';
-import 'chat_screen/home_screen.dart';
-import 'connection/chat_connection.dart';
-import 'localization/app_localizations.dart';
-import 'localization/lang_key.dart';
+import 'package:chat/data_model/room.dart' as r;
 
 class Chat {
   static const MethodChannel _channel = MethodChannel('chat');
@@ -86,6 +88,7 @@ class Chat {
       loginError(context);
     }
   }
+
   static Future showLoading(BuildContext context) async {
     return await showDialog(
         context: context,
@@ -113,6 +116,7 @@ class Chat {
       }
     }catch(_){}
   }
+
   static void loginError(BuildContext context) {
     showDialog(
       context: context,

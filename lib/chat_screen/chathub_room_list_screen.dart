@@ -114,26 +114,26 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen> with Sing
                         indicatorPadding: EdgeInsets.zero,
                         labelPadding: const EdgeInsets.symmetric(horizontal: 4),
                         tabs: [
-                          SizedBox(
-                            width: 70,
-                            child: Tab(icon: Row(
-                              children: [
-                                Image.asset('assets/icon_chat_all.png',package: 'chat',width: 30.0,height: 30.0,),
-                                Expanded(child: AutoSizeText.rich(TextSpan(
-                                  children: [
-                                    TextSpan(
+                        SizedBox(
+                        width: 70,
+                        child: Tab(icon: Row(
+                          children: [
+                            Image.asset('assets/icon_chat_all.png',package: 'chat',width: 30.0,height: 30.0,),
+                            Expanded(child: AutoSizeText.rich(TextSpan(
+                                children: [
+                                  TextSpan(
                                       text: '  ${AppLocalizations.text(LangKey.all)}',
                                       style: const TextStyle(color: Colors.black)
-                                    ),
-                                    if((ChatConnection.notiChatHubAll??0) > 0) TextSpan(
-                                          text: ' (${ChatConnection.notiChatHubAll})',
-                                          style: const TextStyle(color: Colors.red,fontSize: 12,fontWeight: FontWeight.bold)
-                                    ),
-                                  ]
-                                ),maxLines: 1,))
-                              ],
-                            )),
-                          ),
+                                  ),
+                                  if((ChatConnection.notiChatHubAll??0) > 0) TextSpan(
+                                      text: ' (${ChatConnection.notiChatHubAll})',
+                                      style: const TextStyle(color: Colors.red,fontSize: 12,fontWeight: FontWeight.bold)
+                                  ),
+                                ]
+                            ),maxLines: 1,))
+                          ],
+                        )),
+                        ),
                           SizedBox(
                             width: 70,
                             child: Tab(icon: Row(
@@ -209,7 +209,7 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen> with Sing
                           children: [
                             RoomListScreen(builder: (BuildContext context, void Function() method) {
                               reloadAll = method;
-                            },openCreateChatRoom: widget.openCreateChatRoom, chatHubBuilder: (void Function() filter) {
+                            },openCreateChatRoom: widget.openCreateChatRoom,chatHubBuilder: (void Function() filter) {
                               filterAll = filter;
                             },refreshTabNoti: refreshTabNoti,),
                             RoomListScreen(builder: (BuildContext context, void Function() method) {
@@ -220,7 +220,7 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen> with Sing
                               },refreshTabNoti: refreshTabNoti,),
                             RoomListScreen(builder: (BuildContext context, void Function() method) {
                               reloadFacebook = method;
-                            },openCreateChatRoom: widget.openCreateChatRoom, source: 'facebook',
+                            },openCreateChatRoom: widget.openCreateChatRoom,source: 'facebook',
                                 chatHubBuilder: (void Function() filter) {
                                   filterFacebook = filter;
                                 },refreshTabNoti: refreshTabNoti,),
