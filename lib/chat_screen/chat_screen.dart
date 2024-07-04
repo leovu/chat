@@ -41,7 +41,7 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   List<types.Message> _messages = [];
-  final _user = types.User(id: ChatConnection.user!.id);
+  final _user = types.User(id: ChatConnection.checkUserTokenResponseModel?.user!.sId ?? '');
   c.ChatMessage? data;
   bool _isSearchMessage = false;
   final _focusSearch = FocusNode();
@@ -57,6 +57,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   late void Function() focusTextField;
   bool isInitScreen = true;
   Tag? tag;
+  Tag? tagByUser;
   String? note;
   @override
   void initState() {
@@ -65,6 +66,19 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     _getTagList();
     _loadMessages();
     ChatConnection.listenChat(_refreshMessage);
+<<<<<<< Updated upstream:lib/chat_screen/chat_screen.dart
+=======
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      if(widget.source == 'zalo') {
+        getQuota();
+      }
+    });
+  }
+
+  getQuota() async{
+    checkQuota = await _bloc.getQuota(widget.data.channel!.socialChanelId!, widget.data.owner!.userSocialId!);
+    setState(() {});
+>>>>>>> Stashed changes:lib/presentation/chat_module/ui/chat_screen.dart
   }
 
   @override
@@ -77,7 +91,10 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   }
 
   Future<void> _getTagList() async {
+    if(!ChatConnection.isChatHub) return;
     tag = await ChatConnection.getTagList();
+    String chatPartnerId = (widget.data.owner!.sId!);
+    tagByUser = await ChatConnection.getTagListByUser(chatPartnerId);
   }
 
   void _addMessage(types.Message message, String id,{String? text, String? repliedMessageId,types.TextMessage? isEdit}) async {
@@ -228,7 +245,10 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         );
         File file = File(result.files.single.path!);
         _addMessage(message,id);
-        ChatConnection.uploadFile(context,data,_messages,id,file,data?.room,ChatConnection.user!.id).then((r) {
+        if(mounted) {
+          setState(()  {});
+        }
+        ChatConnection.uploadFile(context,data,_messages,id,file,data?.room,ChatConnection.checkUserTokenResponseModel?.user?.sId ?? '').then((r) {
           if(r == 'limit') {
             try {
               int index = _messages.indexOf(_messages.firstWhere((element) => element.id == id));
@@ -301,7 +321,10 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       );
       File file = File(result.path);
       _addMessage(message,id);
-      ChatConnection.uploadFile(context,data,_messages,id,file,data?.room,ChatConnection.user!.id).then((r) {
+      if(mounted) {
+        setState(()  {});
+      }
+      ChatConnection.uploadFile(context,data,_messages,id,file,data?.room,ChatConnection.checkUserTokenResponseModel?.user?.sId ?? '').then((r) {
         if(r == 'limit') {
           try {
             int index = _messages.indexOf(_messages.firstWhere((element) => element.id == id));
@@ -368,7 +391,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       status: Status.sending,
     );
     _addMessage(message,id);
-    ChatConnection.uploadImage(context,data,_messages,id,result,data?.room,ChatConnection.user!.id).then((r) {
+    ChatConnection.uploadImage(context,data,_messages,id,result,data?.room,ChatConnection.checkUserTokenResponseModel?.user?.sId ?? '').then((r) {
       if(r == 'limit') {
         try {
           int index = _messages.indexOf(_messages.firstWhere((element) => element.id == id));
@@ -429,7 +452,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         status: Status.sending,
       );
       _addMessage(message,id);
-      ChatConnection.uploadImage(context,data,_messages,id,result,data?.room,ChatConnection.user!.id).then((r) {
+      ChatConnection.uploadImage(context,data,_messages,id,result,data?.room,ChatConnection.checkUserTokenResponseModel?.user?.sId ?? '').then((r) {
         if(r == 'limit') {
           try {
             int index = _messages.indexOf(_messages.firstWhere((element) => element.id == id));
@@ -684,7 +707,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     );
     _addMessage(message, id);
     ChatConnection.uploadImage(
-        context, data, _messages, id, result, data?.room, ChatConnection.user!.id)
+        context, data, _messages, id, result, data?.room, ChatConnection.checkUserTokenResponseModel?.user?.sId ?? '')
         .then((r) {
       if(r == 'limit') {
         try {
@@ -842,7 +865,11 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+<<<<<<< Updated upstream:lib/chat_screen/chat_screen.dart
               if(info.userTag != null && tag?.data != null)
+=======
+              if(tagByUser != null && tagByUser?.data != null)
+>>>>>>> Stashed changes:lib/presentation/chat_module/ui/chat_screen.dart
                 Container(
                   width: MediaQuery.of(context).size.width,
                   color: Colors.white,
@@ -854,7 +881,11 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                         child:
                         !isShowUserTag ? Container() :
                         Wrap(
+<<<<<<< Updated upstream:lib/chat_screen/chat_screen.dart
                           children: info.userTag!.map((e) => _tagChip(
+=======
+                          children: tagByUser!.data!.map((e) => _tagChip(
+>>>>>>> Stashed changes:lib/presentation/chat_module/ui/chat_screen.dart
                             e
                           )).toList())
                       )),
@@ -1009,34 +1040,29 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       ),
     );
   }
-  Widget _tagChip(String e) {
-    if(tag?.data == null) {
+  Widget _tagChip(Data e) {
+    if(e.isActive == false) {
       return Container();
     }
-    for (var h in tag!.data!) {
-      if (h.sId == e) {
-        return Padding(
-          padding: const EdgeInsets.only(left: 5.0,right: 5.0,bottom: 5.0),
-          child: Container(
-            height: 30.0,
-            decoration: BoxDecoration(
-                color: HexColor.fromHex(tag!.data!.where((h) => h.sId == e).first.color??''),
-                borderRadius: BorderRadius.circular(10.0)
-            ),
-            child: Padding(
-              padding: const EdgeInsets.only(top: 5.0,left: 5.0,right: 5.0),
-              child: AutoSizeText(
-                tag!.data!.where((h) => h.sId == e).first.name??'',style: const TextStyle(color: Colors.white),
-              ),
-            ),
+    return Padding(
+      padding: const EdgeInsets.only(left: 5.0,right: 5.0,bottom: 5.0),
+      child: Container(
+        height: 30.0,
+        decoration: BoxDecoration(
+            color: HexColor.fromHex(e.color ?? ''),
+            borderRadius: BorderRadius.circular(10.0)
+        ),
+        child: Padding(
+          padding: const EdgeInsets.only(top: 5.0,left: 5.0,right: 5.0),
+          child: AutoSizeText(
+            e.name ?? '',style: const TextStyle(color: Colors.white),
           ),
-        );
-      }
-    }
-    return Container();
+        ),
+      ),
+    );
   }
   void loadMore() async {
-    List<c.Messages>? value = await ChatConnection.loadMoreMessageRoom(ChatConnection.roomId!,_messages.last.id);
+    List<c.Messages>? value = await ChatConnection.loadMoreMessageRoom(ChatConnection.roomId!,_messages.last.id, data!.room!.messages!.last.date!);
     if(value != null) {
       List<c.Messages>? messages = value;
       if(messages.isNotEmpty) {

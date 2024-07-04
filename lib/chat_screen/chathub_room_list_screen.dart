@@ -19,18 +19,20 @@ class RoomListChathubScreen extends StatefulWidget {
 
 class _RoomListChathubScreenState extends State<RoomListChathubScreen> with SingleTickerProviderStateMixin {
   late void Function() filterAll;
+  late void Function() filterClient;
   late void Function() filterFacebook;
   late void Function() filterZalo;
   late TabController _tabController;
   int _activeTabIndex = 0;
   Function? reloadAll;
+  Function? reloadClient;
   Function? reloadFacebook;
   Function? reloadZalo;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(vsync: this, length: 3);
+    _tabController = TabController(vsync: this, length: 4);
     _tabController.addListener(_setActiveTabIndex);
     ChatConnection.refreshRoom = refresh;
   }
@@ -78,9 +80,12 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen> with Sing
                               filterAll.call();
                             }
                             else if(_activeTabIndex == 1) {
-                              filterFacebook.call();
+                              filterClient.call();
                             }
                             else if(_activeTabIndex == 2) {
+                              filterFacebook.call();
+                            }
+                            else if(_activeTabIndex == 3) {
                               filterZalo.call();
                             }
                           },
@@ -101,62 +106,97 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen> with Sing
                       backgroundColor: Colors.white,
                       elevation: 0.0,
                       bottom: TabBar(
+                        tabAlignment: TabAlignment.start,
+                        isScrollable: true,
                         controller: _tabController,
-                        indicatorColor: Colors.blue,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        indicatorSize: TabBarIndicatorSize.label,
+                        indicatorPadding: EdgeInsets.zero,
+                        labelPadding: const EdgeInsets.symmetric(horizontal: 4),
                         tabs: [
-                          Tab(icon: Row(
-                            children: [
-                              Image.asset('assets/icon-chathub-main.png',package: 'chat',width: 30.0,height: 30.0,),
-                              Expanded(child: AutoSizeText.rich(TextSpan(
-                                children: [
-                                  TextSpan(
-                                    text: ' ${AppLocalizations.text(LangKey.all)}',
-                                    style: const TextStyle(color: Colors.black)
-                                  ),
-                                  if((ChatConnection.notiChatHubAll??0) > 0) TextSpan(
-                                        text: ' (${ChatConnection.notiChatHubAll})',
-                                        style: const TextStyle(color: Colors.red,fontSize: 12,fontWeight: FontWeight.bold)
-                                  ),
-                                ]
-                              ),maxLines: 1,))
-                            ],
-                          )),
-                          Tab(icon: Row(
-                            children: [
-                              Image.asset('assets/icon-facebook-main.png',package: 'chat',width: 20.0,height: 20.0,),
-                              Expanded(child:
-                              AutoSizeText.rich(TextSpan(
+                          SizedBox(
+                            width: 70,
+                            child: Tab(icon: Row(
+                              children: [
+                                Image.asset('assets/icon_chat_all.png',package: 'chat',width: 30.0,height: 30.0,),
+                                Expanded(child: AutoSizeText.rich(TextSpan(
                                   children: [
-                                    const TextSpan(
-                                        text: '  Facebook',
-                                        style: TextStyle(color: Colors.black)
+                                    TextSpan(
+                                      text: '  ${AppLocalizations.text(LangKey.all)}',
+                                      style: const TextStyle(color: Colors.black)
                                     ),
-                                    if((ChatConnection.notiChatHubFacebook??0) > 0) TextSpan(
-                                        text: ' (${ChatConnection.notiChatHubFacebook})',
-                                        style: const TextStyle(color: Colors.red,fontSize: 12,fontWeight: FontWeight.bold)
-                                    )
-                                  ]
-                              ),maxLines: 1))
-                            ],
-                          )),
-                          Tab(icon: Row(
-                            children: [
-                              Image.asset('assets/icon-zalo.png',package: 'chat',width: 20.0,height: 20.0,),
-                              Expanded(child:
-                              AutoSizeText.rich(TextSpan(
-                                  children: [
-                                    const TextSpan(
-                                        text: '   Zalo',
-                                        style: TextStyle(color: Colors.black)
+                                    if((ChatConnection.notiChatHubAll??0) > 0) TextSpan(
+                                          text: ' (${ChatConnection.notiChatHubAll})',
+                                          style: const TextStyle(color: Colors.red,fontSize: 12,fontWeight: FontWeight.bold)
                                     ),
-                                    if((ChatConnection.notiChatHubZalo??0) > 0) TextSpan(
-                                        text: ' (${ChatConnection.notiChatHubZalo})',
-                                        style: const TextStyle(color: Colors.red,fontSize: 12,fontWeight: FontWeight.bold)
-                                    )
                                   ]
-                              ),maxLines: 1))
-                            ],
-                          )),
+                                ),maxLines: 1,))
+                              ],
+                            )),
+                          ),
+                          SizedBox(
+                            width: 70,
+                            child: Tab(icon: Row(
+                              children: [
+                                Image.asset('assets/icon_chat_client.png',package: 'chat',width: 20.0,height: 20.0,),
+                                Expanded(child:
+                                AutoSizeText.rich(TextSpan(
+                                    children: [
+                                      TextSpan(
+                                          text: '  ${AppLocalizations.text(LangKey.client)}',
+                                          style: const TextStyle(color: Colors.black)
+                                      ),
+                                      if((ChatConnection.notiChatHubFacebook??0) > 0) TextSpan(
+                                          text: ' (${ChatConnection.notiChatHubFacebook})',
+                                          style: const TextStyle(color: Colors.red,fontSize: 12,fontWeight: FontWeight.bold)
+                                      )
+                                    ]
+                                ),maxLines: 1))
+                              ],
+                            )),
+                          ),
+                          SizedBox(
+                            width: 80,
+                            child: Tab(icon: Row(
+                              children: [
+                                Image.asset('assets/icon-facebook-main.png',package: 'chat',width: 20.0,height: 20.0,),
+                                Expanded(child:
+                                AutoSizeText.rich(TextSpan(
+                                    children: [
+                                      const TextSpan(
+                                          text: '  Facebook',
+                                          style: TextStyle(color: Colors.black)
+                                      ),
+                                      if((ChatConnection.notiChatHubFacebook??0) > 0) TextSpan(
+                                          text: ' (${ChatConnection.notiChatHubFacebook})',
+                                          style: const TextStyle(color: Colors.red,fontSize: 12,fontWeight: FontWeight.bold)
+                                      )
+                                    ]
+                                ),maxLines: 1))
+                              ],
+                            )),
+                          ),
+                          SizedBox(
+                            width: 70,
+                            child: Tab(icon: Row(
+                              children: [
+                                Image.asset('assets/icon-zalo.png',package: 'chat',width: 20.0,height: 20.0,),
+                                Expanded(child:
+                                AutoSizeText.rich(TextSpan(
+                                    children: [
+                                      const TextSpan(
+                                          text: '  Zalo',
+                                          style: TextStyle(color: Colors.black)
+                                      ),
+                                      if((ChatConnection.notiChatHubZalo??0) > 0) TextSpan(
+                                          text: ' (${ChatConnection.notiChatHubZalo})',
+                                          style: const TextStyle(color: Colors.red,fontSize: 12,fontWeight: FontWeight.bold)
+                                      )
+                                    ]
+                                ),maxLines: 1))
+                              ],
+                            )),
+                          ),
                         ],
                       ),
                     ),
@@ -169,12 +209,18 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen> with Sing
                           children: [
                             RoomListScreen(builder: (BuildContext context, void Function() method) {
                               reloadAll = method;
-                            },openCreateChatRoom: widget.openCreateChatRoom,chatHubBuilder: (void Function() filter) {
+                            },openCreateChatRoom: widget.openCreateChatRoom, chatHubBuilder: (void Function() filter) {
                               filterAll = filter;
                             },refreshTabNoti: refreshTabNoti,),
                             RoomListScreen(builder: (BuildContext context, void Function() method) {
+                              reloadClient = method;
+                            },openCreateChatRoom: widget.openCreateChatRoom, source: 'client',
+                              chatHubBuilder: (void Function() filter) {
+                                filterClient = filter;
+                              },refreshTabNoti: refreshTabNoti,),
+                            RoomListScreen(builder: (BuildContext context, void Function() method) {
                               reloadFacebook = method;
-                            },openCreateChatRoom: widget.openCreateChatRoom,source: 'facebook',
+                            },openCreateChatRoom: widget.openCreateChatRoom, source: 'facebook',
                                 chatHubBuilder: (void Function() filter) {
                                   filterFacebook = filter;
                                 },refreshTabNoti: refreshTabNoti,),
@@ -198,6 +244,9 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen> with Sing
   void refresh() {
     if(reloadAll != null) {
       reloadAll!();
+    }
+    if(reloadClient != null) {
+      reloadClient!();
     }
     if(reloadFacebook != null) {
       reloadFacebook!();

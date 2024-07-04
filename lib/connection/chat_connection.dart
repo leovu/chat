@@ -1,4 +1,5 @@
 import 'package:chat/chat_ui/notification.dart';
+import 'package:chat/common/global.dart';
 import 'package:chat/data_model/chat_message.dart' as c;
 import 'package:chat/data_model/chathub_channel.dart';
 import 'package:chat/data_model/customer_account.dart';
@@ -242,8 +243,9 @@ class ChatConnection {
     }
     return null;
   }
-  static Future<List<c.Messages>?>loadMoreMessageRoom(String id , String firstMessageID) async {
-    ResponseData responseData = await connection.post('api/messages/more', {'roomID':id, 'firstMessageID':firstMessageID});
+  static Future<List<c.Messages>?>loadMoreMessageRoom(String id , String firstMessageID, String firstMessageDate) async {
+    String url = ChatConnection.isChatHub ? 'api/v2/message/more' : 'api/messages/more';
+    ResponseData responseData = await connection.post(url, {'roomID':id, 'firstMessageID':firstMessageID, "firstMessageDate":firstMessageDate});
     if(responseData.isSuccess) {
       List<dynamic> json = responseData.data['messages'];
       List<c.Messages>? data = json.reversed.map((e) => c.Messages.fromJson(e)).toList();
@@ -264,7 +266,12 @@ class ChatConnection {
     if(reppliedMessageId != null) {
       json['replies'] = reppliedMessageId;
     }
+<<<<<<< Updated upstream
     ResponseData responseData = await connection.post(ChatConnection.isChatHub ? 'api/v2/message' : 'api/message', json);
+=======
+    String version = ChatConnection.isChatHub ? '/v2' : '';
+    ResponseData responseData = await connection.post('api$version/message', json);
+>>>>>>> Stashed changes
     if(responseData.isSuccess) {
       streamSocket.sendMessage(message, room);
       types.Message val = listMessage.firstWhere((element) => element.id == id);
@@ -295,7 +302,8 @@ class ChatConnection {
     return null;
   }
   static Future<bool>forwardMessage(String? message, c.Room? room, String authorId, String? reppliedMessageId) async {
-    ResponseData responseData = await connection.post('api/message', {
+    String version = ChatConnection.isChatHub ? '/v2' : '';
+    ResponseData responseData = await connection.post('api$version/message', {
       'authorID': authorId,
       'content': message,
       'contentType': "text",
@@ -348,7 +356,8 @@ class ChatConnection {
     }
     ResponseData response = await connection.upload('api/upload', convertToFile(image),isImage: true);
     if(response.isSuccess) {
-      ResponseData responseData = await connection.post('api/message', {
+      String version = ChatConnection.isChatHub ? '/v2' : '';
+      ResponseData responseData = await connection.post('api$version/message', {
         'authorID': authorId,
         'content': response.data['image']['shieldedID'],
         'imageID': response.data['image']['_id'],
@@ -358,7 +367,7 @@ class ChatConnection {
         streamSocket.sendMessage(response.data['image']['shieldedID'], room);
         types.Message val = listMessage.firstWhere((element) => element.id == id);
         int index = listMessage.indexOf(val);
-        c.Messages valueResponse =  c.Messages.fromJson(responseData.data['message']);
+        c.Messages valueResponse =  c.Messages.fromJson( ChatConnection.isChatHub ? responseData.data['data']['message'] : responseData.data['message']);
         // types.Status s = valueResponse.sId==null ? types.Status.error : types.Status.sent;
         listMessage[index] = types.ImageMessage(
             author: listMessage[index].author,
@@ -386,7 +395,8 @@ class ChatConnection {
     }
     ResponseData response = await connection.upload('api/upload/file', file, isImage: false);
     if(response.isSuccess) {
-      ResponseData responseData = await connection.post('api/message', {
+      String version = ChatConnection.isChatHub ? '/v2' : '';
+      ResponseData responseData = await connection.post('api$version/message', {
         'authorID': authorId,
         'content': response.data['file']['shieldedID'],
         'fileID': response.data['file']['_id'],
@@ -396,7 +406,7 @@ class ChatConnection {
         streamSocket.sendMessage(response.data['file']['shieldedID'], room);
         types.Message val = listMessage.firstWhere((element) => element.id == id);
         int index = listMessage.indexOf(val);
-        c.Messages valueResponse =  c.Messages.fromJson(responseData.data['message']);
+        c.Messages valueResponse =  c.Messages.fromJson(ChatConnection.isChatHub ? responseData.data['data']['message'] : responseData.data['message']);
         types.Status s = valueResponse.sId==null ? types.Status.error : types.Status.sent;
         listMessage[index] = types.FileMessage(
             author: listMessage[index].author,
@@ -461,6 +471,13 @@ class ChatConnection {
     ResponseData responseData = await connection.get('api/tags/lists');
     if(responseData.isSuccess) {
       return Tag.fromJson(responseData.data);
+    }
+    return null;
+  }
+  static Future<Tag?>getTagListByUser(String userId) async {
+    ResponseData responseData = await connection.post('api/v2/tags/list-by-user', {'user_id' : userId});
+    if(responseData.isSuccess) {
+      return Tag.fromListJson(responseData.data["data"]);
     }
     return null;
   }
