@@ -55,6 +55,7 @@ class ChatConnection {
   static Function? viewProfileChatHub;
   static Function? editCustomerLead;
   static int? notiChatHubAll;
+  static int? notiChatHubClient;
   static int? notiChatHubFacebook;
   static int? notiChatHubZalo;
   static Function? openChatGPT;
@@ -142,6 +143,7 @@ class ChatConnection {
     if(responseData.isSuccess) {
       n.NotificationCount result = n.NotificationCount.fromJson(responseData.data);
       ChatConnection.notiChatHubAll = result.total;
+      ChatConnection.notiChatHubClient = result.client;
       ChatConnection.notiChatHubFacebook = result.facebook;
       ChatConnection.notiChatHubZalo = result.zalo;
     }
@@ -254,6 +256,7 @@ class ChatConnection {
     }
     return null;
   }
+
   static Future<List<c.Messages>?>loadMoreMessageRoom(String id , String firstMessageID, String firstMessageDate) async {
     String url = ChatConnection.isChatHub ? 'api/v2/message/more' : 'api/messages/more';
     ResponseData responseData = await connection.post(url, {'roomID':id, 'firstMessageID':firstMessageID, "firstMessageDate":firstMessageDate});
@@ -264,6 +267,7 @@ class ChatConnection {
     }
     return null;
   }
+
   static void listenChat(Function callback) {
     streamSocket.listenChat(callback);
   }

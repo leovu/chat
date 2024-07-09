@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -12,14 +13,13 @@ import 'package:chat/data_model/room.dart';
 import 'package:chat/draft.dart';
 import 'package:chat/localization/check_tag.dart';
 import 'package:chat/presentation/chat_module/bloc/chat_bloc.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:rich_text_controller/rich_text_controller.dart';
 import 'package:chat/chat_ui/widgets/inherited_replied_message.dart';
 import 'package:chat/chat_ui/widgets/remove_edit_button.dart';
 import 'package:chat/chat_ui/widgets/replied_message.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
@@ -125,6 +125,7 @@ class _InputState extends State<Input> {
   List<People>? _taggingSuggestList;
   List<String> _idTagList = [];
   late ChatBloc _bloc;
+  String _imageData = '';
 
   @override
   void initState() {
@@ -155,6 +156,22 @@ class _InputState extends State<Input> {
       _textController.addListener(_handleTextControllerChange);
     } else {
       _sendButtonVisible = true;
+    }
+  }
+
+  void _deleteImage() {
+      _imageData = '';
+      setState(() {});
+  }
+
+  void _handleContentInsertion(KeyboardInsertedContent value) {
+    if (value.mimeType.contains("image/") && value.data != null && _imageData == '') {
+        _imageData = String.fromCharCodes(value.data!);
+        _sendButtonVisible = _imageData != '';
+        if(!_sendButtonVisible) {
+          _imageData = '';
+        }
+        setState(() {});
     }
   }
 
@@ -244,7 +261,7 @@ class _InputState extends State<Input> {
     });
   }
 
-  void onChanged(String value) {
+  Future<void> onChanged(String value)  async {
     List<String> tagListDetect = detectTag(value, widget.people);
     for (var e in tagListDetect) {
       if(!_idTagList.contains(e)) {
@@ -282,6 +299,7 @@ class _InputState extends State<Input> {
       }
     }
   }
+
   detectTagInTextField(String data) {
     List<People> tmp = [];
     for (var e in widget.people!) {
@@ -363,69 +381,112 @@ class _InputState extends State<Input> {
                                   const BorderRadius.all(Radius.circular(10.0))),
                               child: Padding(
                                 padding: const EdgeInsets.all(3.0),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Padding(
-                                      padding: const EdgeInsets.only(right: 3.0),
-                                      child: SizedBox(
-                                        height: 35.0,
-                                        width: 35.0,
-                                        child: InkWell(
-                                            onTap: () {
-                                              setState(() {
-                                                _emojiShowing = !_emojiShowing;
-                                                emojiIndex = 0;
-                                                // if(_emojiShowing) {
-                                                //   _inputFocusNode.requestFocus();
-                                                // }
-                                              });
-                                            },
-                                            child: Image.asset(
-                                              'assets/icon-emoji.png',
-                                              package: 'chat',
-                                            )),
-                                      ),
-                                    ),
-                                    Expanded(
-                                        child: Padding(
-                                          padding: const EdgeInsets.only(bottom: 6.0),
-                                          child: TextField(
-                                            controller: _textController,
-                                            cursorColor: InheritedChatTheme.of(context)
-                                                .theme
-                                                .inputTextCursorColor,
-                                            decoration: InheritedChatTheme.of(context)
-                                                .theme
-                                                .inputTextDecoration
-                                                .copyWith(
-                                              hintStyle: InheritedChatTheme.of(context)
-                                                  .theme
-                                                  .inputTextStyle
-                                                  .copyWith(
-                                                color:
-                                                Colors.black.withOpacity(0.2),
+                                      Visibility(
+                                        visible: _imageData != '',
+                                        child: Stack(
+                                          children: [
+                                            SizedBox(
+                                              width: MediaQuery.of(context).size.width / 3,
+                                              child: ClipRRect(
+                                                borderRadius: BorderRadius.circular(8.0),
+                                                child: Image.memory(
+                                                  Uint8List.fromList(_imageData.codeUnits),
+                                                ),
                                               ),
-                                              hintText: AppLocalizations.text(LangKey.writeAMessage),
                                             ),
-                                            focusNode: _inputFocusNode,
-                                            keyboardType: TextInputType.multiline,
-                                            maxLines: 5,
-                                            minLines: 1,
-                                            onChanged: (value) {
-                                              onChanged(value);
-                                            },
-                                            onTap: widget.onTextFieldTap,
-                                            style: InheritedChatTheme.of(context)
-                                                .theme
-                                                .inputTextStyle
-                                                .copyWith(
-                                              color: Colors.black,
+                                            Positioned(
+                                              top: 5.0,
+                                              right: 5.0,
+                                              child: GestureDetector(
+                                                onTap: _deleteImage,
+                                                child: Container(
+                                                  padding: const EdgeInsets.all(4.0),
+                                                  decoration: const BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    color: Colors.red,
+                                                  ),
+                                                  child: const Icon(
+                                                    Icons.close,
+                                                    color: Colors.white,
+                                                    size: 16.0,
+                                                  ),
+                                                ),
+                                              ),
                                             ),
-                                            textCapitalization:
-                                            TextCapitalization.sentences,
+                                          ],
+                                        ),
+                                      ),
+                                    Row(
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.only(right: 3.0),
+                                          child: SizedBox(
+                                            height: 35.0,
+                                            width: 35.0,
+                                            child: InkWell(
+                                                onTap: () {
+                                                  setState(() {
+                                                    _emojiShowing = !_emojiShowing;
+                                                    emojiIndex = 0;
+                                                    // if(_emojiShowing) {
+                                                    //   _inputFocusNode.requestFocus();
+                                                    // }
+                                                  });
+                                                },
+                                                child: Image.asset(
+                                                  'assets/icon-emoji.png',
+                                                  package: 'chat',
+                                                )),
                                           ),
-                                        ))
+                                        ),
+                                        Expanded(
+                                            child: Padding(
+                                              padding: const EdgeInsets.only(bottom: 6.0),
+                                              child: TextField(
+                                                controller: _textController,
+                                                cursorColor: InheritedChatTheme.of(context)
+                                                    .theme
+                                                    .inputTextCursorColor,
+                                                decoration: InheritedChatTheme.of(context)
+                                                    .theme
+                                                    .inputTextDecoration
+                                                    .copyWith(
+                                                  hintStyle: InheritedChatTheme.of(context)
+                                                      .theme
+                                                      .inputTextStyle
+                                                      .copyWith(
+                                                    color:
+                                                    Colors.black.withOpacity(0.2),
+                                                  ),
+                                                  hintText: AppLocalizations.text(LangKey.writeAMessage),
+                                                ),
+                                                focusNode: _inputFocusNode,
+                                                keyboardType: TextInputType.multiline,
+                                                maxLines: 5,
+                                                minLines: 1,
+                                                onChanged: (value) {
+                                                  onChanged(value);
+                                                },
+                                                onTap: widget.onTextFieldTap,
+                                                style: InheritedChatTheme.of(context)
+                                                    .theme
+                                                    .inputTextStyle
+                                                    .copyWith(
+                                                  color: Colors.black,
+                                                ),
+                                                textCapitalization: TextCapitalization.sentences,
+                                                // contentInsertionConfiguration: ContentInsertionConfiguration(
+                                                //     onContentInserted: _handleContentInsertion,
+                                                // ),
+                                              ),
+                                            ))
+                                      ],
+                                    ),
                                   ],
                                 ),
                               ),

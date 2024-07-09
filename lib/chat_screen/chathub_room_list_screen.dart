@@ -146,8 +146,8 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen> with Sing
                                           text: '  ${AppLocalizations.text(LangKey.client)}',
                                           style: const TextStyle(color: Colors.black)
                                       ),
-                                      if((ChatConnection.notiChatHubFacebook??0) > 0) TextSpan(
-                                          text: ' (${ChatConnection.notiChatHubFacebook})',
+                                      if((ChatConnection.notiChatHubClient??0) > 0) TextSpan(
+                                          text: ' (${ChatConnection.notiChatHubClient})',
                                           style: const TextStyle(color: Colors.red,fontSize: 12,fontWeight: FontWeight.bold)
                                       )
                                     ]
