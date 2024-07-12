@@ -12,7 +12,7 @@ import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/data_model/room.dart' as r;
-import 'chat_screen.dart';
+import '../presentation/chat_module/ui/chat_screen.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class ContactsScreen extends StatefulWidget {
@@ -196,6 +196,7 @@ class _ContactsScreenState extends State<ContactsScreen> with AutomaticKeepAlive
                       return InkWell(
                           onTap: () async {
                             r.Rooms? rooms = await ChatConnection.createRoom(contactsListVisible!.users![position].sId);
+                            rooms?.owner = Owner.fromPeople(rooms.people!.firstWhere((e) => e.sId != ChatConnection.user!.id));
                             await Navigator.of(context,rootNavigator: true).push(
                               MaterialPageRoute(builder: (context) => ChatScreen(data: rooms!),settings:const RouteSettings(name: 'chat_screen')),
                             );

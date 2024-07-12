@@ -1,14 +1,17 @@
-import 'dart:async';
 import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/chat_ui/models/send_button_visibility_mode.dart';
 import 'package:chat/chat_ui/widgets/sticker.dart';
+import 'package:chat/common/assets.dart';
+import 'package:chat/common/custom_navigator.dart';
+import 'package:chat/common/theme.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/data_model/room.dart';
 import 'package:chat/draft.dart';
 import 'package:chat/localization/check_tag.dart';
+import 'package:chat/presentation/chat_module/bloc/chat_bloc.dart';
 import 'package:rich_text_controller/rich_text_controller.dart';
 import 'package:chat/chat_ui/widgets/inherited_replied_message.dart';
 import 'package:chat/chat_ui/widgets/remove_edit_button.dart';
@@ -42,11 +45,11 @@ class Input extends StatefulWidget {
     this.isAttachmentUploading,
     this.onAttachmentPressed,
     this.onCameraPressed,
-    this.onMicroPressed,
     required this.onSendPressed,
     this.onTextChanged,
     this.onTextFieldTap,
     this.repliedMessage,
+    required this.canSend,
     required this.sendButtonVisibilityMode,
     required this.builder,
     required this.onCancelReplyPressed,
@@ -56,14 +59,16 @@ class Input extends StatefulWidget {
     required this.onStickerPressed,
     required this.onMessageTap,
     required this.isVisible,
+    required this.roomData
   }) : super(key: key);
 
+  final Rooms roomData;
+  final bool canSend;
   final ChatEmojiBuilder builder;
   final InputBuilder inputBuilder;
   /// See [AttachmentButton.onPressed]
   final void Function()? onAttachmentPressed;
   final void Function()? onCameraPressed;
-  final void Function()? onMicroPressed;
 
   final types.Message? repliedMessage;
 
@@ -118,15 +123,13 @@ class _InputState extends State<Input> {
   types.TextMessage? editContent;
   List<People>? _taggingSuggestList;
   List<String> _idTagList = [];
-<<<<<<< Updated upstream
-=======
   late ChatBloc _bloc;
-  Uint8List? _imageData;
->>>>>>> Stashed changes
+  String _imageData = '';
 
   @override
   void initState() {
     super.initState();
+    _bloc = ChatBloc();
     String regex = '';
     if(widget.people != null) {
       regex = "r'@\b|";
@@ -152,6 +155,22 @@ class _InputState extends State<Input> {
       _textController.addListener(_handleTextControllerChange);
     } else {
       _sendButtonVisible = true;
+    }
+  }
+
+  void _deleteImage() {
+      _imageData = '';
+      setState(() {});
+  }
+
+  void _handleContentInsertion(KeyboardInsertedContent value) {
+    if (value.mimeType.contains("image/") && value.data != null && _imageData == '') {
+        _imageData = String.fromCharCodes(value.data!);
+        _sendButtonVisible = _imageData != '';
+        if(!_sendButtonVisible) {
+          _imageData = '';
+        }
+        setState(() {});
     }
   }
 
@@ -241,7 +260,7 @@ class _InputState extends State<Input> {
     });
   }
 
-  void onChanged(String value) {
+  Future<void> onChanged(String value)  async {
     List<String> tagListDetect = detectTag(value, widget.people);
     for (var e in tagListDetect) {
       if(!_idTagList.contains(e)) {
@@ -279,6 +298,7 @@ class _InputState extends State<Input> {
       }
     }
   }
+
   detectTagInTextField(String data) {
     List<People> tmp = [];
     for (var e in widget.people!) {
@@ -315,7 +335,7 @@ class _InputState extends State<Input> {
             _query.padding.right,
             (_query.viewInsets.bottom + _query.padding.bottom) * 0.4,
           );
-    return Focus(
+    return widget.canSend ? Focus(
       autofocus: true,
       child: Padding(
         padding: InheritedChatTheme.of(context).theme.inputMargin,
@@ -360,69 +380,112 @@ class _InputState extends State<Input> {
                                   const BorderRadius.all(Radius.circular(10.0))),
                               child: Padding(
                                 padding: const EdgeInsets.all(3.0),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Padding(
-                                      padding: const EdgeInsets.only(right: 3.0),
-                                      child: SizedBox(
-                                        height: 35.0,
-                                        width: 35.0,
-                                        child: InkWell(
-                                            onTap: () {
-                                              setState(() {
-                                                _emojiShowing = !_emojiShowing;
-                                                emojiIndex = 0;
-                                                // if(_emojiShowing) {
-                                                //   _inputFocusNode.requestFocus();
-                                                // }
-                                              });
-                                            },
-                                            child: Image.asset(
-                                              'assets/icon-emoji.png',
-                                              package: 'chat',
-                                            )),
-                                      ),
-                                    ),
-                                    Expanded(
-                                        child: Padding(
-                                          padding: const EdgeInsets.only(bottom: 6.0),
-                                          child: TextField(
-                                            controller: _textController,
-                                            cursorColor: InheritedChatTheme.of(context)
-                                                .theme
-                                                .inputTextCursorColor,
-                                            decoration: InheritedChatTheme.of(context)
-                                                .theme
-                                                .inputTextDecoration
-                                                .copyWith(
-                                              hintStyle: InheritedChatTheme.of(context)
-                                                  .theme
-                                                  .inputTextStyle
-                                                  .copyWith(
-                                                color:
-                                                Colors.black.withOpacity(0.2),
+                                      Visibility(
+                                        visible: _imageData != '',
+                                        child: Stack(
+                                          children: [
+                                            SizedBox(
+                                              width: MediaQuery.of(context).size.width / 3,
+                                              child: ClipRRect(
+                                                borderRadius: BorderRadius.circular(8.0),
+                                                child: Image.memory(
+                                                  Uint8List.fromList(_imageData.codeUnits),
+                                                ),
                                               ),
-                                              hintText: AppLocalizations.text(LangKey.writeAMessage),
                                             ),
-                                            focusNode: _inputFocusNode,
-                                            keyboardType: TextInputType.multiline,
-                                            maxLines: 5,
-                                            minLines: 1,
-                                            onChanged: (value) {
-                                              onChanged(value);
-                                            },
-                                            onTap: widget.onTextFieldTap,
-                                            style: InheritedChatTheme.of(context)
-                                                .theme
-                                                .inputTextStyle
-                                                .copyWith(
-                                              color: Colors.black,
+                                            Positioned(
+                                              top: 5.0,
+                                              right: 5.0,
+                                              child: GestureDetector(
+                                                onTap: _deleteImage,
+                                                child: Container(
+                                                  padding: const EdgeInsets.all(4.0),
+                                                  decoration: const BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    color: Colors.red,
+                                                  ),
+                                                  child: const Icon(
+                                                    Icons.close,
+                                                    color: Colors.white,
+                                                    size: 16.0,
+                                                  ),
+                                                ),
+                                              ),
                                             ),
-                                            textCapitalization:
-                                            TextCapitalization.sentences,
+                                          ],
+                                        ),
+                                      ),
+                                    Row(
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.only(right: 3.0),
+                                          child: SizedBox(
+                                            height: 35.0,
+                                            width: 35.0,
+                                            child: InkWell(
+                                                onTap: () {
+                                                  setState(() {
+                                                    _emojiShowing = !_emojiShowing;
+                                                    emojiIndex = 0;
+                                                    // if(_emojiShowing) {
+                                                    //   _inputFocusNode.requestFocus();
+                                                    // }
+                                                  });
+                                                },
+                                                child: Image.asset(
+                                                  'assets/icon-emoji.png',
+                                                  package: 'chat',
+                                                )),
                                           ),
-                                        ))
+                                        ),
+                                        Expanded(
+                                            child: Padding(
+                                              padding: const EdgeInsets.only(bottom: 6.0),
+                                              child: TextField(
+                                                controller: _textController,
+                                                cursorColor: InheritedChatTheme.of(context)
+                                                    .theme
+                                                    .inputTextCursorColor,
+                                                decoration: InheritedChatTheme.of(context)
+                                                    .theme
+                                                    .inputTextDecoration
+                                                    .copyWith(
+                                                  hintStyle: InheritedChatTheme.of(context)
+                                                      .theme
+                                                      .inputTextStyle
+                                                      .copyWith(
+                                                    color:
+                                                    Colors.black.withOpacity(0.2),
+                                                  ),
+                                                  hintText: AppLocalizations.text(LangKey.writeAMessage),
+                                                ),
+                                                focusNode: _inputFocusNode,
+                                                keyboardType: TextInputType.multiline,
+                                                maxLines: 5,
+                                                minLines: 1,
+                                                onChanged: (value) {
+                                                  onChanged(value);
+                                                },
+                                                onTap: widget.onTextFieldTap,
+                                                style: InheritedChatTheme.of(context)
+                                                    .theme
+                                                    .inputTextStyle
+                                                    .copyWith(
+                                                  color: Colors.black,
+                                                ),
+                                                textCapitalization: TextCapitalization.sentences,
+                                                // contentInsertionConfiguration: ContentInsertionConfiguration(
+                                                //     onContentInserted: _handleContentInsertion,
+                                                // ),
+                                              ),
+                                            ))
+                                      ],
+                                    ),
                                   ],
                                 ),
                               ),
@@ -587,14 +650,11 @@ class _InputState extends State<Input> {
           ),
         ),
       ),
-<<<<<<< Updated upstream
-=======
     ) :  sendInteractionMessage();
   }
 
   popUpSendInteractionMessage(BuildContext buildContext){
-    return showDialog(context: buildContext, builder: (
-        Context) {
+    return showDialog(context: buildContext, builder: (buildContext) {
       return AlertDialog(
         contentPadding: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
@@ -712,9 +772,9 @@ class _InputState extends State<Input> {
           ),
         ),
       ),
->>>>>>> Stashed changes
     );
   }
+
   Widget stickerSelection(String icon, int index) {
     return Padding(
       padding: const EdgeInsets.only(right: 8.0),
@@ -914,8 +974,6 @@ class _InputState extends State<Input> {
       );
     }
   }
-
-
 
   void requestFocus({types.TextMessage? editContent}) {
     if(editContent != null) {

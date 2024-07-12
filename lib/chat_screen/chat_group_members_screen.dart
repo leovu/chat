@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/chat_screen/add_member_group_screen.dart';
-import 'package:chat/chat_screen/chat_screen.dart';
+import 'package:chat/presentation/chat_module/ui/chat_screen.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/data_model/contact.dart' as ct;
@@ -144,7 +144,7 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
                       label: AppLocalizations.text(LangKey.sendMessage),
                       key: 'Chat',
                     ),
-                    if(widget.roomData.owner == ChatConnection.user!.id &&
+                    if(widget.roomData.owner?.sId == ChatConnection.user!.id &&
                         widget.roomData.isGroup!) SheetAction(
                       icon: Icons.delete,
                       label: AppLocalizations.text(LangKey.removeFroumGroup),

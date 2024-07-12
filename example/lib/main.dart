@@ -1,11 +1,18 @@
+import 'package:chat/common/global.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/material.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:chat/chat.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:chat/common/shared_prefs/shared_prefs.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await SharedPreferences.getInstance().then((event) async {
+    Globals.prefs = SharedPrefs(event);
+  });
   runApp(const OverlaySupport.global(
     child: MaterialApp(
       supportedLocales: [Locale('en', 'US')],
@@ -39,9 +46,9 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       setState(() {
-        _userNameController.text = 'admin@matthewsliquor.com';
-        _passwordController.text = '123456';
-        _domainController.text = 'https://staff-api.dev.matthewsliquor.com.au/';
+        _userNameController.text = 'admin@pioapps.vn';
+        _passwordController.text = 'piospa@2020';
+        _domainController.text = 'https://chat-hub-stag.epoints.vn/';
       });
     });
   }
@@ -131,25 +138,23 @@ class _MyAppState extends State<MyApp> {
                     errorDialog('Domain Empty');
                     return;
                   }
+
+                  await Chat.open(context,_userNameController.value.text, _passwordController.value.text, 'assets/icon-app.png',const Locale(LangKey.langEn, 'EN'),
+                      domain: 'https://chat.epoints.vn/',brandCode: 'sale',isChatHub: false,
+                      token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyZWE5MDJiZmE4Y2I1NDY0MzkzNGNmYyIsInNpZCI6ImJhbmduYiIsImVtYWlsIjoiYmFuZ25iQHBpb2FwcHMudm4iLCJsZXZlbCI6InN0YW5kYXJkIiwiZmlyc3ROYW1lIjoiTmd1eeG7hW4gQuG6o28iLCJsYXN0TmFtZSI6IkLhurFuZyIsInVzZXJuYW1lIjoiYmFuZ25iIiwiYnJhbmQiOiJzYWxlIiwiaWF0IjoxNzIwNzcwNjQ2LCJleHAiOjE3MjU5NTQ2NDZ9.ve0hoWxagxrqODUmszBIjoqdYINFflKDgCqfpyDNNHY");
+
                   // Chat.open(context,_userNameController.value.text, _passwordController.value.text, 'assets/icon-app.png',const Locale(LangKey.langVi, 'VN'), domain: _domainController.value.text,brandCode: 'qc',isChatHub: true,
                   //     token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzMDMwOTNjYzM3M2JkMTg5YjQ1NmFjMCIsInNpZCI6ImFkbWluIiwiZW1haWwiOiJ2dUBwaW9hcHBzLnZuIiwibGV2ZWwiOiJyb290IiwiZmlyc3ROYW1lIjoiQWRtaW4iLCJsYXN0TmFtZSI6IiIsInVzZXJuYW1lIjoiYWRtaW4iLCJicmFuZF9jb2RlIjoicWMiLCJpYXQiOjE2NzA5OTIwNDQsImV4cCI6MTY3NjE3NjA0NH0.U2UoNWnQnNkZOI3qGA5SiTetnggO5SlCKgV7NW0Ks-Q");
-<<<<<<< Updated upstream
-                  Chat.open(context,_userNameController.value.text, _passwordController.value.text, 'assets/icon-app.png',const Locale(LangKey.langVi, 'VN'),
-                      domain: _domainController.value.text,brandCode: 'qc',isChatHub: false,
-                      token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzMDMwOTNjYzM3M2JkMTg5YjQ1NmFjMCIsInNpZCI6ImFkbWluIiwiZW1haWwiOiJ2dUBwaW9hcHBzLnZuIiwibGV2ZWwiOiJyb290IiwiZmlyc3ROYW1lIjoiQWRtaW4iLCJsYXN0TmFtZSI6IiIsInVzZXJuYW1lIjoiYWRtaW4iLCJicmFuZF9jb2RlIjoicWMiLCJpYXQiOjE2ODc1MTY3OTgsImV4cCI6MTY5MjcwMDc5OH0.7xm-CWeZKDHkzoGinfjo_rORlMVMR_kNHn_G8qX88M4");
-=======
 
                   /// An test
-                  await Chat.open(context,_userNameController.value.text, _passwordController.value.text, 'assets/icon-app.png',const Locale(LangKey.langVi, 'VN'),
-                      domain: 'https://chathub.matthewsliquor.com.au/',brandCode: 'matthewsliquor',isChatHub: true,
-                      token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3N0YWZmLWFwaS5kZXYubWF0dGhld3NsaXF1b3IuY29tLmF1L3VzZXIvcmVmcmVzaC10b2tlbiIsImlhdCI6MTcyMDA2NTQ1NCwiZXhwIjoxNzIwMTA4NDI0LCJuYmYiOjE3MjAwODY4MjQsImp0aSI6ImFTUHhPUkh6bU5OVzV4UjUiLCJzdWIiOjIwNywicHJ2IjoiYTBmM2U3NGJlZGY1MTJjNDc3ODI5N2RlNWY5MjA4NmRhZDM5Y2E5ZiIsInNpZCI6ImFkbWluQG1hdHRoZXdzbGlxdW9yLmNvbSIsImJyYW5kX2NvZGUiOiJtYXR0aGV3c2xpcXVvciIsImltZWkiOiJwb3J0YWwxMjMifQ.q_ZDXmWIiXq-3WJOOUAJxJOaD5kvn7Flx7vjhZp_Xos");
-                      //"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3dvcmtzcGFjZS5lcG9pbnRzLnZuL3YyL3VzZXIvbG9naW4iLCJpYXQiOjE3MTk0NzY0NjksImV4cCI6MTcxOTQ5ODA2OSwibmJmIjoxNzE5NDc2NDY5LCJqdGkiOiJXbUZ4cE44S2RnV3pncTJPIiwic3ViIjoxNSwicHJ2IjoiYTBmM2U3NGJlZGY1MTJjNDc3ODI5N2RlNWY5MjA4NmRhZDM5Y2E5ZiIsInNpZCI6InRhbSIsImJyYW5kX2NvZGUiOiJzYWxlIn0.qFV9o7_8_DNHAi_fRJtlYamGBAhcB7DTu1Q4eC9zawA");
+                  // await Chat.open(context,_userNameController.value.text, _passwordController.value.text, 'assets/icon-app.png',const Locale(LangKey.langVi, 'VN'),
+                  //     domain: 'https://chathub.epoints.vn/',brandCode: 'sale',isChatHub: false,
+                  //     token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3dvcmtzcGFjZS5lcG9pbnRzLnZuL3YyL3VzZXIvbG9naW4iLCJpYXQiOjE3MTk0NzY0NjksImV4cCI6MTcxOTQ5ODA2OSwibmJmIjoxNzE5NDc2NDY5LCJqdGkiOiJXbUZ4cE44S2RnV3pncTJPIiwic3ViIjoxNSwicHJ2IjoiYTBmM2U3NGJlZGY1MTJjNDc3ODI5N2RlNWY5MjA4NmRhZDM5Y2E5ZiIsInNpZCI6InRhbSIsImJyYW5kX2NvZGUiOiJzYWxlIn0.qFV9o7_8_DNHAi_fRJtlYamGBAhcB7DTu1Q4eC9zawA");
 
                   /// A Long Test
                   // Chat.open(context,_userNameController.value.text, _passwordController.value.text, 'assets/icon-app.png',const Locale(LangKey.langVi, 'VN'),
                   //     domain: _domainController.value.text,brandCode: 'qc',isChatHub: false,
                   //     token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzMDMwOTNjYzM3M2JkMTg5YjQ1NmFjMCIsInNpZCI6ImFkbWluIiwiZW1haWwiOiJ2dUBwaW9hcHBzLnZuIiwibGV2ZWwiOiJyb290IiwiZmlyc3ROYW1lIjoiQWRtaW4iLCJsYXN0TmFtZSI6IiIsInVzZXJuYW1lIjoiYWRtaW4iLCJicmFuZF9jb2RlIjoicWMiLCJpYXQiOjE2ODc1MTY3OTgsImV4cCI6MTY5MjcwMDc5OH0.7xm-CWeZKDHkzoGinfjo_rORlMVMR_kNHn_G8qX88M4");
->>>>>>> Stashed changes
                 },
                 child: Container(
                     height: 40.0,

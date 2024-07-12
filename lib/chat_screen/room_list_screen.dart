@@ -1,11 +1,15 @@
-import 'dart:ffi';
 import 'dart:io';
 import 'package:chat/chat_screen/filter_chathub_screen.dart';
 import 'package:chat/chat_screen/home_screen.dart';
 import 'package:chat/chat_ui/vietnamese_text.dart';
 import 'package:chat/chat_ui/widgets/chat_room_widget.dart';
+import 'package:chat/common/assets.dart';
+import 'package:chat/common/global.dart';
+import 'package:chat/common/shared_prefs/shared_prefs_key.dart';
+import 'package:chat/common/theme.dart';
+import 'package:chat/common/widges/widget.dart';
 import 'package:chat/connection/chat_connection.dart';
-import 'package:chat/chat_screen/chat_screen.dart';
+import 'package:chat/presentation/chat_module/ui/chat_screen.dart';
 import 'package:chat/data_model/room.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/draft.dart';
@@ -48,18 +52,29 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
   Room? roomListData;
   bool isInitScreen = true;
   Map<String,dynamic> colorAppName = {};
+  late ScrollController _listViewController;
+  int _currentPage = 1;
 
   @override
   void initState() {
     super.initState();
     _getRooms();
+    checkUserToken();
+    _listViewController = ScrollController()..addListener(_scrollListener);
   }
   final RefreshController _refreshController = RefreshController(initialRefresh: false);
+
+  void _scrollListener() {
+    if (_listViewController.position.maxScrollExtent == _listViewController.offset) {
+      _getRooms(page: _currentPage + 1);
+    }
+  }
 
   void _onRefresh() async{
     await Future.delayed(const Duration(milliseconds: 1000));
     await _getRooms();
     _refreshController.refreshCompleted();
+    setState(() {_currentPage = 1;});
   }
 
   void _onLoading() async{
@@ -67,9 +82,14 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
     await _getRooms();
     _refreshController.loadComplete();
   }
-  _getRooms() async {
+
+  checkUserToken(){
+     ChatConnection.checkUserToken();
+  }
+
+  _getRooms({int page = 1}) async {
     if(mounted) {
-      roomListData = await ChatConnection.roomList(source: widget.source,channelId: channel,status: status, tagIds: tagIds);
+      roomListData = await ChatConnection.roomList(source: widget.source,channelId: channel,status: status, tagIds: tagIds, page: page, roomData: roomListData);
       _getRoomVisible();
       isInitScreen = false;
       setState(() {});
@@ -81,7 +101,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
     }
     else {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
-        roomListData = await ChatConnection.roomList(source: widget.source,channelId: channel,status: status, tagIds: tagIds);
+        roomListData = await ChatConnection.roomList(source: widget.source,channelId: channel,status: status, tagIds: tagIds, page: page, roomData: roomListData);
         _getRoomVisible();
         isInitScreen = false;
         setState(() {});
@@ -92,6 +112,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
         }
       });
     }
+    if(page != 1) setState(() {_currentPage++;});
   }
 
   _getRoomVisible() {
@@ -169,10 +190,107 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                     if(!ChatConnection.isChatHub) Row(
                       children: [
                         Padding(
-                          padding: const EdgeInsets.only(bottom: 3.0,left: 10.0,right: 10.0),
+                          padding: const EdgeInsets.only(bottom: 3.0, left: 10.0),
                           child: Text(AppLocalizations.text(LangKey.chats),style: const TextStyle(fontSize: 25.0,color: Colors.black)),
                         ),
                         Expanded(child: Container()),
+                        if(!ChatConnection.isChatHub) Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                          child: SizedBox(width:30.0,height: 30.0,
+                              child: InkWell(onTap: () async {
+                                showDialog(context: context, builder: (context) {
+                                  return AlertDialog(
+                                    contentPadding: EdgeInsets.zero,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.all(Radius.circular(5.0))),
+                                    content: Container(
+                                        decoration: BoxDecoration(
+                                            color: AppColors.white,
+                                            borderRadius: new BorderRadius.all(Radius.circular(5))),
+                                        height: 210,
+                                        padding: EdgeInsets.symmetric(vertical: 16, horizontal: 27),
+                                        child: Column(
+                                          children: <Widget>[
+                                            Container(
+                                              alignment: Alignment.centerLeft,
+                                              margin: EdgeInsets.only(bottom: 11),
+                                              child: Text(
+                                                AppLocalizations.text(LangKey.change_language),
+                                                style: AppTextStyles.style18BlackBold,
+                                              ),
+                                            ),
+                                            const Padding(
+                                              padding: EdgeInsets.only(top: 8.0),
+                                              child: Divider(),
+                                            ),
+                                            InkWell(
+                                              onTap: () async {
+                                                Navigator.of(context, rootNavigator: true).pop();
+                                                RestartWidget.restartApp(context);
+                                                AppLocalizations.delegate.load(Locale("en"));
+                                                await Globals.prefs!.setString(SharedPrefsKey.language, 'en');
+                                              },
+                                              child: Container(
+                                                height: 40.0,
+                                                  child: Row(
+                                                    children: <Widget>[
+                                                      Container(
+                                                        margin: EdgeInsets.only(right: 10.0),
+                                                        height: 30.0,
+                                                        width: 30.0,
+                                                        child: Image.asset(Assets.iconUK, package: 'chat',),
+                                                      ),
+                                                      Expanded(
+                                                        child: Container(
+                                                          height: 40.0,
+                                                          alignment: Alignment.centerLeft,
+                                                          child: Text(
+                                                            'English',
+                                                            style: AppTextStyles.style14BlackWeight500,
+                                                          ),
+                                                        ),
+                                                      )
+                                                    ],
+                                                  )),
+                                            ),
+                                            CustomLine(),
+                                            InkWell(
+                                              onTap: () async {
+                                                Navigator.of(context, rootNavigator: true).pop();
+                                                RestartWidget.restartApp(context);
+                                                AppLocalizations.delegate.load(Locale("vi"));
+                                                await Globals.prefs!.setString(SharedPrefsKey.language, 'vi');
+                                              },
+                                              child: Container(
+                                                  margin: EdgeInsets.only(top: 10.0),
+                                                  height: 40.0,
+                                                  child: Row(
+                                                    children: <Widget>[
+                                                      Container(
+                                                        margin: EdgeInsets.only(right: 10.0),
+                                                        height: 30.0,
+                                                        width: 30.0,
+                                                        child: Image.asset(Assets.iconViet, package: 'chat',),
+                                                      ),
+                                                      Expanded(
+                                                        child: Container(
+                                                          alignment: Alignment.centerLeft,
+                                                          child: Text(
+                                                            'Tiếng Việt',
+                                                            style: AppTextStyles.style14BlackWeight500,
+                                                          ),
+                                                        ),
+                                                      )
+                                                    ],
+                                                  )),
+                                            ),
+                                          ],
+                                        )),
+                                  );
+                                });
+                              },
+                                child: Image.asset(Assets.iconChangeLanguage ,package: 'chat',),)),
+                        ),
                         if(!ChatConnection.isChatHub) Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20.0),
                           child: SizedBox(width:30.0,height: 30.0,
@@ -234,20 +352,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                                   });
                                 },
                               ),
-                            ),
-                            // Padding(
-                            //   padding: EdgeInsets.symmetric(horizontal: 10),
-                            //   child: InkWell(
-                            //     onTap: () {
-                            //       if (widget.filterCall != null) {
-                            //         widget.filterCall!();
-                            //       }
-                            //     },
-                            //     child:  SizedBox(
-                            //         width:30.0,
-                            //         child: Image.asset('assets/icon_settings.png', package: 'chat',width: 18.0,height: 18.0,)),
-                            //   ),
-                            // ),
+                            )
                           ],
                         ),
                       ),
@@ -265,6 +370,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                     onLoading: _onLoading,
                     header: const WaterDropHeader(),
                     child: ListView.builder(
+                        controller: _listViewController,
                         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                         itemCount: (ChatConnection.openChatGPT != null) ? (roomListVisible!.rooms?.length ?? 0) + 1 : (roomListVisible!.rooms?.length ?? 0),
                         itemBuilder: (BuildContext context, int index) {
@@ -276,89 +382,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                                 },
                                 child: _gptRoom(!(roomListVisible?.rooms != null && roomListVisible!.rooms!.isNotEmpty)));
                           }
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 5.0),
-                            child: InkWell(
-                                onTap: () async {
-                                  await Navigator.of(context,rootNavigator: true).push(
-                                    MaterialPageRoute(builder: (context) => ChatScreen(data: roomListVisible!.rooms![position],source: roomListVisible!.rooms![position].source,),settings:const RouteSettings(name: 'chat_screen')),
-                                  );
-                                  setState(() {});
-                                  _getRooms();
-                                },
-                                child: Slidable(
-                                    enabled: !ChatConnection.isChatHub,
-                                    endActionPane: ActionPane(
-                                      motion: const StretchMotion(),
-                                      children: [
-                                        if(roomListVisible!.rooms![position].isGroup!) SlidableAction(
-                                          onPressed: (cxt) {
-                                            showModalActionSheet<String>(
-                                              context: context,
-                                              actions: [
-                                                if (roomListVisible!.rooms![position].isGroup!)
-                                                  SheetAction(
-                                                  icon: Icons.remove_circle,
-                                                  label: AppLocalizations.text(LangKey.leave),
-                                                  key: 'Leave',
-                                                ),
-                                                if(Platform.isAndroid) SheetAction(
-                                                    icon: Icons.cancel,
-                                                    label: AppLocalizations.text(LangKey.cancel),
-                                                    key: 'Cancel',
-                                                    isDestructiveAction: true)
-                                              ],
-                                            ).then((value) => value == 'Leave'
-                                                ? _leaveRoom(roomListVisible!.rooms![position].sId!)
-                                                : (){});
-                                          },
-                                          autoClose: true,
-                                          backgroundColor: Colors.blue,
-                                          foregroundColor: Colors.white,
-                                          icon: Icons.remove_circle,
-                                          label: AppLocalizations.text(LangKey.leave),
-                                        ),
-                                        if(roomListVisible!.rooms![position].owner == ChatConnection.user!.id &&
-                                                roomListVisible!.rooms![position].isGroup! || !roomListVisible!.rooms![position].isGroup!)
-                                          SlidableAction(
-                                          onPressed: (cxt) {
-                                            showModalActionSheet<String>(
-                                              context: context,
-                                              actions: [
-                                                if (!roomListVisible!.rooms![position].isGroup!) SheetAction(
-                                                  icon: Icons.remove_circle,
-                                                  label: AppLocalizations.text(LangKey.delete),
-                                                  key: 'Leave',
-                                                ),
-                                                if (roomListVisible!.rooms![position].isGroup!
-                                                    && roomListVisible!.rooms![position].owner == ChatConnection.user!.id)
-                                                  SheetAction(
-                                                    icon: Icons.remove_circle,
-                                                    label: AppLocalizations.text(LangKey.delete),
-                                                    key: 'Delete',
-                                                  ),
-                                                if(Platform.isAndroid) SheetAction(
-                                                    icon: Icons.cancel,
-                                                    label: AppLocalizations.text(LangKey.cancel),
-                                                    key: 'Cancel',
-                                                    isDestructiveAction: true)
-                                              ],
-                                            ).then((value) => value == 'Delete'
-                                                ? _removeRoom(roomListVisible!.rooms![position].sId!)
-                                                : value == 'Leave'
-                                                ? _removeLeaveRoom(roomListVisible!.rooms![position].sId!)
-                                                : (){});
-                                          },
-                                          autoClose: true,
-                                          backgroundColor: const Color(0xFFFE4A49),
-                                          foregroundColor: Colors.white,
-                                          icon: Icons.delete,
-                                          label: AppLocalizations.text(LangKey.delete),
-                                        ),
-                                      ],
-                                    ),
-                                    child: _room(roomListVisible!.rooms![position], position == roomListVisible!.rooms!.length-1))),
-                          );
+                          return parseRoom(position);
                         }),
                   ) : Container(),
                 )
@@ -366,6 +390,91 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
             ),
         ),
       );
+  }
+  Widget parseRoom(int position) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5.0),
+      child: InkWell(
+          onTap: () async {
+            await Navigator.of(context,rootNavigator: true).push(
+              MaterialPageRoute(builder: (context) => ChatScreen(data: roomListVisible!.rooms![position],source: roomListVisible!.rooms![position].source,),settings:const RouteSettings(name: 'chat_screen')),
+            );
+            setState(() {});
+            _getRooms();
+          },
+          child: Slidable(
+              enabled: !ChatConnection.isChatHub,
+              endActionPane: ActionPane(
+                motion: const StretchMotion(),
+                children: [
+                  if(roomListVisible!.rooms![position].isGroup!) SlidableAction(
+                    onPressed: (cxt) {
+                      showModalActionSheet<String>(
+                        context: context,
+                        actions: [
+                          if (roomListVisible!.rooms![position].isGroup!)
+                            SheetAction(
+                              icon: Icons.remove_circle,
+                              label: AppLocalizations.text(LangKey.leave),
+                              key: 'Leave',
+                            ),
+                          if(Platform.isAndroid) SheetAction(
+                              icon: Icons.cancel,
+                              label: AppLocalizations.text(LangKey.cancel),
+                              key: 'Cancel',
+                              isDestructiveAction: true)
+                        ],
+                      ).then((value) => value == 'Leave'
+                          ? _leaveRoom(roomListVisible!.rooms![position].sId!)
+                          : (){});
+                    },
+                    autoClose: true,
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white,
+                    icon: Icons.remove_circle,
+                    label: AppLocalizations.text(LangKey.leave),
+                  ),
+                  if(roomListVisible!.rooms![position].owner?.sId == ChatConnection.user!.id &&
+                      roomListVisible!.rooms![position].isGroup! || !roomListVisible!.rooms![position].isGroup!)
+                    SlidableAction(
+                      onPressed: (cxt) {
+                        showModalActionSheet<String>(
+                          context: context,
+                          actions: [
+                            if (!roomListVisible!.rooms![position].isGroup!) SheetAction(
+                              icon: Icons.remove_circle,
+                              label: AppLocalizations.text(LangKey.delete),
+                              key: 'Leave',
+                            ),
+                            if (roomListVisible!.rooms![position].isGroup!
+                                && roomListVisible!.rooms![position].owner?.sId == ChatConnection.user!.id)
+                              SheetAction(
+                                icon: Icons.remove_circle,
+                                label: AppLocalizations.text(LangKey.delete),
+                                key: 'Delete',
+                              ),
+                            if(Platform.isAndroid) SheetAction(
+                                icon: Icons.cancel,
+                                label: AppLocalizations.text(LangKey.cancel),
+                                key: 'Cancel',
+                                isDestructiveAction: true)
+                          ],
+                        ).then((value) => value == 'Delete'
+                            ? _removeRoom(roomListVisible!.rooms![position].sId!)
+                            : value == 'Leave'
+                            ? _removeLeaveRoom(roomListVisible!.rooms![position].sId!)
+                            : (){});
+                      },
+                      autoClose: true,
+                      backgroundColor: const Color(0xFFFE4A49),
+                      foregroundColor: Colors.white,
+                      icon: Icons.delete,
+                      label: AppLocalizations.text(LangKey.delete),
+                    ),
+                ],
+              ),
+              child: _room(roomListVisible!.rooms![position], position == roomListVisible!.rooms!.length-1))),
+    );
   }
   void _leaveRoom(String roomId) {
     showDialog(
@@ -531,13 +640,32 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
       ],
     );
   }
-  Widget _room(Rooms data, bool isLast) {
-    People info = getPeople(data.people);
-    String? author = findAuthor(data.people,data.lastMessage?.author);
+  Widget _room(Rooms data,bool isLast) {
+    Owner? owner;
+    if(!ChatConnection.isChatHub) {
+      if(data.isGroup!) {
+        owner = Owner.fromPeople(data.people!.firstWhere((e) => e.sId == data.owner!.sId));
+      }
+      else {
+        owner = Owner.fromPeople(data.people!.firstWhere((e) => e.sId != ChatConnection.user!.id));
+      }
+    }
+    String? author = findAuthor(owner,data.lastMessage?.author);
     if(!colorAppName.keys.contains(data.channel?.nameApp??'')) {
       Color color = RandomHexColor().colorRandom(data.channel?.nameApp??'');
       colorAppName[data.channel?.nameApp??''] = color;
     }
+    if (ChatConnection.isChatHub) {
+      if(data.owner == null) {
+        return Container();
+      }
+      return roomChatHubWidget(data, author!, isLast);
+    }
+    else {
+      return roomWidget(data, owner!, author, isLast);
+    }
+  }
+  Widget roomWidget(Rooms data, Owner people,String? author, bool isLast) {
     return Column(
       children: [
         SizedBox(
@@ -551,15 +679,16 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                 children: [
                   Stack(
                     children: [
-                      !data.isGroup! ? info.picture == null ? CircleAvatar(
+                      !data.isGroup! ? (people.picture == null || people.picture == "") ? CircleAvatar(
                         radius: 25.0,
                         child: Text(
-                          info.getAvatarName(),
+                          people.getAvatarName(),
                           style: const TextStyle(color: Colors.white),),
-                      ) : CircleAvatar(
+                      ) :
+                      CircleAvatar(
                         radius: 25.0,
                         backgroundImage:
-                        CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${info.picture!.shieldedID}/256/${ChatConnection.brandCode!}',headers: {'brand-code':ChatConnection.brandCode!}),
+                        CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${people.picture}/256/${ChatConnection.brandCode!}',headers: {'brand-code':ChatConnection.brandCode!}),
                         backgroundColor: Colors.transparent,
                       ) : data.picture == null ? CircleAvatar(
                         radius: 25.0,
@@ -572,21 +701,6 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                         CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${data.picture!.shieldedID}/256/${ChatConnection.brandCode!}',headers: {'brand-code':ChatConnection.brandCode!}),
                         backgroundColor: Colors.transparent,
                       ),
-                      if(data.source != null) Positioned(
-                        right: -8.0,
-                        bottom: 0.0,
-                          child:
-                      Padding(
-                        padding: const EdgeInsets.only(right: 6.0),
-                        child: Container(
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(20.0)
-                          ),
-                          child: Image.asset(data.source == 'zalo' ? 'assets/icon-zalo.png' : data.source == 'client' ? 'assets/icon_chat_client.png' : 'assets/icon-facebook.png',
-                            package: 'chat',width: 25.0,height: 25.0,),
-                        ),
-                      )),
                     ],
                   ),
                   Expanded(child: Container(
@@ -596,43 +710,143 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
-                          child: Row(
-                            children: [
-                              if(ChatConnection.isChatHub)
-                                if(checkCustomerTypeChatHub(data.people) != null)
-                                  Padding(
-                                    padding: const EdgeInsets.only(right: 6.0),
-                                    child: Image.asset(checkCustomerTypeChatHub(data.people) == 'customer' ?
-                                      'assets/icon-crown.png' : 'assets/icon-star.png',
-                                      package: 'chat',
-                                      width: 15.0,height: 15.0,),
-                                  ),
-                              Expanded(child: Text(!data.isGroup! ?
-                              '${info.firstName} ${info.lastName}' : data.title ?? 'Group ${info.firstName} ${info.lastName}',
+                            child: Row(
+                              children: [
+                                Expanded(child: Text(!data.isGroup! ?
+                                '${people.firstName} ${people.lastName}' : data.title ?? 'Group ${people.firstName} ${people.lastName}',
                                   overflow: TextOverflow.ellipsis,
                                   maxLines: 1,
                                   style: TextStyle(fontWeight: findUnread(data.messagesReceived,data.messageUnSeen) != '0' ? FontWeight.bold : FontWeight.normal),
                                 ),
-                              ),
-                              AutoSizeText(data.lastMessage?.lastMessageDate() ?? data.createdDate(),style: const TextStyle(fontSize: 11,color: Colors.grey),),
-                            ],
-                          )
+                                ),
+                                AutoSizeText(data.lastMessage?.lastMessageDate() ?? data.createdDate(),style: const TextStyle(fontSize: 11,color: Colors.grey),),
+                              ],
+                            )
                         ),
                         Container(height: 5.0,),
                         Expanded(child:
                         Row(
                           children: [
                             Expanded(child:
-                              FutureBuilder<String>(
-                                future: draftMessage(data.sId!,'$author''${checkTag(_checkContent(data),null)}'),
-                                builder:
-                                    (BuildContext context, AsyncSnapshot<String> snapshot) {
-                                  if (snapshot.hasData) {
-                                    final text = snapshot.data;
-                                    return ChatRoomWidget(content: text ?? "");
-                                  }return Container();
-                                },
-                              )),
+                            FutureBuilder<String>(
+                              future: draftMessage(data.sId!,'$author''${checkTag(_checkContent(data),null)}'),
+                              builder:
+                                  (BuildContext context, AsyncSnapshot<String> snapshot) {
+                                if (snapshot.hasData) {
+                                  final text = snapshot.data;
+                                  return ChatRoomWidget(content: text ?? "");
+                                }return Container();
+                              },
+                            )),
+                            if(findUnread(data.messagesReceived,data.messageUnSeen) != '0') CircleAvatar(
+                              radius: 18.0,
+                              child: Text(
+                                findUnread(data.messagesReceived,data.messageUnSeen),
+                                style: const TextStyle(color: Colors.white,fontSize: 12),),
+                            )
+                          ],
+                        )),
+                      ],
+                    ),
+                  ))
+                ],
+              ),
+            ),
+          ),
+        ),
+        !isLast ? Container(height: 5.0,) : Container(),
+        !isLast ?  Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10.0),
+          child: Container(height: 1.0,color: Colors.grey.shade300,),
+        ) : Container()
+      ],
+    );
+  }
+  Widget roomChatHubWidget(Rooms data,String author, bool isLast) {
+    return Column(
+      children: [
+        SizedBox(
+          child: SizedBox(
+            height: ChatConnection.isChatHub ? 80.0 : 50.0,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Stack(
+                    children: [
+                      data.owner!.picture == null ? CircleAvatar(
+                        radius: 25.0,
+                        child: Text(
+                          data.owner!.getAvatarName(),
+                          style: const TextStyle(color: Colors.white),),
+                      ) : CircleAvatar(
+                        radius: 25.0,
+                        backgroundImage:
+                        CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${data.shieldedID}/256/${ChatConnection.brandCode!}',headers: {'brand-code':ChatConnection.brandCode!}),
+                        backgroundColor: Colors.transparent,
+                      ),
+                      if(data.source != null) Positioned(
+                          right: -8.0,
+                          bottom: 0.0,
+                          child:
+                          Padding(
+                            padding: const EdgeInsets.only(right: 6.0),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(20.0)
+                              ),
+                              child: Image.asset(data.source == 'zalo' ? 'assets/icon-zalo.png' : data.source == 'client' ? 'assets/icon_chat_client.png' : 'assets/icon-facebook.png',
+                                package: 'chat',width: 25.0,height: 25.0,),
+                            ),
+                          )),
+                    ],
+                  ),
+                  Expanded(child: Container(
+                    padding: const EdgeInsets.only(top: 5.0,bottom: 5.0,left: 10.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                            child: Row(
+                              children: [
+                                if(checkCustomerTypeChatHub(data.owner!) != null)
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 6.0),
+                                    child: Image.asset(checkCustomerTypeChatHub(data.owner!) == 'customer' ?
+                                    'assets/icon-crown.png' : 'assets/icon-star.png',
+                                      package: 'chat',
+                                      width: 15.0,height: 15.0,),
+                                  ),
+                                Expanded(child: Text(!data.isGroup! ?
+                                '${data.owner!.firstName} ${data.owner!.lastName}' : data.title ?? 'Group ${data.owner!.firstName} ${data.owner!.lastName}',
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                  style: TextStyle(fontWeight: findUnread(data.messagesReceived,data.messageUnSeen) != '0' ? FontWeight.bold : FontWeight.normal),
+                                ),
+                                ),
+                                AutoSizeText(data.lastMessage?.lastMessageDate() ?? data.createdDate(),style: const TextStyle(fontSize: 11,color: Colors.grey),),
+                              ],
+                            )
+                        ),
+                        Container(height: 5.0,),
+                        Expanded(child:
+                        Row(
+                          children: [
+                            Expanded(child:
+                            FutureBuilder<String>(
+                              future: draftMessage(data.sId!,'$author''${checkTag(_checkContent(data),null)}'),
+                              builder:
+                                  (BuildContext context, AsyncSnapshot<String> snapshot) {
+                                if (snapshot.hasData) {
+                                  final text = snapshot.data;
+                                  return ChatRoomWidget(content: text ?? "");
+                                }return Container();
+                              },
+                            )),
                             if(findUnread(data.messagesReceived,data.messageUnSeen) != '0') CircleAvatar(
                               radius: 18.0,
                               child: Text(
@@ -646,14 +860,14 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
                           child: Align(
                               alignment: Alignment.centerLeft,
                               child: Container(
-                                decoration: BoxDecoration(
-                                  color: colorAppName[data.channel?.nameApp??''],
-                                  borderRadius: BorderRadius.circular(10.0)
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.only(left: 8.0,right: 8.0,top: 6.0,bottom: 6.0),
-                                  child: AutoSizeText(data.channel?.nameApp??'',textAlign: TextAlign.center,style: const TextStyle(color: Colors.white),textScaleFactor: 0.85,),
-                                ))),
+                                  decoration: BoxDecoration(
+                                      color: colorAppName[data.channel?.nameApp??''],
+                                      borderRadius: BorderRadius.circular(10.0)
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 8.0,right: 8.0,top: 6.0,bottom: 6.0),
+                                    child: AutoSizeText(data.channel?.nameApp??'',textAlign: TextAlign.center,style: const TextStyle(color: Colors.white),textScaleFactor: 0.85,),
+                                  ))),
                         ),flex: 2,)
                       ],
                     ),
@@ -671,14 +885,14 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
       ],
     );
   }
-  String? checkCustomerTypeChatHub(List<People>? list) {
+  String? checkCustomerTypeChatHub(Owner owner) {
     String? result;
     try{
-      if(list?.where((element) => element.sId!=ChatConnection.user!.id).first.customer!.first.customerId != null) {
+      if(owner.customerId != null) {
         result = 'customer';
       }
       else {
-        if (list?.where((element) => element.sId!=ChatConnection.user!.id).first.customer!.first.cpoCustomerId != null) {
+        if (owner.cpoCustomerId!= null) {
           result = 'cpo';
         }
       }
@@ -693,12 +907,13 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
       return content;
     }
   }
+  /// DEV
   String _checkContent(Rooms model) {
-    if(!ChatConnection.isChatHub) {
-      if((model.messagesReceived?.length ?? 0) == 0){
-        return (findAuthor(model.people,model.owner,isGroupOwner: true) ?? '') + AppLocalizations.text(LangKey.justCreatedRoom);
-      }
-    }
+    // if(!ChatConnection.isChatHub) {
+    //   if((model.messagesReceived?.length ?? 0) == 0){
+    //     return (findAuthor(model.owner,model.owner!.sId ?? '',isGroupOwner: true) ?? '') + AppLocalizations.text(LangKey.justCreatedRoom);
+    //   }
+    // }
     if(model.lastMessage?.type == 'image'){
       return AppLocalizations.text(LangKey.sentPicture);
     }
@@ -737,11 +952,12 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
       }
     }
   }
-  String? findAuthor(List<People>? people, String? author,{bool isGroupOwner = false}) {
-    People? p;
+  String? findAuthor(Owner? people, String? author,{bool isGroupOwner = false}) {
+    Owner? p;
     try {
-      p = people?.firstWhere((element) => element.sId == author);
-      return (p!.sId != ChatConnection.user!.id ? ((p.firstName ?? '').trim() + ' ' + (p.lastName ?? '').trim()).trim() : AppLocalizations.text(LangKey.you)) + (isGroupOwner ? ' ' : ': ');
+      p = people;
+      return "${p!.sId != ChatConnection.user!.id ? ('${(p.firstName ?? '').trim()} ${(p.lastName ?? '').trim()}').trim() : AppLocalizations.text(LangKey.you)}: ";
+      // + (isGroupOwner ? ' ' : ': ');
     }catch(_){
       return '';
     }

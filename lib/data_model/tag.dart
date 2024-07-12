@@ -74,7 +74,7 @@ class Data {
     data['createdAt'] = createdAt;
     data['updatedAt'] = updatedAt;
     data['__v'] = iV;
-    data['isActive'] = this.isActive;
+    data['isActive'] = isActive;
     return data;
   }
 }

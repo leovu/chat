@@ -116,9 +116,6 @@
   "zaloSendOATier": "Tin tiếp theo bạn gửi đi là tin tư vấn miễn phí",
   "zaloSendReply1": "Bạn còn ",
   "zaloSendReply2": " tin nhắn chủ động miễn phí",
-<<<<<<< Updated upstream
-  "zaloSendOther": "Tin tiếp theo bạn gửi đi là tin có tính phí"
-=======
   "zaloSendOther": "Tin tiếp theo bạn gửi đi là tin có tính phí",
 
   "socialInformation" : "Thông tin mạng xã hội",
@@ -143,5 +140,4 @@
   "charge_message" : "Đây là tin nhắn có tính phí (165đ/tin).",
   "delete_note_des" : "Bạn có muốn xóa ghi chú này?",
   "client" : "K.Hàng"
->>>>>>> Stashed changes
 }

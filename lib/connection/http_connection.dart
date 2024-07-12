@@ -12,7 +12,7 @@ class HTTPConnection {
     request.headers.addAll({
       'Content-Type': 'multipart/form-data',
       'Authorization':'Bearer ${ChatConnection.user!.token}',
-      'uid': ChatConnection.user!.id,
+      'uid': ChatConnection.uid.toString(),
       'lang': ChatConnection.locale.languageCode
     });
     if(ChatConnection.brandCode != null) {
@@ -52,7 +52,7 @@ class HTTPConnection {
     final headers = {'Content-Type': 'application/json'};
     if(ChatConnection.user != null) {
       headers['Authorization'] = 'Bearer ${ChatConnection.user!.token}';
-      headers['uid'] = ChatConnection.user!.id;
+      headers['uid'] = ChatConnection.uid.toString();
     }
     if(ChatConnection.brandCode != null) {
       headers['brand-code'] = ChatConnection.brandCode!;
@@ -93,7 +93,7 @@ class HTTPConnection {
     Map<String, String> headers = {};
     if(ChatConnection.user != null) {
       headers['Authorization'] = 'Bearer ${ChatConnection.user!.token}';
-      headers['uid'] = ChatConnection.user!.id;
+      headers['uid'] = ChatConnection.uid.toString();
     }
     if(ChatConnection.brandCode != null) {
       headers['brand-code'] = ChatConnection.brandCode!;
