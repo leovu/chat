@@ -21,7 +21,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:flutter_beep/flutter_beep.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-import 'package:chat/common/global.dart';
 
 class ChatConnection {
   static late void Function() refreshRoom;
@@ -59,6 +58,7 @@ class ChatConnection {
   static int? notiChatHubFacebook;
   static int? notiChatHubZalo;
   static Function? openChatGPT;
+  static int? uid;
   static Future<bool>init(String email,String password,{String? token}) async {
     HttpOverrides.global = MyHttpOverrides();
     String? resultToken;
@@ -72,6 +72,10 @@ class ChatConnection {
       user = User(email:email,password:password,token:resultToken);
       Map<String, dynamic> payload = Jwt.parseJwt(resultToken);
       user!.id = payload['sub'].toString();
+      if(user!.id == "null") {
+        user!.id = payload["id"];
+      }
+      ChatConnection.uid = payload["uid"];
       user!.firstName = payload['firstName'] ?? '';
       user!.lastName = payload['lastName'] ?? '';
       streamSocket.connectAndListen(streamSocket,user!);
@@ -121,8 +125,10 @@ class ChatConnection {
     if(source != null) json['source'] = source;
     if(channelId != null) json['channel_id'] = channelId;
     if(status != null) json['status'] = status;
+    json['limit'] = 100;
     if(tagIds != null) if(tagIds.isNotEmpty) json['tag_ids'] = tagIds;
-    ResponseData responseData = await connection.post('api/v2/rooms/list', json);
+    String url = ChatConnection.isChatHub ? 'api/v2/rooms/list' : 'api/rooms/list';
+    ResponseData responseData = await connection.post(url, json);
     if(responseData.isSuccess) {
       /// xử lý add room với trường hợp loadmore
       r.Room room = r.Room.fromJson(responseData.data);
@@ -182,7 +188,8 @@ class ChatConnection {
     return responseData.isSuccess;
   }
   static Future<c.ChatMessage?>joinRoom(String id ,{bool refresh = false}) async {
-    ResponseData responseData = await connection.post('api/v2/room/join', {'id':id});
+    String version = ChatConnection.isChatHub ? '/v2' : '';
+    ResponseData responseData = await connection.post('api$version/room/join', {'id':id});
     if(responseData.isSuccess) {
       if(!refresh) {
         streamSocket.joinRoom(id);
@@ -548,6 +555,7 @@ class ChatConnection {
     ResponseData responseData = await connection.post('api/check-user-token', {'token': ChatConnection.user!.token});
     if(responseData.isSuccess) {
       ChatConnection.checkUserTokenResponseModel = CheckUserTokenResponseModel.fromJson(responseData.data);
+      ChatConnection.user = User.fromCheckUserToken(ChatConnection.checkUserTokenResponseModel!);
       return responseData.isSuccess;
     }
     return false;

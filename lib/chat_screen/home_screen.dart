@@ -229,7 +229,7 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
 }
 
 class RestartWidget extends StatefulWidget {
-  RestartWidget({required this.child});
+  RestartWidget({super.key, required this.child});
 
   final Widget child;
 

@@ -402,9 +402,9 @@ class ForwardScreenState extends State<ForwardScreen> {
                                         }
                                       }
                                   },
-                                  child: AutoSizeText(idSent.contains(data.sId) ? AppLocalizations.text(LangKey.sent) : AppLocalizations.text(LangKey.send)),
                                     color: idSent.contains(data.sId) ? Colors.grey : Colors.blue,
-                                    textColor: idSent.contains(data.sId) ? Colors.black : Colors.white),
+                                    textColor: idSent.contains(data.sId) ? Colors.black : Colors.white,
+                                  child: AutoSizeText(idSent.contains(data.sId) ? AppLocalizations.text(LangKey.sent) : AppLocalizations.text(LangKey.send))),
                                 )
                               ],
                             )

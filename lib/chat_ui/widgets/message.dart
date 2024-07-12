@@ -12,7 +12,6 @@ import '../util.dart';
 import 'file_message.dart';
 import 'image_message.dart';
 import 'inherited_chat_theme.dart';
-import 'inherited_user.dart';
 import 'text_message.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:chat/data_model/chat_message.dart' as c;

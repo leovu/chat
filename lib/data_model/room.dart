@@ -1,3 +1,4 @@
+import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:intl/intl.dart';
@@ -15,7 +16,8 @@ class Room {
       rooms = <Rooms>[];
       json[!isFavorite ? 'rooms' : 'favorites'].forEach((v) {
         print(v);
-        rooms!.add(Rooms.fromJson(v));
+        Rooms data = Rooms.fromJson(v);
+        rooms!.add(data);
       });
     }
     notifications = json['notifications'] != null
@@ -86,9 +88,17 @@ class Rooms {
     iV = json['__v'];
     lastAuthor = json['lastAuthor'];
     try{
-      owner = json['owner'] != null
-          ? Owner.fromJson(json['owner'])
-          : null;
+      if(ChatConnection.isChatHub) {
+        owner = Owner.fromJson(json['owner']);
+      }
+      else {
+        if(isGroup!) {
+          owner = Owner.fromPeople(people!.firstWhere((e) => e.sId == json['owner']));
+        }
+        else {
+          owner = Owner.fromPeople(people!.firstWhere((e) => e.sId != ChatConnection.user!.id));
+        }
+      }
     }catch(_){}
     messageUnSeen = json['messageUnSeen'];
     try{
@@ -343,6 +353,10 @@ class People {
     }
     return avatarName == '' ? '*' : avatarName.toUpperCase();
   }
+
+  People.fromOwner() {
+
+  }
 }
 
 class Customer {
@@ -585,9 +599,9 @@ class Owner {
   int? iV;
   String? picture;
   // String? cpoCustomerCode;
-  // int? cpoCustomerId;
+  int? cpoCustomerId;
   // String? customerCode;
-  // String? customerId;
+  int? customerId;
   String? createdAt;
   bool? isBlocked;
   int? isFollowed;
@@ -611,9 +625,9 @@ class Owner {
         this.iV,
         this.picture,
         // this.cpoCustomerCode,
-        // this.cpoCustomerId,
+        this.cpoCustomerId,
         // this.customerCode,
-        // this.customerId,
+        this.customerId,
         this.createdAt,
         this.isBlocked,
         this.isFollowed,
@@ -628,7 +642,12 @@ class Owner {
     //     favorites!.add(new Null.fromJson(v));
     //   });
     // }
-    userTag = json['userTag'].cast<String>();
+    if(json['userTag'] != null) {
+      userTag = <String>[];
+      json['userTag'].forEach((v) {
+        userTag!.add(v);
+      });
+    }
     tagLine = json['tagLine'];
     isIncognito = json['isIncognito'];
     username = json['username'];
@@ -640,11 +659,14 @@ class Owner {
     password = json['password'];
     lastOnline = json['lastOnline'];
     iV = json['__v'];
-    picture = json['picture'];
+    if(json['picture'] != null) {
+      picture = json['picture'];
+    }
     // cpoCustomerCode = json['cpoCustomerCode'];
-    // cpoCustomerId = json['cpoCustomerId'];
-    // customerCode = json['customerCode'] ?? '';
-    // customerId = json['customerId'] ?? '';
+    // customerCode = json['customerCode'];
+
+    cpoCustomerId = json['cpoCustomerId'];
+    customerId = json['customerId'];
     createdAt = json['createdAt'];
     isBlocked = json['isBlocked'];
     isFollowed = json['isFollowed'];
@@ -677,9 +699,9 @@ class Owner {
     data['__v'] = this.iV;
     data['picture'] = this.picture;
     // data['cpoCustomerCode'] = this.cpoCustomerCode;
-    // data['cpoCustomerId'] = this.cpoCustomerId;
+    data['cpoCustomerId'] = this.cpoCustomerId;
     // data['customerCode'] = this.customerCode;
-    // data['customerId'] = this.customerId;
+    data['customerId'] = this.customerId;
     data['createdAt'] = this.createdAt;
     data['isBlocked'] = this.isBlocked;
     data['isFollowed'] = this.isFollowed;
@@ -687,6 +709,14 @@ class Owner {
       data['tags'] = this.tags!.map((v) => v.toJson()).toList();
     }
     return data;
+  }
+
+  Owner.fromPeople(People people) {
+    this.firstName = people.firstName;
+    this.sId = people.sId;
+    this.lastName = people.lastName;
+    this.picture = people.picture?.shieldedID ?? '';
+    this.username = people.username;
   }
 
   String getAvatarName() {

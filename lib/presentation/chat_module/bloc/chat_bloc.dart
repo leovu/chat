@@ -13,12 +13,13 @@ class ChatBloc extends BaseBloc {
 
   @override
   void dispose() {
+    super.dispose();
   }
 
   Future<bool> getQuota(String socialChannelId, String userSocialId) async {
     QuotaResponseModel? notes = await ChatConnection.getQuota(socialChannelId, userSocialId);
     if(notes != null){
-      return notes!.canSend ?? false;
+      return notes.canSend ?? false;
     }
     return false;
   }

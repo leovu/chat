@@ -47,7 +47,9 @@ class _ConversationInformationScreenState
     _bloc = ConversationBloc();
     _loadAccount();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      _bloc.getNotes(widget.roomData.sId!);
+      if(ChatConnection.isChatHub) {
+        _bloc.getNotes(widget.roomData.sId!);
+      }
     });
   }
 
@@ -61,6 +63,7 @@ class _ConversationInformationScreenState
 
   @override
   Widget build(BuildContext context) {
+    String url = '${HTTPConnection.domain}api/images/${widget.roomData.picture?.shieldedID ?? widget.roomData.shieldedID ?? widget.roomData.owner?.picture}/256';
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -146,16 +149,16 @@ class _ConversationInformationScreenState
                   _buildAvatar(
                     customerAccount?.data?.fullName != null ? customerAccount!.data!.getName() : widget.roomData.owner!.getName(),
                     customerAccount?.data?.fullName != null ? customerAccount!.data!.getAvatarName(): widget.roomData.owner!.getAvatarName(),
-                      widget.roomData.picture == null
+                      (widget.roomData.picture == null && widget.roomData.owner?.picture == null)
                               ? null
-                              : '${HTTPConnection.domain}api/images/${widget.roomData.picture!.shieldedID}/256')
+                              : url)
                       : _buildAvatar(
                           widget.roomData.title ?? "",
                           widget.roomData.getAvatarGroupName(),
                           widget.roomData.picture == null
                               ? null
                               : '${HTTPConnection.domain}api/images/${widget.roomData.picture!.shieldedID}/256',
-                              onTap: widget.roomData.owner == ChatConnection.user!.id? () async {
+                              onTap: widget.roomData.owner?.sId == ChatConnection.user!.id? () async {
                                 editName();
                               }: null)),
             ),
@@ -731,7 +734,7 @@ class _ConversationInformationScreenState
               _leaveRoom(widget.roomData.sId!);
             }, textColor: Colors.black),
           if (!widget.roomData.isGroup! ||
-              (widget.roomData.owner == ChatConnection.user!.id &&
+              (widget.roomData.owner?.sId == ChatConnection.user!.id &&
                   widget.roomData.isGroup!))
             // Padding(
             //   padding: const EdgeInsets.only(
@@ -744,7 +747,7 @@ class _ConversationInformationScreenState
           /// CHƯA CHECK ĐIỀU KIỆN HIỂN THỊ
           socialInformation(),
           if (!widget.roomData.isGroup! ||
-              (widget.roomData.owner == ChatConnection.user!.id &&
+              (widget.roomData.owner!.sId == ChatConnection.user!.id &&
                   widget.roomData.isGroup!))
             _section(
                 const Icon(

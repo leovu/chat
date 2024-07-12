@@ -61,7 +61,7 @@ class CustomRowInformation extends StatelessWidget {
           Expanded(
               child: Text(
                 content ?? "",
-                style: contentStyle != null ? contentStyle : (!boldContent
+                style: contentStyle ?? (!boldContent
                     ? AppTextStyles.style13BlackWeight400
                     : AppTextStyles.style13BlackWeight600),
                 textAlign: textAlignEnd ? TextAlign.end : TextAlign.start,

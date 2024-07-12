@@ -144,7 +144,7 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
                       label: AppLocalizations.text(LangKey.sendMessage),
                       key: 'Chat',
                     ),
-                    if(widget.roomData.owner == ChatConnection.user!.id &&
+                    if(widget.roomData.owner?.sId == ChatConnection.user!.id &&
                         widget.roomData.isGroup!) SheetAction(
                       icon: Icons.delete,
                       label: AppLocalizations.text(LangKey.removeFroumGroup),

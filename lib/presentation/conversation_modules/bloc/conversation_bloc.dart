@@ -24,7 +24,7 @@ class ConversationBloc extends BaseBloc {
   Future<bool?> getQuota(String socialChannelId, String userSocialId) async {
     QuotaResponseModel? notes = await ChatConnection.getQuota(socialChannelId, userSocialId);
     if(notes != null){
-      return notes!.canSend;
+      return notes.canSend;
     }
     return false;
   }

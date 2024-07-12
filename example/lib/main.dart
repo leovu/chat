@@ -140,8 +140,8 @@ class _MyAppState extends State<MyApp> {
                   }
 
                   await Chat.open(context,_userNameController.value.text, _passwordController.value.text, 'assets/icon-app.png',const Locale(LangKey.langEn, 'EN'),
-                      domain: 'https://chathub.matthewsliquor.com.au/',brandCode: 'matthewsliquor',isChatHub: true,
-                      token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3N0YWZmLWFwaS5kZXYubWF0dGhld3NsaXF1b3IuY29tLmF1L3VzZXIvcmVmcmVzaC10b2tlbiIsImlhdCI6MTcyMDA5MjI3NCwiZXhwIjoxNzIwMTE0MTY2LCJuYmYiOjE3MjAwOTI1NjYsImp0aSI6Ikc0aWFOUlo5ZkM4c2YzZTIiLCJzdWIiOjIwNywicHJ2IjoiYTBmM2U3NGJlZGY1MTJjNDc3ODI5N2RlNWY5MjA4NmRhZDM5Y2E5ZiIsInNpZCI6ImFkbWluQG1hdHRoZXdzbGlxdW9yLmNvbSIsImJyYW5kX2NvZGUiOiJtYXR0aGV3c2xpcXVvciIsImltZWkiOiJwb3J0YWwxMjMifQ.hCgGuPKPIfSQ7V5VkbxNUrvEOaRdqj9Y03QQkipvAEA");
+                      domain: 'https://chat.epoints.vn/',brandCode: 'sale',isChatHub: false,
+                      token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyZWE5MDJiZmE4Y2I1NDY0MzkzNGNmYyIsInNpZCI6ImJhbmduYiIsImVtYWlsIjoiYmFuZ25iQHBpb2FwcHMudm4iLCJsZXZlbCI6InN0YW5kYXJkIiwiZmlyc3ROYW1lIjoiTmd1eeG7hW4gQuG6o28iLCJsYXN0TmFtZSI6IkLhurFuZyIsInVzZXJuYW1lIjoiYmFuZ25iIiwiYnJhbmQiOiJzYWxlIiwiaWF0IjoxNzIwNzcwNjQ2LCJleHAiOjE3MjU5NTQ2NDZ9.ve0hoWxagxrqODUmszBIjoqdYINFflKDgCqfpyDNNHY");
 
                   // Chat.open(context,_userNameController.value.text, _passwordController.value.text, 'assets/icon-app.png',const Locale(LangKey.langVi, 'VN'), domain: _domainController.value.text,brandCode: 'qc',isChatHub: true,
                   //     token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzMDMwOTNjYzM3M2JkMTg5YjQ1NmFjMCIsInNpZCI6ImFkbWluIiwiZW1haWwiOiJ2dUBwaW9hcHBzLnZuIiwibGV2ZWwiOiJyb290IiwiZmlyc3ROYW1lIjoiQWRtaW4iLCJsYXN0TmFtZSI6IiIsInVzZXJuYW1lIjoiYWRtaW4iLCJicmFuZF9jb2RlIjoicWMiLCJpYXQiOjE2NzA5OTIwNDQsImV4cCI6MTY3NjE3NjA0NH0.U2UoNWnQnNkZOI3qGA5SiTetnggO5SlCKgV7NW0Ks-Q");

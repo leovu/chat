@@ -196,6 +196,7 @@ class _ContactsScreenState extends State<ContactsScreen> with AutomaticKeepAlive
                       return InkWell(
                           onTap: () async {
                             r.Rooms? rooms = await ChatConnection.createRoom(contactsListVisible!.users![position].sId);
+                            rooms?.owner = Owner.fromPeople(rooms.people!.firstWhere((e) => e.sId != ChatConnection.user!.id));
                             await Navigator.of(context,rootNavigator: true).push(
                               MaterialPageRoute(builder: (context) => ChatScreen(data: rooms!),settings:const RouteSettings(name: 'chat_screen')),
                             );

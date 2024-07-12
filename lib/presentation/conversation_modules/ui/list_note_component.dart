@@ -42,7 +42,7 @@ class _State extends State<ListNoteComponent> {
                 ),
               ),
               Column(
-                children: notes!.data!.map((e) => noteItem(e)).toList(),
+                children: notes.data!.map((e) => noteItem(e)).toList(),
               )
             ],
           ) : Container();

@@ -133,12 +133,12 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                       indicatorColor: Colors.black),
                   Expanded(
                     child: TabBarView(
+                      controller: _tabController,
                       children: [
                         _images(),
                         _files(),
                         _links(),
                       ],
-                      controller: _tabController,
                     ),
                   ),
                 ],
