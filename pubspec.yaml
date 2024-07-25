@@ -16,7 +16,6 @@ dependencies:
     sdk: flutter
   flutter_chat_types: ^3.3.2
   flutter_link_previewer: ^3.2.0
-  flutter_lints: ^2.0.2
   file_picker: ^5.2.0
   image_picker: ^1.0.1
   mime: ^1.0.1
