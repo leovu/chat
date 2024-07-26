@@ -260,7 +260,7 @@ class Message extends StatelessWidget {
                 hideBackgroundOnEmojiMessages: hideBackgroundOnEmojiMessages,
                 message: textMessage,
                 onPreviewDataFetched: onPreviewDataFetched,
-                showName: showName,
+                showName:  ChatConnection.isChatHub ? true : showName,
                 usePreviewData: usePreviewData,
                 searchController: searchController,
                 showUserNameForRepliedMessage: true,
@@ -462,13 +462,10 @@ class Message extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           GestureDetector(
-                            onDoubleTap: () =>
-                                onMessageDoubleTap?.call(context, message),
-                            onLongPress: () =>
-                                onMessageLongPress?.call(context, message),
+                            onDoubleTap: () => onMessageDoubleTap?.call(context, message),
+                            onLongPress: () => onMessageLongPress?.call(context, message),
                             onTap: () => onMessageTap?.call(context, message, false),
-                            child: onMessageVisibilityChanged != null
-                                ? VisibilityDetector(
+                            child: onMessageVisibilityChanged != null ? VisibilityDetector(
                               key: Key(message.id),
                               onVisibilityChanged: (visibilityInfo) =>
                                   onMessageVisibilityChanged!(message,
@@ -479,8 +476,7 @@ class Message extends StatelessWidget {
                                 _currentUserIsAuthor,
                                 _enlargeEmojis,
                               ),
-                            )
-                                : _bubbleBuilder(
+                            ) : _bubbleBuilder(
                               context,
                               _borderRadius.resolve(Directionality.of(context)),
                               _currentUserIsAuthor,

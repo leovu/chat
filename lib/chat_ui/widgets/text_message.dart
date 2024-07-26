@@ -89,6 +89,7 @@ class TextMessage extends StatelessWidget {
     final color = getUserAvatarNameColor(message.author,
         InheritedChatTheme.of(context).theme.userAvatarNameColors);
     final name = getUserName(message.author);
+
     return LinkPreview(
       enableAnimation: true,
       header: showName ? name : null,

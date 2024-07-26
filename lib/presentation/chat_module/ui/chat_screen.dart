@@ -43,8 +43,7 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   List<types.Message> _messages = [];
-  final _user = types.User(
-      id: ChatConnection.checkUserTokenResponseModel?.user!.sId ?? '');
+  final _user = types.User(id: ChatConnection.checkUserTokenResponseModel?.user!.sId ?? '');
   c.ChatMessage? data;
   bool _isSearchMessage = false;
   final _focusSearch = FocusNode();
@@ -813,8 +812,8 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       if (messages != null) {
         List<types.Message> values = [];
         for (var e in messages) {
-          Map<String, dynamic> result =
-              e.toMessageJson(messageSeen: data?.room?.messageSeen);
+
+          Map<String, dynamic> result = e.toMessageJson(messageSeen: data?.room?.messageSeen);
           if (e.author?.sId != null && e.sId != null) {
             values.add(types.Message.fromJson(result));
           }

@@ -556,8 +556,7 @@ class _ChatState extends State<Chat> {
                                           BoxConstraints constraints) =>
                                       ChatList(
                                     isLastPage: widget.isLastPage,
-                                    itemBuilder: (item, index) =>
-                                          _messageBuilder(item, constraints),
+                                    itemBuilder: (item, index) => _messageBuilder(item, constraints),
                                     items: _chatMessages,
                                     onEndReached: widget.onEndReached,
                                     onEndReachedThreshold:

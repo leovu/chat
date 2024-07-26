@@ -70,7 +70,7 @@ class Rooms {
         createdAt,
         source,
         messageUnSeen,
-        channel, shieldedID});
+        channel, shieldedID,  staff});
 
   Rooms.fromJson(Map<String, dynamic> json) {
     if (json['people'] != null) {
@@ -182,6 +182,41 @@ class Rooms {
       }
     }catch(_){}
     return avatarName == '' ? '*' : avatarName.toUpperCase();
+  }
+}
+
+class Staff{
+  String? address;
+  String? branchId;
+  String? email;
+  String? fullName;
+  String? staffAvatar;
+  String? staffId;
+  String? userName;
+
+  Staff({this.address, this.branchId, this.email, this.fullName,
+    this.staffAvatar, this.staffId, this.userName});
+
+  Staff.fromJson(Map<String, dynamic> json) {
+    address = json['address'];
+    branchId = json['branch_id'];
+    email = json['email'];
+    fullName = json['full_name'];
+    staffAvatar = json['staff_avatar'];
+    staffId = json['staff_id'];
+    userName = json['user_name'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['address'] = address;
+    data['branch_id'] = branchId;
+    data['email'] = email;
+    data['full_name'] = fullName;
+    data['staff_avatar'] = staffAvatar;
+    data['staff_id'] = staffId;
+    data['user_name'] = userName;
+    return data;
   }
 }
 
@@ -488,6 +523,8 @@ class LastMessage {
   int? iV;
   String? type;
   String? file;
+  Staff? staff;
+
 
   LastMessage(
       {sId,
@@ -497,7 +534,7 @@ class LastMessage {
         date,
         iV,
         type,
-        file});
+        file, staff});
 
   String lastMessageDate() {
     final format = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z");
@@ -528,6 +565,9 @@ class LastMessage {
     if(content == 'Message recalled') {
       content = AppLocalizations.text(LangKey.messageRecalled);
     }
+    try{
+      staff = json['staff'] != null ? Staff.fromJson(json['staff']) : null;
+    }catch(_) {}
   }
 
   Map<String, dynamic> toJson() {
@@ -540,6 +580,9 @@ class LastMessage {
     data['__v'] = iV;
     data['type'] = type;
     data['file'] = file;
+    if (staff != null) {
+      data['staff'] = staff!.toJson();
+    }
     return data;
   }
 }

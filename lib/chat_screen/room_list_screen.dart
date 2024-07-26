@@ -650,7 +650,8 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
         owner = Owner.fromPeople(data.people!.firstWhere((e) => e.sId != ChatConnection.user!.id));
       }
     }
-    String? author = findAuthor(owner,data.lastMessage?.author);
+    Owner chatLastMessageOwner = Owner.fromPeople(data.people!.firstWhere((e) => e.sId == data.lastAuthor));
+    String? author = findAuthor(chatLastMessageOwner,data.lastMessage?.author);
     if(!colorAppName.keys.contains(data.channel?.nameApp??'')) {
       Color color = RandomHexColor().colorRandom(data.channel?.nameApp??'');
       colorAppName[data.channel?.nameApp??''] = color;
@@ -956,7 +957,8 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
     Owner? p;
     try {
       p = people;
-      return "${p!.sId != ChatConnection.user!.id ? ('${(p.firstName ?? '').trim()} ${(p.lastName ?? '').trim()}').trim() : AppLocalizations.text(LangKey.you)}: ";
+      return "${p!.sId != ChatConnection.user!.id ? ('${(p.firstName ?? '').trim()} ${(p.lastName ?? '').trim()}').trim()
+          : AppLocalizations.text(LangKey.you)}: ";
       // + (isGroupOwner ? ' ' : ': ');
     }catch(_){
       return '';

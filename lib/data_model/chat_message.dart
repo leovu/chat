@@ -371,6 +371,7 @@ class Messages {
   Picture? file;
   int? edit;
   String? errorMessage;
+  Staff? staff;
 
   Messages(
       {sId,
@@ -383,7 +384,7 @@ class Messages {
         type,
         file,
         edit,
-        errorMessage});
+        errorMessage, staff});
 
   Messages.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
@@ -407,6 +408,11 @@ class Messages {
     try{
       file = json['file'] != null ? Picture.fromJson(json['file']) : null;
     }catch(_){}
+    try{
+      staff = json['staff'] != null ? Staff.fromJson(json['staff']) : null;
+    }catch(e) {
+      print(e.toString());
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -417,7 +423,7 @@ class Messages {
     }
     data['room'] = room;
     if (author != null) {
-      data['author'] = author!.toJson();
+        data['author'] = author!.toJson();
     }
     data['content'] = content;
     data['date'] = date;
@@ -428,6 +434,9 @@ class Messages {
     }
     data['edit'] = edit;
     data['error_message'] = errorMessage;
+    if (staff != null) {
+      data['staff'] = staff!.toJson();
+    }
     return data;
   }
 
@@ -451,11 +460,26 @@ class Messages {
       data['remoteId'] = '$edit';
     }
     if (author != null) {
-      data['author'] = {
-        'firstName': author!.firstName,
-        'lastName': author!.lastName,
-        'id':author!.sId,
-        'imageUrl':author!.picture != null ? '${HTTPConnection.domain}api/images/${author!.picture!.shieldedID}/512/${ChatConnection.brandCode}' : null,
+      if (staff != null && ChatConnection.isChatHub) {
+        data['author'] = {
+          'firstName': staff!.fullName,
+          'id': staff!.staffId,
+        };
+      } else {
+        data['author'] = {
+          'firstName': author!.firstName,
+          'lastName': author!.lastName,
+          'id': author!.sId,
+          'imageUrl': author!.picture != null ? '${HTTPConnection
+              .domain}api/images/${author!.picture!
+              .shieldedID}/512/${ChatConnection.brandCode}' : null,
+        };
+      }
+    }
+    if (staff != null) {
+      data['staff'] = {
+        'fullName': staff!.fullName,
+        'staffId':staff!.staffId,
       };
     }
     if(date != null) {
@@ -550,6 +574,41 @@ class MessageSeen {
     data['room'] = room;
     data['__v'] = iV;
     data['message'] = message;
+    return data;
+  }
+}
+
+class Staff{
+  String? address;
+  int? branchId;
+  String? email;
+  String? fullName;
+  String? staffAvatar;
+  int? staffId;
+  String? userName;
+
+  Staff({address, branchId, email, fullName,
+      staffAvatar, staffId, userName});
+
+  Staff.fromJson(Map<String, dynamic> json) {
+    address = json['address'];
+    branchId = json['branch_id'];
+    email = json['email'];
+    fullName = json['full_name'];
+    staffAvatar = json['staff_avatar'];
+    staffId = json['staff_id'];
+    userName = json['user_name'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['address'] = address;
+    data['branch_id'] = branchId;
+    data['email'] = email;
+    data['full_name'] = fullName;
+    data['staff_avatar'] = staffAvatar;
+    data['staff_id'] = staffId;
+    data['user_name'] = userName;
     return data;
   }
 }
