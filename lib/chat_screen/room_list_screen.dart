@@ -642,6 +642,7 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
   }
   Widget _room(Rooms data,bool isLast) {
     Owner? owner;
+    String? author = '';
     if(!ChatConnection.isChatHub) {
       if(data.isGroup!) {
         owner = Owner.fromPeople(data.people!.firstWhere((e) => e.sId == data.owner!.sId));
@@ -649,9 +650,10 @@ class _RoomListScreenState extends State<RoomListScreen> with AutomaticKeepAlive
       else {
         owner = Owner.fromPeople(data.people!.firstWhere((e) => e.sId != ChatConnection.user!.id));
       }
+      Owner chatLastMessageOwner = Owner.fromPeople(data.people!.firstWhere((e) => e.sId == data.lastAuthor));
+      author = findAuthor(chatLastMessageOwner,data.lastMessage?.author);
     }
-    Owner chatLastMessageOwner = Owner.fromPeople(data.people!.firstWhere((e) => e.sId == data.lastAuthor));
-    String? author = findAuthor(chatLastMessageOwner,data.lastMessage?.author);
+
     if(!colorAppName.keys.contains(data.channel?.nameApp??'')) {
       Color color = RandomHexColor().colorRandom(data.channel?.nameApp??'');
       colorAppName[data.channel?.nameApp??''] = color;
