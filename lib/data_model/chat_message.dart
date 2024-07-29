@@ -463,7 +463,9 @@ class Messages {
       if (staff != null && ChatConnection.isChatHub) {
         data['author'] = {
           'firstName': staff!.fullName,
-          'id': staff!.staffId,
+          'id': author!.sId,
+          // 'imageUrl': staff!.staffAvatar != null ? staff!.staffAvatar : null,
+          //'id': staff!.staffId.toString(),
         };
       } else {
         data['author'] = {
