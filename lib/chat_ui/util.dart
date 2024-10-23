@@ -5,7 +5,7 @@ import 'package:chat/chat_ui/models/emoji_enlargement_behavior.dart';
 import 'package:chat/chat_ui/models/message_spacer.dart';
 import 'package:chat/chat_ui/models/preview_image.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:chat/flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:intl/intl.dart';
 
 /// Swipe direction for swipe to reply feature

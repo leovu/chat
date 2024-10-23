@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_link_previewer/flutter_link_previewer.dart';
-import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:chat/flutter_link_previewer/flutter_link_previewer.dart';
+import 'package:chat/flutter_chat_types/flutter_chat_types.dart' as types;
 
 class PreviewLink extends StatefulWidget {
   final String content;

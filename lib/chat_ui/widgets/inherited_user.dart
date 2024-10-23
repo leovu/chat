@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:chat/flutter_chat_types/flutter_chat_types.dart' as types;
 
 /// Used to make provided [types.User] class available through the whole package
 class InheritedUser extends InheritedWidget {

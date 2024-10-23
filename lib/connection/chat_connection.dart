@@ -20,7 +20,7 @@ import 'package:chat/data_model/room.dart' as r;
 import 'package:image_picker/image_picker.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:flutter_beep/flutter_beep.dart';
-import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:chat/flutter_chat_types/flutter_chat_types.dart' as types;
 
 class ChatConnection {
   static late void Function() refreshRoom;

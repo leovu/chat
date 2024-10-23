@@ -1,7 +1,7 @@
 import 'package:chat/connection/chat_connection.dart';
 import 'package:diffutil_dart/diffutil.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:chat/flutter_chat_types/flutter_chat_types.dart' as types;
 import 'inherited_user.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 

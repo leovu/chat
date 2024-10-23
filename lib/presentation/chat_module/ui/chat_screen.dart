@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:chat/flutter_chat_types/flutter_chat_types.dart';
+import 'package:chat/flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:chat/flutter_chat_types/src/message.dart';
 import 'package:chat/presentation/chat_module/bloc/chat_bloc.dart';
 import 'package:chat/presentation/conversation_modules/ui/conversation_information_screen.dart';
 import 'package:chat/chat_screen/forward_screen.dart';
@@ -16,9 +19,7 @@ import 'package:chat/localization/check_tag.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:chat/chat_ui/flutter_chat_ui.dart';
-import 'package:flutter_chat_types/flutter_chat_types.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mime/mime.dart';
 import 'package:permission/permission.dart';
@@ -812,7 +813,6 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       if (messages != null) {
         List<types.Message> values = [];
         for (var e in messages) {
-
           Map<String, dynamic> result = e.toMessageJson(messageSeen: data?.room?.messageSeen);
           if (e.author?.sId != null && e.sId != null) {
             values.add(types.Message.fromJson(result));

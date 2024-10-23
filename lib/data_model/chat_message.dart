@@ -372,6 +372,7 @@ class Messages {
   int? edit;
   String? errorMessage;
   Staff? staff;
+  List<MessageItems>? messageItems;
 
   Messages(
       {sId,
@@ -384,7 +385,7 @@ class Messages {
         type,
         file,
         edit,
-        errorMessage, staff});
+        errorMessage, staff, messageItems});
 
   Messages.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
@@ -413,6 +414,12 @@ class Messages {
     }catch(e) {
       print(e.toString());
     }
+    if (json['message_items'] != null) {
+      messageItems = <MessageItems>[];
+      json['message_items'].forEach((v) {
+        messageItems!.add(MessageItems.fromJson(v));
+      });
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -436,6 +443,9 @@ class Messages {
     data['error_message'] = errorMessage;
     if (staff != null) {
       data['staff'] = staff!.toJson();
+    }
+    if (messageItems != null) {
+      data['message_items'] = messageItems!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -853,6 +863,37 @@ class PinMessage {
     data['date'] = date;
     data['__v'] = iV;
     data['type'] = type;
+    return data;
+  }
+}
+
+class MessageItems {
+  String? code;
+  String? description;
+  String? name;
+  String? price;
+  String? url;
+  List<String>? image_urls;
+
+  MessageItems({code, description, name, price, url, image_urls});
+
+  MessageItems.fromJson(Map<String, dynamic> json) {
+    code = json['code'];
+    description = json['description'];
+    name = json['name'];
+    price = json['price'];
+    url = json['url'];
+    image_urls = json['image_urls'].cast<String>();
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['code'] = code;
+    data['description'] = description;
+    data['name'] = name;
+    data['price'] = price;
+    data['url'] = url;
+    data['image_urls'] = image_urls;
     return data;
   }
 }

@@ -21,7 +21,7 @@ import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:chat/flutter_chat_types/flutter_chat_types.dart' as types;
 import 'attachment_button.dart';
 import 'chat.dart';
 import 'inherited_chat_theme.dart';
