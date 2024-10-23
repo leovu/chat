@@ -73,4 +73,5 @@ const _$MessageTypeEnumMap = {
   MessageType.text: 'text',
   MessageType.unsupported: 'unsupported',
   MessageType.video: 'video',
+  MessageType.products: 'products',
 };

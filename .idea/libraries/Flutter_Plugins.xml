@@ -43,6 +43,9 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_file_dialog-3.0.1" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/image_picker_macos-0.2.1" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/shared_preferences_android-2.2.0" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/webview_flutter_wkwebview-2.9.5" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/webview_flutter_android-2.10.4" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/webview_flutter-3.0.4" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

@@ -515,6 +515,12 @@ class Messages {
       data['name'] = 'image';
       data['uri'] = '${HTTPConnection.domain}api/images/$content/${ChatConnection.brandCode}';
     }
+    else if(type == 'products' && messageItems != null) {
+      data['size'] = 0;
+      data['type'] = 'products';
+      data['name'] = 'products';
+      data['message_items'] = messageItems!.map((e) => e.toJson()).toList();
+    }
     else {
       data['type'] = 'text';
       data['text'] = content;
@@ -548,6 +554,12 @@ class Messages {
         json['type'] = 'image';
         json['name'] = 'image';
         json['uri'] = '${HTTPConnection.domain}api/images/${replies!.content}/${ChatConnection.brandCode}';
+      }
+      else if(replies?.type == 'products') {
+        json['size'] = 0;
+        json['type'] = 'products';
+        json['name'] = 'products';
+        json['message_items'] = replies!.messageItems!.map((e) => e.toJson()).toList();
       }
       else {
         json['type'] = 'text';
@@ -757,6 +769,7 @@ class Replies {
   int? iV;
   String? type;
   Picture? file;
+  List<MessageItems>? messageItems;
 
   Replies(
       {sId,
@@ -770,7 +783,7 @@ class Replies {
         date,
         iV,
         type,
-        file});
+        file, messageItems});
 
   Replies.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
@@ -786,6 +799,12 @@ class Replies {
     iV = json['__v'];
     type = json['type'];
     file = json['file'] != null ? Picture.fromJson(json['file']) : null;
+    if (json['message_items'] != null) {
+      messageItems = <MessageItems>[];
+      json['message_items'].forEach((v) {
+        messageItems!.add(MessageItems.fromJson(v));
+      });
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -805,6 +824,9 @@ class Replies {
     data['type'] = type;
     if (file != null) {
       data['file'] = file!.toJson();
+    }
+    if (messageItems != null) {
+      data['message_items'] = messageItems!.map((v) => v.toJson()).toList();
     }
     return data;
   }

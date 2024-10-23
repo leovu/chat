@@ -3,6 +3,7 @@ library flutter_chat_types;
 export 'src/message.dart';
 export 'src/messages/audio_message.dart';
 export 'src/messages/custom_message.dart';
+export 'src/messages/product_message.dart';
 export 'src/messages/file_message.dart';
 export 'src/messages/image_message.dart';
 export 'src/messages/partial_audio.dart';

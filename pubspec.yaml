@@ -57,6 +57,7 @@ dependencies:
   equatable: ^2.0.5
   json_annotation: ^4.8.1
   meta: '>=1.8.0 <2.0.0'
+  webview_flutter: ^3.0.4
 
 dependency_overrides:
   flutter_blurhash: ^0.8.2

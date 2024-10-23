@@ -1,3 +1,5 @@
+import 'package:chat/data_model/chat_message.dart';
+import 'package:chat/flutter_chat_types/flutter_chat_types.dart';
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
@@ -9,6 +11,7 @@ import 'messages/system_message.dart';
 import 'messages/text_message.dart';
 import 'messages/unsupported_message.dart';
 import 'messages/video_message.dart';
+import 'messages/product_message.dart';
 import 'user.dart' show User;
 
 /// All possible message types.
@@ -20,11 +23,12 @@ enum MessageType {
   system,
   text,
   unsupported,
-  video
+  video,
+  products
 }
 
 /// All possible statuses message can have.
-enum Status { delivered, error, seen, sending, sent }
+enum Status { delivered, error, seen, sending, sent, products }
 
 /// An abstract class that contains all variables and methods
 /// every message will have.
@@ -69,6 +73,8 @@ abstract class Message extends Equatable {
         return UnsupportedMessage.fromJson(json);
       case MessageType.video:
         return VideoMessage.fromJson(json);
+      case MessageType.products:
+        return ProductMessage.fromJson(json);
     }
   }
 

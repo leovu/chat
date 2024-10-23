@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:math';
+
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:chat/chat_ui/chat_l10n.dart';
 import 'package:chat/chat_ui/chat_theme.dart';
@@ -8,30 +9,31 @@ import 'package:chat/chat_ui/models/emoji_enlargement_behavior.dart';
 import 'package:chat/chat_ui/models/message_spacer.dart';
 import 'package:chat/chat_ui/models/send_button_visibility_mode.dart';
 import 'package:chat/chat_ui/util.dart';
+import 'package:chat/chat_ui/widgets/inherited_l10n.dart';
 import 'package:chat/chat_ui/widgets/inherited_replied_message.dart';
 import 'package:chat/common/constant.dart';
 import 'package:chat/common/theme.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/download.dart';
+import 'package:chat/data_model/chat_message.dart' as c;
 import 'package:chat/data_model/room.dart' as r;
 import 'package:chat/data_model/room.dart';
 import 'package:chat/draft.dart';
+import 'package:chat/flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:chat/flutter_chat_types/flutter_chat_types.dart' as types;
-import 'package:chat/chat_ui/widgets/inherited_l10n.dart';
 import 'package:intl/intl.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:swipeable_tile/swipeable_tile.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 import 'chat_list.dart';
 import 'inherited_chat_theme.dart';
 import 'inherited_user.dart';
 import 'input.dart';
 import 'message.dart';
-import 'package:chat/data_model/chat_message.dart' as c;
 
 /// Entry widget, represents the complete chat. If you wrap it in [SafeArea] and
 /// it should be full screen, set [SafeArea]'s `bottom` to `false`.
@@ -428,10 +430,19 @@ class _ChatState extends State<Chat> {
     } else {
       final map = object as Map<String, Object>;
       final message = map['message']! as types.Message;
-      final _messageWidth =
-          widget.showUserAvatars && message.author.id != widget.user.id
-              ? min(constraints.maxWidth * 0.72, 440).floor()
-              : min(constraints.maxWidth * 0.78, 440).floor();
+      final _messageWidth = (message.type.name == 'products' &&
+              message is types.ProductMessage &&
+              message.messageItems != null &&
+              message.messageItems!.length > 1)
+          ? min(constraints.maxWidth * 0.925, 440).floor()
+          : (message.type.name == 'products' &&
+                  message is types.ProductMessage &&
+                  message.messageItems != null &&
+                  message.messageItems!.length <= 1)
+              ? min(200, 440).floor()
+              : widget.showUserAvatars && message.author.id != widget.user.id
+                  ? min(constraints.maxWidth * 0.72, 440).floor()
+                  : min(constraints.maxWidth * 0.78, 440).floor();
       final metadata = message.metadata;
       List<c.Author?>? seenPeople;
       if(metadata != null) {
@@ -473,6 +484,14 @@ class _ChatState extends State<Chat> {
           }
           widget.onMessageTap?.call(context, tappedMessage, isRepliedMessage);
         },
+        onMessageProductsTap:
+            (context, tappedMessage, index, isRepliedMessage) {
+          if (tappedMessage is types.ProductMessage &&
+              widget.disableImageGallery != true &&
+              !isRepliedMessage) {
+            _onImageProductsPressed(tappedMessage, index);
+          }
+        },
         onMessageVisibilityChanged: widget.onMessageVisibilityChanged,
         onPreviewDataFetched: _onPreviewDataFetched,
         roundBorder: map['isFirstInGroup'] == true,
@@ -482,7 +501,7 @@ class _ChatState extends State<Chat> {
         showUserAvatars: widget.showUserAvatars,
         textMessageBuilder: widget.textMessageBuilder,
         usePreviewData: widget.usePreviewData,
-        replySwipeDirection: message.author.id != widget.user.id ? SwipeDirection.startToEnd : SwipeDirection.endToStart,
+        replySwipeDirection: message.author.id != widget.user.id  ? SwipeDirection.startToEnd : SwipeDirection.endToStart,
         onMessageReply: _onMessageReply,
         focusSearch: requestFocusTextField,
       );
@@ -497,6 +516,10 @@ class _ChatState extends State<Chat> {
 
   void _onImagePressed(types.ImageMessage message) async {
     openImage(context,message.uri);
+  }
+
+  void _onImageProductsPressed(types.ProductMessage message, int index) async {
+    openImage(context, message.messageItems?[index].image_urls!.first ?? '');
   }
 
   void _onPreviewDataFetched(
