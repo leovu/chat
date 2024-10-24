@@ -55,16 +55,18 @@ class _ProductMessageState extends State<ProductMessage> {
                 imageUrl: item.image_urls?.first ?? '',
                 title: item.name ?? '',
                 description: item.description ?? '',
-                price: item.price ?? '0đ',
+                price: item.price ?? 'Liên hệ',
                 buttonLabel: 'Xem chi tiết',
                 onTap: () {
                   // Pass index to onMessageTap callback
                   widget.onMessageTap?.call(context, widget.message, index, false);
                 },
                 onTapDetail: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => WebViewWidget( url: item.url ?? '')),
-                  );
+                  if(item.url != null) {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => WebViewWidget( url: item.url ?? '')),
+                    );
+                  }
                 },
                 context: context,
               ),
@@ -73,25 +75,28 @@ class _ProductMessageState extends State<ProductMessage> {
               : [],
         )
       ) : _buildProductCard(
-        imageUrl: widget.message.messageItems!.first.image_urls?.first ?? '',
-        title: widget.message.messageItems!.first.name ?? '',
-        description: widget.message.messageItems!.first.description ?? '',
-        price: widget.message.messageItems!.first.price ?? '0đ',
+        imageUrl: widget.message.messageItems?.first.image_urls?.first ?? '',
+        title: widget.message.messageItems?.first.name ?? '',
+        description: widget.message.messageItems?.first.description ?? '',
+        price: widget.message.messageItems?.first.price ?? 'Liên hệ',
         buttonLabel: 'Xem chi tiết',
         onTap: () {
           // Pass index to onMessageTap callback
           widget.onMessageTap?.call(context, widget.message, 0, false);
         },
         onTapDetail: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => WebViewWidget( url: widget.message.messageItems!.first.url ?? '')),
-          );
+          if(widget.message.messageItems?.first.url != null) {
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) =>
+                  WebViewWidget(
+                      url: widget.message.messageItems!.first.url ?? '')),
+            );
+          }
         },
         context: context,
       ),
     );
   }
-
 
   Widget _buildProductCard({
     required String imageUrl,
@@ -106,6 +111,7 @@ class _ProductMessageState extends State<ProductMessage> {
     final theme = InheritedChatTheme.of(context).theme;
     final color =
     getUserAvatarNameColor(widget.message.author, theme.userAvatarNameColors);
+
     return Container(
       width: 200, // Adjust width for each product card
       decoration: BoxDecoration(
@@ -120,7 +126,7 @@ class _ProductMessageState extends State<ProductMessage> {
           GestureDetector(
             onTap: onTap,
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(8), // Apply a radius of 8
+              borderRadius: BorderRadius.circular(8),
               child: Image.network(
                 imageUrl,
                 width: double.infinity,
@@ -135,54 +141,74 @@ class _ProductMessageState extends State<ProductMessage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Title
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+                SizedBox(
+                  height: 40,
+                  child: Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 5),
                 // Description
-                Text(
-                  description,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.black54,
+                SizedBox(
+                  height: 60, // Default height for description
+                  child: Text(
+                    description,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.black54,
+                    ),
+                    maxLines: 4,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 4,
-                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 5),
                 // Price
                 Center(
-                  child: Text(
-                    'Giá Bán: $price',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color:  Colors.red ,
-                      fontWeight: FontWeight.bold,
+                  child: SizedBox(
+                    height: 20, // Default height for price
+                    child: Text(
+                      'Giá Bán: $price',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 5),
                 // "See Details" button
                 SizedBox(
                   width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: onTapDetail,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4),
+                  child: InkWell(
+                    onTap: onTapDetail,
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.blue,
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 4,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
                       ),
-                    ),
-                    child: Text(
-                      buttonLabel,
-                      style: const TextStyle(fontSize: 12, color: Colors.white),
+                      child: Center(
+                        child: Text(
+                          buttonLabel,
+                          style: const TextStyle(fontSize: 12, color: Colors.white),
+                        ),
+                      ),
                     ),
                   ),
                 ),
