@@ -32,7 +32,6 @@ dependencies:
   overlay_support: ^2.0.1
   email_validator: ^2.0.1
   pull_to_refresh: ^2.0.0
-  flutter_beep: ^1.0.0
   flutter_slidable: ^3.1.0
   emoji_picker_flutter: ^1.6.1
   scrollable_positioned_list: ^0.3.2

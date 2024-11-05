@@ -19,7 +19,6 @@ import 'package:jwt_decode/jwt_decode.dart';
 import 'package:chat/data_model/room.dart' as r;
 import 'package:image_picker/image_picker.dart';
 import 'package:overlay_support/overlay_support.dart';
-import 'package:flutter_beep/flutter_beep.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 
 class ChatConnection {
@@ -582,7 +581,6 @@ class ChatConnection {
       Function(Map<String, dynamic>) onMessageCallback) {
     bool isImage = message['message']['type'] == 'image';
     bool isFile = message['message']['type'] == 'file';
-    FlutterBeep.beep();
     showOverlayNotification((context) {
       return BannerNotification(
         notificationTitle: notificationTitle,
