@@ -15,7 +15,7 @@ class CustomDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     // TODO: implement build
     return CustomScaffold(
-      backgroundColor: Colors.black.withOpacity(0.3),
+      backgroundColor: Colors.black.withValues(alpha: 0.3),
       allowPop: cancelable,
       body: SingleChildScrollView(
         controller: ScrollController(),

@@ -144,9 +144,12 @@ class _InputState extends State<Input> {
     }
     getDraft();
     _textController = RichTextController(
-      patternMatchMap: {
-        RegExp(regex): TextStyle(color: Colors.blueAccent,backgroundColor: Colors.grey[200]),
-      },
+      targetMatches: [
+        MatchTargetItem(
+            style: TextStyle(color: Colors.blueAccent,backgroundColor: Colors.grey[200]),
+            regex: RegExp(regex)
+        )
+      ],
       onMatch: (List<String> match) {},
     );
     _idTagList = [];
@@ -161,17 +164,6 @@ class _InputState extends State<Input> {
   void _deleteImage() {
       _imageData = '';
       setState(() {});
-  }
-
-  void _handleContentInsertion(KeyboardInsertedContent value) {
-    if (value.mimeType.contains("image/") && value.data != null && _imageData == '') {
-        _imageData = String.fromCharCodes(value.data!);
-        _sendButtonVisible = _imageData != '';
-        if(!_sendButtonVisible) {
-          _imageData = '';
-        }
-        setState(() {});
-    }
   }
 
   void getDraft() async {
@@ -460,7 +452,7 @@ class _InputState extends State<Input> {
                                                       .inputTextStyle
                                                       .copyWith(
                                                     color:
-                                                    Colors.black.withOpacity(0.2),
+                                                    Colors.black.withValues(alpha: 0.2),
                                                   ),
                                                   hintText: AppLocalizations.text(LangKey.writeAMessage),
                                                 ),
@@ -590,29 +582,7 @@ class _InputState extends State<Input> {
                                     _onEmojiSelected(emoji);
                                   },
                                   onBackspacePressed: _onBackspacePressed,
-                                  config: Config(
-                                      columns: 7,
-                                      emojiSizeMax: 32 * (Platform.isIOS ? 1.30 : 1.0),
-                                      verticalSpacing: 0,
-                                      horizontalSpacing: 0,
-                                      initCategory: Category.RECENT,
-                                      bgColor: Colors.white,
-                                      indicatorColor: Colors.blue,
-                                      iconColor: Colors.grey,
-                                      iconColorSelected: Colors.blue,
-                                      backspaceColor: Colors.blue,
-                                      skinToneDialogBgColor: Colors.white,
-                                      skinToneIndicatorColor: Colors.grey,
-                                      enableSkinTones: true,
-                                      recentsLimit: 28,
-                                      noRecents: const Text(
-                                        'No Recents',
-                                        style: TextStyle(fontSize: 20, color: Colors.black26),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                      tabIndicatorAnimDuration: kTabScrollDuration,
-                                      categoryIcons: const CategoryIcons(),
-                                      buttonMode: ButtonMode.MATERIAL))
+                                  config: Config())
                                 :
                                 Column(
                                   children: [

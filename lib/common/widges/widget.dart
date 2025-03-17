@@ -17,7 +17,6 @@ import 'package:chat/localization/lang_key.dart';
 import 'package:chat/presentation/utils/ultility.dart';
 import 'package:flutter/material.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
-import 'package:keyboard_actions/keyboard_actions_item.dart';
 
 part 'custom_line.dart';
 part 'common_avatar.dart';

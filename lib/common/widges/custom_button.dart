@@ -53,7 +53,7 @@ class CustomButton extends StatelessWidget {
               color: (enable??true)
                   ? (backgroundColor ?? AppColors.primaryColor)
                   : (backgroundColor ?? AppColors.primaryColor)
-                  .withOpacity(0.3),
+                  .withValues(alpha: 0.3),
               borderRadius: BorderRadius.all(Radius.circular(radius??8.0)),
               border: (borderColor == null)
                   ? null

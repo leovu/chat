@@ -9,9 +9,12 @@ extension HexColor on Color {
   }
 
   /// Prefixes a hash sign if [leadingHashSign] is set to `true` (default is `true`).
-  String toHex({bool leadingHashSign = true}) => '${leadingHashSign ? '#' : ''}'
-      '${red.toRadixString(16).padLeft(2, '0')}'
-      '${green.toRadixString(16).padLeft(2, '0')}'
-      '${blue.toRadixString(16).padLeft(2, '0')}'
-      '${alpha.toRadixString(16).padLeft(2, '0')}';
+  String toHex({bool leadingHashSign = true}) {
+    final hexA = (a * 255).round().toRadixString(16).padLeft(2, '0');
+    final hexR = (r * 255).round().toRadixString(16).padLeft(2, '0');
+    final hexG = (g * 255).round().toRadixString(16).padLeft(2, '0');
+    final hexB = (b * 255).round().toRadixString(16).padLeft(2, '0');
+
+    return '${leadingHashSign ? '#' : ''}$hexA$hexR$hexG$hexB';
+  }
 }

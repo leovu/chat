@@ -14,9 +14,9 @@ import 'package:chat/presentation/note_modules/ui/create_note_screen.dart';
 import 'package:flutter/material.dart';
 
 class ListNoteComponent extends StatefulWidget {
-  ConversationBloc bloc;
-  Function refreshFunc;
-  Rooms roomData;
+  final ConversationBloc bloc;
+  final Function refreshFunc;
+  final Rooms roomData;
   ListNoteComponent(this.bloc, this.refreshFunc, this.roomData, {super.key});
 
   @override

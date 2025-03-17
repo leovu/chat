@@ -155,7 +155,7 @@ class ForwardScreenState extends State<ForwardScreen> {
                                 children: [
                                   Container(
                                     decoration: BoxDecoration(
-                                      color: Colors.grey.withOpacity(0.2),
+                                      color: Colors.grey.withValues(alpha: 0.2),
                                       borderRadius: BorderRadius.circular(21),
                                     ),
                                     height: 42,

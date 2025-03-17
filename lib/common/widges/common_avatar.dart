@@ -5,7 +5,7 @@
 part of widget;
 
 class CommonAvatar extends StatelessWidget {
-  Rooms data;
+  final Rooms data;
   CommonAvatar(this.data);
 
   @override

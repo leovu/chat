@@ -250,7 +250,7 @@ class _CustomAlertDialogState extends State<CustomAlertDialog> {
                                     (widget.enableSubSubmitted ?? true)
                                         ? AppColors.black50Color
                                         : AppColors.black50Color
-                                        .withOpacity(0.3),
+                                        .withValues(alpha: 0.3),
                                     onTap: widget.onSubSubmitted ??
                                             () => CustomNavigator.pop(context),
                                   )),
@@ -261,7 +261,7 @@ class _CustomAlertDialogState extends State<CustomAlertDialog> {
                                   AppLocalizations.text(LangKey.confirm),
                               backgroundColor: (widget.enableSubmitted ?? true)
                                   ? Colors.blue
-                                  : Colors.blue.withOpacity(0.3),
+                                  : Colors.blue.withValues(alpha: 0.3),
                               onTap: widget.onSubmitted ??
                                       () => CustomNavigator.pop(context),
                             ),

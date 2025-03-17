@@ -1,0 +1,20 @@
+                    -H/Users/trungnt110/Documents/Project/Flutter/sdk/flutter/packages/flutter_tools/gradle/src/main/groovy
+-DCMAKE_SYSTEM_NAME=Android
+-DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+-DCMAKE_SYSTEM_VERSION=24
+-DANDROID_PLATFORM=android-24
+-DANDROID_ABI=x86_64
+-DCMAKE_ANDROID_ARCH_ABI=x86_64
+-DANDROID_NDK=/Users/trungnt110/Library/Android/sdk/ndk/23.1.7779620
+-DCMAKE_ANDROID_NDK=/Users/trungnt110/Library/Android/sdk/ndk/23.1.7779620
+-DCMAKE_TOOLCHAIN_FILE=/Users/trungnt110/Library/Android/sdk/ndk/23.1.7779620/build/cmake/android.toolchain.cmake
+-DCMAKE_MAKE_PROGRAM=/Users/trungnt110/Library/Android/sdk/cmake/3.18.1/bin/ninja
+-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=/Users/trungnt110/Documents/Project/Flutter/Projects/chat/example/build/app/intermediates/cxx/RelWithDebInfo/26yo21z5/obj/x86_64
+-DCMAKE_RUNTIME_OUTPUT_DIRECTORY=/Users/trungnt110/Documents/Project/Flutter/Projects/chat/example/build/app/intermediates/cxx/RelWithDebInfo/26yo21z5/obj/x86_64
+-DCMAKE_BUILD_TYPE=RelWithDebInfo
+-B/Users/trungnt110/Documents/Project/Flutter/Projects/chat/example/android/app/.cxx/RelWithDebInfo/26yo21z5/x86_64
+-GNinja
+-Wno-dev
+--no-warn-unused-cli
+                    Build command args: []
+                    Version: 2

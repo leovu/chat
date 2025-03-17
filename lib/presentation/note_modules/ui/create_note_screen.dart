@@ -66,7 +66,7 @@ class _ConversationFileScreenState extends State<CreateNoteScreen>
               margin: EdgeInsets.all(20.0),
               padding: EdgeInsets.all(20.0),
               decoration: BoxDecoration(
-                color: AppColors.grayBackGround.withOpacity(0.5),
+                color: AppColors.grayBackGround.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(10.0)
               ),
               child: TextField(

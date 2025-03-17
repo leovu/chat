@@ -7,10 +7,10 @@ import 'package:chat/localization/lang_key.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:mime/mime.dart';
-import 'package:open_file_plus/open_file_plus.dart';
+import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
-import 'package:permission/permission.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'dart:io' as io;
 
 import 'package:saver_gallery/saver_gallery.dart';
@@ -19,29 +19,7 @@ Future<String?> download(BuildContext context,String url,String filename, {bool 
   try {
     bool granted = false;
     if (Platform.isAndroid) {
-      granted = await PermissionRequest.request(PermissionRequestType.STORAGE, () {
-        showDialog(
-          context: context,
-          builder: (context) =>
-              AlertDialog(
-                title: const Text('Request permissions'),
-                content: const Text(
-                    'Select Settings, go to App info, tap Permissions, turn on permission and re-enter this screen to use permission'),
-                actions: [
-                  ElevatedButton(
-                      onPressed: () {
-                        PermissionRequest.openSetting();
-                      },
-                      child: const Text('Open setting')),
-                  ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      child: const Text('Cancel')),
-                ],
-              ),
-        );
-      });
+      granted = await Permission.storage.request().isGranted;
     }
     else {
       granted = true;

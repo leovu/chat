@@ -19,7 +19,7 @@ class _ChatRoomWidgetState extends State<ChatRoomWidget> {
   Widget build(BuildContext context) {
     return Text(
       widget.content,
-      textScaleFactor: 0.8,
+      textScaler: TextScaler.linear(0.8),
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
     );

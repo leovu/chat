@@ -594,7 +594,7 @@ class _ChatState extends State<Chat> {
     return Container(
       padding: const EdgeInsets.all(10.0),
       width: MediaQuery.of(context).size.width,
-      color: AppColors.orange1.withOpacity(0.5),
+      color: AppColors.orange1.withValues(alpha: 0.5),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [

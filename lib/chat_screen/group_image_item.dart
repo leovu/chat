@@ -25,7 +25,7 @@ class GroupImageItem extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.only(left: 8.0, bottom: 8.0),
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.withOpacity(0.6)),
+          border: Border.all(color: Colors.grey.withValues(alpha: 0.6)),
           borderRadius: BorderRadius.circular(8.0)
         ),
         child: Column(

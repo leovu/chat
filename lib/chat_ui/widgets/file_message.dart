@@ -84,7 +84,7 @@ class FileMessage extends StatelessWidget {
               children: [
                 Container(
                   decoration: BoxDecoration(
-                    color: _color.withOpacity(0.2),
+                    color: _color.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(21),
                   ),
                   height: 42,

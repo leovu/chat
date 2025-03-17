@@ -1,0 +1,1 @@
+/Users/trungnt110/Documents/Project/Flutter/Projects/chat/example/build/app/intermediates/cxx/RelWithDebInfo/683a284f/obj/armeabi-v7a

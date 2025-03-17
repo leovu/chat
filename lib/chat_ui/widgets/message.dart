@@ -408,7 +408,7 @@ class Message extends StatelessWidget {
                           color: InheritedChatTheme.of(context)
                               .theme
                               .receivedMessageDocumentIconColor
-                              .withOpacity(0.2),
+                              .withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         height: 24,

@@ -883,7 +883,7 @@ class _ConversationInformationScreenState
         child: Text(avatarName,
             style: const TextStyle(color: Colors.white),
             maxLines: 1,
-            textScaleFactor: 1.75),
+            textScaler: TextScaler.linear(1.75)),
       );
     }
 

@@ -59,7 +59,7 @@ class ProgressDialog {
           return PopScope(
             canPop: false,
             child: Scaffold(
-              backgroundColor: Colors.black.withOpacity(0.3),
+              backgroundColor: Colors.black.withValues(alpha: 0.3),
               body: SizedBox(
                 height: MediaQuery.sizeOf(context).height,
                 child: const Center(child: CircularProgressIndicator()

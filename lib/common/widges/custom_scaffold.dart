@@ -52,37 +52,6 @@ class CustomScaffold extends StatelessWidget {
 
   Widget _buildBody(BuildContext context) {
     return PopScope(
-      canPop: false,
-      onPopInvoked: (bool didPop)async{
-        if (didPop) {
-          return;
-        }
-        print("didPop:"+didPop.toString());
-        if (allowPop) {
-          if (onWillPop != null) {
-            onWillPop!();
-          } else {
-            if (CustomNavigator.canPop(context)) {
-              CustomNavigator.pop(context);
-            }
-          }
-        }
-        return Future.value(allowPop);
-
-      },
-
-      // onWillPop: () async {
-      //   if (allowPop) {
-      //     if (onWillPop != null) {
-      //       onWillPop!();
-      //     } else {
-      //       if (CustomNavigator.canPop(context)) {
-      //         CustomNavigator.pop(context);
-      //       }
-      //     }
-      //   }
-      //   return allowPop;
-      // },
       child: Scaffold(
           backgroundColor: backgroundColor ?? AppColors.white,
           body: Container(
@@ -168,6 +137,12 @@ class CustomScaffold extends StatelessWidget {
           ),
           floatingActionButton: floatingActionButton,
           resizeToAvoidBottomInset: !isBottomSheet),
+      canPop: false,
+      onPopInvokedWithResult: (event, _) {
+        if (!event) {
+          onWillPop!();
+        }
+      },
     );
   }
 
