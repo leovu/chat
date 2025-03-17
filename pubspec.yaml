@@ -47,7 +47,7 @@ dependencies:
   flex_color_picker: ^3.7.0
   rxdart: ^0.28.0
   keyboard_actions: ^4.2.0
-  open_file: ^3.5.10
+  open_filex: ^4.7.0
   permission_handler: ^11.4.0
   image_picker_android: ^0.8.12+22
 

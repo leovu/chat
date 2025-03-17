@@ -476,50 +476,8 @@
       "languageVersion": "3.0"
     },
     {
-      "name": "open_file",
-      "rootUri": "file:///Users/trungnt110/.pub-cache/hosted/pub.dev/open_file-3.5.10",
-      "packageUri": "lib/",
-      "languageVersion": "2.17"
-    },
-    {
-      "name": "open_file_android",
-      "rootUri": "file:///Users/trungnt110/.pub-cache/hosted/pub.dev/open_file_android-1.0.6",
-      "packageUri": "lib/",
-      "languageVersion": "2.17"
-    },
-    {
-      "name": "open_file_ios",
-      "rootUri": "file:///Users/trungnt110/.pub-cache/hosted/pub.dev/open_file_ios-1.0.3",
-      "packageUri": "lib/",
-      "languageVersion": "2.17"
-    },
-    {
-      "name": "open_file_linux",
-      "rootUri": "file:///Users/trungnt110/.pub-cache/hosted/pub.dev/open_file_linux-0.0.5",
-      "packageUri": "lib/",
-      "languageVersion": "2.17"
-    },
-    {
-      "name": "open_file_mac",
-      "rootUri": "file:///Users/trungnt110/.pub-cache/hosted/pub.dev/open_file_mac-1.0.3",
-      "packageUri": "lib/",
-      "languageVersion": "2.17"
-    },
-    {
-      "name": "open_file_platform_interface",
-      "rootUri": "file:///Users/trungnt110/.pub-cache/hosted/pub.dev/open_file_platform_interface-1.0.3",
-      "packageUri": "lib/",
-      "languageVersion": "2.17"
-    },
-    {
-      "name": "open_file_web",
-      "rootUri": "file:///Users/trungnt110/.pub-cache/hosted/pub.dev/open_file_web-0.0.4",
-      "packageUri": "lib/",
-      "languageVersion": "2.17"
-    },
-    {
-      "name": "open_file_windows",
-      "rootUri": "file:///Users/trungnt110/.pub-cache/hosted/pub.dev/open_file_windows-0.0.3",
+      "name": "open_filex",
+      "rootUri": "file:///Users/trungnt110/.pub-cache/hosted/pub.dev/open_filex-4.7.0",
       "packageUri": "lib/",
       "languageVersion": "2.17"
     },
@@ -908,7 +866,7 @@
       "languageVersion": "2.19"
     }
   ],
-  "generated": "2025-03-17T08:19:13.799138Z",
+  "generated": "2025-03-17T11:51:03.271628Z",
   "generator": "pub",
   "generatorVersion": "3.7.0",
   "flutterRoot": "file:///Users/trungnt110/Documents/Project/Flutter/sdk/flutter",
