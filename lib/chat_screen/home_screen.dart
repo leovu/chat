@@ -18,52 +18,62 @@ import 'package:chat/data_model/room.dart' as r;
 import 'package:chat/connection/app_lifecycle.dart';
 import 'package:badges/badges.dart' as bdg;
 
-typedef RefreshBuilder = void Function(BuildContext context, void Function() refresh);
+import '../presentation/utils/media_query.dart';
+
+typedef RefreshBuilder = void Function(
+    BuildContext context, void Function() refresh);
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
+
 class _HomeScreenState extends AppLifeCycle<HomeScreen> {
   @override
   void initState() {
     super.initState();
+
     /// SET LANGUAGE
-    try{
-      AppLocalizations.delegate.load(Locale(Globals.prefs!.getString(SharedPrefsKey.language)));
-    } catch (e){
+    try {
+      AppLocalizations.delegate
+          .load(Locale(Globals.prefs!.getString(SharedPrefsKey.language)));
+    } catch (e) {
       AppLocalizations.delegate.load(Locale('vi'));
     }
     ChatConnection.homeScreenNotificationHandler = _notificationHandler;
     ChatConnection.listenChat(_getRooms);
     ChatConnection.notificationList();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if(ChatConnection.initialData != null) {
+      if (ChatConnection.initialData != null) {
         await Future.delayed(const Duration(milliseconds: 500));
         _notificationHandler(Map.from(ChatConnection.initialData!));
         ChatConnection.initialData = null;
       }
     });
   }
+
   @override
   void dispose() {
     // TODO: implement dispose
     super.dispose();
     ChatConnection.dispose(isDispose: true);
   }
+
   @override
   Widget build(BuildContext context) {
     return ChatConnection.isChatHub ? _chatHub() : _chat();
   }
+
   Widget _chatHub() {
     return CupertinoTabScaffold(
       tabBar: CupertinoTabBar(
         onTap: (index) {
-          if(index == 1) {
-            try{
+          if (index == 1) {
+            try {
               ChatConnection.refreshNotifications.call();
-            }catch(_) {}
+            } catch (_) {}
           }
         },
         backgroundColor: Colors.white,
@@ -71,13 +81,14 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
         items: [
           BottomNavigationBarItem(
               icon: const Icon(Icons.chat),
-              label: AppLocalizations.text(LangKey.chats)
-          ),
+              label: AppLocalizations.text(LangKey.chats)),
           BottomNavigationBarItem(
               icon: ValueListenableBuilder(
                 builder: (BuildContext context, value, Widget? child) {
                   return bdg.Badge(
-                    badgeContent: Text('$value',style: const TextStyle(color: Colors.white,fontSize: 10)),
+                    badgeContent: Text('$value',
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 10)),
                     showBadge: value == '0' ? false : true,
                     badgeAnimation: const bdg.BadgeAnimation.rotation(
                       toAnimate: false,
@@ -90,39 +101,47 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
                 },
                 valueListenable: ChatConnection.notificationNotifier,
               ),
-              label: AppLocalizations.text(LangKey.notifications)
-          ),
+              label: AppLocalizations.text(LangKey.notifications)),
         ],
       ),
       tabBuilder: (context, index) {
         if (index == 0) {
           return CupertinoTabView(
-            builder: (BuildContext context) =>
-                ChatConnection.isChatHub ? RoomListChathubScreen(builder: (BuildContext context, void Function() method) {
-                  ChatConnection.refreshRoom = method;
-                },openCreateChatRoom: _openCreateRoom,) :
-                RoomListScreen(builder: (BuildContext context, void Function() method) {
-                  ChatConnection.refreshRoom = method;
-                },openCreateChatRoom: _openCreateRoom,),
+            builder: (BuildContext context) => ChatConnection.isChatHub
+                ? RoomListChathubScreen(
+                    builder: (BuildContext context, void Function() method) {
+                      ChatConnection.refreshRoom = method;
+                    },
+                    openCreateChatRoom: _openCreateRoom,
+                  )
+                : RoomListScreen(
+                    builder: (BuildContext context, void Function() method) {
+                      ChatConnection.refreshRoom = method;
+                    },
+                    openCreateChatRoom: _openCreateRoom,
+                  ),
           );
         } else {
           return CupertinoTabView(
-            builder: (BuildContext context) =>  NotificationScreen(builder: (BuildContext context, void Function() method) {
-              ChatConnection.refreshNotifications = method;
-            },homeCallback: ChatConnection.refreshRoom.call),
+            builder: (BuildContext context) => NotificationScreen(
+                builder: (BuildContext context, void Function() method) {
+                  ChatConnection.refreshNotifications = method;
+                },
+                homeCallback: ChatConnection.refreshRoom.call),
           );
         }
       },
     );
   }
+
   Widget _chat() {
     return CupertinoTabScaffold(
       tabBar: CupertinoTabBar(
         onTap: (index) {
-          if(index == 3) {
-            try{
+          if (index == 3) {
+            try {
               ChatConnection.refreshNotifications.call();
-            }catch(_) {}
+            } catch (_) {}
           }
         },
         backgroundColor: Colors.white,
@@ -130,21 +149,20 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
         items: [
           BottomNavigationBarItem(
               icon: const Icon(Icons.chat),
-              label: AppLocalizations.text(LangKey.chats)
-          ),
+              label: AppLocalizations.text(LangKey.chats)),
           BottomNavigationBarItem(
               icon: const Icon(Icons.contact_mail),
-              label: AppLocalizations.text(LangKey.contacts)
-          ),
+              label: AppLocalizations.text(LangKey.contacts)),
           BottomNavigationBarItem(
               icon: const Icon(Icons.star_border),
-              label: AppLocalizations.text(LangKey.favorites)
-          ),
+              label: AppLocalizations.text(LangKey.favorites)),
           BottomNavigationBarItem(
               icon: ValueListenableBuilder(
                 builder: (BuildContext context, value, Widget? child) {
                   return bdg.Badge(
-                    badgeContent: Text(value,style: const TextStyle(color: Colors.white,fontSize: 10)),
+                    badgeContent: Text(value,
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 10)),
                     showBadge: value == '0' ? false : true,
                     badgeAnimation: const bdg.BadgeAnimation.rotation(
                       toAnimate: false,
@@ -157,74 +175,92 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
                 },
                 valueListenable: ChatConnection.notificationNotifier,
               ),
-              label: AppLocalizations.text(LangKey.notifications)
-          ),
+              label: AppLocalizations.text(LangKey.notifications)),
         ],
       ),
       tabBuilder: (context, index) {
         if (index == 0) {
           return CupertinoTabView(
-            builder: (BuildContext context) =>  RoomListScreen(builder: (BuildContext context, void Function() method) {
-              ChatConnection.refreshRoom = method;
-            },openCreateChatRoom: _openCreateRoom,),
+            builder: (BuildContext context) => RoomListScreen(
+              builder: (BuildContext context, void Function() method) {
+                ChatConnection.refreshRoom = method;
+              },
+              openCreateChatRoom: _openCreateRoom,
+            ),
           );
-        } if (index == 1) {
+        }
+        if (index == 1) {
           return CupertinoTabView(
-              builder: (BuildContext context) => ContactsScreen(builder: (BuildContext context, void Function() method) {
-                ChatConnection.refreshContact = method;
-              })
-          );
-        } if (index == 2) {
+              builder: (BuildContext context) => ContactsScreen(
+                      builder: (BuildContext context, void Function() method) {
+                    ChatConnection.refreshContact = method;
+                  }));
+        }
+        if (index == 2) {
           return CupertinoTabView(
-            builder: (BuildContext context) =>  FavoriteScreen(builder: (BuildContext context, void Function() method) {
-              ChatConnection.refreshFavorites = method;
-            },homeCallback: ChatConnection.refreshRoom.call),
+            builder: (BuildContext context) => FavoriteScreen(
+                builder: (BuildContext context, void Function() method) {
+                  ChatConnection.refreshFavorites = method;
+                },
+                homeCallback: ChatConnection.refreshRoom.call),
           );
         } else {
           return CupertinoTabView(
-            builder: (BuildContext context) =>  NotificationScreen(builder: (BuildContext context, void Function() method) {
-              ChatConnection.refreshNotifications = method;
-            },homeCallback: ChatConnection.refreshRoom.call),
+            builder: (BuildContext context) => NotificationScreen(
+                builder: (BuildContext context, void Function() method) {
+                  ChatConnection.refreshNotifications = method;
+                },
+                homeCallback: ChatConnection.refreshRoom.call),
           );
         }
       },
     );
   }
+
   _openCreateRoom() {
-    Navigator.of(context,rootNavigator: true).push(
+    Navigator.of(context, rootNavigator: true).push(
       MaterialPageRoute(builder: (context) => const CreateGroupScreen()),
     );
   }
+
   _getRooms(dynamic data) {
-    Map<String,dynamic> notificationData = json.decode(json.encode(data)) as Map<String, dynamic>;
-    if(ChatConnection.roomId == null) {
+    Map<String, dynamic> notificationData =
+        json.decode(json.encode(data)) as Map<String, dynamic>;
+    if (ChatConnection.roomId == null) {
       ChatConnection.showNotification(
-          notificationData['room']['isGroup'] == true ?
-          '${notificationData['message']['author']['firstName']} ${notificationData['message']['author']['lastName']} in ${notificationData['room']['title']}'
-          : '${notificationData['message']['author']['firstName']} ${notificationData['message']['author']['lastName']}',
-          checkTag(notificationData['message']['content'],null),
-          notificationData, ChatConnection.appIcon, _notificationHandler);
-      try{
+          notificationData['room']['isGroup'] == true
+              ? '${notificationData['message']['author']['firstName']} ${notificationData['message']['author']['lastName']} in ${notificationData['room']['title']}'
+              : '${notificationData['message']['author']['firstName']} ${notificationData['message']['author']['lastName']}',
+          checkTag(notificationData['message']['content'], null),
+          notificationData,
+          ChatConnection.appIcon,
+          _notificationHandler);
+      try {
         ChatConnection.refreshRoom.call();
         ChatConnection.refreshFavorites.call();
-      }catch(_){}
+      } catch (_) {}
     }
   }
 
   Future<dynamic> _notificationHandler(Map<String, dynamic> message) async {
     r.Room? room = await ChatConnection.roomList();
-    try{
-      r.Rooms? rooms = room?.rooms?.firstWhere((element) => element.sId == message['room']['_id']);
-      await Navigator.of(context,rootNavigator: true).push(
-        MaterialPageRoute(builder: (context) => ChatScreen(data: rooms!,source: rooms.source,),settings:const RouteSettings(name: 'chat_screen')),
+    try {
+      r.Rooms? rooms = room?.rooms
+          ?.firstWhere((element) => element.sId == message['room']['_id']);
+      await Navigator.of(context, rootNavigator: true).push(
+        MaterialPageRoute(
+            builder: (context) => ChatScreen(
+                  data: rooms!,
+                  source: rooms.source,
+                ),
+            settings: const RouteSettings(name: 'chat_screen')),
       );
-    }catch(_){
-    }
-    try{
+    } catch (_) {}
+    try {
       ChatConnection.refreshRoom.call();
       ChatConnection.refreshContact.call();
       ChatConnection.refreshFavorites.call();
-    }catch(_){}
+    } catch (_) {}
   }
 }
 

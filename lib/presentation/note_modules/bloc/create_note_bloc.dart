@@ -10,20 +10,24 @@ import 'package:flutter/cupertino.dart';
 import 'package:rxdart/rxdart.dart';
 
 class CreateNoteBloc extends BaseBloc {
-
   final notes = BehaviorSubject<NotesResponseModel>();
   ValueStream<NotesResponseModel> get outputNotes => notes.stream;
   setNotes(NotesResponseModel event) => set(notes, event);
 
   createNote(BuildContext context, String roomId, String content) async {
     bool? notes = await ChatConnection.createNotes(roomId, content);
-    if(notes) CustomNavigator.pop(context);
-    else return false;
+    if (notes)
+      CustomNavigator.pop(context);
+    else
+      return false;
   }
 
-  updateNote(BuildContext context, String roomId, String content, int noteId) async {
+  updateNote(BuildContext context, String roomId, String content,
+      String noteId) async {
     bool? notes = await ChatConnection.updateNotes(roomId, content, noteId);
-    if(notes) CustomNavigator.pop(context);
-    else return false;
+    if (notes)
+      CustomNavigator.pop(context);
+    else
+      return false;
   }
 }

@@ -1,7 +1,10 @@
 import 'package:chat/connection/chat_connection.dart';
+import 'package:chat/data_model/chat_message.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:intl/intl.dart';
+
+import 'chat_message.dart' as ChatMessage;
 
 class Room {
   int? limit;
@@ -10,7 +13,7 @@ class Room {
 
   Room({limit, rooms});
 
-  Room.fromJson(Map<String, dynamic> json ,{bool isFavorite = false}) {
+  Room.fromJson(Map<String, dynamic> json, {bool isFavorite = false}) {
     limit = json['limit'];
     if (json[!isFavorite ? 'rooms' : 'favorites'] != null) {
       rooms = <Rooms>[];
@@ -29,7 +32,8 @@ class Room {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['limit'] = limit;
     if (rooms != null) {
-      data[!isFavorite ? 'rooms' : 'favorites'] = rooms!.map((v) => v.toJson()).toList();
+      data[!isFavorite ? 'rooms' : 'favorites'] =
+          rooms!.map((v) => v.toJson()).toList();
     }
     if (notifications != null) {
       data['notifications'] = notifications!.toJson();
@@ -55,57 +59,91 @@ class Rooms {
   int? messageUnSeen;
   Channel? channel;
   String? shieldedID;
-
-  Rooms(
-      {people,
-        isGroup,
-        sId,
-        title,
-        iV,
-        lastAuthor,
-        lastMessage,
-        lastUpdate,
-        owner,
-        messagesReceived,
-        createdAt,
-        source,
-        messageUnSeen,
-        channel, shieldedID,  staff});
+  int? enable_bot;
+  // Rooms(
+  //     {people,
+  //     isGroup,
+  //     sId,
+  //     title,
+  //     iV,
+  //     lastAuthor,
+  //     lastMessage,
+  //     lastUpdate,
+  //     owner,
+  //     messagesReceived,
+  //     createdAt,
+  //     source,
+  //     messageUnSeen,
+  //     channel,
+  //     shieldedID,
+  //     staff,
+  //     enable_bot});
+  Rooms({
+    this.people,
+    this.isGroup,
+    this.sId,
+    this.title,
+    this.iV,
+    this.lastAuthor,
+    this.owner,
+    this.lastMessage,
+    this.lastUpdate,
+    this.picture,
+    this.messagesReceived,
+    this.createdAt,
+    this.source,
+    this.messageUnSeen,
+    this.channel,
+    this.shieldedID,
+    this.enable_bot,
+  });
+  factory Rooms.mappingFromRoom(ChatMessage.Room r) {
+    return Rooms(
+      sId: r.sId,
+      people: r.people,
+      isGroup: r.isGroup,
+      owner: Owner.fromAnotherOwner(r.owner!),
+      lastUpdate: r.lastUpdate,
+      lastAuthor: r.lastAuthor,
+      lastMessage:
+          r.lastMessage != null ? LastMessage(content: r.lastMessage) : null,
+      // Các field còn lại của Rooms như title, iV, picture, messagesReceived, createdAt, source, messageUnSeen, channel, shieldedID, enable_bot sẽ để mặc định null.
+    );
+  }
 
   Rooms.fromJson(Map<String, dynamic> json) {
     if (json['people'] != null) {
-      people = <People>[];
-      json['people'].forEach((v) {
-        people!.add(People.fromJson(v));
-      });
+      people = (json['people'] as List).map((v) => People.fromJson(v)).toList();
     }
     isGroup = json['isGroup'];
     source = json['source'];
-    channel = json['channel'] != null ? Channel.fromJson(json['channel']) : null;
+    channel =
+        json['channel'] != null ? Channel.fromJson(json['channel']) : null;
     sId = json['_id'];
     title = json['title'];
     createdAt = json['createdAt'];
     iV = json['__v'];
     lastAuthor = json['lastAuthor'];
-    try{
-      if(ChatConnection.isChatHub) {
+    enable_bot = json['enable_bot'];
+    try {
+      if (ChatConnection.isChatHub) {
         owner = Owner.fromJson(json['owner']);
-      }
-      else {
-        if(isGroup!) {
-          owner = Owner.fromPeople(people!.firstWhere((e) => e.sId == json['owner']));
+      } else {
+        if (isGroup!) {
+          owner = Owner.fromPeople(
+              people!.firstWhere((e) => e.sId == json['owner']));
+        } else {
+          owner = Owner.fromPeople(
+              people!.firstWhere((e) => e.sId != ChatConnection.user!.id));
         }
-        else {
-          owner = Owner.fromPeople(people!.firstWhere((e) => e.sId != ChatConnection.user!.id));
-        }
       }
-    }catch(_){}
+    } catch (_) {}
     messageUnSeen = json['messageUnSeen'];
-    try{
+    try {
       lastMessage = json['lastMessage'] != null
           ? LastMessage.fromJson(json['lastMessage'])
           : null;
-    }catch(_){}
+    } catch (_) {}
     if (json['messagesReceived'] != null) {
       messagesReceived = <MessagesReceived>[];
       json['messagesReceived'].forEach((v) {
@@ -115,24 +153,22 @@ class Rooms {
     lastUpdate = json['lastUpdate'];
     try {
       picture =
-      json['picture'] != null ? Picture.fromJson(json['picture']) : null;
-    }catch(_) {}
+          json['picture'] != null ? Picture.fromJson(json['picture']) : null;
+    } catch (_) {}
     shieldedID = json['shieldedID'];
   }
 
   String createdDate() {
-    if(createdAt == null) return '';
+    if (createdAt == null) return '';
     final format = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z");
     final dt = format.parse(createdAt!, true).toLocal();
-    if(dt.isToday()) {
+    if (dt.isToday()) {
       String hour = dt.hour >= 10 ? '${dt.hour}' : '0${dt.hour}';
       String minute = dt.minute >= 10 ? '${dt.minute}' : '0${dt.minute}';
-      return dt.hour > 12 ? '$hour:$minute PM' :'$hour:$minute AM';
-    }
-    else if (dt.isYesterday()) {
+      return dt.hour > 12 ? '$hour:$minute PM' : '$hour:$minute AM';
+    } else if (dt.isYesterday()) {
       return 'Yesterday';
-    }
-    else {
+    } else {
       return '${dt.day}/${dt.month}/${dt.year}';
     }
   }
@@ -168,24 +204,23 @@ class Rooms {
 
   String getAvatarGroupName() {
     String avatarName = '';
-    try{
-      if(title != '' && title != null) {
+    try {
+      if (title != '' && title != null) {
         List<String> _arr = title!.split(' ');
-        if(_arr.length > 1) {
+        if (_arr.length > 1) {
           avatarName += _arr[0][0];
           avatarName += _arr[1][0];
-        }
-        else {
+        } else {
           avatarName += title![0];
           avatarName += title![1];
         }
       }
-    }catch(_){}
+    } catch (_) {}
     return avatarName == '' ? '*' : avatarName.toUpperCase();
   }
 }
 
-class Staff{
+class Staff {
   String? address;
   String? branchId;
   String? email;
@@ -194,8 +229,14 @@ class Staff{
   String? staffId;
   String? userName;
 
-  Staff({this.address, this.branchId, this.email, this.fullName,
-    this.staffAvatar, this.staffId, this.userName});
+  Staff(
+      {this.address,
+      this.branchId,
+      this.email,
+      this.fullName,
+      this.staffAvatar,
+      this.staffId,
+      this.userName});
 
   Staff.fromJson(Map<String, dynamic> json) {
     address = json['address'];
@@ -234,21 +275,23 @@ class Channel {
   String? createdAt;
   String? updatedAt;
   int? iV;
+  int? enable_bot;
 
   Channel(
       {this.sId,
-        this.status,
-        this.nameApp,
-        this.oaSecrectKey,
-        this.source,
-        this.socialChanelId,
-        this.accessToken,
-        this.refreshToken,
-        this.expiresIn,
-        this.refreshExpiresIn,
-        this.createdAt,
-        this.updatedAt,
-        this.iV});
+      this.status,
+      this.nameApp,
+      this.oaSecrectKey,
+      this.source,
+      this.socialChanelId,
+      this.accessToken,
+      this.refreshToken,
+      this.expiresIn,
+      this.refreshExpiresIn,
+      this.createdAt,
+      this.updatedAt,
+      this.iV,
+      this.enable_bot});
 
   Channel.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
@@ -264,6 +307,7 @@ class Channel {
     createdAt = json['createdAt'];
     updatedAt = json['updatedAt'];
     iV = json['__v'];
+    enable_bot = json['enable_bot'];
   }
 
   Map<String, dynamic> toJson() {
@@ -281,14 +325,14 @@ class Channel {
     data['createdAt'] = createdAt;
     data['updatedAt'] = updatedAt;
     data['__v'] = iV;
+    data['enable_bot'] = enable_bot;
     return data;
   }
 }
 
-
 class People {
   String? level;
-  List<String>? favorites;
+  List<String> favorites = [];
   String? tagLine;
   String? sId;
   String? username;
@@ -298,29 +342,34 @@ class People {
   String? lastOnline;
   Picture? picture;
   bool? isSelected;
-  List<Customer>? customer;
-  List<String>? userTag;
+  List<Customer> customer = [];
+  List<String> userTag = [];
   bool isUpdateTagList = false;
 
-  People(
-      {level,
-        favorites,
-        tagLine,
-        sId,
-        username,
-        firstName,
-        phone,
-        lastName,
-        lastOnline,
-        customer,
-        picture,
-        userTag});
+  People({
+    this.level,
+    List<String>? favorites,
+    this.tagLine,
+    this.sId,
+    this.username,
+    this.firstName,
+    this.phone,
+    this.lastName,
+    this.lastOnline,
+    List<Customer>? customer,
+    this.picture,
+    List<String>? userTag,
+  }) {
+    if (favorites != null) this.favorites = favorites;
+    if (customer != null) this.customer = customer;
+    if (userTag != null) this.userTag = userTag;
+  }
 
   People.fromJson(Map<String, dynamic> json) {
     level = json['level'];
-    if(json['favorites'] != null) {
-      favorites = json['favorites'].cast<String>();
-    }
+    favorites =
+        (json['favorites'] != null) ? List<String>.from(json['favorites']) : [];
+
     tagLine = json['tagLine'];
     sId = json['_id'];
     username = json['username'];
@@ -328,25 +377,25 @@ class People {
     phone = json['phone'];
     lastName = json['lastName'];
     lastOnline = json['lastOnline'];
-    if (json['userTag'] != null) {
-      userTag = <String>[];
-      json['userTag'].forEach((v) {
-        userTag!.add(v);
-      });
-    }
+
+    userTag =
+        (json['userTag'] != null) ? List<String>.from(json['userTag']) : [];
+
     if (json['customer'] != null) {
-      customer = <Customer>[];
-      json['customer'].forEach((v) {
-        customer!.add(Customer.fromJson(v));
-      });
+      customer =
+          (json['customer'] as List).map((v) => Customer.fromJson(v)).toList();
     }
-    try{
-      picture = json['picture'] != null ? Picture.fromJson(json['picture']) : null;
-    }catch(_){}
+
+    try {
+      picture =
+          (json['picture'] != null) ? Picture.fromJson(json['picture']) : null;
+    } catch (e) {
+      picture = null;
+    }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
+    final Map<String, dynamic> data = {};
     data['level'] = level;
     data['favorites'] = favorites;
     data['tagLine'] = tagLine;
@@ -356,8 +405,8 @@ class People {
     data['phone'] = phone;
     data['lastName'] = lastName;
     data['lastOnline'] = lastOnline;
-    if (customer != null) {
-      data['customer'] = customer!.map((v) => v.toJson()).toList();
+    if (customer.isNotEmpty) {
+      data['customer'] = customer.map((v) => v.toJson()).toList();
     }
     if (picture != null) {
       data['picture'] = picture!.toJson();
@@ -365,12 +414,12 @@ class People {
     return data;
   }
 
-  String getName(){
+  String getName() {
     List<String> names = [];
-    if((firstName ?? "").isNotEmpty) {
+    if ((firstName ?? "").isNotEmpty) {
       names.add(firstName!);
     }
-    if((lastName ?? "").isNotEmpty) {
+    if ((lastName ?? "").isNotEmpty) {
       names.add(lastName!);
     }
     return names.join(" ");
@@ -379,19 +428,17 @@ class People {
   String getAvatarName() {
     String avatarName = '';
     String? firstNameResult = firstName?.replaceAll(RegExp('[^A-Za-z0-9]'), '');
-    if(firstNameResult != '' && firstNameResult != null) {
-      avatarName += firstNameResult[0];
+    if (firstNameResult?.isNotEmpty ?? false) {
+      avatarName += firstNameResult![0];
     }
     String? lastNameResult = lastName?.replaceAll(RegExp('[^A-Za-z0-9]'), '');
-    if(lastNameResult != '' && lastNameResult != null) {
-      avatarName += lastNameResult[0];
+    if (lastNameResult?.isNotEmpty ?? false) {
+      avatarName += lastNameResult![0];
     }
-    return avatarName == '' ? '*' : avatarName.toUpperCase();
+    return avatarName.isNotEmpty ? avatarName.toUpperCase() : '*';
   }
 
-  People.fromOwner() {
-
-  }
+  People.fromOwner();
 }
 
 class Customer {
@@ -408,15 +455,15 @@ class Customer {
 
   Customer(
       {this.sId,
-        this.users,
-        this.status,
-        this.createdAt,
-        this.updatedAt,
-        this.iV,
-        this.customerId,
-        this.cpoCustomerCode,
-        this.cpoCustomerId,
-        this.customerCode});
+      this.users,
+      this.status,
+      this.createdAt,
+      this.updatedAt,
+      this.iV,
+      this.customerId,
+      this.cpoCustomerCode,
+      this.cpoCustomerId,
+      this.customerCode});
 
   Customer.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
@@ -457,15 +504,7 @@ class Picture {
   String? location;
   String? shieldedID;
 
-  Picture(
-      {sId,
-        name,
-        author,
-        size,
-        shield,
-        iV,
-        location,
-        shieldedID});
+  Picture({sId, name, author, size, shield, iV, location, shieldedID});
 
   Picture.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
@@ -525,33 +564,21 @@ class LastMessage {
   String? file;
   Staff? staff;
 
-
-  LastMessage(
-      {sId,
-        room,
-        author,
-        content,
-        date,
-        iV,
-        type,
-        file, staff});
+  LastMessage({sId, room, author, content, date, iV, type, file, staff});
 
   String lastMessageDate() {
     final format = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z");
     final dt = format.parse(date!, true).toLocal();
-    if(dt.isToday()) {
+    if (dt.isToday()) {
       String hour = dt.hour >= 10 ? '${dt.hour}' : '0${dt.hour}';
       String minute = dt.minute >= 10 ? '${dt.minute}' : '0${dt.minute}';
-      return dt.hour > 12 ? '$hour:$minute PM' :'$hour:$minute AM';
-    }
-    else if (dt.isYesterday()) {
+      return dt.hour > 12 ? '$hour:$minute PM' : '$hour:$minute AM';
+    } else if (dt.isYesterday()) {
       return 'Yesterday';
-    }
-    else {
+    } else {
       return '${dt.day}/${dt.month}/${dt.year}';
     }
   }
-
 
   LastMessage.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
@@ -562,12 +589,12 @@ class LastMessage {
     iV = json['__v'];
     type = json['type'];
     file = json['file'];
-    if(content == 'Message recalled') {
+    if (content == 'Message recalled') {
       content = AppLocalizations.text(LangKey.messageRecalled);
     }
-    try{
+    try {
       staff = json['staff'] != null ? Staff.fromJson(json['staff']) : null;
-    }catch(_) {}
+    } catch (_) {}
   }
 
   Map<String, dynamic> toJson() {
@@ -590,9 +617,7 @@ class LastMessage {
 extension DateHelpers on DateTime {
   bool isToday() {
     final now = DateTime.now();
-    return now.day == day &&
-        now.month == month &&
-        now.year == year;
+    return now.day == day && now.month == month && now.year == year;
   }
 
   bool isYesterday() {
@@ -602,6 +627,7 @@ extension DateHelpers on DateTime {
         yesterday.year == year;
   }
 }
+
 class Notifications {
   int? total;
   int? facebook;
@@ -652,29 +678,57 @@ class Owner {
 
   Owner(
       {this.sId,
-        this.level,
-        // this.favorites,
-        this.userTag,
-        this.tagLine,
-        this.isIncognito,
-        this.username,
-        this.email,
-        this.firstName,
-        this.lastName,
-        this.userSocialId,
-        this.source,
-        this.password,
-        this.lastOnline,
-        this.iV,
-        this.picture,
-        // this.cpoCustomerCode,
-        this.cpoCustomerId,
-        // this.customerCode,
-        this.customerId,
-        this.createdAt,
-        this.isBlocked,
-        this.isFollowed,
-        this.tags});
+      this.level,
+      // this.favorites,
+      this.userTag,
+      this.tagLine,
+      this.isIncognito,
+      this.username,
+      this.email,
+      this.firstName,
+      this.lastName,
+      this.userSocialId,
+      this.source,
+      this.password,
+      this.lastOnline,
+      this.iV,
+      this.picture,
+      // this.cpoCustomerCode,
+      this.cpoCustomerId,
+      // this.customerCode,
+      this.customerId,
+      this.createdAt,
+      this.isBlocked,
+      this.isFollowed,
+      this.tags});
+
+  factory Owner.fromAnotherOwner(ChatMessage.Owner other) {
+    return Owner(
+      sId: other.sId,
+      level: other.level,
+      userTag: other.userTag,
+      tagLine: other.tagLine,
+      isIncognito: other.isIncognito,
+      username: other.username,
+      email: other.email,
+      firstName: other.firstName,
+      lastName: other.lastName,
+      userSocialId: other.userSocialId,
+      source: other.source,
+      password: other.password,
+      lastOnline: other.lastOnline,
+      iV: other.iV,
+      picture: other.picture,
+      cpoCustomerId: other.cpoCustomerId,
+      createdAt: other.createdAt,
+      isBlocked: other.isBlocked,
+      isFollowed: other.isFollowed,
+      customerId: int.tryParse(other.customerId ?? ''),
+
+      // tags: other.tags,
+      // Các field khác như customerCode, cpoCustomerCode, customerId (String) sẽ phải handle riêng
+    );
+  }
 
   Owner.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
@@ -685,7 +739,7 @@ class Owner {
     //     favorites!.add(new Null.fromJson(v));
     //   });
     // }
-    if(json['userTag'] != null) {
+    if (json['userTag'] != null) {
       userTag = <String>[];
       json['userTag'].forEach((v) {
         userTag!.add(v);
@@ -702,7 +756,7 @@ class Owner {
     password = json['password'];
     lastOnline = json['lastOnline'];
     iV = json['__v'];
-    if(json['picture'] != null) {
+    if (json['picture'] != null) {
       picture = json['picture'];
     }
     // cpoCustomerCode = json['cpoCustomerCode'];
@@ -765,22 +819,22 @@ class Owner {
   String getAvatarName() {
     String avatarName = '';
     String? firstNameResult = firstName?.replaceAll(RegExp('[^A-Za-z0-9]'), '');
-    if(firstNameResult != '' && firstNameResult != null) {
+    if (firstNameResult != '' && firstNameResult != null) {
       avatarName += firstNameResult[0];
     }
     String? lastNameResult = lastName?.replaceAll(RegExp('[^A-Za-z0-9]'), '');
-    if(lastNameResult != '' && lastNameResult != null) {
+    if (lastNameResult != '' && lastNameResult != null) {
       avatarName += lastNameResult[0];
     }
     return avatarName == '' ? '*' : avatarName.toUpperCase();
   }
 
-  String getName(){
+  String getName() {
     List<String> names = [];
-    if((firstName ?? "").isNotEmpty) {
+    if ((firstName ?? "").isNotEmpty) {
       names.add(firstName!);
     }
-    if((lastName ?? "").isNotEmpty) {
+    if ((lastName ?? "").isNotEmpty) {
       names.add(lastName!);
     }
     return names.join(" ");

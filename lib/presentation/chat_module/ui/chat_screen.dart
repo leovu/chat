@@ -1,10 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
+
+import 'package:adaptive_dialog/adaptive_dialog.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:chat/presentation/chat_module/bloc/chat_bloc.dart';
-import 'package:chat/presentation/conversation_modules/ui/conversation_information_screen.dart';
 import 'package:chat/chat_screen/forward_screen.dart';
-import 'package:chat/chat_ui/hex_color.dart';
+import 'package:chat/chat_screen/select_tags.dart';
+import 'package:chat/chat_ui/flutter_chat_ui.dart';
+import 'package:chat/connection/app_lifecycle.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/download.dart';
 import 'package:chat/connection/http_connection.dart';
@@ -14,27 +18,37 @@ import 'package:chat/data_model/tag.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/check_tag.dart';
 import 'package:chat/localization/lang_key.dart';
+import 'package:chat/presentation/chat_module/bloc/chat_bloc.dart';
+import 'package:chat/presentation/conversation_modules/ui/conversation_information_screen.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-import 'package:chat/chat_ui/flutter_chat_ui.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mime/mime.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:uuid/uuid.dart';
-import 'package:adaptive_dialog/adaptive_dialog.dart';
-import 'package:flutter/material.dart';
-import 'package:auto_size_text/auto_size_text.dart';
-import 'package:chat/connection/app_lifecycle.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import 'package:flutter/services.dart';
+import 'package:uuid/uuid.dart';
+
+import '../../../chat_ui/hex_color.dart';
+import '../../../data_model/room.dart';
+import '../../utils/dialog.dart';
 
 class ChatScreen extends StatefulWidget {
   final Function? callback;
   final r.Rooms data;
   final String? source;
-  const ChatScreen({Key? key, required this.data, this.callback, this.source})
+  final bool? isChatbot;
+  final Owner? groupOwner;
+  const ChatScreen(
+      {Key? key,
+      required this.data,
+      this.callback,
+      this.source,
+      this.isChatbot = false,
+      this.groupOwner})
       : super(key: key);
 
   @override
@@ -43,7 +57,8 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   List<types.Message> _messages = [];
-  final _user = types.User(id: ChatConnection.checkUserTokenResponseModel?.user!.sId ?? '');
+  final _user = types.User(
+      id: ChatConnection.checkUserTokenResponseModel?.user!.sId ?? '');
   c.ChatMessage? data;
   bool _isSearchMessage = false;
   final _focusSearch = FocusNode();
@@ -65,6 +80,11 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   late ChatBloc _bloc;
   bool checkQuota = true;
 
+  bool? isActive;
+  int? peopleLength;
+  bool? isBlock = false;
+  Owner? groupOwner1;
+
   @override
   void initState() {
     super.initState();
@@ -78,6 +98,9 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         getQuota();
       }
     });
+    if (ChatConnection.isChatHub)
+      isBlock = widget.data.owner!.isBlocked ?? false;
+    groupOwner1 = extractOwner(widget.data);
   }
 
   getQuota() async {
@@ -99,6 +122,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     tag = await ChatConnection.getTagList();
     String chatPartnerId = (widget.data.owner!.sId!);
     tagByUser = await ChatConnection.getTagListByUser(chatPartnerId);
+    setState(() {});
   }
 
   void _addMessage(types.Message message, String id,
@@ -722,14 +746,15 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   _loadMessages() async {
     ChatConnection.roomId = widget.data.sId!;
     data = await ChatConnection.joinRoom(widget.data.sId!);
+    peopleLength = data!.room!.people!.length;
     isInitScreen = false;
     if (data != null) {
       List<c.Messages>? messages = data?.room?.messages;
       if (messages != null) {
         List<types.Message> values = [];
         for (var e in messages) {
-
-          Map<String, dynamic> result = e.toMessageJson(messageSeen: data?.room?.messageSeen);
+          Map<String, dynamic> result =
+              e.toMessageJson(messageSeen: data?.room?.messageSeen);
           if (e.author?.sId != null && e.sId != null) {
             values.add(types.Message.fromJson(result));
           }
@@ -805,7 +830,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
             ?.firstWhere((element) => element.sId == message['room']['_id']);
         Navigator.of(context)
             .popUntil((route) => route.settings.name == "home_screen");
-        Navigator.of(context, rootNavigator: true).push(
+        await Navigator.of(context, rootNavigator: true).push(
           MaterialPageRoute(
               builder: (context) =>
                   ChatScreen(data: rooms!, source: rooms.source),
@@ -820,6 +845,176 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     } catch (_) {}
   }
 
+  void _handleBlockUser() async {
+    final owner = widget.data.owner;
+    final fullName = '${owner!.firstName} ${owner.lastName}';
+    await showInfoDialog(
+      context,
+      AppLocalizations.text(LangKey.notifications),
+      content: isBlock == false
+          ? '${AppLocalizations.text(LangKey.confirm_block_name)}$fullName'
+          : '${AppLocalizations.text(LangKey.confirm_unblock_name)}$fullName',
+      () async {
+        await ChatConnection.blockUser(owner.sId!, !isBlock!);
+        Navigator.of(context, rootNavigator: true).pop();
+      },
+      onCancel: () async {
+        Navigator.of(context).pop();
+      },
+    );
+  }
+
+  Owner? extractOwner(Rooms data) {
+    if (data.people == null || data.people!.isEmpty) return null;
+
+    if (data.isGroup == true && data.owner != null) {
+      final matchOwner = data.people!.where((e) => e.sId == data.owner!.sId);
+      if (matchOwner.isNotEmpty) {
+        return Owner.fromPeople(matchOwner.first);
+      }
+    } else {
+      final matchOther =
+          data.people!.where((e) => e.sId != ChatConnection.user?.id);
+      if (matchOther.isNotEmpty) {
+        return Owner.fromPeople(matchOther.first);
+      }
+    }
+
+    return null;
+  }
+
+  // void showChooseDialog(
+  //   BuildContext context,
+  //   List<Data> items,
+  //   Future<void> Function(List<Data>) onSave,
+  // ) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (context) {
+  //       return StatefulBuilder(
+  //         builder: (context, setState) {
+  //           return AlertDialog(
+  //             backgroundColor: Colors.white,
+  //             content: Container(
+  //               width: MediaQuery.of(context).size.width * 0.95,
+  //               height: (MediaQuery.of(context).size.height * 0.7),
+  //               child: Column(
+  //                 children: [
+  //                   Center(
+  //                     child: AutoSizeText(
+  //                       AppLocalizations.text(LangKey.select_tags),
+  //                       minFontSize: 16,
+  //                       maxFontSize: 24,
+  //                     ),
+  //                   ),
+  //                   SizedBox(
+  //                     height: 5,
+  //                   ),
+  //                   Expanded(
+  //                     child: SizedBox(
+  //                       width: MediaQuery.of(context).size.width * 0.9,
+  //                       // height: (MediaQuery.of(context).size.height * 0.55),
+  //                       child: ListView.builder(
+  //                         // shrinkWrap: true,
+  //                         itemCount: items.length,
+  //                         itemBuilder: (context, index) {
+  //                           final Data item = items[index];
+  //                           return GestureDetector(
+  //                             onTap: () {
+  //                               setState(() {
+  //                                 item.isActive = !item.isActive;
+  //                               });
+  //                             },
+  //                             child: Container(
+  //                               margin: const EdgeInsets.symmetric(vertical: 4),
+  //                               padding: const EdgeInsets.all(12),
+  //                               decoration: BoxDecoration(
+  //                                 color: item.isActive
+  //                                     ? Colors.blue.shade700
+  //                                     : Colors.grey.shade200,
+  //                                 borderRadius: BorderRadius.circular(8),
+  //                               ),
+  //                               child: Text(
+  //                                 item.name ?? '',
+  //                                 style: TextStyle(
+  //                                   color: item.isActive
+  //                                       ? Colors.white
+  //                                       : Colors.black,
+  //                                 ),
+  //                               ),
+  //                             ),
+  //                           );
+  //                         },
+  //                       ),
+  //                     ),
+  //                   ),
+  //                   SizedBox(
+  //                     height: 10,
+  //                   ),
+  //                   Center(
+  //                     child: Row(
+  //                       mainAxisAlignment: MainAxisAlignment.center,
+  //                       children: [
+  //                         InkWell(
+  //                           onTap: () => Navigator.pop(context),
+  //                           child: Container(
+  //                             padding: const EdgeInsets.symmetric(
+  //                                 horizontal: 16, vertical: 10),
+  //                             decoration: BoxDecoration(
+  //                               color: Colors.white,
+  //                               border: Border.all(
+  //                                   color: HexColor.fromHex('#0067AC')),
+  //                               borderRadius: BorderRadius.circular(10),
+  //                             ),
+  //                             child: Text(
+  //                               AppLocalizations.text(LangKey.close),
+  //                               style: TextStyle(
+  //                                 color: HexColor.fromHex('#0067AC'),
+  //                                 fontWeight: FontWeight.bold,
+  //                               ),
+  //                             ),
+  //                           ),
+  //                         ),
+  //                         const SizedBox(width: 5),
+  //                         InkWell(
+  //                           onTap: () async {
+  //                             showLoading();
+  //                             final selectedItems = items
+  //                                 .where((e) => e.isActive == true)
+  //                                 .toList();
+  //                             await onSave(selectedItems);
+  //                             Navigator.of(context).pop();
+  //                             Navigator.of(context).pop();
+  //                           },
+  //                           child: Container(
+  //                             padding: const EdgeInsets.symmetric(
+  //                                 horizontal: 16, vertical: 10),
+  //                             decoration: BoxDecoration(
+  //                               color: HexColor.fromHex('#0067AC'),
+  //                               borderRadius: BorderRadius.circular(10),
+  //                             ),
+  //                             child: Text(
+  //                               AppLocalizations.text(LangKey.update),
+  //                               style: TextStyle(
+  //                                 color: Colors.white,
+  //                                 fontWeight: FontWeight.bold,
+  //                               ),
+  //                             ),
+  //                           ),
+  //                         ),
+  //                       ],
+  //                     ),
+  //                   )
+  //                 ],
+  //               ),
+  //             ),
+  //           );
+  //         },
+  //       );
+  //     },
+  //   );
+  // }
+
   bool isShowUserTag = true;
   @override
   Widget build(BuildContext context) {
@@ -827,56 +1022,56 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       child: Scaffold(
         floatingActionButton: newMessage
             ? Padding(
-          padding: EdgeInsets.only(
-              bottom: (MediaQuery.of(context).size.height +
-                  MediaQuery.of(context).viewPadding.bottom) *
-                  0.03),
-          child: FloatingActionButton(
-            onPressed: () {
-              itemScrollController.jumpTo(index: 0);
-            },
-            child: !widget.data.isGroup!
-                ? widget.data.picture == null
-                ? CircleAvatar(
-              radius: 18.0,
-              child: Text(
-                widget.data.owner!.getAvatarName(),
-                style: const TextStyle(color: Colors.white),
-              ),
-            )
-                : CircleAvatar(
-              radius: 18.0,
-              backgroundImage: CachedNetworkImageProvider(
-                  '${HTTPConnection.domain}api/images/${widget.data.shieldedID}/256/${ChatConnection.brandCode!}',
-                  headers: {
-                    'brand-code': ChatConnection.brandCode!
-                  }),
-              backgroundColor: Colors.transparent,
-            )
-                : widget.data.picture == null
-                ? CircleAvatar(
-              radius: 18.0,
-              child: Text(
-                widget.data.getAvatarGroupName(),
-                style: const TextStyle(color: Colors.white),
-              ),
-            )
-                : CircleAvatar(
-              radius: 18.0,
-              backgroundImage: CachedNetworkImageProvider(
-                  '${HTTPConnection.domain}api/images/${widget.data.picture!.shieldedID}/256/${ChatConnection.brandCode!}',
-                  headers: {
-                    'brand-code': ChatConnection.brandCode!
-                  }),
-              backgroundColor: Colors.transparent,
-            ),
-            mini: true,
-            foregroundColor: Colors.transparent,
-            backgroundColor: Colors.transparent,
-            focusColor: Colors.transparent,
-            hoverColor: Colors.transparent,
-          ),
-        )
+                padding: EdgeInsets.only(
+                    bottom: (MediaQuery.of(context).size.height +
+                            MediaQuery.of(context).viewPadding.bottom) *
+                        0.03),
+                child: FloatingActionButton(
+                  onPressed: () {
+                    itemScrollController.jumpTo(index: 0);
+                  },
+                  child: !widget.data.isGroup!
+                      ? widget.data.picture == null
+                          ? CircleAvatar(
+                              radius: 18.0,
+                              child: Text(
+                                widget.data.owner!.getAvatarName(),
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                            )
+                          : CircleAvatar(
+                              radius: 18.0,
+                              backgroundImage: CachedNetworkImageProvider(
+                                  '${HTTPConnection.domain}api/images/${widget.data.shieldedID}/256/${ChatConnection.brandCode!}',
+                                  headers: {
+                                    'brand-code': ChatConnection.brandCode!
+                                  }),
+                              backgroundColor: Colors.transparent,
+                            )
+                      : widget.data.picture == null
+                          ? CircleAvatar(
+                              radius: 18.0,
+                              child: Text(
+                                widget.data.getAvatarGroupName(),
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                            )
+                          : CircleAvatar(
+                              radius: 18.0,
+                              backgroundImage: CachedNetworkImageProvider(
+                                  '${HTTPConnection.domain}api/images/${widget.data.picture!.shieldedID}/256/${ChatConnection.brandCode!}',
+                                  headers: {
+                                    'brand-code': ChatConnection.brandCode!
+                                  }),
+                              backgroundColor: Colors.transparent,
+                            ),
+                  mini: true,
+                  foregroundColor: Colors.transparent,
+                  backgroundColor: Colors.transparent,
+                  focusColor: Colors.transparent,
+                  hoverColor: Colors.transparent,
+                ),
+              )
             : null,
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         appBar: !_isSearchMessage ? _defaultAppbar() : _searchAppBar(),
@@ -898,29 +1093,102 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                               child: !isShowUserTag
                                   ? Container()
                                   : Wrap(
-                                  children: tagByUser!.data!
-                                      .map((e) => _tagChip(e))
-                                      .toList()))),
-                      Padding(
-                        padding: const EdgeInsets.only(right: 5.0),
-                        child: InkWell(
-                          splashColor: Colors.transparent,
-                          onTap: () {
-                            setState(() {
-                              isShowUserTag = !isShowUserTag;
-                            });
-                          },
-                          child: Container(
-                              color: Colors.white,
-                              constraints: const BoxConstraints(minHeight: 30),
-                              child: Icon(
-                                isShowUserTag
-                                    ? Icons.remove_red_eye
-                                    : Icons.remove_red_eye_outlined,
-                                color: Colors.grey,
-                              )),
-                        ),
-                      )
+                                      children: tagByUser!.data!
+                                          .map((e) => _tagChip(e))
+                                          .toList()))),
+                      Row(
+                        children: [
+                          isShowUserTag
+                              ? Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 5.0, right: 5.0, bottom: 5.0),
+                                  child: Container(
+                                    // height: 30.0,
+                                    decoration: BoxDecoration(
+                                        border: Border.all(
+                                            color: HexColor.fromHex('#0067AC')),
+                                        color: Colors.white,
+                                        borderRadius:
+                                            BorderRadius.circular(10.0)),
+                                    child: InkWell(
+                                      onTap: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  SelectTagsScreen(
+                                                items: tagByUser!.data ?? [],
+                                                onSave: (selectedItems) async {
+                                                  List<String> selectedIds =
+                                                      selectedItems
+                                                          .where((e) =>
+                                                              e.sId !=
+                                                              null) // Đảm bảo không null
+                                                          .map((e) => e.sId!)
+                                                          .toList();
+                                                  await ChatConnection
+                                                      .updateTag(
+                                                          selectedIds,
+                                                          widget.data.owner!
+                                                              .sId!);
+                                                  _getTagList();
+                                                },
+                                              ),
+                                            ));
+                                        // showChooseDialog(
+                                        //     context, tagByUser!.data ?? [],
+                                        //     (selectedItems) async {
+                                        //   // Lấy list các sId
+                                        //   List<String> selectedIds =
+                                        //       selectedItems
+                                        //           .where((e) =>
+                                        //               e.sId !=
+                                        //               null) // Đảm bảo không null
+                                        //           .map((e) => e.sId!)
+                                        //           .toList();
+                                        //   await ChatConnection.updateTag(
+                                        //       selectedIds,
+                                        //       widget.data.owner!.sId!);
+                                        //   _getTagList();
+                                        // });
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(
+                                            top: 5.0,
+                                            left: 5.0,
+                                            right: 5.0,
+                                            bottom: 5),
+                                        child: Icon(
+                                          Icons.add,
+                                          color: HexColor.fromHex('#0067AC'),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              : Container(),
+                          Padding(
+                            padding: const EdgeInsets.only(right: 5.0),
+                            child: InkWell(
+                              splashColor: Colors.transparent,
+                              onTap: () {
+                                setState(() {
+                                  isShowUserTag = !isShowUserTag;
+                                });
+                              },
+                              child: Container(
+                                  color: Colors.white,
+                                  constraints:
+                                      const BoxConstraints(minHeight: 30),
+                                  child: Icon(
+                                      isShowUserTag
+                                          ? Icons.remove_red_eye
+                                          : Icons.remove_red_eye_outlined,
+                                      color: HexColor.fromHex('#0067AC'))),
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
@@ -940,51 +1208,51 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                         ),
                         Expanded(
                             child: InkWell(
-                              onTap: () {
-                                try {
-                                  int? index =
+                          onTap: () {
+                            try {
+                              int? index =
                                   listIdMessages[data?.room?.pinMessage?.sId]!;
-                                  scroll(index);
-                                } catch (_) {}
-                              },
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  AutoSizeText(
-                                    '${data?.room?.pinMessage?.author?.firstName} ${data?.room?.pinMessage?.author?.lastName}',
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        color: Color(0xff5686E1)),
-                                  ),
-                                  data?.room?.pinMessage?.type == 'image'
-                                      ? SizedBox(
-                                    height:
-                                    MediaQuery.of(context).size.width *
-                                        0.15,
-                                    width: MediaQuery.of(context).size.width *
-                                        0.15,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(3.0),
-                                      child: CachedNetworkImage(
-                                        fit: BoxFit.cover,
-                                        imageUrl:
-                                        '${HTTPConnection.domain}api/images/${data?.room?.pinMessage?.content}/256/${ChatConnection.brandCode!}',
-                                        httpHeaders: {
-                                          'brand-code':
-                                          ChatConnection.brandCode!
-                                        },
-                                        placeholder: (context, url) =>
-                                        const CupertinoActivityIndicator(),
-                                        errorWidget: (context, url, error) =>
-                                        const Icon(Icons.error),
-                                      ),
-                                    ),
-                                  )
-                                      : checkTagWidget(
-                                      data?.room?.pinMessage?.content ?? ''),
-                                ],
+                              scroll(index);
+                            } catch (_) {}
+                          },
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              AutoSizeText(
+                                '${data?.room?.pinMessage?.author?.firstName} ${data?.room?.pinMessage?.author?.lastName}',
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xff5686E1)),
                               ),
-                            )),
+                              data?.room?.pinMessage?.type == 'image'
+                                  ? SizedBox(
+                                      height:
+                                          MediaQuery.of(context).size.width *
+                                              0.15,
+                                      width: MediaQuery.of(context).size.width *
+                                          0.15,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(3.0),
+                                        child: CachedNetworkImage(
+                                          fit: BoxFit.cover,
+                                          imageUrl:
+                                              '${HTTPConnection.domain}api/images/${data?.room?.pinMessage?.content}/256/${ChatConnection.brandCode!}',
+                                          httpHeaders: {
+                                            'brand-code':
+                                                ChatConnection.brandCode!
+                                          },
+                                          placeholder: (context, url) =>
+                                              const CupertinoActivityIndicator(),
+                                          errorWidget: (context, url, error) =>
+                                              const Icon(Icons.error),
+                                        ),
+                                      ),
+                                    )
+                                  : checkTagWidget(
+                                      data?.room?.pinMessage?.content ?? ''),
+                            ],
+                          ),
+                        )),
                         Container(
                           margin: const EdgeInsets.only(left: 16),
                           height: 30,
@@ -1014,81 +1282,81 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
               Expanded(
                   child: isInitScreen
                       ? Center(
-                      child: Platform.isAndroid
-                          ? const CircularProgressIndicator()
-                          : const CupertinoActivityIndicator())
+                          child: Platform.isAndroid
+                              ? const CircularProgressIndicator()
+                              : const CupertinoActivityIndicator())
                       : Chat(
-                    note: note,
-                    source: widget.source,
-                    messages: _messages,
-                    onMessageStatusTap: (context, message) {
-                      if (message.metadata != null) {
-                        ScaffoldMessenger.of(context)
-                            .hideCurrentSnackBar();
-                        final snackBar = SnackBar(
-                            content: AutoSizeText(
-                                message.metadata!['error_message']));
-                        ScaffoldMessenger.of(context)
-                            .showSnackBar(snackBar);
-                      }
-                    },
-                    isGroup: data?.room?.isGroup ?? false,
-                    people: widget.data.people,
-                    progressUpdate: (value) {
-                      progress = value;
-                      if (progress < 0.1 && newMessage) {
-                        setState(() {
-                          newMessage = false;
-                        });
-                      }
-                    },
-                    onAvatarTap: (types.User user) async {
-                      if (user.id != ChatConnection.user!.id &&
-                          data!.room!.isGroup!) {
-                        showLoading();
-                        r.Rooms? rooms =
-                        await ChatConnection.createRoom(user.id);
-                        Navigator.of(context).pop();
-                        await Navigator.of(context, rootNavigator: true)
-                            .pushReplacement(
-                          MaterialPageRoute(
-                              builder: (context) => ChatScreen(
-                                  data: rooms!, source: rooms.source),
-                              settings: const RouteSettings(
-                                  name: 'chat_screen')),
-                        );
-                        try {
-                          ChatConnection.refreshRoom.call();
-                          ChatConnection.refreshFavorites.call();
-                          ChatConnection.refreshContact.call();
-                        } catch (_) {}
-                      }
-                    },
-                    onStickerPressed: _onStickerPressed,
-                    showUserAvatars: true,
-                    showUserNames: true,
-                    onAttachmentPressed: _handleAttachmentPressed,
-                    onMessageTap: _handleMessageTap,
-                    onMessageLongPress: _handleMessageLongPress,
-                    onPreviewDataFetched: _handlePreviewDataFetched,
-                    onCameraPressed: _handleCameraSelection,
-                    onSendPressed: _handleSendPressed,
-                    user: _user,
-                    isSearchChat: _isSearchMessage,
-                    scrollPhysics: const ClampingScrollPhysics(),
-                    itemPositionsListener: itemPositionsListener,
-                    itemScrollController: itemScrollController,
-                    listIdMessages: listIdMessages,
-                    searchController: _controllerSearch,
-                    chatController: chatController,
-                    loadMore: loadMore,
-                    builder:
-                        (BuildContext context, void Function() method) {
-                      focusTextField = method;
-                    },
-                    canSend: checkQuota,
-                    roomData: widget.data,
-                  )),
+                          note: note,
+                          source: widget.source,
+                          messages: _messages,
+                          onMessageStatusTap: (context, message) {
+                            if (message.metadata != null) {
+                              ScaffoldMessenger.of(context)
+                                  .hideCurrentSnackBar();
+                              final snackBar = SnackBar(
+                                  content: AutoSizeText(
+                                      message.metadata!['error_message']));
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(snackBar);
+                            }
+                          },
+                          isGroup: data?.room?.isGroup ?? false,
+                          people: widget.data.people,
+                          progressUpdate: (value) {
+                            progress = value;
+                            if (progress < 0.1 && newMessage) {
+                              setState(() {
+                                newMessage = false;
+                              });
+                            }
+                          },
+                          onAvatarTap: (types.User user) async {
+                            if (user.id != ChatConnection.user!.id &&
+                                data!.room!.isGroup!) {
+                              showLoading();
+                              r.Rooms? rooms =
+                                  await ChatConnection.createRoom(user.id);
+                              Navigator.of(context).pop();
+                              await Navigator.of(context, rootNavigator: true)
+                                  .pushReplacement(
+                                MaterialPageRoute(
+                                    builder: (context) => ChatScreen(
+                                        data: rooms!, source: rooms.source),
+                                    settings: const RouteSettings(
+                                        name: 'chat_screen')),
+                              );
+                              try {
+                                ChatConnection.refreshRoom.call();
+                                ChatConnection.refreshFavorites.call();
+                                ChatConnection.refreshContact.call();
+                              } catch (_) {}
+                            }
+                          },
+                          onStickerPressed: _onStickerPressed,
+                          showUserAvatars: true,
+                          showUserNames: true,
+                          onAttachmentPressed: _handleAttachmentPressed,
+                          onMessageTap: _handleMessageTap,
+                          onMessageLongPress: _handleMessageLongPress,
+                          onPreviewDataFetched: _handlePreviewDataFetched,
+                          onCameraPressed: _handleCameraSelection,
+                          onSendPressed: _handleSendPressed,
+                          user: _user,
+                          isSearchChat: _isSearchMessage,
+                          scrollPhysics: const ClampingScrollPhysics(),
+                          itemPositionsListener: itemPositionsListener,
+                          itemScrollController: itemScrollController,
+                          listIdMessages: listIdMessages,
+                          searchController: _controllerSearch,
+                          chatController: chatController,
+                          loadMore: loadMore,
+                          builder:
+                              (BuildContext context, void Function() method) {
+                            focusTextField = method;
+                          },
+                          canSend: checkQuota,
+                          roomData: widget.data,
+                        )),
               _resultSearchChat(),
             ],
           ),
@@ -1113,7 +1381,8 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       child: Container(
         height: 30.0,
         decoration: BoxDecoration(
-            color: HexColor.fromHex(e.color ?? ''),
+            color: HexColor.fromHex(
+                (e.color != null && e.color != 'null') ? e.color : '#0067AC'),
             borderRadius: BorderRadius.circular(10.0)),
         child: Padding(
           padding: const EdgeInsets.only(top: 5.0, left: 5.0, right: 5.0),
@@ -1360,6 +1629,17 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     bool f = isFavorite(widget.data.people, widget.data.sId);
     return AppBar(
         actions: <Widget>[
+          if (ChatConnection.isChatHub)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 5),
+              child: InkWell(
+                child: Icon(
+                  Icons.block,
+                  color: isBlock == false ? Colors.grey : Colors.red,
+                ),
+                onTap: () => _handleBlockUser(),
+              ),
+            ),
           if (!ChatConnection.isChatHub)
             IconButton(
               visualDensity:
@@ -1396,9 +1676,14 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
               Navigator.of(context).pop();
               await Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => ConversationInformationScreen(
-                      roomData: widget.data, chatMessage: data),
+                      isChatBot: widget.isChatbot,
+                      roomData: widget.data,
+                      chatMessage: data,
+                      groupOwner:
+                          !ChatConnection.isChatHub ? groupOwner1 : null),
                   settings: const RouteSettings(
                       name: 'conversation_information_screen')));
+              _loadMessages();
               await _getTagList();
               setState(() {});
               // if(getPeople(widget.data.people).isUpdateTagList) {
@@ -1481,23 +1766,38 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        AutoSizeText(
-                          !widget.data.isGroup!
-                              ? '${widget.data.owner!.firstName} ${widget.data.owner!.lastName}'
-                              : widget.data.title ??
-                                  '${AppLocalizations.text(LangKey.groupWith)} ${widget.data.owner!.firstName} ${widget.data.owner!.lastName}',
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                          style: const TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16),
-                        ),
+                        if (ChatConnection.isChatHub)
+                          AutoSizeText(
+                            !widget.data.isGroup!
+                                ? '${widget.data.owner!.firstName} ${widget.data.owner!.lastName}'
+                                : widget.data.title ??
+                                    '${AppLocalizations.text(LangKey.groupWith)} ${widget.data.owner!.firstName} ${widget.data.owner!.lastName}',
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style: const TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16),
+                          ),
+                        if (!ChatConnection.isChatHub)
+                          AutoSizeText(
+                            !widget.data.isGroup!
+                                ? '${widget.data.owner!.firstName} ${widget.data.owner!.lastName}'
+                                : widget.data.title ??
+                                    'Group ${widget.groupOwner!.firstName} ${widget.groupOwner!.lastName}',
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style: const TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16),
+                          ),
                         if (widget.data.isGroup!)
                           Padding(
                             padding: const EdgeInsets.only(bottom: 3.0),
                             child: AutoSizeText(
-                              '${widget.data.people!.length} ${AppLocalizations.text(LangKey.members).toLowerCase()}',
+                              '${peopleLength != null ? peopleLength! : ''} '
+                              '${AppLocalizations.text(LangKey.members).toLowerCase()}',
                               maxLines: 1,
                               style: const TextStyle(
                                   color: Colors.black, fontSize: 12),
@@ -1531,7 +1831,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     try {
       r.People? p = people
           ?.firstWhere((element) => element.sId == ChatConnection.user!.id);
-      if (p!.favorites!.contains(roomId)) {
+      if (p!.favorites.contains(roomId)) {
         return true;
       } else {
         return false;
@@ -1545,11 +1845,11 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     try {
       r.People? p = people
           ?.firstWhere((element) => element.sId == ChatConnection.user!.id);
-      if (p!.favorites!.contains(roomId)) {
-        p.favorites!.remove(roomId);
+      if (p!.favorites.contains(roomId)) {
+        p.favorites.remove(roomId);
       } else {
         p.favorites ??= [];
-        p.favorites!.add(roomId!);
+        p.favorites.add(roomId!);
       }
       try {
         ChatConnection.refreshRoom.call();

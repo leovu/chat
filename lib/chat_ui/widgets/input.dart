@@ -131,27 +131,34 @@ class _InputState extends State<Input> {
     super.initState();
     _bloc = ChatBloc();
     String regex = '';
-    if(widget.people != null) {
+
+    // Kiểm tra nếu widget.people có giá trị và có người dùng hợp lệ
+    if (widget.people != null && widget.people!.isNotEmpty) {
       regex = "r'@\b|";
       for (var e in widget.people!) {
-        if(e.sId != ChatConnection.user!.id) {
+        if (e.sId != ChatConnection.user!.id) {
           String val = '@${e.firstName}${e.lastName}'.trim();
           regex += '$val|';
         }
       }
       regex += '@${AppLocalizations.text(LangKey.all)}|';
       regex += "r'+\b'";
+    } else {
+      // Nếu không có người dùng hợp lệ, sử dụng một regex mặc định hoặc bỏ qua
+      regex = 'r' '@\b' ;
     }
+
     getDraft();
     _textController = RichTextController(
       targetMatches: [
         MatchTargetItem(
-            style: TextStyle(color: Colors.blueAccent,backgroundColor: Colors.grey[200]),
+            style: TextStyle(color: Colors.blueAccent, backgroundColor: Colors.grey[200]),
             regex: RegExp(regex)
         )
       ],
       onMatch: (List<String> match) {},
     );
+
     _idTagList = [];
     if (widget.sendButtonVisibilityMode == SendButtonVisibilityMode.editing) {
       _sendButtonVisible = _textController.text.trim() != '';
@@ -160,6 +167,7 @@ class _InputState extends State<Input> {
       _sendButtonVisible = true;
     }
   }
+
 
   void _deleteImage() {
       _imageData = '';

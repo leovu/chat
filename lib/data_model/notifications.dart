@@ -22,8 +22,7 @@ class Notifications {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['limit'] = limit;
     if (notifications != null) {
-      data['notifications'] =
-          notifications!.map((v) => v.toJson()).toList();
+      data['notifications'] = notifications!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -48,20 +47,20 @@ class Notification {
 
   Notification(
       {room,
-        message,
-        isRead,
-        isSend,
-        isShow,
-        sId,
-        user,
-        title,
-        messageData,
-        content,
-        action,
-        actionParams,
-        createdBy,
-        createdAt,
-        iV});
+      message,
+      isRead,
+      isSend,
+      isShow,
+      sId,
+      user,
+      title,
+      messageData,
+      content,
+      action,
+      actionParams,
+      createdBy,
+      createdAt,
+      iV});
 
   Notification.fromJson(Map<String, dynamic> json) {
     room = json['room'] != null ? Room.fromJson(json['room']) : null;
@@ -79,7 +78,7 @@ class Notification {
         ? ActionParams.fromJson(json['actionParams'])
         : null;
     createdBy =
-    json['createdBy'] != null ? People.fromJson(json['createdBy']) : null;
+        json['createdBy'] != null ? People.fromJson(json['createdBy']) : null;
     createdAt = json['createdAt'];
     iV = json['__v'];
   }
@@ -87,15 +86,13 @@ class Notification {
   String createMessageDate() {
     final format = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z");
     final dt = format.parse(createdAt!, true).toLocal();
-    if(dt.isToday()) {
+    if (dt.isToday()) {
       String hour = dt.hour >= 10 ? '${dt.hour}' : '0${dt.hour}';
       String minute = dt.minute >= 10 ? '${dt.minute}' : '0${dt.minute}';
-      return dt.hour > 12 ? '$hour:$minute PM' :'$hour:$minute AM';
-    }
-    else if (dt.isYesterday()) {
+      return dt.hour > 12 ? '$hour:$minute PM' : '$hour:$minute AM';
+    } else if (dt.isYesterday()) {
       return 'Yesterday';
-    }
-    else {
+    } else {
       return '${dt.day}/${dt.month}/${dt.year}';
     }
   }
@@ -138,7 +135,7 @@ class ActionParams {
   ActionParams.fromJson(Map<String, dynamic> json) {
     type = json['type'];
     message =
-    json['message'] != null ? c.Messages.fromJson(json['message']) : null;
+        json['message'] != null ? c.Messages.fromJson(json['message']) : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -156,6 +153,7 @@ class NotificationCount {
   int? client;
   int? facebook;
   int? zalo;
+  int? zalo_personal;
 
   NotificationCount({this.total, this.facebook, this.zalo});
 
@@ -164,6 +162,7 @@ class NotificationCount {
     client = json['client'];
     facebook = json['facebook'];
     zalo = json['zalo'];
+    zalo_personal = json['zalo_personal'];
   }
 
   Map<String, dynamic> toJson() {
@@ -172,6 +171,7 @@ class NotificationCount {
     data['client'] = client;
     data['facebook'] = facebook;
     data['zalo'] = zalo;
+    data['zalo_personal'] = zalo_personal;
     return data;
   }
 }

@@ -2,6 +2,8 @@
 * Created by: nguyenan
 * Created at: 2024/05/02 09:35
 */
+import '../session.dart';
+
 class NotesResponseModel {
   List<Note>? data;
 
@@ -26,23 +28,63 @@ class NotesResponseModel {
 }
 
 class Note {
-  int? iId;
+  String? id;
   String? content;
+  String? room;
+  String? createdStaffId;
+  String? updatedStaffId;
+  String? createdBy;
+  String? updatedBy;
+  StaffInfo? createdByStaff;
   String? createdAt;
+  String? updatedAt;
+  int? v;
 
-  Note({this.iId, this.content, this.createdAt});
+  Note({
+    this.id,
+    this.content,
+    this.room,
+    this.createdStaffId,
+    this.updatedStaffId,
+    this.createdBy,
+    this.updatedBy,
+    this.createdByStaff,
+    this.createdAt,
+    this.updatedAt,
+    this.v,
+  });
 
-  Note.fromJson(Map<String, dynamic> json) {
-    iId = json['_id'];
-    content = json['content'];
-    createdAt = json['createdAt'];
+  factory Note.fromJson(Map<String, dynamic> json) {
+    return Note(
+      id: json['_id'],
+      content: json['content'],
+      room: json['room'],
+      createdStaffId: json['created_staff_id'],
+      updatedStaffId: json['updated_staff_id'],
+      createdBy: json['createdBy'],
+      updatedBy: json['updatedBy'],
+      createdByStaff: json['created_by_staff'] != null
+          ? StaffInfo.fromJson(json['created_by_staff'])
+          : null,
+      createdAt: json['createdAt'],
+      updatedAt: json['updatedAt'],
+      v: json['__v'],
+    );
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['_id'] = this.iId;
-    data['content'] = this.content;
-    data['createdAt'] = this.createdAt;
-    return data;
+    return {
+      '_id': id,
+      'content': content,
+      'room': room,
+      'created_staff_id': createdStaffId,
+      'updated_staff_id': updatedStaffId,
+      'createdBy': createdBy,
+      'updatedBy': updatedBy,
+      'created_by_staff': createdByStaff?.toJson(),
+      'createdAt': createdAt,
+      'updatedAt': updatedAt,
+      '__v': v,
+    };
   }
 }

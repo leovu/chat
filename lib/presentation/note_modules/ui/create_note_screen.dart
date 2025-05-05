@@ -14,9 +14,12 @@ class CreateNoteScreen extends StatefulWidget {
   final c.ChatMessage? chatMessage;
   final r.Rooms roomData;
   final Note? note;
-  const CreateNoteScreen(
-      {Key? key, required this.roomData, this.chatMessage, this.note})
-      : super(key: key);
+  const CreateNoteScreen({
+    Key? key,
+    required this.roomData,
+    this.chatMessage,
+    this.note,
+  }) : super(key: key);
   @override
   _ConversationFileScreenState createState() => _ConversationFileScreenState();
 }
@@ -31,7 +34,8 @@ class _ConversationFileScreenState extends State<CreateNoteScreen>
     super.initState();
     _bloc = CreateNoteBloc();
     setState(() {
-      if(widget.note != null) _noteController.text = widget.note!.content ?? '';
+      if (widget.note != null)
+        _noteController.text = widget.note!.content ?? '';
     });
   }
 
@@ -45,7 +49,9 @@ class _ConversationFileScreenState extends State<CreateNoteScreen>
     return Scaffold(
       appBar: AppBar(
         title: AutoSizeText(
-          widget.note != null ? AppLocalizations.text(LangKey.update_note) : AppLocalizations.text(LangKey.create_note),
+          widget.note != null
+              ? AppLocalizations.text(LangKey.update_note)
+              : AppLocalizations.text(LangKey.create_note),
           style: const TextStyle(
               color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
         ),
@@ -66,14 +72,14 @@ class _ConversationFileScreenState extends State<CreateNoteScreen>
               margin: EdgeInsets.all(20.0),
               padding: EdgeInsets.all(20.0),
               decoration: BoxDecoration(
-                color: AppColors.grayBackGround.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.circular(10.0)
-              ),
+                  color: AppColors.grayBackGround.withValues(alpha: 0.5),
+                  borderRadius: BorderRadius.circular(10.0)),
               child: TextField(
                 controller: _noteController,
                 focusNode: _noteNode,
                 maxLines: 8, //or null
-                decoration: InputDecoration.collapsed(hintText: AppLocalizations.text(LangKey.input_note_hint)),
+                decoration: InputDecoration.collapsed(
+                    hintText: AppLocalizations.text(LangKey.input_note_hint)),
               ),
             ),
             Expanded(child: Container()),
@@ -84,29 +90,45 @@ class _ConversationFileScreenState extends State<CreateNoteScreen>
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   InkWell(
-                    onTap: ()=> CustomNavigator.pop(context),
+                    onTap: () => CustomNavigator.pop(context),
                     child: Container(
                         height: 40.0,
                         width: MediaQuery.of(context).size.width / 2 - 20.0,
                         color: AppColors.grayBackGround,
-                        child: Center(child: Text( AppLocalizations.text(LangKey.cancel),style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),))),
+                        child: Center(
+                            child: Text(
+                          AppLocalizations.text(LangKey.cancel),
+                          style: TextStyle(
+                              color: Colors.white, fontWeight: FontWeight.bold),
+                        ))),
                   ),
                   // Container(width: 20,),
                   InkWell(
-                    onTap: (){
-                      if(widget.note == null) _bloc.createNote(context, widget.roomData.sId!, _noteController.text.trim());
-                      else _bloc.updateNote(context, widget.roomData.sId!, _noteController.text.trim(), widget.note!.iId!);
+                    onTap: () {
+                      if (widget.note == null)
+                        _bloc.createNote(context, widget.roomData.sId!,
+                            _noteController.text.trim());
+                      else
+                        _bloc.updateNote(context, widget.roomData.sId!,
+                            _noteController.text.trim(), widget.note!.id!);
                     },
                     child: Container(
                         height: 40.0,
                         width: MediaQuery.of(context).size.width / 2 - 20.0,
                         color: Colors.blue,
-                        child: Center(child: Text( AppLocalizations.text(LangKey.confirm),style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),))),
+                        child: Center(
+                            child: Text(
+                          AppLocalizations.text(LangKey.confirm),
+                          style: TextStyle(
+                              color: Colors.white, fontWeight: FontWeight.bold),
+                        ))),
                   )
                 ],
               ),
             ),
-            Container(height: 20.0,)
+            Container(
+              height: 20.0,
+            )
           ],
         ),
       ),

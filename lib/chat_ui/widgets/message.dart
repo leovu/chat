@@ -115,7 +115,8 @@ class Message extends StatelessWidget {
   final void Function(BuildContext context, types.Message)? onMessageStatusTap;
 
   /// Called when user taps on any message
-  final void Function(BuildContext context, types.Message, bool isRepliedMessage)? onMessageTap;
+  final void Function(
+      BuildContext context, types.Message, bool isRepliedMessage)? onMessageTap;
 
   /// Called when the message's visibility changes
   final void Function(types.Message, bool visible)? onMessageVisibilityChanged;
@@ -173,8 +174,10 @@ class Message extends StatelessWidget {
                         .theme
                         .userAvatarImageBackgroundColor
                     : color,
-                backgroundImage:
-                    hasImage ? NetworkImage(message.author.imageUrl!,headers: {'brand-code':ChatConnection.brandCode!}) : null,
+                backgroundImage: hasImage
+                    ? NetworkImage(message.author.imageUrl!,
+                        headers: {'brand-code': ChatConnection.brandCode!})
+                    : null,
                 radius: 16,
                 child: !hasImage
                     ? Text(
@@ -205,18 +208,19 @@ class Message extends StatelessWidget {
         : enlargeEmojis && hideBackgroundOnEmojiMessages
             ? _messageBuilder()
             : Container(
-              key: key,
-              decoration: BoxDecoration(
-                borderRadius: borderRadius,
-                color: !currentUserIsAuthor ||
-                    message.type == types.MessageType.image
-                    ? InheritedChatTheme.of(context).theme.secondaryColor
-                    : InheritedChatTheme.of(context).theme.primaryColor,
-              ),
-              child: ClipRRect(
-                borderRadius: borderRadius,
-                child: _messageBuilder(),),
-    );
+                key: key,
+                decoration: BoxDecoration(
+                  borderRadius: borderRadius,
+                  color: !currentUserIsAuthor ||
+                          message.type == types.MessageType.image
+                      ? InheritedChatTheme.of(context).theme.secondaryColor
+                      : InheritedChatTheme.of(context).theme.primaryColor,
+                ),
+                child: ClipRRect(
+                  borderRadius: borderRadius,
+                  child: _messageBuilder(),
+                ),
+              );
   }
 
   Widget _messageBuilder() {
@@ -245,7 +249,7 @@ class Message extends StatelessWidget {
                 messageWidth: messageWidth,
                 showUserNameForRepliedMessage: true,
                 onMessageTap: onMessageTap,
-          people: people,
+                people: people,
               );
       case types.MessageType.text:
         final textMessage = message as types.TextMessage;
@@ -260,7 +264,7 @@ class Message extends StatelessWidget {
                 hideBackgroundOnEmojiMessages: hideBackgroundOnEmojiMessages,
                 message: textMessage,
                 onPreviewDataFetched: onPreviewDataFetched,
-                showName:  ChatConnection.isChatHub ? true : showName,
+                showName: ChatConnection.isChatHub ? true : showName,
                 usePreviewData: usePreviewData,
                 searchController: searchController,
                 showUserNameForRepliedMessage: true,
@@ -323,44 +327,45 @@ class Message extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final _query = MediaQuery.of(context);
-    final _currentUserIsAuthor = ChatConnection.checkUserTokenResponseModel!.user!.sId == message.author.id;
+    final _currentUserIsAuthor =
+        ChatConnection.checkUserTokenResponseModel!.user!.sId ==
+            message.author.id;
     var _enlargeEmojis =
         emojiEnlargementBehavior != EmojiEnlargementBehavior.never &&
             message is types.TextMessage &&
             isConsistsOfEmojis(
                 emojiEnlargementBehavior, message as types.TextMessage);
-    if(message.repliedMessage != null) {
+    if (message.repliedMessage != null) {
       _enlargeEmojis = false;
     }
     final _messageBorderRadius =
         InheritedChatTheme.of(context).theme.messageBorderRadius;
     BorderRadiusDirectional _borderRadius = _currentUserIsAuthor
         ? BorderRadiusDirectional.only(
-      bottomEnd: Radius.circular(
-        _currentUserIsAuthor
-            ? roundBorder
-            ? _messageBorderRadius
-            : 0
-            : _messageBorderRadius,
-      ),
-      bottomStart: Radius.circular(
-        _currentUserIsAuthor || roundBorder ? _messageBorderRadius : 0,
-      ),
-      topEnd: Radius.circular(_messageBorderRadius),
-      topStart: Radius.circular(_messageBorderRadius),
-    ) : BorderRadiusDirectional.only(
-      bottomEnd: Radius.circular(_messageBorderRadius),
-      bottomStart: Radius.circular(_messageBorderRadius),
-      topEnd: Radius.circular(_messageBorderRadius),
-      topStart: Radius.circular(!showAvatar
-          ? _messageBorderRadius
-          : 0),
-    );
+            bottomEnd: Radius.circular(
+              _currentUserIsAuthor
+                  ? roundBorder
+                      ? _messageBorderRadius
+                      : 0
+                  : _messageBorderRadius,
+            ),
+            bottomStart: Radius.circular(
+              _currentUserIsAuthor || roundBorder ? _messageBorderRadius : 0,
+            ),
+            topEnd: Radius.circular(_messageBorderRadius),
+            topStart: Radius.circular(_messageBorderRadius),
+          )
+        : BorderRadiusDirectional.only(
+            bottomEnd: Radius.circular(_messageBorderRadius),
+            bottomStart: Radius.circular(_messageBorderRadius),
+            topEnd: Radius.circular(_messageBorderRadius),
+            topStart: Radius.circular(!showAvatar ? _messageBorderRadius : 0),
+          );
     return Column(
       children: [
-          SwipeableTile.swipeToTrigger(
+        SwipeableTile.swipeToTrigger(
           behavior: HitTestBehavior.translucent,
-            isElevated: false,
+          isElevated: false,
           color: InheritedChatTheme.of(context).theme.backgroundColor,
           swipeThreshold: 0.3,
           direction: replySwipeDirection,
@@ -369,10 +374,10 @@ class Message extends StatelessWidget {
             focusSearch();
           },
           backgroundBuilder: (
-              _,
-              SwipeDirection direction,
-              AnimationController progress,
-              ) {
+            _,
+            SwipeDirection direction,
+            AnimationController progress,
+          ) {
             bool vibrated = false;
             return AnimatedBuilder(
               animation: progress,
@@ -397,11 +402,12 @@ class Message extends StatelessWidget {
                         end: 1.2,
                       )
                           .animate(
-                        CurvedAnimation(
-                          parent: progress,
-                          curve: const Interval(0.3, 1.0, curve: Curves.linear),
-                        ),
-                      )
+                            CurvedAnimation(
+                              parent: progress,
+                              curve: const Interval(0.3, 1.0,
+                                  curve: Curves.linear),
+                            ),
+                          )
                           .value,
                       child: Container(
                         decoration: BoxDecoration(
@@ -413,16 +419,16 @@ class Message extends StatelessWidget {
                         ),
                         height: 24,
                         width: 24,
-                        child:
-                        InheritedChatTheme.of(context).theme.replyIcon != null
+                        child: InheritedChatTheme.of(context).theme.replyIcon !=
+                                null
                             ? InheritedChatTheme.of(context).theme.replyIcon!
                             : Image.asset(
-                          'assets/icon-reply.png',
-                          color: InheritedChatTheme.of(context)
-                              .theme
-                              .receivedMessageDocumentIconColor,
-                          package: 'chat',
-                        ),
+                                'assets/icon-reply.png',
+                                color: InheritedChatTheme.of(context)
+                                    .theme
+                                    .receivedMessageDocumentIconColor,
+                                package: 'chat',
+                              ),
                       ),
                     ),
                   ),
@@ -441,162 +447,218 @@ class Message extends StatelessWidget {
               start: 20 + (kIsWeb ? 0 : _query.padding.left),
             ),
             child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (!_currentUserIsAuthor && showUserAvatars)  Padding(padding: const EdgeInsets.only(top: 5.0),child: _avatarBuilder(context),),
-                    if(message.remoteId != null && message.remoteId == '1' && _currentUserIsAuthor)
-                      const SizedBox(
-                        height: 30.0,
-                        child: Padding(
-                          padding: EdgeInsets.only(right: 3.0,top: 20.0),
-                          child: Icon(Icons.edit_outlined,color: Colors.black,size: 15.0,
-                          ),
-                        ),
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (!_currentUserIsAuthor && showUserAvatars)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 5.0),
+                    child: _avatarBuilder(context),
+                  ),
+                if (message.remoteId != null &&
+                    message.remoteId == '1' &&
+                    _currentUserIsAuthor)
+                  const SizedBox(
+                    height: 30.0,
+                    child: Padding(
+                      padding: EdgeInsets.only(right: 3.0, top: 20.0),
+                      child: Icon(
+                        Icons.edit_outlined,
+                        color: Colors.black,
+                        size: 15.0,
                       ),
-                    ConstrainedBox(
-                      constraints: BoxConstraints(
-                        maxWidth: messageWidth.toDouble(),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          GestureDetector(
-                            onDoubleTap: () => onMessageDoubleTap?.call(context, message),
-                            onLongPress: () => onMessageLongPress?.call(context, message),
-                            onTap: () => onMessageTap?.call(context, message, false),
-                            child: onMessageVisibilityChanged != null ? VisibilityDetector(
-                              key: Key(message.id),
-                              onVisibilityChanged: (visibilityInfo) =>
-                                  onMessageVisibilityChanged!(message,
-                                      visibilityInfo.visibleFraction > 0.1),
-                              child: _bubbleBuilder(
+                    ),
+                  ),
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: messageWidth.toDouble(),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      GestureDetector(
+                        onDoubleTap: () =>
+                            onMessageDoubleTap?.call(context, message),
+                        onLongPress: () =>
+                            onMessageLongPress?.call(context, message),
+                        onTap: () =>
+                            onMessageTap?.call(context, message, false),
+                        child: onMessageVisibilityChanged != null
+                            ? VisibilityDetector(
+                                key: Key(message.id),
+                                onVisibilityChanged: (visibilityInfo) =>
+                                    onMessageVisibilityChanged!(message,
+                                        visibilityInfo.visibleFraction > 0.1),
+                                child: _bubbleBuilder(
+                                  context,
+                                  _borderRadius
+                                      .resolve(Directionality.of(context)),
+                                  _currentUserIsAuthor,
+                                  _enlargeEmojis,
+                                ),
+                              )
+                            : _bubbleBuilder(
                                 context,
-                                _borderRadius.resolve(Directionality.of(context)),
+                                _borderRadius
+                                    .resolve(Directionality.of(context)),
                                 _currentUserIsAuthor,
                                 _enlargeEmojis,
                               ),
-                            ) : _bubbleBuilder(
-                              context,
-                              _borderRadius.resolve(Directionality.of(context)),
-                              _currentUserIsAuthor,
-                              _enlargeEmojis,
-                            ),
-                          ),
-                        ],
                       ),
-                    ),
-                    if (_currentUserIsAuthor)
-                      Padding(
-                        padding: InheritedChatTheme.of(context).theme.statusIconPadding,
-                        child: showStatus
-                            ? GestureDetector(
-                          onLongPress: () =>
-                              onMessageStatusLongPress?.call(context, message),
-                          onTap: () => onMessageStatusTap?.call(context, message),
-                          child: _statusBuilder(context),
-                        )
-                            : null,
-                      ),
-                    if(message.remoteId != null && message.remoteId == '1' && !_currentUserIsAuthor)
-                      const SizedBox(
-                        height: 30.0,
-                        child: Padding(
-                          padding: EdgeInsets.only(right: 3.0,top: 20.0),
-                          child: Icon(Icons.edit_outlined,color: Colors.black,size: 15.0,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-          ),
-        ),
-        if((seenPeople?.length ?? 0) != 0) Row(
-          children: [
-            Expanded(child: Container()),
-            Padding(
-              padding: const EdgeInsets.only(right: 5.0),
-              child: InkWell(
-                onTap: () {
-                  num height = (seenPeople!.length > 5) ? 150 : (30*seenPeople!.length);
-                  showModalBottomSheet(
-                      context: context,
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.vertical(top: Radius.circular(25.0)),
-                      ),
-                      builder: (BuildContext context) {
-                        return SafeArea(
-                          child: SizedBox(
-                            height: height.toDouble(),
-                            child: SingleChildScrollView(
-                              physics: const ClampingScrollPhysics(),
-                              child: Wrap(
-                                children: seenPeople!.map((e) => Padding(
-                                  padding: const EdgeInsets.all(10.0),
-                                  child: Row(
-                                    children: [
-                                      e?.picture == null ? CircleAvatar(
-                                        radius: 10.0,
-                                        child: Text(e?.getAvatarName() ?? ''),
-                                      ) : CircleAvatar(
-                                        radius: 10.0,
-                                        backgroundImage:
-                                        CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${e!.picture!.shieldedID}/256/${ChatConnection.brandCode!}',headers: {'brand-code':ChatConnection.brandCode!}),
-                                        backgroundColor: Colors.transparent,
-                                      ),
-                                      Expanded(child: Padding(
-                                        padding: const EdgeInsets.only(left: 5.0),
-                                        child: AutoSizeText('${e?.firstName ?? ''} ${e?.lastName ?? ''}',maxLines: 1,
-                                        style: const TextStyle(fontSize: 10),),
-                                      ),),
-                                    ],
-                                  ),
-                                )).toList(),
-                              ),
-                            ),
-                          ),
-                        );
-                      });
-                },
-                child: SizedBox(
-                  height: 30.0,
-                  child: Row(
-                    children: seenPeopleList(),
+                    ],
                   ),
                 ),
-              ),
-            )
-          ],
-        )
+                if (_currentUserIsAuthor)
+                  Padding(
+                    padding:
+                        InheritedChatTheme.of(context).theme.statusIconPadding,
+                    child: showStatus
+                        ? GestureDetector(
+                            onLongPress: () => onMessageStatusLongPress?.call(
+                                context, message),
+                            onTap: () =>
+                                onMessageStatusTap?.call(context, message),
+                            child: _statusBuilder(context),
+                          )
+                        : null,
+                  ),
+                if (message.remoteId != null &&
+                    message.remoteId == '1' &&
+                    !_currentUserIsAuthor)
+                  const SizedBox(
+                    height: 30.0,
+                    child: Padding(
+                      padding: EdgeInsets.only(right: 3.0, top: 20.0),
+                      child: Icon(
+                        Icons.edit_outlined,
+                        color: Colors.black,
+                        size: 15.0,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+        if ((seenPeople?.length ?? 0) != 0)
+          Row(
+            children: [
+              Expanded(child: Container()),
+              Padding(
+                padding: const EdgeInsets.only(right: 5.0),
+                child: InkWell(
+                  onTap: () {
+                    num height = (seenPeople!.length > 5)
+                        ? 150
+                        : (30 * seenPeople!.length);
+                    showModalBottomSheet(
+                        context: context,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.vertical(top: Radius.circular(25.0)),
+                        ),
+                        builder: (BuildContext context) {
+                          return SafeArea(
+                            child: SizedBox(
+                              height: height.toDouble(),
+                              child: SingleChildScrollView(
+                                physics: const ClampingScrollPhysics(),
+                                child: Wrap(
+                                  children: seenPeople!
+                                      .map((e) => Padding(
+                                            padding: const EdgeInsets.all(10.0),
+                                            child: Row(
+                                              children: [
+                                                e?.picture == null
+                                                    ? CircleAvatar(
+                                                        radius: 10.0,
+                                                        child: Text(
+                                                            e?.getAvatarName() ??
+                                                                ''),
+                                                      )
+                                                    : CircleAvatar(
+                                                        radius: 10.0,
+                                                        backgroundImage:
+                                                            CachedNetworkImageProvider(
+                                                                '${HTTPConnection.domain}api/images/${e!.picture!.shieldedID}/256/${ChatConnection.brandCode!}',
+                                                                headers: {
+                                                              'brand-code':
+                                                                  ChatConnection
+                                                                      .brandCode!
+                                                            }),
+                                                        backgroundColor:
+                                                            Colors.transparent,
+                                                      ),
+                                                Expanded(
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            left: 5.0),
+                                                    child: AutoSizeText(
+                                                      '${e?.firstName ?? ''} ${e?.lastName ?? ''}',
+                                                      maxLines: 1,
+                                                      style: const TextStyle(
+                                                          fontSize: 10),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ))
+                                      .toList(),
+                                ),
+                              ),
+                            ),
+                          );
+                        });
+                  },
+                  child: SizedBox(
+                    height: 30.0,
+                    child: Row(
+                      children: seenPeopleList(),
+                    ),
+                  ),
+                ),
+              )
+            ],
+          )
       ],
     );
   }
+
   List<Widget> seenPeopleList() {
     List<Widget> _arr = [];
     for (var e in seenPeople!) {
-      if(e?.picture == null) {
+      if (e?.picture == null) {
         _arr.add(Padding(
           padding: const EdgeInsets.only(right: 1.0),
           child: CircleAvatar(
             radius: 8.0,
-            child: Center(child: Text(e!.getAvatarName(),style: const TextStyle(color: Colors.white,fontSize: 6),)),
+            child: Center(
+                child: Text(
+              e!.getAvatarName(),
+              style: const TextStyle(color: Colors.white, fontSize: 6),
+            )),
           ),
         ));
-      }
-      else {
-        _arr.add( Padding(
+      } else {
+        _arr.add(Padding(
           padding: const EdgeInsets.only(right: 1.0),
           child: CircleAvatar(
             radius: 8.0,
-            backgroundImage:
-            CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${e!.picture!.shieldedID}/256/${ChatConnection.brandCode!}',headers: {'brand-code':ChatConnection.brandCode!}),
+            backgroundImage: CachedNetworkImageProvider(
+                '${HTTPConnection.domain}api/images/${e!.picture!.shieldedID}/256/${ChatConnection.brandCode!}',
+                headers: {'brand-code': ChatConnection.brandCode!}),
             backgroundColor: Colors.transparent,
           ),
         ));
       }
-      if(_arr.length == 3) {
-        if(seenPeople!.length > _arr.length) {
-          _arr.add(Text('+${seenPeople!.length-3}',style: const TextStyle(color: Colors.black,fontSize: 8),));
+      if (_arr.length == 3) {
+        if (seenPeople!.length > _arr.length) {
+          _arr.add(Text(
+            '+${seenPeople!.length - 3}',
+            style: const TextStyle(color: Colors.black, fontSize: 8),
+          ));
         }
         break;
       }

@@ -17,7 +17,7 @@ class Tag {
   Tag.fromListJson(List<dynamic> json) {
     if (json.isNotEmpty) {
       data = <Data>[];
-      for(var e in json) {
+      for (var e in json) {
         data!.add(Data.fromJson(e));
       }
     }
@@ -41,34 +41,26 @@ class Data {
   String? createdAt;
   String? updatedAt;
   int? iV;
-  bool? isActive;
+  bool isActive = false;
   bool isSelected = false;
 
-  Data(
-      {status,
-        sId,
-        name,
-        color,
-        createdAt,
-        updatedAt,
-        isActive,
-        iV});
+  Data({status, sId, name, color, createdAt, updatedAt, isActive, iV});
 
   Data.fromJson(Map<String, dynamic> json) {
     status = json['status'];
-    sId = json['_id'];
+    sId = json['tag_id'].toString();
     name = json['name'];
-    color = json['color'];
+    color = json['color'].toString();
     createdAt = json['createdAt'];
     updatedAt = json['updatedAt'];
     iV = json['__v'];
-    isActive = json['isActive'];
+    isActive = json['isActive'] ?? false;
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['status'] = status;
-    data['_id'] = sId;
+    data['tag_id'] = sId;
     data['name'] = name;
     data['color'] = color;
     data['createdAt'] = createdAt;
