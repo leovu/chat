@@ -50,7 +50,7 @@ class Chat {
     ChatConnection.dispose(isDispose: true);
   }
 
-  static Future<bool> open(
+  static Future<String?> open(
     String? userId,
     BuildContext context,
     String email,
@@ -76,7 +76,6 @@ class Chat {
     Function? editCustomerLead,
     Function? openChatGPT,
   }) async {
-    bool resultOpen = true;
     showLoading(context);
     await initializeDateFormatting();
     if (domain != null) {
@@ -118,7 +117,7 @@ class Chat {
     if (result) {
       if (phoneNumber != null) {
         await ChatConnection.checkUserToken();
-        resultOpen = await onOpenChatScreen(phoneNumber, context);
+        return await onOpenChatScreen(phoneNumber, context);
       } else {
         await Navigator.of(context, rootNavigator: true).push(
           MaterialPageRoute(
@@ -132,23 +131,18 @@ class Chat {
     } else {
       loginError(context);
     }
-    print('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ $resultOpen');
-    return resultOpen;
+    return '';
   }
 
-  static Future<bool> onOpenChatScreen(
+  static Future<String?> onOpenChatScreen(
       String phoneNumber, BuildContext context) async {
     try {
       // Gọi API lấy thông tin phòng chat
-      final RoomResponse? response = await ChatConnection.getRoomByRoomId(
+      final RoomResponse? response = await ChatConnection.getRoomByPhoneNumber(
         phoneNumber,
       );
-      print(
-          '__________________ ChatHub: Không có account zalo getRoomByRoomId____________________');
-      if (response!.error == 1) {
-        print(
-            '__________________ ChatHub: Không có account zalo getRoomByRoomId ${response.data!.room_id}____________________');
-        return false;
+      if (response!.error == 1 && response.message != null) {
+        return response.message;
       } else {
         ChatMessage? chat = await ChatConnection.joinRoom(
           response.data!.room_id!,
@@ -162,13 +156,11 @@ class Chat {
             ),
           );
         }
-        print('__________________ ChatHub: TRUE ____________________');
-        return true;
       }
     } catch (e) {
       print('Error: $e');
-      return false;
     }
+    return null;
   }
 
   static Future showLoading(BuildContext context) async {

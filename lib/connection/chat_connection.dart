@@ -915,7 +915,8 @@ class ChatConnection {
   }
 
   //get roomId by phone number
-  static Future<RoomResponse?> getRoomByRoomId(String customerPhone) async {
+  static Future<RoomResponse?> getRoomByPhoneNumber(
+      String customerPhone) async {
     String url = 'public/zalo-personal/redirect-to-room';
     Map<String, dynamic> json = {
       'customer_phone': customerPhone,
