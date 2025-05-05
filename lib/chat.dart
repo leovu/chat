@@ -3,12 +3,18 @@ import 'dart:io';
 import 'package:chat/chat_screen/home_screen.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';
+import 'package:chat/data_model/chat_message.dart';
+import 'package:chat/data_model/response/room_info_response_model.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
+import 'package:chat/presentation/chat_module/ui/chat_screen.dart';
+import 'package:chat/presentation/utils/media_query.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter/material.dart';
+
+import 'data_model/room.dart' as r;
 
 class Chat {
   static const MethodChannel _channel = MethodChannel('chat');
@@ -16,41 +22,64 @@ class Chat {
     final String? version = await _channel.invokeMethod('getPlatformVersion');
     return version;
   }
-  static Future<String?> chatToken(String email, String password, String domain) async {
+
+  static Future<String?> chatToken(
+    String email,
+    String password,
+    String domain,
+  ) async {
     HTTPConnection.domain = domain;
     return await ChatConnection.token(email, password);
   }
-  static Future<bool>connectSocket(BuildContext context, String email, String password, String appIcon, {String? domain, String? token}) async {
+
+  static Future<bool> connectSocket(
+    BuildContext context,
+    String email,
+    String password,
+    String appIcon, {
+    String? domain,
+    String? token,
+  }) async {
     ChatConnection.buildContext = context;
     ChatConnection.appIcon = appIcon;
     bool result = await ChatConnection.init(email, password, token: token);
     return result;
   }
+
   static disconnectSocket() {
     ChatConnection.dispose(isDispose: true);
   }
-  static open(BuildContext context, String email, String password,
-      String appIcon,Locale locale,
-      { String? domain, String? token,
-        String? brandCode,
-        bool isChatHub = false,
-        Map<String, dynamic>? notificationData,
-        List<Map<String,dynamic>>? addOnModules,
-        Function? searchProducts,
-        Function? searchOrders,
-        Function? createOrder,
-        Function? createAppointment,
-        Function? createDeal,
-        Function? createTask,
-        Function? addCustomer,
-        Function? addCustomerPotential,
-        Function? viewProfileChatHub,
-        Function? editCustomerLead,
-        Function? openChatGPT
-      }) async {
+
+  static Future<bool> open(
+    String? userId,
+    BuildContext context,
+    String email,
+    String password,
+    String appIcon,
+    Locale locale, {
+    String? domain,
+    String? token,
+    String? brandCode,
+    bool isChatHub = false,
+    String? phoneNumber,
+    Map<String, dynamic>? notificationData,
+    List<Map<String, dynamic>>? addOnModules,
+    Function? searchProducts,
+    Function? searchOrders,
+    Function? createOrder,
+    Function? createAppointment,
+    Function? createDeal,
+    Function? createTask,
+    Function? addCustomer,
+    Function? addCustomerPotential,
+    Function? viewProfileChatHub,
+    Function? editCustomerLead,
+    Function? openChatGPT,
+  }) async {
+    bool resultOpen = true;
     showLoading(context);
     await initializeDateFormatting();
-    if(domain != null) {
+    if (domain != null) {
       HTTPConnection.domain = domain;
     }
 
@@ -72,47 +101,105 @@ class Chat {
     ChatConnection.editCustomerLead = editCustomerLead;
     ChatConnection.openChatGPT = openChatGPT;
 
-    if(notificationData != null) {
+    if (notificationData != null) {
       ChatConnection.initialData = notificationData;
     }
     AppLocalizations(ChatConnection.locale).load();
-    bool result = await connectSocket(context,email,password,appIcon,domain:domain,token: token);
+    bool result = await connectSocket(
+      context,
+      email,
+      password,
+      appIcon,
+      domain: domain,
+      token: token,
+    );
     Navigator.of(context).pop();
-    if(result) {
-      await Navigator.of(context,rootNavigator: true).push(
-          MaterialPageRoute(builder: (context) => AppChat(email: email,password: password),settings: const RouteSettings(name: 'home_screen')));
-      ChatConnection.dispose(isDispose: true);
-    }else {
+    ScreenInfo.initialize(MediaQuery.of(context));
+    if (result) {
+      if (phoneNumber != null) {
+        await ChatConnection.checkUserToken();
+        resultOpen = await onOpenChatScreen(phoneNumber, context);
+      } else {
+        await Navigator.of(context, rootNavigator: true).push(
+          MaterialPageRoute(
+            builder: (context) => AppChat(email: email, password: password),
+            settings: const RouteSettings(name: 'home_screen'),
+          ),
+        );
+
+        ChatConnection.dispose(isDispose: true);
+      }
+    } else {
       loginError(context);
+    }
+    print('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ $resultOpen');
+    return resultOpen;
+  }
+
+  static Future<bool> onOpenChatScreen(
+      String phoneNumber, BuildContext context) async {
+    try {
+      // Gọi API lấy thông tin phòng chat
+      final RoomResponse? response = await ChatConnection.getRoomByRoomId(
+        phoneNumber,
+      );
+      print(
+          '__________________ ChatHub: Không có account zalo getRoomByRoomId____________________');
+      if (response!.error == 1) {
+        print(
+            '__________________ ChatHub: Không có account zalo getRoomByRoomId ${response.data!.room_id}____________________');
+        return false;
+      } else {
+        ChatMessage? chat = await ChatConnection.joinRoom(
+          response.data!.room_id!,
+        );
+        if (chat?.room != null) {
+          await Navigator.of(context, rootNavigator: true).push(
+            MaterialPageRoute(
+              builder: (context) =>
+                  ChatScreen(data: r.Rooms.mappingFromRoom(chat!.room!)),
+              settings: const RouteSettings(name: 'chat_screen'),
+            ),
+          );
+        }
+        print('__________________ ChatHub: TRUE ____________________');
+        return true;
+      }
+    } catch (e) {
+      print('Error: $e');
+      return false;
     }
   }
 
   static Future showLoading(BuildContext context) async {
     return await showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return SimpleDialog(
-            elevation: 0.0,
-            backgroundColor: Colors.transparent,
-            children: <Widget>[
-              Center(
-                child: Platform.isAndroid ? const CircularProgressIndicator() : const CupertinoActivityIndicator(),
-              )
-            ],
-          );
-        });
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          elevation: 0.0,
+          backgroundColor: Colors.transparent,
+          children: <Widget>[
+            Center(
+              child: Platform.isAndroid
+                  ? const CircularProgressIndicator()
+                  : const CupertinoActivityIndicator(),
+            ),
+          ],
+        );
+      },
+    );
   }
+
   static openNotification(Map<String, dynamic> notificationData) {
     ChatConnection.notificationList();
-    try{
-      if(ChatConnection.roomId == null) {
+    try {
+      if (ChatConnection.roomId == null) {
         ChatConnection.homeScreenNotificationHandler(notificationData);
-      }
-      else {
+      } else {
         ChatConnection.chatScreenNotificationHandler(notificationData);
       }
-    }catch(_){}
+    } catch (_) {}
   }
 
   static void loginError(BuildContext context) {
@@ -123,10 +210,11 @@ class Chat {
         content: Text(AppLocalizations.text(LangKey.accountLoginError)),
         actions: [
           ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text(AppLocalizations.text(LangKey.accept)))
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: Text(AppLocalizations.text(LangKey.accept)),
+          ),
         ],
       ),
     );
@@ -136,14 +224,17 @@ class Chat {
 class AppChat extends StatelessWidget {
   final String? email;
   final String? password;
-  const AppChat({Key? key, required this.email, required this.password}) : super(key: key);
+  const AppChat({Key? key, required this.email, required this.password})
+      : super(key: key);
   @override
   Widget build(BuildContext context) {
-    if(Platform.isAndroid) {
-      SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-        statusBarColor: Colors.white,
-        statusBarBrightness: Brightness.dark,
-      ));
+    if (Platform.isAndroid) {
+      SystemChrome.setSystemUIOverlayStyle(
+        const SystemUiOverlayStyle(
+          statusBarColor: Colors.white,
+          statusBarBrightness: Brightness.dark,
+        ),
+      );
     }
     return const HomeScreen();
   }

@@ -1,0 +1,2 @@
+E:/WAO/demo/example/android/app/.cxx/Debug/1814rp4l/arm64-v8a/CMakeFiles/edit_cache.dir
+E:/WAO/demo/example/android/app/.cxx/Debug/1814rp4l/arm64-v8a/CMakeFiles/rebuild_cache.dir

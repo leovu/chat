@@ -1,11 +1,11 @@
+import 'package:chat/chat.dart';
 import 'package:chat/common/global.dart';
+import 'package:chat/common/shared_prefs/shared_prefs.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/material.dart';
-import 'package:overlay_support/overlay_support.dart';
-import 'package:chat/chat.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:chat/common/shared_prefs/shared_prefs.dart';
+import 'package:overlay_support/overlay_support.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> main() async {
@@ -16,7 +16,7 @@ Future<void> main() async {
   runApp(const OverlaySupport.global(
     child: MaterialApp(
       supportedLocales: [Locale('en', 'US')],
-      locale: Locale('en','US'),
+      locale: Locale('en', 'US'),
       localizationsDelegates: <LocalizationsDelegate<dynamic>>[
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
@@ -46,8 +46,11 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       setState(() {
+        // _userNameController.text = 'admin@pioapps.vn';
+        // _passwordController.text = 'piospa@2020';
+        // _domainController.text = 'https://chat-hub-stag.epoints.vn/';
         _userNameController.text = 'admin@pioapps.vn';
-        _passwordController.text = 'piospa@2020';
+        _passwordController.text = 'Waosupport@2025';
         _domainController.text = 'https://chat-hub-stag.epoints.vn/';
       });
     });
@@ -64,19 +67,17 @@ class _MyAppState extends State<MyApp> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Padding(
-            padding: const EdgeInsets.only(bottom: 15.0,left: 15.0,right: 15.0),
+            padding:
+                const EdgeInsets.only(bottom: 15.0, left: 15.0, right: 15.0),
             child: Container(
               height: 40.0,
-              decoration: BoxDecoration(
-                border: Border.all(width: 1.0)
-              ),
+              decoration: BoxDecoration(border: Border.all(width: 1.0)),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 5.0),
                 child: Center(
                   child: TextField(
-                    decoration: const InputDecoration.collapsed(
-                        hintText: 'Username'
-                    ),
+                    decoration:
+                        const InputDecoration.collapsed(hintText: 'Username'),
                     controller: _userNameController,
                   ),
                 ),
@@ -84,19 +85,17 @@ class _MyAppState extends State<MyApp> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(bottom: 15.0,left: 15.0,right: 15.0),
+            padding:
+                const EdgeInsets.only(bottom: 15.0, left: 15.0, right: 15.0),
             child: Container(
               height: 40.0,
-              decoration: BoxDecoration(
-                  border: Border.all(width: 1.0)
-              ),
+              decoration: BoxDecoration(border: Border.all(width: 1.0)),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 5.0),
                 child: Center(
                   child: TextField(
-                    decoration: const InputDecoration.collapsed(
-                        hintText: 'Password'
-                    ),
+                    decoration:
+                        const InputDecoration.collapsed(hintText: 'Password'),
                     controller: _passwordController,
                   ),
                 ),
@@ -104,19 +103,17 @@ class _MyAppState extends State<MyApp> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(bottom: 15.0,left: 15.0,right: 15.0),
+            padding:
+                const EdgeInsets.only(bottom: 15.0, left: 15.0, right: 15.0),
             child: Container(
               height: 40.0,
-              decoration: BoxDecoration(
-                  border: Border.all(width: 1.0)
-              ),
+              decoration: BoxDecoration(border: Border.all(width: 1.0)),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 5.0),
                 child: Center(
                   child: TextField(
-                    decoration: const InputDecoration.collapsed(
-                        hintText: 'Domain'
-                    ),
+                    decoration:
+                        const InputDecoration.collapsed(hintText: 'Domain'),
                     controller: _domainController,
                   ),
                 ),
@@ -126,46 +123,63 @@ class _MyAppState extends State<MyApp> {
           Center(
             child: InkWell(
                 onTap: () async {
-                  if(_userNameController.value.text == '') {
+                  if (_userNameController.value.text == '') {
                     errorDialog('Username Empty');
                     return;
                   }
-                  if(_passwordController.value.text == '') {
+                  if (_passwordController.value.text == '') {
                     errorDialog('Password Empty');
                     return;
                   }
-                  if(_domainController.value.text == '') {
+                  if (_domainController.value.text == '') {
                     errorDialog('Domain Empty');
                     return;
                   }
 
-                  await Chat.open(context,_userNameController.value.text, _passwordController.value.text, 'assets/icon-app.png',const Locale(LangKey.langEn, 'EN'),
-                      domain: 'https://chat.epoints.vn/',brandCode: 'sale',isChatHub: false,
-                      token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyZWE5MDJiZmE4Y2I1NDY0MzkzNGNmYyIsInNpZCI6ImJhbmduYiIsImVtYWlsIjoiYmFuZ25iQHBpb2FwcHMudm4iLCJsZXZlbCI6InN0YW5kYXJkIiwiZmlyc3ROYW1lIjoiTmd1eeG7hW4gQuG6o28iLCJsYXN0TmFtZSI6IkLhurFuZyIsInVzZXJuYW1lIjoiYmFuZ25iIiwiYnJhbmQiOiJzYWxlIiwiaWF0IjoxNzIwNzcwNjQ2LCJleHAiOjE3MjU5NTQ2NDZ9.ve0hoWxagxrqODUmszBIjoqdYINFflKDgCqfpyDNNHY");
+                  await Chat.open(
+                      // phoneNumber: '0708983437',
+                      // phoneNumber: '+8490688627',
+                      '',
+                      context,
+                      _userNameController.value.text,
+                      _passwordController.value.text,
+                      'assets/icon-app.png',
+                      const Locale(LangKey.langVi, 'VI'),
+                      domain: 'https://chathub.epoints.vn/',
+                      brandCode: 'sale',
+                      isChatHub: true,
+                      token:
+                          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyZmQwMjA0ZDcwMzNlMjRkYTc5YzYwNiIsInVpZCI6MSwic2lkIjoiYWRtaW4iLCJlbWFpbCI6InZ1QHBpb2FwcHMudm4iLCJsZXZlbCI6InJvb3QiLCJmaXJzdE5hbWUiOiJBZG1pbiIsImxhc3ROYW1lIjoiVXNlciIsInVzZXJuYW1lIjoiYWRtaW4iLCJicmFuZF9jb2RlIjoic2FsZSIsImlhdCI6MTc0NDg2MzU4NSwiZXhwIjoxNzUwMDQ3NTg1fQ.v9by8eKSqJUzOVK3RhTgYaudkfLpfujCyNGu0-bM6WM");
 
                   // Chat.open(context,_userNameController.value.text, _passwordController.value.text, 'assets/icon-app.png',const Locale(LangKey.langVi, 'VN'), domain: _domainController.value.text,brandCode: 'qc',isChatHub: true,
-                  //     token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzMDMwOTNjYzM3M2JkMTg5YjQ1NmFjMCIsInNpZCI6ImFkbWluIiwiZW1haWwiOiJ2dUBwaW9hcHBzLnZuIiwibGV2ZWwiOiJyb290IiwiZmlyc3ROYW1lIjoiQWRtaW4iLCJsYXN0TmFtZSI6IiIsInVzZXJuYW1lIjoiYWRtaW4iLCJicmFuZF9jb2RlIjoicWMiLCJpYXQiOjE2NzA5OTIwNDQsImV4cCI6MTY3NjE3NjA0NH0.U2UoNWnQnNkZOI3qGA5SiTetnggO5SlCKgV7NW0Ks-Q");
+                  //     token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyZmQwMjA0ZDcwMzNlMjRkYTc5YzYwNiIsInVpZCI6MSwic2lkIjoiYWRtaW4iLCJlbWFpbCI6InZ1QHBpb2FwcHMudm4iLCJsZXZlbCI6InJvb3QiLCJmaXJzdE5hbWUiOiJBZG1pbiIsImxhc3ROYW1lIjoiVXNlciIsInVzZXJuYW1lIjoiYWRtaW4iLCJicmFuZF9jb2RlIjoic2FsZSIsImlhdCI6MTc0NDYxOTY3NSwiZXhwIjoxNzQ5ODAzNjc1fQ.A1gbHYmAxSWieWvEJ4uScRRC_zEhJSKRrtA7MzlkPV4");
 
                   /// An test
                   // await Chat.open(context,_userNameController.value.text, _passwordController.value.text, 'assets/icon-app.png',const Locale(LangKey.langVi, 'VN'),
-                  //     domain: 'https://chathub.epoints.vn/',brandCode: 'sale',isChatHub: false,
+                  //     domain: 'https://chathub.epoints.vn/',brandCode: 'qc',isChatHub: true,
                   //     token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3dvcmtzcGFjZS5lcG9pbnRzLnZuL3YyL3VzZXIvbG9naW4iLCJpYXQiOjE3MTk0NzY0NjksImV4cCI6MTcxOTQ5ODA2OSwibmJmIjoxNzE5NDc2NDY5LCJqdGkiOiJXbUZ4cE44S2RnV3pncTJPIiwic3ViIjoxNSwicHJ2IjoiYTBmM2U3NGJlZGY1MTJjNDc3ODI5N2RlNWY5MjA4NmRhZDM5Y2E5ZiIsInNpZCI6InRhbSIsImJyYW5kX2NvZGUiOiJzYWxlIn0.qFV9o7_8_DNHAi_fRJtlYamGBAhcB7DTu1Q4eC9zawA");
 
-                  /// A Long Test
+                  // / A Long Test
                   // Chat.open(context,_userNameController.value.text, _passwordController.value.text, 'assets/icon-app.png',const Locale(LangKey.langVi, 'VN'),
-                  //     domain: _domainController.value.text,brandCode: 'qc',isChatHub: false,
+                  //     domain: _domainController.value.text,brandCode: 'sale',isChatHub: true,
                   //     token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzMDMwOTNjYzM3M2JkMTg5YjQ1NmFjMCIsInNpZCI6ImFkbWluIiwiZW1haWwiOiJ2dUBwaW9hcHBzLnZuIiwibGV2ZWwiOiJyb290IiwiZmlyc3ROYW1lIjoiQWRtaW4iLCJsYXN0TmFtZSI6IiIsInVzZXJuYW1lIjoiYWRtaW4iLCJicmFuZF9jb2RlIjoicWMiLCJpYXQiOjE2ODc1MTY3OTgsImV4cCI6MTY5MjcwMDc5OH0.7xm-CWeZKDHkzoGinfjo_rORlMVMR_kNHn_G8qX88M4");
                 },
                 child: Container(
                     height: 40.0,
                     width: 80.0,
                     color: Colors.blue,
-                    child: const Center(child: Text('Login',style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),)))),
+                    child: const Center(
+                        child: Text(
+                      'Login',
+                      style: TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.bold),
+                    )))),
           ),
         ],
       ),
     );
   }
+
   void errorDialog(String text) {
     showDialog(
       context: context,
