@@ -19,18 +19,18 @@ class RoomInfoResponse {
 }
 
 class RoomResponse {
-  final int error;
+  final int? error;
   final RoomInfoResponse? data;
+  final String? message;
 
-  RoomResponse({
-    required this.error,
-    this.data,
-  });
+  RoomResponse({this.error, this.data, this.message});
 
   factory RoomResponse.fromJson(Map<String, dynamic> json) {
     return RoomResponse(
       error: json['error'] as int,
-      data: RoomInfoResponse.fromJson(json['data']),
+      data:
+          json['data'] != null ? RoomInfoResponse.fromJson(json['data']) : null,
+      message: json['message'] as String?,
     );
   }
 }
