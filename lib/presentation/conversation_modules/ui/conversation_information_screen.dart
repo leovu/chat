@@ -193,46 +193,10 @@ class _ConversationInformationScreenState
                 ),
               ),
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 17.0),
-              child: Center(
-                  child: !widget.roomData.isGroup!
-                      ? customerAccount?.data?.type != null
-                          ? _buildAvatar(
-                              customerAccount?.data?.fullName != null
-                                  ? customerAccount!.data!.getName()
-                                  : widget.roomData.owner!.getName(),
-                              customerAccount?.data?.fullName != null
-                                  ? customerAccount!.data!.getAvatarName()
-                                  : widget.roomData.owner!.getAvatarName(),
-                              widget.roomData.picture == null
-                                  ? null
-                                  : '${HTTPConnection.domain}api/images/${widget.roomData.shieldedID}/256',
-                              onTap: () => editName(),
-                            )
-                          : _buildAvatar(
-                              customerAccount?.data?.fullName != null
-                                  ? customerAccount!.data!.getName()
-                                  : widget.roomData.owner!.getName(),
-                              customerAccount?.data?.fullName != null
-                                  ? customerAccount!.data!.getAvatarName()
-                                  : widget.roomData.owner!.getAvatarName(),
-                              (widget.roomData.picture == null &&
-                                      widget.roomData.owner?.picture == null)
-                                  ? null
-                                  : url)
-                      : _buildAvatar(
-                          widget.roomData.title ?? "",
-                          widget.roomData.getAvatarGroupName(),
-                          widget.roomData.picture == null
-                              ? null
-                              : '${HTTPConnection.domain}api/images/${widget.roomData.picture!.shieldedID}/256',
-                          onTap: widget.roomData.owner?.sId ==
-                                  ChatConnection.user!.id
-                              ? () async {
-                                  editName();
-                                }
-                              : null)),
-            ),
+                padding: const EdgeInsets.symmetric(vertical: 17.0),
+                child: Center(
+                  child: _buildAppropriateAvatar(),
+                )),
             if (!ChatConnection.isChatHub)
               Padding(
                 padding: const EdgeInsets.only(top: 10.0),
@@ -655,6 +619,64 @@ class _ConversationInformationScreenState
         ],
       ),
     );
+  }
+
+  Widget _buildAppropriateAvatar() {
+    String url =
+        '${HTTPConnection.domain}api/images/${widget.roomData.picture?.shieldedID ?? widget.roomData.shieldedID ?? widget.roomData.owner?.picture}/256';
+    final isGroup = widget.roomData.isGroup ?? false;
+
+    if (isGroup) {
+      final avatarUrl = widget.roomData.picture == null
+          ? null
+          : '${HTTPConnection.domain}api/images/${widget.roomData.picture!.shieldedID}/256';
+
+      final onTap = widget.roomData.owner?.sId == ChatConnection.user?.id
+          ? () => editName()
+          : null;
+
+      return _buildAvatar(
+        widget.roomData.title ?? "",
+        widget.roomData.getAvatarGroupName(),
+        avatarUrl,
+        onTap: onTap,
+      );
+    }
+
+    final hasCustomerType = customerAccount?.data?.type != null;
+    final hasCustomerName = customerAccount?.data?.fullName != null;
+
+    final displayName = hasCustomerName
+        ? customerAccount!.data!.getName()
+        : widget.roomData.owner?.getName() ?? "";
+
+    final avatarName = hasCustomerName
+        ? customerAccount!.data!.getAvatarName()
+        : widget.roomData.owner?.getAvatarName() ?? "";
+
+    if (hasCustomerType) {
+      final avatarUrl = widget.roomData.picture == null
+          ? null
+          : '${HTTPConnection.domain}api/images/${widget.roomData.shieldedID}/256';
+
+      return _buildAvatar(
+        displayName,
+        avatarName,
+        avatarUrl,
+        onTap: () => editName(),
+      );
+    } else {
+      final avatarUrl = (widget.roomData.picture == null &&
+              widget.roomData.owner?.picture == null)
+          ? null
+          : url;
+
+      return _buildAvatar(
+        displayName,
+        avatarName,
+        avatarUrl,
+      );
+    }
   }
 
   Widget actionChatHubView() {

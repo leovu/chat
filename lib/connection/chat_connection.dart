@@ -265,6 +265,8 @@ class ChatConnection {
           streamSocket.joinRoom(id);
         }
         await autoUpdateChatSeenWhenJoinRoom(id);
+        print(
+            '${c.ChatMessage.fromJson(responseData.data).room!.people.toString()}');
         return c.ChatMessage.fromJson(responseData.data);
       }
     } catch (_) {

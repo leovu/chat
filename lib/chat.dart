@@ -51,7 +51,6 @@ class Chat {
   }
 
   static Future<String?> open(
-    String? userId,
     BuildContext context,
     String email,
     String password,
