@@ -9,6 +9,7 @@ import 'package:chat/data_model/contact.dart' as ct;
 import 'package:chat/data_model/customer_account.dart';
 import 'package:chat/data_model/notifications.dart' as n;
 import 'package:chat/data_model/response/check_user_token_response_model.dart';
+import 'package:chat/data_model/response/group_member_response_model.dart';
 import 'package:chat/data_model/response/notes_response_model.dart';
 import 'package:chat/data_model/response/quota_response_model.dart';
 import 'package:chat/data_model/response/room_info_response_model.dart';
@@ -23,6 +24,9 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:image_picker/image_picker.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:overlay_support/overlay_support.dart';
+import '../data_model/response/base_response_model.dart';
+import '../data_model/response/friend_response_model.dart';
+import '../data_model/response/group_info_response.dart';
 import '../data_model/summary.dart';
 
 class ChatConnection {
@@ -257,9 +261,9 @@ class ChatConnection {
       {bool refresh = false}) async {
     // String version = ChatConnection.isChatHub ? '/v3' : '';// Lỗi chat 404
     try {
-      String version = '/v3';
-      ResponseData responseData =
-          await connection.post('api$version/join-room', {'id': id});
+      String url =
+          ChatConnection.isChatHub ? 'api/v3/join-room' : 'api/room/join';
+      ResponseData responseData = await connection.post(url, {'id': id});
       if (responseData.isSuccess) {
         if (!refresh) {
           streamSocket.joinRoom(id);
@@ -267,6 +271,7 @@ class ChatConnection {
         await autoUpdateChatSeenWhenJoinRoom(id);
         print(
             '${c.ChatMessage.fromJson(responseData.data).room!.people.toString()}');
+        print('${c.ChatMessage.fromJson(responseData.data).room!.oa_group_id}');
         return c.ChatMessage.fromJson(responseData.data);
       }
     } catch (_) {
@@ -296,6 +301,8 @@ class ChatConnection {
 
   static Future<bool> customerLink(String userId, int? customerId,
       int? customerLeadId, String typeCustomer, String mappingId) async {
+    print(
+        'user_id $userId mapping_id $mappingId  type_customer  $typeCustomer  customer_id $customerId');
     Map<String, dynamic> json = {
       'user_id': userId,
       'mapping_id': mappingId,
@@ -757,6 +764,7 @@ class ChatConnection {
   static Future<bool> checkUserToken() async {
     ResponseData responseData = await connection
         .post('api/check-user-token', {'token': ChatConnection.user!.token});
+    https: //chat.epoints.vn/api/rooms/list
     if (responseData.isSuccess) {
       ChatConnection.checkUserTokenResponseModel =
           CheckUserTokenResponseModel.fromJson(responseData.data);
@@ -825,7 +833,7 @@ class ChatConnection {
     );
   }
 
-  ///Tin nhắn định kỳ, Tin nhắn marketing, Cấu hình tin gửi_____________________
+  ///_____________________
 
   //Bật tắt chatbot
   static Future<bool> changeStatusChatbot(String roomId, int status) async {
@@ -934,5 +942,150 @@ class ChatConnection {
     }
   }
 
-  ///Tin nhắn định kỳ, Tin nhắn marketing, Cấu hình tin gửi_____________________
+  //get thông tin member
+  static Future<MemberListData?> getMemberInfo(
+    String channelId,
+    String roomId, {
+    int? limit = 10,
+    int? offset = 0,
+  }) async {
+    const String url = 'api/group/get-members';
+    final Map<String, dynamic> payload = {
+      'channel_id': channelId,
+      'room_id': roomId,
+      'limit': limit,
+      'offset': offset,
+    };
+
+    try {
+      final ResponseData response = await connection.post(
+        url,
+        payload,
+        isJoinByNumberPhone: true,
+      );
+
+      final baseResponse = BaseResponse<MemberListData>.fromJson(
+        response.data,
+        (json) => MemberListData.fromJson(json),
+      );
+
+      if (baseResponse.error == 0 && baseResponse.data != null) {
+        return baseResponse.data;
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print("Exception in getMemberInfo: $e");
+      return null;
+    }
+  }
+
+  //get thông tin member pending invite
+  static Future<MemberListData?> getMemberPendingInvite(
+      String channelId, String group_id) async {
+    const String url = 'api/group/list-pending-invite';
+    final Map<String, dynamic> payload = {
+      'channel_id': channelId,
+      'room_id': group_id,
+    };
+
+    try {
+      final ResponseData response = await connection.post(
+        url,
+        payload,
+        isJoinByNumberPhone: true,
+      );
+
+      final baseResponse = BaseResponse<MemberListData>.fromJson(
+        response.data,
+        (json) => MemberListData.fromJson(json),
+      );
+
+      if (baseResponse.error == 0 && baseResponse.data != null) {
+        return baseResponse.data;
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print("Exception in getMemberInfo: $e");
+      return null;
+    }
+  }
+
+  //get group info zalo persional
+
+  static Future<GroupInfoResponseZP?> getGroupInfo(
+      String channelId, String group_id) async {
+    const String url = 'api/zalo-personal/get-group-info';
+    final Map<String, dynamic> payload = {
+      'channel_id': channelId,
+      'group_id': group_id,
+    };
+
+    try {
+      final ResponseData response = await connection.post(
+        url,
+        payload,
+      );
+
+      final baseResponse = BaseResponse<GroupInfoResponseZP>.fromJson(
+        response.data,
+        (json) => GroupInfoResponseZP.fromJson(json),
+      );
+
+      if (baseResponse.error == 0 && baseResponse.data != null) {
+        return baseResponse.data;
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print("Exception in getGroupInfo: $e");
+      return null;
+    }
+  }
+
+  static Future<bool> removeUserGroup(
+      String channelId, String group_id, String member_user_id) async {
+    const String url = 'api/zalo-personal/remove-user-group';
+    final Map<String, dynamic> payload = {
+      'channel_id': channelId,
+      'group_id': group_id,
+      'member_user_id': member_user_id,
+    };
+
+    try {
+      final ResponseData response = await connection.post(
+        url,
+        payload,
+      );
+
+      final baseResponse = BaseResponse<GroupInfoResponseZP>.fromJson(
+        response.data,
+        (json) => GroupInfoResponseZP.fromJson(json),
+      );
+
+      return baseResponse.error == 0;
+    } catch (e) {
+      print("Exception in getGroupInfo: $e");
+      return false;
+    }
+  }
+
+  static Future<FriendListResponse?> getListFriend(String channelId) async {
+    const String url = 'api/zalo-personal/get-friends';
+    final Map<String, dynamic> payload = {
+      'channel_id': channelId,
+    };
+
+    try {
+      final ResponseData response = await connection.post(url, payload);
+      final friendListResponse = FriendListResponse.fromJson(response.data);
+      return friendListResponse;
+    } catch (e) {
+      print("Exception in getListFriend: $e");
+      return null;
+    }
+  }
+
+  ///_____________________
 }

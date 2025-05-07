@@ -118,6 +118,7 @@ class Chat {
         await ChatConnection.checkUserToken();
         return await onOpenChatScreen(phoneNumber, context);
       } else {
+        await ChatConnection.checkUserToken();
         await Navigator.of(context, rootNavigator: true).push(
           MaterialPageRoute(
             builder: (context) => AppChat(email: email, password: password),

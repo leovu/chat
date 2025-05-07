@@ -54,8 +54,8 @@ class _SelectTagsScreenState extends State<SelectTagsScreen> {
           children: [
             Expanded(
                 child: Wrap(
-              spacing: 8, // khoảng cách giữa các phần tử ngang
-              runSpacing: 8, // khoảng cách giữa các dòng
+              spacing: 8,
+              runSpacing: 8,
               children: widget.items.map((item) {
                 return GestureDetector(
                   onTap: () {

@@ -28,7 +28,7 @@ class CommonAvatar extends StatelessWidget {
                         headers: {'brand-code': ChatConnection.brandCode!}),
                     backgroundColor: Colors.transparent,
                   )
-            : data.picture == null
+            : data.room_avatar == null
                 ? CircleAvatar(
                     radius: 25.0,
                     child: Text(
@@ -39,7 +39,7 @@ class CommonAvatar extends StatelessWidget {
                 : CircleAvatar(
                     radius: 25.0,
                     backgroundImage: CachedNetworkImageProvider(
-                        '${HTTPConnection.domain}api/images/${data.picture!.shieldedID}/256/${ChatConnection.brandCode!}',
+                        '${HTTPConnection.domain}api/images/${data.room_avatar!.shieldedID}/256/${ChatConnection.brandCode!}',
                         headers: {'brand-code': ChatConnection.brandCode!}),
                     backgroundColor: Colors.transparent,
                   ),

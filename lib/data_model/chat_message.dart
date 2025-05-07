@@ -38,54 +38,55 @@ class Room {
   List<Images>? files;
   List<Images>? links;
   PinMessage? pinMessage;
+  String? oa_group_id;
 
   Room(
       {sId,
-        people,
-        isGroup,
-        lastUpdate,
-        lastAuthor,
-        lastMessage,
-        messages,
-        images,
-        files,
-        links,
-        pinMessage,
-        owner,
-        messageSeen});
+      people,
+      isGroup,
+      lastUpdate,
+      lastAuthor,
+      lastMessage,
+      messages,
+      images,
+      files,
+      links,
+      pinMessage,
+      owner,
+      messageSeen,
+      oa_group_id});
 
   Room.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
+    oa_group_id = json['oa_group_id'];
     if (json['people'] != null) {
       people = <People>[];
       json['people'].forEach((v) {
         people!.add(People.fromJson(v));
       });
     }
-    try{
+    try {
       if (json['messageSeen'] != null) {
         messageSeen = <MessageSeen>[];
         json['messageSeen'].forEach((v) {
           messageSeen!.add(MessageSeen.fromJson(v));
         });
       }
-    }catch(_){}
+    } catch (_) {}
     isGroup = json['isGroup'];
     lastUpdate = json['lastUpdate'];
     lastAuthor = json['lastAuthor'];
-    try{
-      owner = json['owner'] != null
-          ? Owner.fromJson(json['owner'])
-          : null;
-    }catch(_){}
+    try {
+      owner = json['owner'] != null ? Owner.fromJson(json['owner']) : null;
+    } catch (_) {}
     try {
       lastMessage = json['lastMessage'];
-    }catch(_) {}
+    } catch (_) {}
     if (json['messages'] != null) {
       messages = <Messages>[];
       json['messages'].forEach((v) {
-        if(v['content'] == 'Message recalled' && v['type'] == 'image') {}
-        else {
+        if (v['content'] == 'Message recalled' && v['type'] == 'image') {
+        } else {
           messages!.add(Messages.fromJson(v));
         }
       });
@@ -94,7 +95,7 @@ class Room {
     if (json['images'] != null) {
       images = <Images>[];
       json['images'].forEach((v) {
-        if(v['content'] != 'Message recalled') {
+        if (v['content'] != 'Message recalled') {
           images!.add(Images.fromJson(v));
         }
       });
@@ -102,7 +103,7 @@ class Room {
     if (json['files'] != null) {
       files = <Images>[];
       json['files'].forEach((v) {
-        if(v['content'] != 'Message recalled') {
+        if (v['content'] != 'Message recalled') {
           files!.add(Images.fromJson(v));
         }
       });
@@ -110,16 +111,16 @@ class Room {
     if (json['links'] != null) {
       links = <Images>[];
       json['links'].forEach((v) {
-        if(v['content'] != 'Message recalled') {
+        if (v['content'] != 'Message recalled') {
           links!.add(Images.fromJson(v));
         }
       });
     }
-    try{
+    try {
       pinMessage = json['pinMessage'] != null
           ? PinMessage.fromJson(json['pinMessage'])
           : null;
-    }catch(_){}
+    } catch (_) {}
   }
 
   Map<String, dynamic> toJson() {
@@ -173,29 +174,29 @@ class Owner {
 
   Owner(
       {this.sId,
-        this.level,
-        // this.favorites,
-        this.userTag,
-        this.tagLine,
-        this.isIncognito,
-        this.username,
-        this.email,
-        this.firstName,
-        this.lastName,
-        this.userSocialId,
-        this.source,
-        this.password,
-        this.lastOnline,
-        this.iV,
-        this.picture,
-        this.cpoCustomerCode,
-        this.cpoCustomerId,
-        this.customerCode,
-        this.customerId,
-        this.createdAt,
-        this.isBlocked,
-        this.isFollowed,
-        this.tags});
+      this.level,
+      // this.favorites,
+      this.userTag,
+      this.tagLine,
+      this.isIncognito,
+      this.username,
+      this.email,
+      this.firstName,
+      this.lastName,
+      this.userSocialId,
+      this.source,
+      this.password,
+      this.lastOnline,
+      this.iV,
+      this.picture,
+      this.cpoCustomerCode,
+      this.cpoCustomerId,
+      this.customerCode,
+      this.customerId,
+      this.createdAt,
+      this.isBlocked,
+      this.isFollowed,
+      this.tags});
 
   Owner.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
@@ -270,22 +271,22 @@ class Owner {
   String getAvatarName() {
     String avatarName = '';
     String? firstNameResult = firstName?.replaceAll(RegExp('[^A-Za-z0-9]'), '');
-    if(firstNameResult != '' && firstNameResult != null) {
+    if (firstNameResult != '' && firstNameResult != null) {
       avatarName += firstNameResult[0];
     }
     String? lastNameResult = lastName?.replaceAll(RegExp('[^A-Za-z0-9]'), '');
-    if(lastNameResult != '' && lastNameResult != null) {
+    if (lastNameResult != '' && lastNameResult != null) {
       avatarName += lastNameResult[0];
     }
     return avatarName == '' ? '*' : avatarName.toUpperCase();
   }
 
-  String getName(){
+  String getName() {
     List<String> names = [];
-    if((firstName ?? "").isNotEmpty) {
+    if ((firstName ?? "").isNotEmpty) {
       names.add(firstName!);
     }
-    if((lastName ?? "").isNotEmpty) {
+    if ((lastName ?? "").isNotEmpty) {
       names.add(lastName!);
     }
     return names.join(" ");
@@ -324,15 +325,7 @@ class Picture {
   String? location;
   String? shieldedID;
 
-  Picture(
-      {sId,
-        name,
-        author,
-        size,
-        shield,
-        iV,
-        location,
-        shieldedID});
+  Picture({sId, name, author, size, shield, iV, location, shieldedID});
 
   Picture.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
@@ -375,42 +368,44 @@ class Messages {
 
   Messages(
       {sId,
-        replies,
-        room,
-        author,
-        content,
-        date,
-        iV,
-        type,
-        file,
-        edit,
-        errorMessage, staff});
+      replies,
+      room,
+      author,
+      content,
+      date,
+      iV,
+      type,
+      file,
+      edit,
+      errorMessage,
+      staff});
 
   Messages.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
-    try{
-      replies = json['replies'] != null ? Replies.fromJson(json['replies']) : null;
-    }catch(_){}
+    try {
+      replies =
+          json['replies'] != null ? Replies.fromJson(json['replies']) : null;
+    } catch (_) {}
     room = json['room'];
-    try{
+    try {
       author = json['author'] != null ? Author.fromJson(json['author']) : null;
-    }catch(_) {}
+    } catch (_) {}
     content = json['content'];
     date = json['date'];
     iV = json['__v'];
     type = json['type'];
     edit = json['edit'];
     errorMessage = json['error_message'];
-    if(content == 'Message recalled') {
+    if (content == 'Message recalled') {
       content = AppLocalizations.text(LangKey.messageRecalled);
       edit = 0;
     }
-    try{
+    try {
       file = json['file'] != null ? Picture.fromJson(json['file']) : null;
-    }catch(_){}
-    try{
+    } catch (_) {}
+    try {
       staff = json['staff'] != null ? Staff.fromJson(json['staff']) : null;
-    }catch(e) {
+    } catch (e) {
       print(e.toString());
     }
   }
@@ -423,7 +418,7 @@ class Messages {
     }
     data['room'] = room;
     if (author != null) {
-        data['author'] = author!.toJson();
+      data['author'] = author!.toJson();
     }
     data['content'] = content;
     data['date'] = date;
@@ -442,21 +437,18 @@ class Messages {
 
   Map<String, dynamic> toMessageJson({List<MessageSeen>? messageSeen}) {
     final Map<String, dynamic> data = <String, dynamic>{};
-    if(errorMessage != null) {
-      if(messageSeen != null) {
+    if (errorMessage != null) {
+      if (messageSeen != null) {
         data['metadata'] = {
-          'error_message' : errorMessage,
+          'error_message': errorMessage,
           'messageSeen': messageSeen.map((e) => e.toJson()).toList()
         };
-      }
-      else {
-        data['metadata'] = {
-          'error_message': errorMessage
-        };
+      } else {
+        data['metadata'] = {'error_message': errorMessage};
       }
       data['status'] = 'error';
     }
-    if(edit != null){
+    if (edit != null) {
       data['remoteId'] = '$edit';
     }
     if (author != null) {
@@ -470,74 +462,76 @@ class Messages {
           'firstName': author!.firstName,
           'lastName': author!.lastName,
           'id': author!.sId,
-          'imageUrl': author!.picture != null ? '${HTTPConnection
-              .domain}api/images/${author!.picture!
-              .shieldedID}/512/${ChatConnection.brandCode}' : null,
+          'imageUrl': author!.picture != null
+              ? '${HTTPConnection.domain}api/images/${author!.picture!.shieldedID}/512/${ChatConnection.brandCode}'
+              : null,
         };
       }
     }
     if (staff != null) {
       data['staff'] = {
         'fullName': staff!.fullName,
-        'staffId':staff!.staffId,
+        'staffId': staff!.staffId,
       };
     }
-    if(date != null) {
+    if (date != null) {
       final format = DateFormat("yyyy-MM-dd'T'HH:mm:ss");
       final dt = format.parse(date!, true);
       data['createdAt'] = dt.toUtc().millisecondsSinceEpoch;
     }
     data['id'] = sId;
-    if(type == 'file' && file != null) {
+    if (type == 'file' && file != null) {
       data['size'] = 0;
       data['type'] = 'file';
       final mimeType = lookupMimeType(file!.name!);
       data['mimeType'] = mimeType;
       data['size'] = file!.size;
       data['name'] = file!.name;
-      data['uri'] = '${HTTPConnection.domain}api/files/${file!.shieldedID}/${ChatConnection.brandCode}';
-    }
-    else if(type == 'image') {
+      data['uri'] =
+          '${HTTPConnection.domain}api/files/${file!.shieldedID}/${ChatConnection.brandCode}';
+    } else if (type == 'image') {
       data['size'] = 0;
       data['type'] = 'image';
       data['name'] = 'image';
-      data['uri'] = '${HTTPConnection.domain}api/images/$content/${ChatConnection.brandCode}';
-    }
-    else {
+      data['uri'] =
+          '${HTTPConnection.domain}api/images/$content/${ChatConnection.brandCode}';
+    } else {
       data['type'] = 'text';
       data['text'] = content;
     }
     // data['status'] = 'delivered';
-    if(replies != null) {
-      Map<String,dynamic> json = {};
+    if (replies != null) {
+      Map<String, dynamic> json = {};
       json = {
-        'author' : {
+        'author': {
           'firstName': replies?.author?.firstName,
           'lastName': replies?.author?.lastName,
-          'id':replies?.author?.sId,
-          'imageUrl':replies?.author?.picture != null ? '${HTTPConnection.domain}api/images/${replies?.author?.picture!.shieldedID}/512/${ChatConnection.brandCode}' : null,
+          'id': replies?.author?.sId,
+          'imageUrl': replies?.author?.picture != null
+              ? '${HTTPConnection.domain}api/images/${replies?.author?.picture!.shieldedID}/512/${ChatConnection.brandCode}'
+              : null,
         },
       };
       json['id'] = replies!.sId!;
       final format = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z");
       final dt = format.parse(replies!.date!, true);
       json['createdAt'] = dt.toUtc().millisecondsSinceEpoch;
-      if(replies?.type == 'file' && replies?.file != null) {
+      if (replies?.type == 'file' && replies?.file != null) {
         json['size'] = 0;
         json['type'] = 'file';
         final mimeType = lookupMimeType(replies!.file!.name!);
         json['mimeType'] = mimeType;
         json['size'] = replies!.file!.size;
         json['name'] = replies!.file!.name;
-        json['uri'] = '${HTTPConnection.domain}api/files/${replies!.file!.shieldedID}/${ChatConnection.brandCode}';
-      }
-      else if(replies?.type == 'image') {
+        json['uri'] =
+            '${HTTPConnection.domain}api/files/${replies!.file!.shieldedID}/${ChatConnection.brandCode}';
+      } else if (replies?.type == 'image') {
         json['size'] = 0;
         json['type'] = 'image';
         json['name'] = 'image';
-        json['uri'] = '${HTTPConnection.domain}api/images/${replies!.content}/${ChatConnection.brandCode}';
-      }
-      else {
+        json['uri'] =
+            '${HTTPConnection.domain}api/images/${replies!.content}/${ChatConnection.brandCode}';
+      } else {
         json['type'] = 'text';
         json['text'] = replies!.content;
       }
@@ -558,8 +552,7 @@ class MessageSeen {
 
   MessageSeen.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
-    author =
-    json['author'] != null ? Author.fromJson(json['author']) : null;
+    author = json['author'] != null ? Author.fromJson(json['author']) : null;
     room = json['room'];
     iV = json['__v'];
     message = json['message'];
@@ -578,7 +571,7 @@ class MessageSeen {
   }
 }
 
-class Staff{
+class Staff {
   String? address;
   int? branchId;
   String? email;
@@ -587,8 +580,7 @@ class Staff{
   int? staffId;
   String? userName;
 
-  Staff({address, branchId, email, fullName,
-      staffAvatar, staffId, userName});
+  Staff({address, branchId, email, fullName, staffAvatar, staffId, userName});
 
   Staff.fromJson(Map<String, dynamic> json) {
     address = json['address'];
@@ -626,15 +618,15 @@ class Author {
 
   Author(
       {sId,
-        level,
-        favorites,
-        tagLine,
-        username,
-        firstName,
-        phone,
-        lastName,
-        lastOnline,
-        picture});
+      level,
+      favorites,
+      tagLine,
+      username,
+      firstName,
+      phone,
+      lastName,
+      lastOnline,
+      picture});
 
   Author.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
@@ -647,8 +639,8 @@ class Author {
     lastOnline = json['lastOnline'];
     try {
       picture =
-      json['picture'] != null ? Picture.fromJson(json['picture']) : null;
-    }catch(_) {}
+          json['picture'] != null ? Picture.fromJson(json['picture']) : null;
+    } catch (_) {}
   }
 
   Map<String, dynamic> toJson() {
@@ -670,11 +662,11 @@ class Author {
   String getAvatarName() {
     String avatarName = '';
     String? firstNameResult = firstName?.replaceAll(RegExp('[^A-Za-z0-9]'), '');
-    if(firstNameResult != '' && firstNameResult != null) {
+    if (firstNameResult != '' && firstNameResult != null) {
       avatarName += firstNameResult[0];
     }
     String? lastNameResult = lastName?.replaceAll(RegExp('[^A-Za-z0-9]'), '');
-    if(lastNameResult != '' && lastNameResult != null) {
+    if (lastNameResult != '' && lastNameResult != null) {
       avatarName += lastNameResult[0];
     }
     return avatarName == '' ? '*' : avatarName.toUpperCase();
@@ -691,27 +683,19 @@ class Images {
   int? iV;
   Picture? file;
 
-  Images({sId,
-    room,
-    author,
-    content,
-    type,
-    date,
-    file,
-    iV});
+  Images({sId, room, author, content, type, date, file, iV});
 
   Images.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
     room = json['room'];
-    author =
-    json['author'] != null ? Author.fromJson(json['author']) : null;
+    author = json['author'] != null ? Author.fromJson(json['author']) : null;
     content = json['content'];
     type = json['type'];
     date = json['date'];
     iV = json['__v'];
-    try{
+    try {
       file = json['file'] != null ? Picture.fromJson(json['file']) : null;
-    }catch(_){}
+    } catch (_) {}
   }
 
   Map<String, dynamic> toJson() {
@@ -724,7 +708,7 @@ class Images {
     data['content'] = content;
     data['type'] = type;
     data['date'] = date;
-    if(file != null) {
+    if (file != null) {
       data['file'] = file!.toJson();
     }
     data['__v'] = iV;
@@ -748,17 +732,17 @@ class Replies {
 
   Replies(
       {sId,
-        recall,
-        edit,
-        reactionTotal,
-        seen,
-        room,
-        author,
-        content,
-        date,
-        iV,
-        type,
-        file});
+      recall,
+      edit,
+      reactionTotal,
+      seen,
+      room,
+      author,
+      content,
+      date,
+      iV,
+      type,
+      file});
 
   Replies.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
@@ -767,8 +751,7 @@ class Replies {
     reactionTotal = json['reaction_total'];
     seen = json['seen'];
     room = json['room'];
-    author =
-    json['author'] != null ? Author.fromJson(json['author']) : null;
+    author = json['author'] != null ? Author.fromJson(json['author']) : null;
     content = json['content'];
     date = json['date'];
     iV = json['__v'];
@@ -810,18 +793,7 @@ class PinMessage {
   int? iV;
   String? type;
 
-  PinMessage(
-      {
-        recall,
-        edit,
-        seen,
-        sId,
-        room,
-        author,
-        content,
-        date,
-        iV,
-        type});
+  PinMessage({recall, edit, seen, sId, room, author, content, date, iV, type});
 
   PinMessage.fromJson(Map<String, dynamic> json) {
     recall = json['recall'];
@@ -829,8 +801,7 @@ class PinMessage {
     seen = json['seen'];
     sId = json['_id'];
     room = json['room'];
-    author =
-    json['author'] != null ? Author.fromJson(json['author']) : null;
+    author = json['author'] != null ? Author.fromJson(json['author']) : null;
     content = json['content'];
     date = json['date'];
     iV = json['__v'];

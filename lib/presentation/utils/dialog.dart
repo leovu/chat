@@ -4,30 +4,6 @@ import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-Future<bool?> showMissingDateDialog(
-  BuildContext context,
-  String title,
-  String content,
-) {
-  return showDialog<bool>(
-    context: context,
-    builder: (ctx) => AlertDialog(
-      title: Text(title),
-      content: Text(content),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(ctx).pop(false), // Hủy
-          child: const Text('Hủy'),
-        ),
-        TextButton(
-          onPressed: () => Navigator.of(ctx).pop(true), // Đồng ý
-          child: const Text('Đồng ý'),
-        ),
-      ],
-    ),
-  );
-}
-
 Future<void> showInfoDialog(
   BuildContext context,
   String title,
@@ -99,8 +75,8 @@ Future<void> showInfoDialog(
                   ),
                 TextButton(
                   onPressed: () {
-                    Navigator.of(context).pop();
                     onOk();
+                    Navigator.of(context).pop();
                   },
                   child: AutoSizeText(
                     'OK',

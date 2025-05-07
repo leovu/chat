@@ -15,7 +15,8 @@ import 'package:chat/data_model/room.dart';
 class ForwardScreen extends StatefulWidget {
   final types.Message message;
   final c.Messages? value;
-  const ForwardScreen({Key? key, required this.message, required this.value}) : super(key: key);
+  const ForwardScreen({Key? key, required this.message, required this.value})
+      : super(key: key);
   @override
   ForwardScreenState createState() => ForwardScreenState();
 }
@@ -45,12 +46,11 @@ class ForwardScreenState extends State<ForwardScreen> {
   }
 
   _getRooms() async {
-    if(mounted) {
+    if (mounted) {
       roomListData = await ChatConnection.roomList();
       _getRoomVisible();
       setState(() {});
-    }
-    else {
+    } else {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         roomListData = await ChatConnection.roomList();
         _getRoomVisible();
@@ -61,26 +61,27 @@ class ForwardScreenState extends State<ForwardScreen> {
 
   _getRoomVisible() {
     String val = _controllerSearch.value.text.toLowerCase();
-    if(val != '') {
+    if (val != '') {
       roomListVisible!.rooms = roomListVisible!.rooms!.where((element) {
         try {
-          People p = element.people!.firstWhere((e) => e.sId != ChatConnection.user!.id);
-          if(!element.isGroup! ?
-          ('${p.firstName} ${p.lastName}'.toLowerCase()).contains(val) : element.title!.toLowerCase().contains(val)) {
+          People p = element.people!
+              .firstWhere((e) => e.sId != ChatConnection.user!.id);
+          if (!element.isGroup!
+              ? ('${p.firstName} ${p.lastName}'.toLowerCase()).contains(val)
+              : element.title!.toLowerCase().contains(val)) {
             return true;
           }
           return false;
-        }catch(e){
+        } catch (e) {
           return false;
         }
       }).toList();
-    }
-    else {
+    } else {
       roomListVisible = Room();
       roomListVisible?.limit = roomListData?.limit;
-      try{
+      try {
         roomListVisible?.rooms = <Rooms>[...roomListData!.rooms!.toList()];
-      }catch(_) {}
+      } catch (_) {}
     }
   }
 
@@ -93,7 +94,9 @@ class ForwardScreenState extends State<ForwardScreen> {
             title: AutoSizeText(
               AppLocalizations.text(LangKey.forwardMessage),
               style: const TextStyle(
-                  color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16),
             ),
             leading: InkWell(
               child: Icon(
@@ -113,95 +116,140 @@ class ForwardScreenState extends State<ForwardScreen> {
                   padding: const EdgeInsets.all(10.0),
                   child: Container(
                     decoration: BoxDecoration(
-                        color: const Color(0xFFE7EAEF), borderRadius: BorderRadius.circular(5)),
+                        color: const Color(0xFFE7EAEF),
+                        borderRadius: BorderRadius.circular(5)),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           children: [
                             const Padding(
-                              padding: EdgeInsets.only(left:5.0,right: 5.0),
-                              child: Icon(Icons.format_quote,color: Colors.black,size: 15.0,),
-                            ),
-                            Expanded(child: Padding(
-                              padding: widget.message is types.TextMessage ?
-                                const EdgeInsets.only(right: 10.0,bottom: 10.0,top: 10.0) :
-                              widget.message is types.FileMessage ?
-                                const EdgeInsets.only(right: 10.0,bottom: 10.0,top: 10.0,left: 10.0) :
-                              const EdgeInsets.only(right: 10.0,bottom: 0.0,top: 0.0),
-                              child:
-                              widget.message is types.TextMessage ?
-                                checkTag((widget.message as types.TextMessage).text) :
-                              widget.message is types.ImageMessage ?
-                                Row(
-                                  children: [
-                                    SizedBox(
-                                      width: MediaQuery.of(context).size.width*0.15,
-                                      height: MediaQuery.of(context).size.width*0.25,
-                                      child: CachedNetworkImage(
-                                        imageUrl:
-                                        '${(widget.message as types.ImageMessage).uri}/${ChatConnection.brandCode!}',
-                                        httpHeaders: {'brand-code':ChatConnection.brandCode!},
-                                        placeholder: (context, url) => const CupertinoActivityIndicator(),
-                                        errorWidget: (context, url, error) => const Icon(Icons.error),
-                                        fit: BoxFit.contain,
-                                      ),
-                                    ),
-                                    Expanded(child: Container())
-                                  ],
-                                ) :
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey.withValues(alpha: 0.2),
-                                      borderRadius: BorderRadius.circular(21),
-                                    ),
-                                    height: 42,
-                                    width: 42,
-                                    child: Stack(
-                                      alignment: Alignment.center,
-                                      children: [
-                                        Image.asset(
-                                          'assets/icon-document.png',
-                                          color: Colors.grey,
-                                          package: 'chat',
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Flexible(
-                                    child: Container(
-                                      margin: const EdgeInsetsDirectional.only(
-                                        start: 16,
-                                      ),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            (widget.message as types.FileMessage).name,
-                                            textWidthBasis: TextWidthBasis.longestLine,
-                                            style: const TextStyle(fontWeight: FontWeight.w600),
-                                          ),
-                                          Container(
-                                            margin: const EdgeInsets.only(
-                                              top: 4,
-                                            ),
-                                            child: Text(
-                                              formatBytes((widget.message as types.FileMessage).size.truncate()),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                              padding: EdgeInsets.only(left: 5.0, right: 5.0),
+                              child: Icon(
+                                Icons.format_quote,
+                                color: Colors.black,
+                                size: 15.0,
                               ),
-                            ),)
+                            ),
+                            Expanded(
+                              child: Padding(
+                                padding: widget.message is types.TextMessage
+                                    ? const EdgeInsets.only(
+                                        right: 10.0, bottom: 10.0, top: 10.0)
+                                    : widget.message is types.FileMessage
+                                        ? const EdgeInsets.only(
+                                            right: 10.0,
+                                            bottom: 10.0,
+                                            top: 10.0,
+                                            left: 10.0)
+                                        : const EdgeInsets.only(
+                                            right: 10.0, bottom: 0.0, top: 0.0),
+                                child: widget.message is types.TextMessage
+                                    ? checkTag(
+                                        (widget.message as types.TextMessage)
+                                            .text)
+                                    : widget.message is types.ImageMessage
+                                        ? Row(
+                                            children: [
+                                              SizedBox(
+                                                width: MediaQuery.of(context)
+                                                        .size
+                                                        .width *
+                                                    0.15,
+                                                height: MediaQuery.of(context)
+                                                        .size
+                                                        .width *
+                                                    0.25,
+                                                child: CachedNetworkImage(
+                                                  imageUrl:
+                                                      '${(widget.message as types.ImageMessage).uri}/${ChatConnection.brandCode!}',
+                                                  httpHeaders: {
+                                                    'brand-code': ChatConnection
+                                                        .brandCode!
+                                                  },
+                                                  placeholder: (context, url) =>
+                                                      const CupertinoActivityIndicator(),
+                                                  errorWidget: (context, url,
+                                                          error) =>
+                                                      const Icon(Icons.error),
+                                                  fit: BoxFit.contain,
+                                                ),
+                                              ),
+                                              Expanded(child: Container())
+                                            ],
+                                          )
+                                        : Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Container(
+                                                decoration: BoxDecoration(
+                                                  color: Colors.grey
+                                                      .withValues(alpha: 0.2),
+                                                  borderRadius:
+                                                      BorderRadius.circular(21),
+                                                ),
+                                                height: 42,
+                                                width: 42,
+                                                child: Stack(
+                                                  alignment: Alignment.center,
+                                                  children: [
+                                                    Image.asset(
+                                                      'assets/icon-document.png',
+                                                      color: Colors.grey,
+                                                      package: 'chat',
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              Flexible(
+                                                child: Container(
+                                                  margin:
+                                                      const EdgeInsetsDirectional
+                                                          .only(
+                                                    start: 16,
+                                                  ),
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(
+                                                        (widget.message as types
+                                                                .FileMessage)
+                                                            .name,
+                                                        textWidthBasis:
+                                                            TextWidthBasis
+                                                                .longestLine,
+                                                        style: const TextStyle(
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .w600),
+                                                      ),
+                                                      Container(
+                                                        margin: const EdgeInsets
+                                                            .only(
+                                                          top: 4,
+                                                        ),
+                                                        child: Text(
+                                                          formatBytes((widget
+                                                                      .message
+                                                                  as types
+                                                                  .FileMessage)
+                                                              .size
+                                                              .truncate()),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                              ),
+                            )
                           ],
                         ),
-                        Container(height: 1.0,color: Colors.grey.shade500),
+                        Container(height: 1.0, color: Colors.grey.shade500),
                         Padding(
                           padding: const EdgeInsets.all(15.0),
                           child: SizedBox(
@@ -211,7 +259,8 @@ class ForwardScreenState extends State<ForwardScreen> {
                               keyboardType: TextInputType.multiline,
                               maxLines: null,
                               decoration: InputDecoration.collapsed(
-                                hintText: AppLocalizations.text(LangKey.inputMessageOptional),
+                                hintText: AppLocalizations.text(
+                                    LangKey.inputMessageOptional),
                               ),
                             ),
                           ),
@@ -221,12 +270,14 @@ class ForwardScreenState extends State<ForwardScreen> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10.0,vertical: 10.0),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 10.0, vertical: 10.0),
                   child: Container(
                     width: double.infinity,
                     height: 40,
                     decoration: BoxDecoration(
-                        color: const Color(0xFFE7EAEF), borderRadius: BorderRadius.circular(5)),
+                        color: const Color(0xFFE7EAEF),
+                        borderRadius: BorderRadius.circular(5)),
                     child: Row(
                       children: [
                         const Padding(
@@ -237,7 +288,8 @@ class ForwardScreenState extends State<ForwardScreen> {
                             ),
                           ),
                         ),
-                        Expanded(child: TextField(
+                        Expanded(
+                            child: TextField(
                           focusNode: _focusSearch,
                           controller: _controllerSearch,
                           onChanged: (_) {
@@ -246,7 +298,8 @@ class ForwardScreenState extends State<ForwardScreen> {
                             });
                           },
                           decoration: InputDecoration.collapsed(
-                            hintText: AppLocalizations.text(LangKey.searchUserAndGroup),
+                            hintText: AppLocalizations.text(
+                                LangKey.searchUserAndGroup),
                           ),
                         )),
                         Material(
@@ -261,7 +314,7 @@ class ForwardScreenState extends State<ForwardScreen> {
                                 ),
                               ),
                             ),
-                            onTap: (){
+                            onTap: () {
                               _controllerSearch.text = '';
                               FocusManager.instance.primaryFocus?.unfocus();
                               _getRoomVisible();
@@ -273,64 +326,59 @@ class ForwardScreenState extends State<ForwardScreen> {
                   ),
                 ),
                 Expanded(
-                child: roomListVisible != null ? ListView.builder(
-                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                    itemCount: roomListVisible!.rooms?.length ?? 0,
-                    itemBuilder: (BuildContext context, int position) {
-                      return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 5.0),
-                          child: _room(roomListVisible!.rooms![position], position == roomListVisible!.rooms!.length-1)
-                      );
-                    }) : Container()
-            )],),
+                    child: roomListVisible != null
+                        ? ListView.builder(
+                            keyboardDismissBehavior:
+                                ScrollViewKeyboardDismissBehavior.onDrag,
+                            itemCount: roomListVisible!.rooms?.length ?? 0,
+                            itemBuilder: (BuildContext context, int position) {
+                              return Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 5.0),
+                                  child: _room(
+                                      roomListVisible!.rooms![position],
+                                      position ==
+                                          roomListVisible!.rooms!.length - 1));
+                            })
+                        : Container())
+              ],
+            ),
           )),
     );
   }
+
   Widget checkTag(String message) {
     Widget _widget;
     List<InlineSpan> _arr = [];
     List<String> contents = message.split(' ');
     for (int i = 0; i < contents.length; i++) {
       var element = contents[i];
-      if(element == '@all-all@') {
+      if (element == '@all-all@') {
         element = '@${AppLocalizations.text(LangKey.all)}';
         _arr.add(TextSpan(
             text: '$element ',
-            style:
-            const TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold
-            )));
-      }
-      else {
+            style: const TextStyle(
+                color: Colors.black, fontWeight: FontWeight.bold)));
+      } else {
         try {
-          if(element[element.length-1] == '@' && element.contains('-')) {
+          if (element[element.length - 1] == '@' && element.contains('-')) {
             element = element.split('-').first;
             _arr.add(TextSpan(
                 text: '$element ',
-                style:
-                const TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold
-                )));
-          }
-          else {
+                style: const TextStyle(
+                    color: Colors.black, fontWeight: FontWeight.bold)));
+          } else {
             _arr.add(TextSpan(
-                text: i == contents.length-1 ? element : '$element ',
-                style:
-                TextStyle(
+                text: i == contents.length - 1 ? element : '$element ',
+                style: TextStyle(
                     color: Colors.grey.shade700,
-                    fontWeight: FontWeight.normal
-                )));
+                    fontWeight: FontWeight.normal)));
           }
-        }catch(_) {
+        } catch (_) {
           _arr.add(TextSpan(
-              text: i == contents.length-1 ? element : '$element ',
-              style:
-              TextStyle(
-                  color: Colors.grey.shade700,
-                  fontWeight: FontWeight.normal
-              )));
+              text: i == contents.length - 1 ? element : '$element ',
+              style: TextStyle(
+                  color: Colors.grey.shade700, fontWeight: FontWeight.normal)));
         }
       }
     }
@@ -341,6 +389,7 @@ class ForwardScreenState extends State<ForwardScreen> {
     );
     return _widget;
   }
+
   Widget _room(Rooms data, bool isLast) {
     People info = getPeople(data.people);
     return Column(
@@ -354,62 +403,97 @@ class ForwardScreenState extends State<ForwardScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  !data.isGroup! ? info.picture == null ? CircleAvatar(
-                    radius: 10.0,
-                    child: Text(
-                      info.getAvatarName(),
-                      style: const TextStyle(color: Colors.white,fontSize: 8),),
-                  ) : CircleAvatar(
-                    radius: 10.0,
-                    backgroundImage:
-                    CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${info.picture!.shieldedID}/256/${ChatConnection.brandCode!}',headers: {'brand-code':ChatConnection.brandCode!}),
-                    backgroundColor: Colors.transparent,
-                  ) : data.picture == null ? CircleAvatar(
-                    radius: 10.0,
-                    child: Text(
-                      data.getAvatarGroupName(),
-                      style: const TextStyle(color: Colors.white,fontSize: 8),),
-                  ) : CircleAvatar(
-                    radius: 10.0,
-                    backgroundImage:
-                    CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${data.picture!.shieldedID}/256/${ChatConnection.brandCode!}',headers: {'brand-code':ChatConnection.brandCode!}),
-                    backgroundColor: Colors.transparent,
-                  ),
-                  Expanded(child: Container(
-                    padding: const EdgeInsets.only(top: 5.0,bottom: 5.0,left: 10.0),
+                  !data.isGroup!
+                      ? info.picture == null
+                          ? CircleAvatar(
+                              radius: 10.0,
+                              child: Text(
+                                info.getAvatarName(),
+                                style: const TextStyle(
+                                    color: Colors.white, fontSize: 8),
+                              ),
+                            )
+                          : CircleAvatar(
+                              radius: 10.0,
+                              backgroundImage: CachedNetworkImageProvider(
+                                  '${HTTPConnection.domain}api/images/${info.picture!.shieldedID}/256/${ChatConnection.brandCode!}',
+                                  headers: {
+                                    'brand-code': ChatConnection.brandCode!
+                                  }),
+                              backgroundColor: Colors.transparent,
+                            )
+                      : data.room_avatar == null
+                          ? CircleAvatar(
+                              radius: 10.0,
+                              child: Text(
+                                data.getAvatarGroupName(),
+                                style: const TextStyle(
+                                    color: Colors.white, fontSize: 8),
+                              ),
+                            )
+                          : CircleAvatar(
+                              radius: 10.0,
+                              backgroundImage: CachedNetworkImageProvider(
+                                  '${HTTPConnection.domain}api/images/${data.room_avatar!.shieldedID}/256/${ChatConnection.brandCode!}',
+                                  headers: {
+                                    'brand-code': ChatConnection.brandCode!
+                                  }),
+                              backgroundColor: Colors.transparent,
+                            ),
+                  Expanded(
+                      child: Container(
+                    padding: const EdgeInsets.only(
+                        top: 5.0, bottom: 5.0, left: 10.0),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
                             child: Row(
-                              children: [
-                                Expanded(child: AutoSizeText(!data.isGroup! ?
-                                '${info.firstName} ${info.lastName}' : data.title ?? '${AppLocalizations.text(LangKey.group)} ${info.firstName} ${info.lastName}',overflow: TextOverflow.ellipsis),),
-                                ButtonTheme(
-                                  minWidth: 50.0,
-                                  child: MaterialButton(onPressed: () async {
-                                      if(!idSent.contains(data.sId)) {
-                                        bool result = await ChatConnection.forwardMessage(_controllerContent.text,
-                                            c.Room.fromJson(data.toJson()),
-                                            ChatConnection.user!.id, widget.message.id);
-                                        if(result) {
-                                          idSent.add(data.sId);
-                                          if(data.sId == ChatConnection.roomId) {
-                                            _isSentCurrentChatRoom = true;
-                                          }
-                                          setState(() {});
+                          children: [
+                            Expanded(
+                              child: AutoSizeText(
+                                  !data.isGroup!
+                                      ? '${info.firstName} ${info.lastName}'
+                                      : data.title ??
+                                          '${AppLocalizations.text(LangKey.group)} ${info.firstName} ${info.lastName}',
+                                  overflow: TextOverflow.ellipsis),
+                            ),
+                            ButtonTheme(
+                              minWidth: 50.0,
+                              child: MaterialButton(
+                                  onPressed: () async {
+                                    if (!idSent.contains(data.sId)) {
+                                      bool result =
+                                          await ChatConnection.forwardMessage(
+                                              _controllerContent.text,
+                                              c.Room.fromJson(data.toJson()),
+                                              ChatConnection.user!.id,
+                                              widget.message.id);
+                                      if (result) {
+                                        idSent.add(data.sId);
+                                        if (data.sId == ChatConnection.roomId) {
+                                          _isSentCurrentChatRoom = true;
                                         }
+                                        setState(() {});
                                       }
+                                    }
                                   },
-                                    color: idSent.contains(data.sId) ? Colors.grey : Colors.blue,
-                                    textColor: idSent.contains(data.sId) ? Colors.black : Colors.white,
-                                  child: AutoSizeText(idSent.contains(data.sId) ? AppLocalizations.text(LangKey.sent) : AppLocalizations.text(LangKey.send))),
-                                )
-                              ],
+                                  color: idSent.contains(data.sId)
+                                      ? Colors.grey
+                                      : Colors.blue,
+                                  textColor: idSent.contains(data.sId)
+                                      ? Colors.black
+                                      : Colors.white,
+                                  child: AutoSizeText(idSent.contains(data.sId)
+                                      ? AppLocalizations.text(LangKey.sent)
+                                      : AppLocalizations.text(LangKey.send))),
                             )
+                          ],
+                        )),
+                        Container(
+                          height: 5.0,
                         ),
-                        Container(height: 5.0,),
                       ],
                     ),
                   ))
@@ -418,15 +502,27 @@ class ForwardScreenState extends State<ForwardScreen> {
             ),
           ),
         ),
-        !isLast ? Container(height: 5.0,) : Container(),
-        !isLast ?  Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0),
-          child: Container(height: 1.0,color: Colors.grey.shade300,),
-        ) : Container()
+        !isLast
+            ? Container(
+                height: 5.0,
+              )
+            : Container(),
+        !isLast
+            ? Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                child: Container(
+                  height: 1.0,
+                  color: Colors.grey.shade300,
+                ),
+              )
+            : Container()
       ],
     );
   }
+
   People getPeople(List<People>? people) {
-    return people!.first.sId != ChatConnection.user!.id ? people.first : people.last;
+    return people!.first.sId != ChatConnection.user!.id
+        ? people.first
+        : people.last;
   }
 }

@@ -145,8 +145,12 @@ class _MyAppState extends State<MyApp> {
                       'assets/icon-app.png',
                       const Locale(LangKey.langVi, 'VI'),
                       domain: 'https://chathub.epoints.vn/',
+                      // domain: 'https://chat.epoints.vn/',
                       brandCode: 'sale',
                       isChatHub: true,
+                      //     token:
+                      //         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ZmNjMjM1ZDAwYzZjMDAxMjVlZmViNSIsInNpZCI6ImFkbWluQHBpb2FwcHMudm4iLCJlbWFpbCI6InlvdXJfZW1haWxAZXhhbXBsZS5jb20iLCJsZXZlbCI6InN0YW5kYXJkIiwiZmlyc3ROYW1lIjoiSm9obiIsImxhc3ROYW1lIjoiRG9lIiwidXNlcm5hbWUiOiJhZG1pbkBwaW9hcHBzLnZuIiwiYnJhbmQiOiJzYWxlIiwiaWF0IjoxNzQ2NjA2NTc3LCJleHAiOjE3NTE3OTA1Nzd9.uCwGYgHPImV6PYhRQ5EBiUBppV9vNzvBsekHcuiJu-k");
+                      // //
                       token:
                           "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyZmQwMjA0ZDcwMzNlMjRkYTc5YzYwNiIsInVpZCI6MSwic2lkIjoiYWRtaW4iLCJlbWFpbCI6InZ1QHBpb2FwcHMudm4iLCJsZXZlbCI6InJvb3QiLCJmaXJzdE5hbWUiOiJBZG1pbiIsImxhc3ROYW1lIjoiVXNlciIsInVzZXJuYW1lIjoiYWRtaW4iLCJicmFuZF9jb2RlIjoic2FsZSIsImlhdCI6MTc0NDg2MzU4NSwiZXhwIjoxNzUwMDQ3NTg1fQ.v9by8eKSqJUzOVK3RhTgYaudkfLpfujCyNGu0-bM6WM");
 

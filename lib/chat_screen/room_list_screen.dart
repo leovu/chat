@@ -594,14 +594,17 @@ class _RoomListScreenState extends State<RoomListScreen>
                   .setStatus(roomListVisible!.rooms![position].enable_bot!);
             }
             final groupOwner = extractOwner(roomListVisible!.rooms![position]);
+
             await Navigator.of(context, rootNavigator: true).push(
               MaterialPageRoute(
                   builder: (context) => ChatScreen(
-                        isChatbot: roomListVisible!
-                                    .rooms![position].channel!.enable_bot ==
-                                1
-                            ? true
-                            : false,
+                        isChatbot: ChatConnection.isChatHub
+                            ? roomListVisible!
+                                        .rooms![position].channel!.enable_bot ==
+                                    1
+                                ? true
+                                : false
+                            : null,
                         data: roomListVisible!.rooms![position],
                         source: roomListVisible!.rooms![position].source,
                         groupOwner:
@@ -965,7 +968,7 @@ class _RoomListScreenState extends State<RoomListScreen>
                                       }),
                                   backgroundColor: Colors.transparent,
                                 )
-                          : data.picture == null
+                          : data.room_avatar == null
                               ? CircleAvatar(
                                   radius: 25.0,
                                   child: Text(
@@ -976,7 +979,7 @@ class _RoomListScreenState extends State<RoomListScreen>
                               : CircleAvatar(
                                   radius: 25.0,
                                   backgroundImage: CachedNetworkImageProvider(
-                                      '${HTTPConnection.domain}api/images/${data.picture!.shieldedID}/256/${ChatConnection.brandCode!}',
+                                      '${HTTPConnection.domain}api/images/${data.room_avatar!.shieldedID}/256/${ChatConnection.brandCode!}',
                                       headers: {
                                         'brand-code': ChatConnection.brandCode!
                                       }),
@@ -1163,11 +1166,14 @@ class _RoomListScreenState extends State<RoomListScreen>
                                 ),
                               ),
                             Expanded(
-                              child: Text(
+                              child: // Text(data.room_name!)
+                                  Text(
                                 !data.isGroup!
                                     ? '${data.owner!.firstName} ${data.owner!.lastName}'
-                                    : data.title ??
-                                        'Group ${data.owner!.firstName} ${data.owner!.lastName}',
+                                    : data.room_name != null
+                                        ? data.room_name!
+                                        : data.title ??
+                                            'Group ${data.owner!.firstName} ${data.owner!.lastName}',
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
                                 style: TextStyle(

@@ -100,7 +100,7 @@ class _ConversationInformationScreenState
   @override
   Widget build(BuildContext context) {
     String url =
-        '${HTTPConnection.domain}api/images/${widget.roomData.picture?.shieldedID ?? widget.roomData.shieldedID ?? widget.roomData.owner?.picture}/256';
+        '${HTTPConnection.domain}api/images/${widget.roomData.room_avatar?.shieldedID ?? widget.roomData.shieldedID ?? widget.roomData.owner?.picture}/256';
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -386,9 +386,8 @@ class _ConversationInformationScreenState
       showLoading();
       customerAccountSearch = await ChatConnection.searchCustomer(keyword);
       Navigator.of(context).pop();
-      setState(() {
-        isShowListSearch = true;
-      });
+      isShowListSearch = true;
+      setState(() {});
     } else {
       errorDialog(content: AppLocalizations.text(LangKey.notInputSearch));
     }
@@ -581,6 +580,8 @@ class _ConversationInformationScreenState
                                   )),
                                   InkWell(
                                     onTap: () async {
+                                      print(
+                                          '################################ **********************');
                                       showLoading();
                                       // r.People info = getPeople(widget.roomData.people);
                                       await ChatConnection.customerLink(
@@ -623,13 +624,13 @@ class _ConversationInformationScreenState
 
   Widget _buildAppropriateAvatar() {
     String url =
-        '${HTTPConnection.domain}api/images/${widget.roomData.picture?.shieldedID ?? widget.roomData.shieldedID ?? widget.roomData.owner?.picture}/256';
+        '${HTTPConnection.domain}api/images/${widget.roomData.room_avatar?.shieldedID ?? widget.roomData.shieldedID ?? widget.roomData.owner?.picture}/256';
     final isGroup = widget.roomData.isGroup ?? false;
 
     if (isGroup) {
-      final avatarUrl = widget.roomData.picture == null
+      final avatarUrl = widget.roomData.room_avatar == null
           ? null
-          : '${HTTPConnection.domain}api/images/${widget.roomData.picture!.shieldedID}/256';
+          : '${HTTPConnection.domain}api/images/${widget.roomData.room_avatar!.shieldedID}/256';
 
       final onTap = widget.roomData.owner?.sId == ChatConnection.user?.id
           ? () => editName()
@@ -655,7 +656,7 @@ class _ConversationInformationScreenState
         : widget.roomData.owner?.getAvatarName() ?? "";
 
     if (hasCustomerType) {
-      final avatarUrl = widget.roomData.picture == null
+      final avatarUrl = widget.roomData.room_avatar == null
           ? null
           : '${HTTPConnection.domain}api/images/${widget.roomData.shieldedID}/256';
 
@@ -666,7 +667,7 @@ class _ConversationInformationScreenState
         onTap: () => editName(),
       );
     } else {
-      final avatarUrl = (widget.roomData.picture == null &&
+      final avatarUrl = (widget.roomData.room_avatar == null &&
               widget.roomData.owner?.picture == null)
           ? null
           : url;
@@ -1286,9 +1287,11 @@ class _ConversationInformationScreenState
               visible: ChatConnection.isChatHub,
               child: _actionButtonTile(
                 onTap: () {
+                  print(widget.roomData.channel!.sId);
                   Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) =>
-                          ChatGroupMembersScreen(roomData: widget.roomData)));
+                      builder: (context) => ChatGroupMembersScreen(
+                          roomData: widget.roomData,
+                          chatMessage: widget.chatMessage!)));
                 },
                 iconData: Icons.group,
                 iconColor: const Color(0xff5686E1),
@@ -1311,7 +1314,7 @@ class _ConversationInformationScreenState
             ),
 
           ///Xóa cuộc trò chuyện
-          if (!widget.roomData.isGroup! || ChatConnection.isChatHub
+          if (ChatConnection.isChatHub || !widget.roomData.isGroup!
               ? (widget.roomData.owner!.sId == ChatConnection.user!.id &&
                   widget.roomData.isGroup!)
               : widget.groupOwner!.sId == ChatConnection.user!.id &&

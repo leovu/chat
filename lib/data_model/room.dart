@@ -52,7 +52,7 @@ class Rooms {
   Owner? owner;
   LastMessage? lastMessage;
   String? lastUpdate;
-  Picture? picture;
+  Picture? room_avatar;
   List<MessagesReceived>? messagesReceived;
   String? createdAt;
   String? source;
@@ -60,24 +60,8 @@ class Rooms {
   Channel? channel;
   String? shieldedID;
   int? enable_bot;
-  // Rooms(
-  //     {people,
-  //     isGroup,
-  //     sId,
-  //     title,
-  //     iV,
-  //     lastAuthor,
-  //     lastMessage,
-  //     lastUpdate,
-  //     owner,
-  //     messagesReceived,
-  //     createdAt,
-  //     source,
-  //     messageUnSeen,
-  //     channel,
-  //     shieldedID,
-  //     staff,
-  //     enable_bot});
+  String? room_name;
+
   Rooms({
     this.people,
     this.isGroup,
@@ -88,7 +72,7 @@ class Rooms {
     this.owner,
     this.lastMessage,
     this.lastUpdate,
-    this.picture,
+    this.room_avatar,
     this.messagesReceived,
     this.createdAt,
     this.source,
@@ -96,6 +80,7 @@ class Rooms {
     this.channel,
     this.shieldedID,
     this.enable_bot,
+    this.room_name,
   });
   factory Rooms.mappingFromRoom(ChatMessage.Room r) {
     return Rooms(
@@ -107,55 +92,69 @@ class Rooms {
       lastAuthor: r.lastAuthor,
       lastMessage:
           r.lastMessage != null ? LastMessage(content: r.lastMessage) : null,
-      // Các field còn lại của Rooms như title, iV, picture, messagesReceived, createdAt, source, messageUnSeen, channel, shieldedID, enable_bot sẽ để mặc định null.
     );
   }
 
   Rooms.fromJson(Map<String, dynamic> json) {
-    if (json['people'] != null) {
-      people = (json['people'] as List).map((v) => People.fromJson(v)).toList();
-    }
+    people = (json['people'] as List?)?.map((v) => People.fromJson(v)).toList();
+
     isGroup = json['isGroup'];
     source = json['source'];
-    channel =
-        json['channel'] != null ? Channel.fromJson(json['channel']) : null;
     sId = json['_id'];
     title = json['title'];
     createdAt = json['createdAt'];
     iV = json['__v'];
     lastAuthor = json['lastAuthor'];
     enable_bot = json['enable_bot'];
+    shieldedID = json['shieldedID'];
+    room_name = json['room_name'];
+
+    if (json['channel'] != null) {
+      channel = Channel.fromJson(json['channel']);
+    }
+
+    if (json['lastMessage'] != null) {
+      try {
+        lastMessage = LastMessage.fromJson(json['lastMessage']);
+      } catch (_) {}
+    }
+
+    if (json['messagesReceived'] != null) {
+      try {
+        messagesReceived = (json['messagesReceived'] as List)
+            .map((v) => MessagesReceived.fromJson(v))
+            .toList();
+      } catch (_) {}
+    }
+
+    lastUpdate = json['lastUpdate'];
+    messageUnSeen = json['messageUnSeen'];
+
+    if (json['room_avatar'] != null) {
+      try {
+        room_avatar = Picture.fromJson(json['picture']);
+      } catch (_) {}
+    }
+
+    // Xử lý owner tùy thuộc vào isChatHub
     try {
       if (ChatConnection.isChatHub) {
-        owner = Owner.fromJson(json['owner']);
+        if (json['owner'] != null) {
+          owner = Owner.fromJson(json['owner']);
+        }
       } else {
-        if (isGroup!) {
-          owner = Owner.fromPeople(
-              people!.firstWhere((e) => e.sId == json['owner']));
-        } else {
-          owner = Owner.fromPeople(
-              people!.firstWhere((e) => e.sId != ChatConnection.user!.id));
+        final ownerId = json['owner'];
+        if (ownerId != null && people != null) {
+          if (isGroup == true) {
+            owner =
+                Owner.fromPeople(people!.firstWhere((e) => e.sId == ownerId));
+          } else {
+            owner = Owner.fromPeople(
+                people!.firstWhere((e) => e.sId != ChatConnection.user!.id));
+          }
         }
       }
     } catch (_) {}
-    messageUnSeen = json['messageUnSeen'];
-    try {
-      lastMessage = json['lastMessage'] != null
-          ? LastMessage.fromJson(json['lastMessage'])
-          : null;
-    } catch (_) {}
-    if (json['messagesReceived'] != null) {
-      messagesReceived = <MessagesReceived>[];
-      json['messagesReceived'].forEach((v) {
-        messagesReceived!.add(MessagesReceived.fromJson(v));
-      });
-    }
-    lastUpdate = json['lastUpdate'];
-    try {
-      picture =
-          json['picture'] != null ? Picture.fromJson(json['picture']) : null;
-    } catch (_) {}
-    shieldedID = json['shieldedID'];
   }
 
   String createdDate() {
@@ -196,7 +195,7 @@ class Rooms {
           messagesReceived!.map((v) => v.toJson()).toList();
     }
     data['lastUpdate'] = lastUpdate;
-    data['picture'] = picture;
+    data['picture'] = room_avatar;
     data['owner'] = owner;
     data['messageUnSeen'] = messageUnSeen;
     return data;
@@ -217,6 +216,11 @@ class Rooms {
       }
     } catch (_) {}
     return avatarName == '' ? '*' : avatarName.toUpperCase();
+  }
+
+  @override
+  String toString() {
+    return 'Rooms{people: $people, isGroup: $isGroup, sId: $sId, title: $title, iV: $iV, lastAuthor: $lastAuthor, owner: $owner, lastMessage: $lastMessage, lastUpdate: $lastUpdate, room_avatar: $room_avatar, messagesReceived: $messagesReceived, createdAt: $createdAt, source: $source, messageUnSeen: $messageUnSeen, channel: $channel, shieldedID: $shieldedID, enable_bot: $enable_bot, room_name: $room_name}';
   }
 }
 
@@ -439,6 +443,11 @@ class People {
   }
 
   People.fromOwner();
+
+  @override
+  String toString() {
+    return 'People{level: $level, favorites: $favorites, tagLine: $tagLine, sId: $sId, username: $username, firstName: $firstName, phone: $phone, lastName: $lastName, lastOnline: $lastOnline, picture: $picture, isSelected: $isSelected, customer: $customer, userTag: $userTag, isUpdateTagList: $isUpdateTagList}';
+  }
 }
 
 class Customer {

@@ -13,67 +13,90 @@ import 'package:chat/data_model/room.dart' as r;
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:chat/connection/app_lifecycle.dart';
 
+import '../data_model/response/friend_response_model.dart';
+
 class AddMemberGroupScreen extends StatefulWidget {
   final r.Rooms roomData;
-  const AddMemberGroupScreen({Key? key, required this.roomData}) : super(key: key);
+  final String chanel_id;
+
+  const AddMemberGroupScreen(
+      {Key? key, required this.roomData, required this.chanel_id})
+      : super(key: key);
   @override
   _AddMemberGroupScreenState createState() => _AddMemberGroupScreenState();
 }
+
 class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
   final _focusSearch = FocusNode();
   final _controllerSearch = TextEditingController();
-  Contacts? contactsListVisible;
-  Contacts? contactsListData;
+  FriendListResponse? contactsListVisible;
+  FriendListResponse? contactsListData;
   bool isInitScreen = true;
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if(mounted) {
+      if (mounted) {
         await _getContacts();
         isInitScreen = false;
       }
     });
-
   }
+
   _getContacts() async {
-    contactsListData = await ChatConnection.contactsList();
-    widget.roomData.people?.forEach((e) {
-      try{
-        People? user = contactsListData?.users?.firstWhere((element) => e.sId == element.sId);
-        if(user != null) {
-          contactsListData?.users?.remove(user);
-        }
-      }catch(_){}
-    });
+    contactsListData = await ChatConnection.getListFriend(widget.chanel_id);
+    // contactsListData!.friends?.forEach((e) {
+    //   try {
+    //     FriendModel? user = contactsListData?.friends
+    //         ?.firstWhere((element) => e.userId == element.userId);
+    //     if (user != null) {
+    //       contactsListData?.friends?.remove(user);
+    //     }
+    //   } catch (_) {}
+    // });
+    // contactsListData!.friends?.forEach((e) {
+    //   try {
+    //     FriendModel? user = contactsListData?.friends
+    //         ?.firstWhere((element) => e.userId == element.userId);
+    //     if (user != null) {
+    //       contactsListData?.friends?.remove(user);
+    //     }
+    //   } catch (_) {}
+    // });
+
     _getContactsVisible();
     setState(() {});
   }
 
   _getContactsVisible() {
     String val = _controllerSearch.value.text.toLowerCase().removeAccents();
-    if(val != '') {
-      contactsListVisible!.users = contactsListVisible!.users!.where((element) {
+    if (val != '') {
+      contactsListVisible?.friends =
+          contactsListVisible!.friends?.where((element) {
         try {
-          if(
-          ('${element.firstName} ${element.lastName}'.toLowerCase().removeAccents()).contains(val)) {
+          if (('${element.username} ' //${element.lastName}'
+                  .toLowerCase()
+                  .removeAccents())
+              .contains(val)) {
             return true;
           }
           return false;
-        }catch(e){
+        } catch (e) {
           return false;
         }
       }).toList();
-    }
-    else {
-      contactsListVisible = Contacts();
-      contactsListVisible?.limit = contactsListData?.limit;
-      contactsListVisible?.search = contactsListData?.search;
+    } else {
+      contactsListVisible = FriendListResponse();
+      contactsListVisible = contactsListData;
+      // contactsListVisible?.search = contactsListData?.search;
       try {
-        contactsListVisible?.users = <r.People>[...contactsListData!.users!.toList()];
-      }catch(_) {}
+        contactsListVisible?.friends = <FriendModel>[
+          ...contactsListData!.friends!.toList()
+        ];
+      } catch (_) {}
     }
   }
+
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -83,147 +106,192 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: Scaffold(
           body: SafeArea(
-            child: Column(children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Stack(
-                    children: [
-                      Container(
-                        height: 30.0,
-                        margin: const EdgeInsets.symmetric(horizontal: 10.0,vertical: 5.0),
+            child: Column(
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Stack(
+                      children: [
+                        Container(
+                          height: 30.0,
+                          margin: const EdgeInsets.symmetric(
+                              horizontal: 10.0, vertical: 5.0),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: SizedBox(
+                                    width: 30.0,
+                                    child: Icon(
+                                        Platform.isIOS
+                                            ? Icons.arrow_back_ios
+                                            : Icons.arrow_back,
+                                        color: Colors.black)),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Center(
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                                bottom: 3.0, left: 10.0, right: 10.0, top: 2.0),
+                            child: Text(
+                                AppLocalizations.text(LangKey.addMember),
+                                style: const TextStyle(
+                                    fontSize: 22.0, color: Colors.black)),
+                          ),
+                        )
+                      ],
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10.0, vertical: 10.0),
+                      child: Container(
+                        width: double.infinity,
+                        height: 40,
+                        decoration: BoxDecoration(
+                            color: const Color(0xFFE7EAEF),
+                            borderRadius: BorderRadius.circular(5)),
                         child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            InkWell(
-                              onTap: () {
-                                Navigator.of(context).pop();
-                              },
-                              child: SizedBox(
-                                  width:30.0,
-                                  child: Icon(Platform.isIOS ? Icons.arrow_back_ios : Icons.arrow_back, color: Colors.black)),
+                            const Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 10),
+                              child: Center(
+                                child: Icon(
+                                  Icons.search,
+                                ),
+                              ),
                             ),
+                            Expanded(
+                                child: TextField(
+                              focusNode: _focusSearch,
+                              controller: _controllerSearch,
+                              onChanged: (_) {
+                                setState(() {
+                                  _getContactsVisible();
+                                });
+                              },
+                              decoration: InputDecoration.collapsed(
+                                hintText: AppLocalizations.text(LangKey.search),
+                              ),
+                            )),
+                            Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(5),
+                                child: const Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 10),
+                                  child: Center(
+                                    child: Icon(
+                                      Icons.close,
+                                    ),
+                                  ),
+                                ),
+                                onTap: () {
+                                  _controllerSearch.text = '';
+                                  FocusManager.instance.primaryFocus?.unfocus();
+                                  _getContactsVisible();
+                                },
+                              ),
+                            )
                           ],
                         ),
                       ),
-                      Center(
-                        child:
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 3.0,left: 10.0,right: 10.0,top: 2.0),
-                          child: Text(AppLocalizations.text(LangKey.addMember),style: const TextStyle(fontSize: 22.0,color: Colors.black)),
-                        ),
-                      )
-                    ],
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10.0,vertical: 10.0),
-                    child: Container(
-                      width: double.infinity,
-                      height: 40,
-                      decoration: BoxDecoration(
-                          color: const Color(0xFFE7EAEF), borderRadius: BorderRadius.circular(5)),
-                      child: Row(
-                        children: [
-                          const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 10),
-                            child: Center(
-                              child: Icon(
-                                Icons.search,
-                              ),
+                    )
+                  ],
+                ),
+                Expanded(
+                  child: isInitScreen
+                      ? Center(
+                          child: Platform.isAndroid
+                              ? const CircularProgressIndicator()
+                              : const CupertinoActivityIndicator())
+                      : contactsListVisible != null
+                          ? ListView.builder(
+                              keyboardDismissBehavior:
+                                  ScrollViewKeyboardDismissBehavior.onDrag,
+                              itemCount:
+                                  contactsListVisible!.friends?.length ?? 0,
+                              itemBuilder:
+                                  (BuildContext context, int position) {
+                                return InkWell(
+                                    onTap: () async {
+                                      setState(() {
+                                        if (contactsListVisible!
+                                                .friends![position]
+                                                .isSelected !=
+                                            null) {
+                                          contactsListVisible!
+                                                  .friends![position]
+                                                  .isSelected =
+                                              !contactsListVisible!
+                                                  .friends![position]
+                                                  .isSelected!;
+                                        } else {
+                                          contactsListVisible!
+                                              .friends![position]
+                                              .isSelected = true;
+                                        }
+                                      });
+                                    },
+                                    child: _contacts(
+                                        contactsListVisible!.friends![position],
+                                        position ==
+                                            contactsListVisible!
+                                                    .friends!.length -
+                                                1));
+                              })
+                          : Container(),
+                ),
+                contactsListVisible != null &&
+                        isSelectedMember(contactsListVisible?.friends)
+                    ? Padding(
+                        padding: const EdgeInsets.only(bottom: 15.0),
+                        child: SizedBox(
+                          height: 49.0,
+                          width: MediaQuery.of(context).size.width * 0.85,
+                          child: MaterialButton(
+                            color: const Color(0xFF5686E1),
+                            onPressed: () async {
+                              addMember();
+                            },
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            child: Text(
+                              AppLocalizations.text(LangKey.addMember),
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600),
                             ),
                           ),
-                          Expanded(child: TextField(
-                            focusNode: _focusSearch,
-                            controller: _controllerSearch,
-                            onChanged: (_) {
-                              setState(() {
-                                _getContactsVisible();
-                              });
-                            },
-                            decoration: InputDecoration.collapsed(
-                              hintText: AppLocalizations.text(LangKey.search),
-                            ),
-                          )),
-                          Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(5),
-                              child: const Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 10),
-                                child: Center(
-                                  child: Icon(
-                                    Icons.close,
-                                  ),
-                                ),
-                              ),
-                              onTap: (){
-                                _controllerSearch.text = '';
-                                FocusManager.instance.primaryFocus?.unfocus();
-                                _getContactsVisible();
-                              },
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                  )
-                ],
-              ),
-              Expanded(
-                child:
-                isInitScreen ? Center(child: Platform.isAndroid ? const CircularProgressIndicator() : const CupertinoActivityIndicator()) :
-                contactsListVisible != null ? ListView.builder(
-                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                    itemCount: contactsListVisible!.users?.length ?? 0,
-                    itemBuilder: (BuildContext context, int position) {
-                      return InkWell(
-                          onTap: () async {
-                            setState(() {
-                              if(contactsListVisible!.users![position].isSelected != null) {
-                                contactsListVisible!.users![position].isSelected = !contactsListVisible!.users![position].isSelected!;
-                              }
-                              else {
-                                contactsListVisible!.users![position].isSelected = true;
-                              }
-                            });
-                          },
-                          child: _contacts(contactsListVisible!.users![position], position == contactsListVisible!.users!.length-1));
-                    }) : Container(),
-              ),
-              contactsListVisible != null && isSelectedMember(contactsListVisible?.users) ? Padding(
-                padding: const EdgeInsets.only(bottom: 15.0),
-                child: SizedBox(
-                  height: 49.0,
-                  width: MediaQuery.of(context).size.width*0.85,
-                  child: MaterialButton(
-                    color: const Color(0xFF5686E1),
-                    onPressed: () async {
-                      addMember();
-                    },
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    child: Text(AppLocalizations.text(LangKey.addMember),style: const TextStyle(color: Colors.white, fontSize: 16,fontWeight: FontWeight.w600),),
-                  ),
-                ),
-              ) : Container()
-            ],),
+                        ),
+                      )
+                    : Container()
+              ],
+            ),
           ),
         ),
       ),
     );
   }
+
   void addMember() async {
     List<String> people = [];
-    try{
-      contactsListData?.users?.forEach((element) {
-        if(element.isSelected != null && element.isSelected == true) {
-          people.add(element.sId!);
+    try {
+      contactsListData?.friends?.forEach((element) {
+        if (element.isSelected != null && element.isSelected == true) {
+          people.add(element.userId);
         }
       });
-    }catch(_){}
-    if(people.isEmpty) {
+    } catch (_) {}
+    if (people.isEmpty) {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -238,24 +306,23 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
           ],
         ),
       );
-    }
-    else {
-      bool result = await ChatConnection.addMemberGroup(people,widget.roomData.sId!);
-      if(result) {
-        try{
-          contactsListData?.users?.forEach((element) {
-            if(element.isSelected != null && element.isSelected == true) {
-              widget.roomData.people?.add(element);
+    } else {
+      bool result =
+          await ChatConnection.addMemberGroup(people, widget.roomData.sId!);
+      if (result) {
+        try {
+          contactsListData?.friends?.forEach((element) {
+            if (element.isSelected != null && element.isSelected == true) {
+              // widget.roomData.people?.add(element);
             }
           });
-        }catch(_){}
+        } catch (_) {}
         Navigator.of(context).pop();
-        try{
+        try {
           ChatConnection.refreshRoom.call();
           ChatConnection.refreshFavorites.call();
-        }catch(_){}
-      }
-      else {
+        } catch (_) {}
+      } else {
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
@@ -273,15 +340,17 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
       }
     }
   }
-  bool isSelectedMember(List<People>? data) {
+
+  bool isSelectedMember(List<FriendModel>? data) {
     try {
       data?.firstWhere((element) => element.isSelected == true);
       return true;
-    }catch(_){
+    } catch (_) {
       return false;
     }
   }
-  Widget _contacts(People data, bool isLast) {
+
+  Widget _contacts(FriendModel data, bool isLast) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0),
       child: Column(
@@ -295,49 +364,76 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    data.picture == null ? CircleAvatar(
-                      radius: 25.0,
-                      child: Text(data.getAvatarName()),
-                    ) : CircleAvatar(
-                      radius: 25.0,
-                      backgroundImage:
-                      CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${data.picture!.shieldedID}/256/${ChatConnection.brandCode!}',headers: {'brand-code':ChatConnection.brandCode!}),
-                      backgroundColor: Colors.transparent,
-                    ),
-                    Expanded(child: Container(
-                      padding: const EdgeInsets.only(top: 5.0,bottom: 5.0,left: 10.0),
+                    if (data.avatar.isNotEmpty)
+                      CircleAvatar(
+                        radius: 25.0,
+                        child: Image.network(data.avatar),
+                        // child: Text(data.getAvatarName()),
+                      ),
+                    // : CircleAvatar(
+                    //     radius: 25.0,
+                    //     backgroundImage: CachedNetworkImageProvider(
+                    //         '${HTTPConnection.domain}api/images/${data.picture!.shieldedID}/256/${ChatConnection.brandCode!}',
+                    //         headers: {
+                    //           'brand-code': ChatConnection.brandCode!
+                    //         }),
+                    //     backgroundColor: Colors.transparent,
+                    //   ),
+                    Expanded(
+                        child: Container(
+                      padding: const EdgeInsets.only(
+                          top: 5.0, bottom: 5.0, left: 10.0),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(
-                            child: AutoSizeText('${data.firstName} ${data.lastName}',maxLines: 1,),
+                            child: AutoSizeText(
+                              '${data.displayName}',
+                              maxLines: 1,
+                            ),
                           ),
-                          Container(height: 5.0,),
-                          Expanded(child: AutoSizeText('@${data.username}',
-                            overflow: TextOverflow.ellipsis,))
+                          Container(
+                            height: 5.0,
+                          ),
+                          Expanded(
+                              child: AutoSizeText(
+                            '@${data.username}',
+                            overflow: TextOverflow.ellipsis,
+                          ))
                         ],
                       ),
                     )),
                     SizedBox(
                       height: 30.0,
                       width: 30.0,
-                      child: data.isSelected != null && data.isSelected! ? const Icon(Icons.radio_button_checked,size: 25.0,color: Color(0xff0021F5))
-                          : const Icon(Icons.radio_button_off,size: 25.0,color: Color(0xff0021F5)),
+                      child: data.isSelected != null && data.isSelected!
+                          ? const Icon(Icons.radio_button_checked,
+                              size: 25.0, color: Color(0xff0021F5))
+                          : const Icon(Icons.radio_button_off,
+                              size: 25.0, color: Color(0xff0021F5)),
                     )
                   ],
                 ),
               ),
             ),
           ),
-          !isLast ? Container(height: 5.0,) : Container(),
-          !isLast ?  Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10.0),
-            child: Container(height: 1.0,color: Colors.grey.shade300,),
-          ) : Container(),
+          !isLast
+              ? Container(
+                  height: 5.0,
+                )
+              : Container(),
+          !isLast
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                  child: Container(
+                    height: 1.0,
+                    color: Colors.grey.shade300,
+                  ),
+                )
+              : Container(),
         ],
       ),
     );
   }
-
 }
