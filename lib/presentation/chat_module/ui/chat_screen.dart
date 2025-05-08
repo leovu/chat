@@ -84,24 +84,30 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   int? peopleLength;
   bool? isBlock = false;
   Owner? groupOwner1;
-
   @override
   void initState() {
     super.initState();
     _bloc = ChatBloc();
 
-    ChatConnection.chatScreenNotificationHandler = _notificationHandler;
-    if (widget.data.isGroup == false) _getTagList();
-    _loadMessages();
-    ChatConnection.listenChat(_refreshMessage);
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Gán handler sau build
+      ChatConnection.chatScreenNotificationHandler = _notificationHandler;
+
+      if (widget.data.isGroup == false) _getTagList();
+      _loadMessages();
+
+      ChatConnection.listenChat(_refreshMessage);
+
       if (widget.source == 'zalo') {
         getQuota();
       }
+
+      if (ChatConnection.isChatHub) {
+        isBlock = widget.data.owner?.isBlocked ?? false;
+      }
+
+      groupOwner1 = extractOwner(widget.data);
     });
-    if (ChatConnection.isChatHub)
-      isBlock = widget.data.owner!.isBlocked ?? false;
-    groupOwner1 = extractOwner(widget.data);
   }
 
   getQuota() async {

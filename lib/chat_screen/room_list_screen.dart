@@ -2304,8 +2304,6 @@ class _RoomListScreenState extends State<RoomListScreen>
       Color color = RandomHexColor().colorRandom(data.channel?.nameApp ?? '');
       colorAppName[data.channel?.nameApp ?? ''] = color;
     }
-    print(
-        '_______________ata.ownerata.ownerata.ownerata.ownerata.ownerata.owner${data.owner}');
     if (ChatConnection.isChatHub) {
       if (data.owner == null) {
         return Container();

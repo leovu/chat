@@ -104,6 +104,7 @@ class _ConversationInformationScreenState
     String url =
         '${HTTPConnection.domain}api/images/${widget.roomData.room_avatar?.shieldedID ?? widget.roomData.shieldedID ?? widget.roomData.owner?.picture}/256';
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: AutoSizeText(
@@ -145,7 +146,7 @@ class _ConversationInformationScreenState
                 padding: const EdgeInsets.all(10.0),
                 child: Row(
                   children: [
-                    Expanded(child: Container()),
+                    // Expanded(child: Container()),
                     InkWell(
                       onTap: () async {
                         showLoading();
@@ -232,6 +233,10 @@ class _ConversationInformationScreenState
                           ),
                           Expanded(
                               child: TextField(
+                            onTap: () {
+                              isShowListSearch = false;
+                              setState(() {});
+                            },
                             decoration: InputDecoration.collapsed(
                                 hintText: AppLocalizations.text(
                                     LangKey.inputCustomerHint)),
@@ -288,15 +293,16 @@ class _ConversationInformationScreenState
                   ],
                 ),
               ),
-            isInitScreen
-                ? Expanded(
-                    child: Center(
-                        child: Platform.isAndroid
-                            ? const CircularProgressIndicator()
-                            : const CupertinoActivityIndicator()))
-                : ChatConnection.isChatHub
-                    ? actionChatHubView()
-                    : SizedBox()
+            Expanded(
+              child: isInitScreen
+                  ? Center(
+                      child: Platform.isAndroid
+                          ? const CircularProgressIndicator()
+                          : const CupertinoActivityIndicator())
+                  : ChatConnection.isChatHub
+                      ? actionChatHubView()
+                      : SizedBox(),
+            ),
           ],
         ),
       ),
@@ -304,7 +310,6 @@ class _ConversationInformationScreenState
   }
 
   void editName() async {
-    print('22222222222222222222222222222222');
     if (ChatConnection.isChatHub) {
       if (ChatConnection.editCustomerLead != null) {
         await ChatConnection.editCustomerLead!(
@@ -386,12 +391,19 @@ class _ConversationInformationScreenState
   }
 
   void searchCustomer(String keyword) async {
-    if (keyword != '') {
+    if (keyword.isNotEmpty) {
       showLoading();
-      customerAccountSearch = await ChatConnection.searchCustomer(keyword);
-      Navigator.of(context).pop();
-      isShowListSearch = true;
-      setState(() {});
+
+      var customerFuture = ChatConnection.searchCustomer(keyword);
+
+      customerFuture.then((result) {
+        Navigator.of(context).pop();
+        customerAccountSearch = result;
+        isShowListSearch = true;
+        setState(() {});
+      }).catchError((e) {
+        Navigator.of(context).pop();
+      });
     } else {
       errorDialog(content: AppLocalizations.text(LangKey.notInputSearch));
     }
@@ -417,14 +429,15 @@ class _ConversationInformationScreenState
   }
 
   bool isShowListSearch = false;
+
   Widget listCustomerSearch() {
     if (!isShowListSearch || customerAccountSearch == null) return SizedBox();
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10.0),
       child: Container(
-        height:
-            300, // Hoặc MediaQuery.of(context).size.height * 0.5 để phù hợp với màn hình
+        height: 300,
+        // Hoặc MediaQuery.of(context).size.height * 0.5 để phù hợp với màn hình
         child: ListView.builder(
           itemCount: customerAccountSearch!.length,
           itemBuilder: (context, index) {
@@ -650,67 +663,65 @@ class _ConversationInformationScreenState
   }
 
   Widget actionChatHubView() {
-    return Expanded(
-      child: DefaultTabController(
-        length: 3,
-        child: Column(
-          children: [
-            if (ChatConnection.isChatHub) const SizedBox(height: 10.0),
-            if (customerAccount?.data != null) _customerAccount(),
-            listCustomerSearch(),
-            const Padding(
-              padding: EdgeInsets.only(bottom: 5.0),
-              child: Divider(height: 1, color: Color(0xFFE5E5E5)),
+    return DefaultTabController(
+      length: 3,
+      child: Column(
+        children: [
+          if (ChatConnection.isChatHub) const SizedBox(height: 10.0),
+          if (customerAccount?.data != null) _customerAccount(),
+          listCustomerSearch(),
+          const Padding(
+            padding: EdgeInsets.only(bottom: 5.0),
+            child: Divider(height: 1, color: Color(0xFFE5E5E5)),
+          ),
+          Container(
+            height: 40.0,
+            width: MediaQuery.of(context).size.width * 0.95,
+            child: TabBar(
+              labelColor: HexColor.fromHex('#0067AC'),
+              dividerColor: Colors.white,
+              dividerHeight: 0,
+              indicatorColor: Colors.blue,
+              tabs: [
+                Tab(
+                  child: AutoSizeText(
+                    AppLocalizations.text(LangKey.note_function),
+                    minFontSize: 10,
+                    maxFontSize: 20,
+                  ),
+                ),
+                Tab(
+                  child: AutoSizeText(
+                    AppLocalizations.text(LangKey.note_info),
+                    minFontSize: 10,
+                    maxFontSize: 20,
+                  ),
+                ),
+                Tab(
+                  child: AutoSizeText(
+                    AppLocalizations.text(LangKey.note),
+                    minFontSize: 10,
+                    maxFontSize: 20,
+                  ),
+                ),
+              ],
             ),
-            Container(
-              height: 40.0,
-              width: MediaQuery.of(context).size.width * 0.95,
-              child: TabBar(
-                labelColor: HexColor.fromHex('#0067AC'),
-                dividerColor: Colors.white,
-                dividerHeight: 0,
-                indicatorColor: Colors.blue,
-                tabs: [
-                  Tab(
-                    child: AutoSizeText(
-                      AppLocalizations.text(LangKey.note_function),
-                      minFontSize: 10,
-                      maxFontSize: 20,
-                    ),
-                  ),
-                  Tab(
-                    child: AutoSizeText(
-                      AppLocalizations.text(LangKey.note_info),
-                      minFontSize: 10,
-                      maxFontSize: 20,
-                    ),
-                  ),
-                  Tab(
-                    child: AutoSizeText(
-                      AppLocalizations.text(LangKey.note),
-                      minFontSize: 10,
-                      maxFontSize: 20,
-                    ),
-                  ),
-                ],
-              ),
+          ),
+          Expanded(
+            child: TabBarView(
+              children: [
+                _chatFunction(),
+                _chatInfo(),
+                _ChatNoteTab(
+                  bloc: _bloc,
+                  roomData: widget.roomData,
+                  chatMessage: widget.chatMessage,
+                  reloadNotes: () => _bloc.getNotes(widget.roomData.sId!),
+                ),
+              ],
             ),
-            Expanded(
-              child: TabBarView(
-                children: [
-                  _chatFunction(),
-                  _chatInfo(),
-                  _ChatNoteTab(
-                    bloc: _bloc,
-                    roomData: widget.roomData,
-                    chatMessage: widget.chatMessage,
-                    reloadNotes: () => _bloc.getNotes(widget.roomData.sId!),
-                  ),
-                ],
-              ),
-            )
-          ],
-        ),
+          )
+        ],
       ),
     );
   }
