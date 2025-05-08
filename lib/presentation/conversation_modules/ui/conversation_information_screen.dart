@@ -57,18 +57,18 @@ class _ConversationInformationScreenState
   bool expandedSocialInfo = false;
   late ConversationBloc _bloc;
   final chatbotService = ChatbotService();
-
+  late Future<dynamic> customerFuture;
   @override
   void initState() {
     super.initState();
     _bloc = ConversationBloc();
-    _loadAccount();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      _loadAccount();
       if (ChatConnection.isChatHub) {
         _bloc.getNotes(widget.roomData.sId!);
       }
+      _bloc.getSession(widget.roomData.sId!);
     });
-    _bloc.getSession(widget.roomData.sId!);
   }
 
   void _loadAccount() async {
@@ -222,43 +222,40 @@ class _ConversationInformationScreenState
                   Center(
                     child: Container(
                       decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10.0),
-                          border: Border.all(color: Colors.grey.shade400)),
+                        borderRadius: BorderRadius.circular(10.0),
+                        border: Border.all(color: Colors.grey.shade400),
+                      ),
                       height: 40.0,
                       width: MediaQuery.of(context).size.width * 0.85,
                       child: Row(
                         children: [
-                          Container(
-                            width: 10.0,
-                          ),
+                          const SizedBox(width: 10.0),
                           Expanded(
-                              child: TextField(
-                            onTap: () {
-                              isShowListSearch = false;
-                              setState(() {});
-                            },
-                            decoration: InputDecoration.collapsed(
-                                hintText: AppLocalizations.text(
-                                    LangKey.inputCustomerHint)),
-                            onSubmitted: (value) {
-                              searchCustomer(value);
-                            },
-                            controller: _searchController,
-                          )),
-                          Container(
-                            width: 5.0,
-                          ),
-                          InkWell(
+                            child: TextField(
                               onTap: () {
-                                searchCustomer(_searchController.text);
+                                setState(() {
+                                  isShowListSearch = false;
+                                });
                               },
-                              child: const Icon(
-                                Icons.search_outlined,
-                                color: Colors.blue,
-                              )),
-                          Container(
-                            width: 5.0,
+                              decoration: InputDecoration.collapsed(
+                                hintText: AppLocalizations.text(
+                                    LangKey.inputCustomerHint),
+                              ),
+                              onSubmitted: (value) {
+                                searchCustomer(value);
+                              },
+                              controller: _searchController,
+                            ),
                           ),
+                          const SizedBox(width: 5.0),
+                          InkWell(
+                            onTap: () {
+                              searchCustomer(_searchController.text);
+                            },
+                            child: const Icon(Icons.search_outlined,
+                                color: Colors.blue),
+                          ),
+                          const SizedBox(width: 5.0),
                         ],
                       ),
                     ),

@@ -1467,13 +1467,14 @@ class _RoomListScreenState extends State<RoomListScreen>
   Room? roomListSearch;
 
   Owner? _ownerChat;
-
   @override
   void initState() {
     super.initState();
-    _getRooms();
-    checkUserToken();
-    _listViewController = ScrollController()..addListener(_scrollListener);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _getRooms();
+      checkUserToken();
+      _listViewController = ScrollController()..addListener(_scrollListener);
+    });
   }
 
   @override
