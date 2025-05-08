@@ -35,17 +35,17 @@ class Data {
 
   Data(
       {customerId,
-        customerCode,
-        fullName,
-        phone,
-        phone2,
-        address,
-        fullAddress,
-        email,
-        mappingId,
-        customerLeadId,
-        customerLeadCode,
-        type});
+      customerCode,
+      fullName,
+      phone,
+      phone2,
+      address,
+      fullAddress,
+      email,
+      mappingId,
+      customerLeadId,
+      customerLeadCode,
+      type});
 
   Data.fromJson(Map<String, dynamic> json) {
     customerId = int.tryParse(json['customer_id'].toString());
@@ -79,21 +79,20 @@ class Data {
     return data;
   }
 
-  String getName(){
-    return fullName??"";
+  String getName() {
+    return fullName ?? "";
   }
 
   String getAvatarName() {
     String avatarName = '';
     String? fullNameResult = fullName?.replaceAll(RegExp('[^A-Za-z0-9]'), '');
-    if(fullNameResult != null) {
+    if (fullNameResult != null) {
       avatarName += fullNameResult[0].toUpperCase();
-      if(fullNameResult.contains(' ')) {
+      if (fullNameResult.contains(' ')) {
         final splits = fullNameResult.split(' ');
         avatarName += splits[1][0];
-      }
-      else {
-        if(fullNameResult.length >= 2) {
+      } else {
+        if (fullNameResult.length >= 2) {
           avatarName += fullNameResult[1];
         }
       }

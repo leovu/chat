@@ -901,15 +901,9 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                     itemScrollController.jumpTo(index: 0);
                   },
                   child: !widget.data.isGroup!
-                      ? widget.data.room_avatar == null
+                      ? (widget.data.room_avatar!.shieldedID != null &&
+                              widget.data.room_avatar!.shieldedID != '')
                           ? CircleAvatar(
-                              radius: 18.0,
-                              child: Text(
-                                widget.data.owner!.getAvatarName(),
-                                style: const TextStyle(color: Colors.white),
-                              ),
-                            )
-                          : CircleAvatar(
                               radius: 18.0,
                               backgroundImage: CachedNetworkImageProvider(
                                   '${HTTPConnection.domain}api/images/${widget.data.shieldedID}/256/${ChatConnection.brandCode!}',
@@ -918,7 +912,15 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                                   }),
                               backgroundColor: Colors.transparent,
                             )
-                      : widget.data.room_avatar == null
+                          : CircleAvatar(
+                              radius: 18.0,
+                              child: Text(
+                                widget.data.owner!.getAvatarName(),
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                            )
+                      : (widget.data.room_avatar!.shieldedID == null &&
+                              widget.data.room_avatar!.shieldedID == '')
                           ? CircleAvatar(
                               radius: 18.0,
                               child: Text(
@@ -950,270 +952,10 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (tagByUser != null &&
-                  tagByUser?.data != null &&
-                  (ChatConnection.isChatHub && widget.data.isGroup == false))
-                Container(
-                  width: MediaQuery.of(context).size.width,
-                  color: Colors.white,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                          child: Padding(
-                              padding: const EdgeInsets.only(top: 10.0),
-                              child: !isShowUserTag
-                                  ? Container()
-                                  : Wrap(
-                                      children: tagByUser!.data!
-                                          .map((e) => _tagChip(e))
-                                          .toList()))),
-                      Row(
-                        children: [
-                          isShowUserTag
-                              ? Padding(
-                                  padding: const EdgeInsets.only(
-                                      left: 5.0, right: 5.0, bottom: 5.0),
-                                  child: Container(
-                                    // height: 30.0,
-                                    decoration: BoxDecoration(
-                                        border: Border.all(
-                                            color: HexColor.fromHex('#0067AC')),
-                                        color: Colors.white,
-                                        borderRadius:
-                                            BorderRadius.circular(10.0)),
-                                    child: InkWell(
-                                      onTap: () async {
-                                        await Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  SelectTagsScreen(
-                                                items: tagByUser!.data ?? [],
-                                                onSave: (selectedItems) async {
-                                                  List<String> selectedIds =
-                                                      selectedItems
-                                                          .where((e) =>
-                                                              e.sId !=
-                                                              null) // Đảm bảo không null
-                                                          .map((e) => e.sId!)
-                                                          .toList();
-                                                  await ChatConnection
-                                                      .updateTag(
-                                                          selectedIds,
-                                                          widget.data.owner!
-                                                              .sId!);
-                                                },
-                                              ),
-                                            ));
-                                        _getTagList();
-                                      },
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(
-                                            top: 5.0,
-                                            left: 5.0,
-                                            right: 5.0,
-                                            bottom: 5),
-                                        child: Icon(
-                                          Icons.add,
-                                          color: HexColor.fromHex('#0067AC'),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                )
-                              : Container(),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 5.0),
-                            child: InkWell(
-                              splashColor: Colors.transparent,
-                              onTap: () {
-                                setState(() {
-                                  isShowUserTag = !isShowUserTag;
-                                });
-                              },
-                              child: Container(
-                                  color: Colors.white,
-                                  constraints:
-                                      const BoxConstraints(minHeight: 30),
-                                  child: Icon(
-                                      isShowUserTag
-                                          ? Icons.remove_red_eye
-                                          : Icons.remove_red_eye_outlined,
-                                      color: HexColor.fromHex('#0067AC'))),
-                            ),
-                          ),
-                        ],
-                      )
-                    ],
-                  ),
-                ),
-              if (data?.room?.pinMessage != null)
-                Container(
-                    color: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 10.0, horizontal: 15.0),
-                    child: Row(
-                      children: [
-                        const Padding(
-                          padding: EdgeInsets.only(right: 8.0),
-                          child: Icon(
-                            Icons.chat_outlined,
-                            color: Color(0xff5686E1),
-                          ),
-                        ),
-                        Expanded(
-                            child: InkWell(
-                          onTap: () {
-                            try {
-                              int? index =
-                                  listIdMessages[data?.room?.pinMessage?.sId]!;
-                              scroll(index);
-                            } catch (_) {}
-                          },
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              AutoSizeText(
-                                '${data?.room?.pinMessage?.author?.firstName} ${data?.room?.pinMessage?.author?.lastName}',
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    color: Color(0xff5686E1)),
-                              ),
-                              data?.room?.pinMessage?.type == 'image'
-                                  ? SizedBox(
-                                      height:
-                                          MediaQuery.of(context).size.width *
-                                              0.15,
-                                      width: MediaQuery.of(context).size.width *
-                                          0.15,
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(3.0),
-                                        child: CachedNetworkImage(
-                                          fit: BoxFit.cover,
-                                          imageUrl:
-                                              '${HTTPConnection.domain}api/images/${data?.room?.pinMessage?.content}/256/${ChatConnection.brandCode!}',
-                                          httpHeaders: {
-                                            'brand-code':
-                                                ChatConnection.brandCode!
-                                          },
-                                          placeholder: (context, url) =>
-                                              const CupertinoActivityIndicator(),
-                                          errorWidget: (context, url, error) =>
-                                              const Icon(Icons.error),
-                                        ),
-                                      ),
-                                    )
-                                  : checkTagWidget(
-                                      data?.room?.pinMessage?.content ?? ''),
-                            ],
-                          ),
-                        )),
-                        Container(
-                          margin: const EdgeInsets.only(left: 16),
-                          height: 30,
-                          width: 30,
-                          child: IconButton(
-                            icon: const Icon(
-                              Icons.close,
-                              color: Colors.grey,
-                              size: 20.0,
-                            ),
-                            onPressed: () async {
-                              setState(() {
-                                data?.room?.pinMessage = null;
-                              });
-                              await ChatConnection.pinMessage(null, data?.room);
-                            },
-                            padding: EdgeInsets.zero,
-                          ),
-                        )
-                      ],
-                    )),
-              if (data?.room?.pinMessage != null)
-                Container(
-                  height: 2.0,
-                  color: Colors.grey.shade300,
-                ),
-              Expanded(
-                  child: isInitScreen
-                      ? Center(
-                          child: Platform.isAndroid
-                              ? const CircularProgressIndicator()
-                              : const CupertinoActivityIndicator())
-                      : Chat(
-                          note: note,
-                          source: widget.source,
-                          messages: _messages,
-                          onMessageStatusTap: (context, message) {
-                            if (message.metadata != null) {
-                              ScaffoldMessenger.of(context)
-                                  .hideCurrentSnackBar();
-                              final snackBar = SnackBar(
-                                  content: AutoSizeText(
-                                      message.metadata!['error_message']));
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(snackBar);
-                            }
-                          },
-                          isGroup: data?.room?.isGroup ?? false,
-                          people: widget.data.people,
-                          progressUpdate: (value) {
-                            progress = value;
-                            if (progress < 0.1 && newMessage) {
-                              setState(() {
-                                newMessage = false;
-                              });
-                            }
-                          },
-                          onAvatarTap: (types.User user) async {
-                            if (user.id != ChatConnection.user!.id &&
-                                data!.room!.isGroup!) {
-                              showLoading();
-                              r.Rooms? rooms =
-                                  await ChatConnection.createRoom(user.id);
-                              Navigator.of(context).pop();
-                              await Navigator.of(context, rootNavigator: true)
-                                  .pushReplacement(
-                                MaterialPageRoute(
-                                    builder: (context) => ChatScreen(
-                                        data: rooms!, source: rooms.source),
-                                    settings: const RouteSettings(
-                                        name: 'chat_screen')),
-                              );
-                              try {
-                                ChatConnection.refreshRoom.call();
-                                ChatConnection.refreshFavorites.call();
-                                ChatConnection.refreshContact.call();
-                              } catch (_) {}
-                            }
-                          },
-                          onStickerPressed: _onStickerPressed,
-                          showUserAvatars: true,
-                          showUserNames: true,
-                          onAttachmentPressed: _handleAttachmentPressed,
-                          onMessageTap: _handleMessageTap,
-                          onMessageLongPress: _handleMessageLongPress,
-                          onPreviewDataFetched: _handlePreviewDataFetched,
-                          onCameraPressed: _handleCameraSelection,
-                          onSendPressed: _handleSendPressed,
-                          user: _user,
-                          isSearchChat: _isSearchMessage,
-                          scrollPhysics: const ClampingScrollPhysics(),
-                          itemPositionsListener: itemPositionsListener,
-                          itemScrollController: itemScrollController,
-                          listIdMessages: listIdMessages,
-                          searchController: _controllerSearch,
-                          chatController: chatController,
-                          loadMore: loadMore,
-                          builder:
-                              (BuildContext context, void Function() method) {
-                            focusTextField = method;
-                          },
-                          canSend: checkQuota,
-                          roomData: widget.data,
-                        )),
-              _resultSearchChat(),
+              _tagListWidget(),
+              _pinnedMessageWidget(),
+              Expanded(child: _messageListWidget()),
+              _searchResultWidget(),
             ],
           ),
         ),
@@ -1228,63 +970,259 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     );
   }
 
-  Widget _tagChip(Data e) {
-    if (e.isActive == false) {
-      return Container();
-    } else {
-      return Padding(
-        padding: const EdgeInsets.only(left: 5.0, right: 5.0, bottom: 5.0),
-        child: Container(
-          height: 30.0,
-          decoration: BoxDecoration(
-              color: HexColor.fromHex(
-                  (e.color != null && e.color != 'null') ? e.color : '#0067AC'),
-              borderRadius: BorderRadius.circular(10.0)),
-          child: Padding(
-            padding: const EdgeInsets.only(top: 5.0, left: 5.0, right: 5.0),
-            child: AutoSizeText(
-              e.name ?? '',
-              style: const TextStyle(color: Colors.white),
-            ),
-          ),
+  Widget _tagListWidget() {
+    if (tagByUser == null ||
+        tagByUser?.data == null ||
+        !(ChatConnection.isChatHub && widget.data.isGroup == false)) {
+      return const SizedBox.shrink();
+    }
+    return Container(
+      width: MediaQuery.of(context).size.width,
+      color: Colors.white,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+              child: Padding(
+                  padding: const EdgeInsets.only(top: 10.0),
+                  child: !isShowUserTag
+                      ? Container()
+                      : Wrap(
+                          children: tagByUser!.data!
+                              .map((e) => _tagChip(e))
+                              .toList()))),
+          Row(
+            children: [
+              isShowUserTag
+                  ? Padding(
+                      padding: const EdgeInsets.only(
+                          left: 5.0, right: 5.0, bottom: 5.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                            border:
+                                Border.all(color: HexColor.fromHex('#0067AC')),
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10.0)),
+                        child: InkWell(
+                          onTap: () async {
+                            await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => SelectTagsScreen(
+                                    items: tagByUser!.data ?? [],
+                                    onSave: (selectedItems) async {
+                                      List<String> selectedIds = selectedItems
+                                          .where((e) => e.sId != null)
+                                          .map((e) => e.sId!)
+                                          .toList();
+                                      await ChatConnection.updateTag(
+                                          selectedIds, widget.data.owner!.sId!);
+                                    },
+                                  ),
+                                ));
+                            _getTagList();
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                                top: 5.0, left: 5.0, right: 5.0, bottom: 5),
+                            child: Icon(
+                              Icons.add,
+                              color: HexColor.fromHex('#0067AC'),
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                  : Container(),
+              Padding(
+                padding: const EdgeInsets.only(right: 5.0),
+                child: InkWell(
+                  splashColor: Colors.transparent,
+                  onTap: () {
+                    setState(() {
+                      isShowUserTag = !isShowUserTag;
+                    });
+                  },
+                  child: Container(
+                      color: Colors.white,
+                      constraints: const BoxConstraints(minHeight: 30),
+                      child: Icon(
+                          isShowUserTag
+                              ? Icons.remove_red_eye
+                              : Icons.remove_red_eye_outlined,
+                          color: HexColor.fromHex('#0067AC'))),
+                ),
+              ),
+            ],
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _pinnedMessageWidget() {
+    if (data?.room?.pinMessage == null) return const SizedBox.shrink();
+    return Column(
+      children: [
+        Container(
+            color: Colors.white,
+            padding:
+                const EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
+            child: Row(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.only(right: 8.0),
+                  child: Icon(
+                    Icons.chat_outlined,
+                    color: Color(0xff5686E1),
+                  ),
+                ),
+                Expanded(
+                    child: InkWell(
+                  onTap: () {
+                    try {
+                      int? index = listIdMessages[data?.room?.pinMessage?.sId]!;
+                      scroll(index);
+                    } catch (_) {}
+                  },
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AutoSizeText(
+                        '${data?.room?.pinMessage?.author?.firstName} ${data?.room?.pinMessage?.author?.lastName}',
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xff5686E1)),
+                      ),
+                      data?.room?.pinMessage?.type == 'image'
+                          ? SizedBox(
+                              height: MediaQuery.of(context).size.width * 0.15,
+                              width: MediaQuery.of(context).size.width * 0.15,
+                              child: Padding(
+                                padding: const EdgeInsets.all(3.0),
+                                child: CachedNetworkImage(
+                                  fit: BoxFit.cover,
+                                  imageUrl:
+                                      '${HTTPConnection.domain}api/images/${data?.room?.pinMessage?.content}/256/${ChatConnection.brandCode!}',
+                                  httpHeaders: {
+                                    'brand-code': ChatConnection.brandCode!
+                                  },
+                                  placeholder: (context, url) =>
+                                      const CupertinoActivityIndicator(),
+                                  errorWidget: (context, url, error) =>
+                                      const Icon(Icons.error),
+                                ),
+                              ),
+                            )
+                          : checkTagWidget(
+                              data?.room?.pinMessage?.content ?? ''),
+                    ],
+                  ),
+                )),
+                Container(
+                  margin: const EdgeInsets.only(left: 16),
+                  height: 30,
+                  width: 30,
+                  child: IconButton(
+                    icon: const Icon(
+                      Icons.close,
+                      color: Colors.grey,
+                      size: 20.0,
+                    ),
+                    onPressed: () async {
+                      setState(() {
+                        data?.room?.pinMessage = null;
+                      });
+                      await ChatConnection.pinMessage(null, data?.room);
+                    },
+                    padding: EdgeInsets.zero,
+                  ),
+                )
+              ],
+            )),
+        Container(
+          height: 2.0,
+          color: Colors.grey.shade300,
         ),
+      ],
+    );
+  }
+
+  Widget _messageListWidget() {
+    if (isInitScreen) {
+      return Center(
+        child: Platform.isAndroid
+            ? const CircularProgressIndicator()
+            : const CupertinoActivityIndicator(),
       );
     }
-  }
-
-  void loadMore() async {
-    List<c.Messages>? value = await ChatConnection.loadMoreMessageRoom(
-        ChatConnection.roomId!,
-        _messages.last.id,
-        data!.room!.messages!.last.date!);
-    if (value != null) {
-      List<c.Messages>? messages = value;
-      if (messages.isNotEmpty) {
-        data?.room?.messages?.addAll(messages);
-        List<types.Message> values = [];
-        for (var e in messages) {
-          Map<String, dynamic> result =
-              e.toMessageJson(messageSeen: data?.room?.messageSeen);
-          if (e.author?.sId != null && e.sId != null) {
-            values.add(types.Message.fromJson(result));
-          }
+    return Chat(
+      note: note,
+      source: widget.source,
+      messages: _messages,
+      onMessageStatusTap: (context, message) {
+        if (message.metadata != null) {
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          final snackBar = SnackBar(
+              content: AutoSizeText(message.metadata!['error_message']));
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
         }
-        if (mounted) {
+      },
+      isGroup: data?.room?.isGroup ?? false,
+      people: widget.data.people,
+      progressUpdate: (value) {
+        progress = value;
+        if (progress < 0.1 && newMessage) {
           setState(() {
-            _messages.addAll(values);
-            Future.delayed(const Duration(seconds: 2))
-                .then((value) => ChatConnection.isLoadMore = false);
+            newMessage = false;
           });
         }
-      } else {
-        ChatConnection.isLoadMore = false;
-      }
-    } else {
-      ChatConnection.isLoadMore = false;
-    }
+      },
+      onAvatarTap: (types.User user) async {
+        if (user.id != ChatConnection.user!.id && data!.room!.isGroup!) {
+          showLoading();
+          r.Rooms? rooms = await ChatConnection.createRoom(user.id);
+          Navigator.of(context).pop();
+          await Navigator.of(context, rootNavigator: true).pushReplacement(
+            MaterialPageRoute(
+                builder: (context) =>
+                    ChatScreen(data: rooms!, source: rooms.source),
+                settings: const RouteSettings(name: 'chat_screen')),
+          );
+          try {
+            ChatConnection.refreshRoom.call();
+            ChatConnection.refreshFavorites.call();
+            ChatConnection.refreshContact.call();
+          } catch (_) {}
+        }
+      },
+      onStickerPressed: _onStickerPressed,
+      showUserAvatars: true,
+      showUserNames: true,
+      onAttachmentPressed: _handleAttachmentPressed,
+      onMessageTap: _handleMessageTap,
+      onMessageLongPress: _handleMessageLongPress,
+      onPreviewDataFetched: _handlePreviewDataFetched,
+      onCameraPressed: _handleCameraSelection,
+      onSendPressed: _handleSendPressed,
+      user: _user,
+      isSearchChat: _isSearchMessage,
+      scrollPhysics: const ClampingScrollPhysics(),
+      itemPositionsListener: itemPositionsListener,
+      itemScrollController: itemScrollController,
+      listIdMessages: listIdMessages,
+      searchController: _controllerSearch,
+      chatController: chatController,
+      loadMore: loadMore,
+      builder: (BuildContext context, void Function() method) {
+        focusTextField = method;
+      },
+      canSend: checkQuota,
+      roomData: widget.data,
+    );
   }
 
-  Widget _resultSearchChat() {
+  Widget _searchResultWidget() {
     return Visibility(
         visible: _isSearchMessage,
         child: Container(
@@ -1518,45 +1456,43 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                 }
               },
             ),
-          ChatConnection.isChatHub
-              ? IconButton(
-                  visualDensity:
-                      const VisualDensity(horizontal: -4.0, vertical: -4.0),
-                  padding: EdgeInsets.zero,
-                  icon: const Icon(
-                    Icons.format_list_bulleted,
-                    color: Colors.black,
-                  ),
-                  onPressed: () async {
-                    showLoading();
-                    // data = await ChatConnection.joinRoom(widget.data.sId!,
-                    //     refresh: true);
-                    Navigator.of(context).pop();
-                    await Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => ConversationInformationScreen(
-                            isChatBot: widget.isChatbot,
-                            roomData: widget.data,
-                            chatMessage: data,
-                            groupOwner:
-                                !ChatConnection.isChatHub ? groupOwner1 : null),
-                        settings: const RouteSettings(
-                            name: 'conversation_information_screen')));
-                    _loadMessages();
-                    // if (ChatConnection.isChatHub &&
-                    //     widget.data.isGroup == false)
-                    await _getTagList();
-                    setState(() {});
-                    // if(getPeople(widget.data.people).isUpdateTagList) {
-                    //   getPeople(widget.data.people).isUpdateTagList = false;
-                    //   await _getTagList();
-                    //   setState(() {});
-                    // }
-                    // else {
-                    //   setState(() {});
-                    // }
-                  },
-                )
-              : Container()
+          IconButton(
+            visualDensity:
+                const VisualDensity(horizontal: -4.0, vertical: -4.0),
+            padding: EdgeInsets.zero,
+            icon: const Icon(
+              Icons.format_list_bulleted,
+              color: Colors.black,
+            ),
+            onPressed: () async {
+              showLoading();
+              // data = await ChatConnection.joinRoom(widget.data.sId!,
+              //     refresh: true);
+              Navigator.of(context).pop();
+              await Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => ConversationInformationScreen(
+                      isChatBot: widget.isChatbot,
+                      roomData: widget.data,
+                      chatMessage: data,
+                      groupOwner:
+                          !ChatConnection.isChatHub ? groupOwner1 : null),
+                  settings: const RouteSettings(
+                      name: 'conversation_information_screen')));
+              _loadMessages();
+              // if (ChatConnection.isChatHub &&
+              //     widget.data.isGroup == false)
+              await _getTagList();
+              setState(() {});
+              // if(getPeople(widget.data.people).isUpdateTagList) {
+              //   getPeople(widget.data.people).isUpdateTagList = false;
+              //   await _getTagList();
+              //   setState(() {});
+              // }
+              // else {
+              //   setState(() {});
+              // }
+            },
+          )
         ],
         title: SizedBox(
           height: 50.0,
@@ -1573,21 +1509,95 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
-                child: widget.data.room_avatar == null
-                    ? CircleAvatar(
-                        radius: 25.0,
-                        child: Text(
-                          widget.data.getAvatarGroupName(),
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                      )
-                    : CircleAvatar(
-                        radius: 25.0,
-                        backgroundImage: CachedNetworkImageProvider(
-                            '${HTTPConnection.domain}api/images/${widget.data.room_avatar!.shieldedID}/256/${ChatConnection.brandCode!}',
-                            headers: {'brand-code': ChatConnection.brandCode!}),
-                        backgroundColor: Colors.transparent,
-                      ),
+                child: !ChatConnection.isChatHub
+                    ? !widget.data.isGroup!
+                        // ? (widget.data.owner?.picture?.isEmpty ?? true)
+                        ? (extractOwner(widget.data)!.picture?.isEmpty ?? true)
+                            ? CircleAvatar(
+                                radius: 25.0,
+                                child: Text(
+                                  extractOwner(widget.data)!.getAvatarName() ??
+                                      "",
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                              )
+                            : CircleAvatar(
+                                radius: 25.0,
+                                backgroundImage: CachedNetworkImageProvider(
+                                  '${HTTPConnection.domain}api/images/${widget.data.room_avatar!.shieldedID}/256/${ChatConnection.brandCode!}',
+                                  headers: {
+                                    'brand-code': ChatConnection.brandCode!
+                                  },
+                                ),
+                                backgroundColor: Colors.transparent,
+                              )
+                        : widget.data.room_avatar == null
+                            ? CircleAvatar(
+                                radius: 25.0,
+                                child: Text(
+                                  widget.data.getAvatarGroupName(),
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                              )
+                            : CircleAvatar(
+                                radius: 25.0,
+                                backgroundImage: CachedNetworkImageProvider(
+                                    '${HTTPConnection.domain}api/images/${widget.data.room_avatar!.shieldedID}/256/${ChatConnection.brandCode!}',
+                                    headers: {
+                                      'brand-code': ChatConnection.brandCode!
+                                    }),
+                                backgroundColor: Colors.transparent,
+                              )
+                    : widget.data.isGroup == false
+                        ? widget.data.owner!.avatar == null
+                            ? (widget.data.shieldedID != '' &&
+                                    widget.data.shieldedID != null)
+                                ? CircleAvatar(
+                                    radius: 25.0,
+                                    backgroundImage: CachedNetworkImageProvider(
+                                        '${HTTPConnection.domain}api/images/${widget.data.shieldedID}/256/${ChatConnection.brandCode!}',
+                                        headers: {
+                                          'brand-code':
+                                              ChatConnection.brandCode!
+                                        }),
+                                    backgroundColor: Colors.transparent,
+                                  )
+                                : CircleAvatar(
+                                    radius: 25.0,
+                                    child: Text(
+                                      // widget.data.owner!.avatar!,
+                                      widget.data.owner!.getAvatarName(),
+                                      style:
+                                          const TextStyle(color: Colors.white),
+                                    ),
+                                  )
+                            : CircleAvatar(
+                                radius: 25.0,
+                                backgroundImage: CachedNetworkImageProvider(
+                                    widget.data.owner!.avatar!,
+                                    headers: {
+                                      'brand-code': ChatConnection.brandCode!
+                                    }),
+                                backgroundColor: Colors.transparent,
+                              )
+                        : widget.data.avatar == null
+                            ? CircleAvatar(
+                                radius: 25.0,
+                                child: Text(
+                                  // widget.data.owner!.avatar!,
+                                  widget.data.getAvatarGroupName(),
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                              )
+                            : CircleAvatar(
+                                radius: 25.0,
+                                backgroundImage: CachedNetworkImageProvider(
+                                    widget.data.avatar!,
+                                    headers: {
+                                      'brand-code': ChatConnection.brandCode!
+                                    }),
+                                backgroundColor: Colors.transparent,
+                              ),
               ),
               Expanded(
                 child: Padding(
@@ -1737,6 +1747,62 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       maxLines: 2,
     );
     return _widget;
+  }
+
+  Widget _tagChip(Data e) {
+    if (e.isActive == false) {
+      return Container();
+    } else {
+      return Padding(
+        padding: const EdgeInsets.only(left: 5.0, right: 5.0, bottom: 5.0),
+        child: Container(
+          height: 30.0,
+          decoration: BoxDecoration(
+              color: HexColor.fromHex(
+                  (e.color != null && e.color != 'null') ? e.color : '#0067AC'),
+              borderRadius: BorderRadius.circular(10.0)),
+          child: Padding(
+            padding: const EdgeInsets.only(top: 5.0, left: 5.0, right: 5.0),
+            child: AutoSizeText(
+              e.name ?? '',
+              style: const TextStyle(color: Colors.white),
+            ),
+          ),
+        ),
+      );
+    }
+  }
+
+  void loadMore() async {
+    List<c.Messages>? value = await ChatConnection.loadMoreMessageRoom(
+        ChatConnection.roomId!,
+        _messages.last.id,
+        data!.room!.messages!.last.date!);
+    if (value != null) {
+      List<c.Messages>? messages = value;
+      if (messages.isNotEmpty) {
+        data?.room?.messages?.addAll(messages);
+        List<types.Message> values = [];
+        for (var e in messages) {
+          Map<String, dynamic> result =
+              e.toMessageJson(messageSeen: data?.room?.messageSeen);
+          if (e.author?.sId != null && e.sId != null) {
+            values.add(types.Message.fromJson(result));
+          }
+        }
+        if (mounted) {
+          setState(() {
+            _messages.addAll(values);
+            Future.delayed(const Duration(seconds: 2))
+                .then((value) => ChatConnection.isLoadMore = false);
+          });
+        }
+      } else {
+        ChatConnection.isLoadMore = false;
+      }
+    } else {
+      ChatConnection.isLoadMore = false;
+    }
   }
 }
 

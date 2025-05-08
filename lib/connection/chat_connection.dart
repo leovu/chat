@@ -299,21 +299,32 @@ class ChatConnection {
     return null;
   }
 
-  static Future<bool> customerLink(String userId, int? customerId,
-      int? customerLeadId, String typeCustomer, String mappingId) async {
+  static Future<bool> customerLink(
+    String userId,
+    int? customerId,
+    String? typeCustomer,
+    String? mappingId,
+    String? source,
+    String? socialId, {
+    String? customerLeadId = '',
+  }) async {
+    print('@@@@@@@@@@@@@@@@@@@@@@ $customerId');
     print(
         'user_id $userId mapping_id $mappingId  type_customer  $typeCustomer  customer_id $customerId');
     Map<String, dynamic> json = {
       'user_id': userId,
-      'mapping_id': mappingId,
-      'type_customer': typeCustomer
+      'mapping_id': userId,
+      'type_customer': typeCustomer,
+      "customer_id": customerId,
+      "type_social": source,
+      "social_id": socialId
     };
-    if (customerId != null) {
-      json['customer_id'] = customerId;
-    }
-    if (customerLeadId != null) {
-      json['customer_id'] = customerLeadId;
-    }
+    // if (customerId != null) {
+    //   json['customer_id'] = customerId;
+    // }
+    // if (customerLeadId != null) {
+    //   json['customer_id'] = customerLeadId;
+    // }
     ResponseData responseData =
         await connection.post('api/customer/link', json);
     if (responseData.isSuccess) {
@@ -322,8 +333,8 @@ class ChatConnection {
     return false;
   }
 
-  static Future<CustomerAccount?> customerUnlink(
-      String userId, int? customerId, int? customerLeadId) async {
+  static Future<CustomerAccount?> customerUnlink(String userId, int? customerId,
+      {int? customerLeadId}) async {
     Map<String, dynamic> json = {'user_id': userId};
     if (customerId != null) {
       json['customer_id'] = customerId;

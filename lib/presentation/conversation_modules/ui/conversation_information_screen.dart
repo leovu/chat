@@ -20,6 +20,7 @@ import '../../../chat_screen/chat_group_members_screen.dart';
 import '../../../chat_screen/conversation_file_screen.dart';
 import '../../../data_model/room.dart';
 import '../../../data_model/session.dart';
+import '../../chat_module/ui/chat_screen.dart';
 import '../../note_modules/ui/create_note_screen.dart';
 import '../../utils/dialog.dart';
 import '../../utils/formatter.dart';
@@ -72,7 +73,8 @@ class _ConversationInformationScreenState
 
   void _loadAccount() async {
     if (ChatConnection.isChatHub) {
-      customerAccount = await ChatConnection.detect(widget.roomData.sId ?? '');
+      customerAccount =
+          await ChatConnection.detect(widget.roomData.owner!.sId ?? '');
     }
     isInitScreen = false;
     setState(() {});
@@ -149,9 +151,8 @@ class _ConversationInformationScreenState
                         showLoading();
                         // r.People info = getPeople(widget.roomData.people);
                         await ChatConnection.customerUnlink(
-                            widget.roomData.sId ?? '',
-                            customerAccount?.data?.customerId,
-                            customerAccount?.data?.customerLeadId);
+                            widget.roomData.owner!.sId!,
+                            customerAccount!.data!.customerId);
                         Navigator.of(context).pop();
                         isShowListSearch = false;
                         customerAccountSearch = null;
@@ -293,7 +294,9 @@ class _ConversationInformationScreenState
                         child: Platform.isAndroid
                             ? const CircularProgressIndicator()
                             : const CupertinoActivityIndicator()))
-                : actionChatHubView(),
+                : ChatConnection.isChatHub
+                    ? actionChatHubView()
+                    : SizedBox()
           ],
         ),
       ),
@@ -301,6 +304,7 @@ class _ConversationInformationScreenState
   }
 
   void editName() async {
+    print('22222222222222222222222222222222');
     if (ChatConnection.isChatHub) {
       if (ChatConnection.editCustomerLead != null) {
         await ChatConnection.editCustomerLead!(
@@ -413,271 +417,236 @@ class _ConversationInformationScreenState
   }
 
   bool isShowListSearch = false;
-
   Widget listCustomerSearch() {
+    if (!isShowListSearch || customerAccountSearch == null) return SizedBox();
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (isShowListSearch)
-            Column(
-              children: customerAccountSearch == null
-                  ? []
-                  : customerAccountSearch!
-                      .map((e) => Padding(
-                            padding: const EdgeInsets.only(bottom: 10.0),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                  color: const Color(0xFF28A17D),
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  border: Border.all(color: Colors.grey)),
-                              child: Row(
+      child: Container(
+        height:
+            300, // Hoặc MediaQuery.of(context).size.height * 0.5 để phù hợp với màn hình
+        child: ListView.builder(
+          itemCount: customerAccountSearch!.length,
+          itemBuilder: (context, index) {
+            final e = customerAccountSearch![index];
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 10.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFF28A17D),
+                  borderRadius: BorderRadius.circular(10.0),
+                  border: Border.all(color: Colors.grey),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(10),
+                            bottomLeft: Radius.circular(10),
+                          ),
+                        ),
+                        padding: const EdgeInsets.only(left: 10.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(height: 10.0),
+                            Row(
+                              children: [
+                                const Padding(
+                                  padding: EdgeInsets.only(right: 5.0),
+                                  child: Icon(Icons.account_circle_rounded,
+                                      color: Colors.blueAccent),
+                                ),
+                                Expanded(
+                                  child: AutoSizeText(e?.data?.fullName ?? ''),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 8.0),
+                            if (e?.data?.customerCode != null ||
+                                e?.data?.customerLeadCode != null)
+                              Row(
                                 children: [
+                                  const Padding(
+                                    padding: EdgeInsets.only(right: 5.0),
+                                    child: Icon(Icons.code,
+                                        color: Colors.blueAccent),
+                                  ),
                                   Expanded(
-                                      child: Container(
-                                    decoration: const BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(10),
-                                        bottomLeft: Radius.circular(10),
-                                      ),
+                                    child: AutoSizeText(
+                                      e?.data?.customerCode ??
+                                          e?.data?.customerLeadCode ??
+                                          '',
                                     ),
-                                    padding: const EdgeInsets.only(left: 10.0),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Container(
-                                          height: 10.0,
-                                        ),
-                                        Row(
-                                          children: [
-                                            Expanded(
-                                              child: Row(
-                                                children: [
-                                                  const Padding(
-                                                    padding: EdgeInsets.only(
-                                                        right: 5.0),
-                                                    child: Icon(
-                                                      Icons
-                                                          .account_circle_rounded,
-                                                      color: Colors.blueAccent,
-                                                    ),
-                                                  ),
-                                                  Expanded(
-                                                    child: AutoSizeText(
-                                                        e?.data?.fullName ??
-                                                            ''),
-                                                  )
-                                                ],
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 5.0),
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                  color: Colors.orangeAccent,
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          10.0),
-                                                ),
-                                                child: Padding(
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                      vertical: 3.0,
-                                                      horizontal: 8.0),
-                                                  child: AutoSizeText(
-                                                    AppLocalizations.text(
-                                                        e?.data?.type == 'cpo'
-                                                            ? LangKey.cpo
-                                                            : LangKey.customer),
-                                                    style: const TextStyle(
-                                                        color: Colors.white),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        Container(
-                                          height: 8.0,
-                                        ),
-                                        if ((e?.data?.customerCode != null) ||
-                                            (e?.data?.customerLeadCode != null))
-                                          Row(
-                                            children: [
-                                              const Padding(
-                                                padding:
-                                                    EdgeInsets.only(right: 5.0),
-                                                child: Icon(
-                                                  Icons.code,
-                                                  color: Colors.blueAccent,
-                                                ),
-                                              ),
-                                              Expanded(
-                                                child: AutoSizeText(
-                                                  e?.data?.customerCode ??
-                                                      e?.data
-                                                          ?.customerLeadCode ??
-                                                      '',
-                                                  style: const TextStyle(
-                                                      color: Colors.black),
-                                                ),
-                                              )
-                                            ],
-                                          ),
-                                        Container(
-                                          height: 8.0,
-                                        ),
-                                        if ((e?.data?.phone != null) ||
-                                            (e?.data?.phone2 != null))
-                                          Row(
-                                            children: [
-                                              const Padding(
-                                                padding:
-                                                    EdgeInsets.only(right: 5.0),
-                                                child: Icon(
-                                                  Icons.phone,
-                                                  color: Colors.blueAccent,
-                                                ),
-                                              ),
-                                              Expanded(
-                                                child: AutoSizeText(
-                                                    e?.data?.phone ??
-                                                        e?.data?.phone2 ??
-                                                        ''),
-                                              )
-                                            ],
-                                          ),
-                                        Container(
-                                          height: 8.0,
-                                        ),
-                                        if ((e?.data?.email != null))
-                                          Row(
-                                            children: [
-                                              const Padding(
-                                                padding:
-                                                    EdgeInsets.only(right: 5.0),
-                                                child: Icon(
-                                                  Icons.email,
-                                                  color: Colors.blueAccent,
-                                                ),
-                                              ),
-                                              Expanded(
-                                                child: AutoSizeText(
-                                                    e?.data?.email ?? ''),
-                                              )
-                                            ],
-                                          ),
-                                        Container(
-                                          height: 8.0,
-                                        ),
-                                      ],
-                                    ),
-                                  )),
-                                  InkWell(
-                                    onTap: () async {
-                                      print(
-                                          '################################ **********************');
-                                      showLoading();
-                                      // r.People info = getPeople(widget.roomData.people);
-                                      await ChatConnection.customerLink(
-                                          widget.roomData.sId ?? '',
-                                          e?.data?.customerId,
-                                          e?.data?.customerLeadId,
-                                          e?.data?.type ?? '',
-                                          customerAccount?.data?.mappingId ??
-                                              '');
-                                      Navigator.of(context).pop();
-                                      isShowListSearch = false;
-                                      customerAccountSearch = null;
-                                      _loadAccount();
-                                    },
-                                    child: Container(
-                                      width: 70,
-                                      decoration: const BoxDecoration(
-                                        color: Color(0xFF28A17D),
-                                      ),
-                                      child: const Padding(
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 8.0, vertical: 3.0),
-                                        child: Icon(
-                                          Icons.link_outlined,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-                                  )
+                                  ),
                                 ],
                               ),
+                            SizedBox(height: 8.0),
+                            if (e?.data?.phone != null ||
+                                e?.data?.phone2 != null)
+                              Row(
+                                children: [
+                                  const Padding(
+                                    padding: EdgeInsets.only(right: 5.0),
+                                    child: Icon(Icons.phone,
+                                        color: Colors.blueAccent),
+                                  ),
+                                  Expanded(
+                                    child: AutoSizeText(e?.data?.phone ??
+                                        e?.data?.phone2 ??
+                                        ''),
+                                  ),
+                                ],
+                              ),
+                            SizedBox(height: 8.0),
+                            if (e?.data?.email != null)
+                              Row(
+                                children: [
+                                  const Padding(
+                                    padding: EdgeInsets.only(right: 5.0),
+                                    child: Icon(Icons.email,
+                                        color: Colors.blueAccent),
+                                  ),
+                                  Expanded(
+                                    child: AutoSizeText(e?.data?.email ?? ''),
+                                  ),
+                                ],
+                              ),
+                            SizedBox(height: 8.0),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 5.0),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.orangeAccent,
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 3.0, horizontal: 8.0),
+                                child: AutoSizeText(
+                                  AppLocalizations.text(
+                                    e?.data?.type == 'cpo'
+                                        ? LangKey.cpo
+                                        : LangKey.customer,
+                                  ),
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                              ),
                             ),
-                          ))
-                      .toList(),
-            )
-        ],
+                          ],
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () async {
+                        showLoading();
+                        final success = await ChatConnection.customerLink(
+                          widget.roomData.owner!.sId!,
+                          e?.data?.customerId,
+                          e?.data!.type!,
+                          customerAccount!.data!.mappingId!,
+                          widget.roomData.channel!.source,
+                          widget.roomData.channel!.socialChanelId,
+                        );
+                        if (success) {
+                          isShowListSearch = false;
+                          customerAccountSearch = null;
+                          _loadAccount();
+                        }
+                        Navigator.pop(context);
+                      },
+                      child: Container(
+                        width: 70,
+                        color: const Color(0xFF28A17D),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8.0, vertical: 3.0),
+                        child: const Icon(Icons.link_outlined,
+                            color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
       ),
     );
   }
 
   Widget _buildAppropriateAvatar() {
-    String url =
-        '${HTTPConnection.domain}api/images/${widget.roomData.room_avatar?.shieldedID ?? widget.roomData.shieldedID ?? widget.roomData.owner?.picture}/256';
     final isGroup = widget.roomData.isGroup ?? false;
+    final isChatHub = ChatConnection.isChatHub;
+    final owner = extractOwner(widget.roomData);
 
-    if (isGroup) {
-      final avatarUrl = widget.roomData.room_avatar == null
-          ? null
-          : '${HTTPConnection.domain}api/images/${widget.roomData.room_avatar!.shieldedID}/256';
+    final avatarName =
+        customerAccount?.data?.getAvatarName() ?? owner?.getAvatarName() ?? "";
+    final displayName = customerAccount?.data?.getName() ??
+        widget.roomData.owner?.getName() ??
+        "";
+    final brandCode = ChatConnection.brandCode!;
+    final domain = HTTPConnection.domain;
 
-      final onTap = widget.roomData.owner?.sId == ChatConnection.user?.id
-          ? () => editName()
-          : null;
+    if (isChatHub) {
+      // Nhóm 1: Trường hợp là nhóm (Group Chat)
+      if (isGroup) {
+        final roomAvatar = widget.roomData.room_avatar;
+        final avatar = widget.roomData.avatar;
+        final avatarUrl = avatar != null
+            ? avatar
+            : '$domain/api/images/${roomAvatar?.shieldedID}/256/$brandCode';
 
-      return _buildAvatar(
-        widget.roomData.title ?? "",
-        widget.roomData.getAvatarGroupName(),
-        avatarUrl,
-        onTap: onTap,
-      );
+        final onTap = widget.roomData.owner?.sId == ChatConnection.user?.id
+            ? () => editName()
+            : null;
+
+        return _buildAvatar(
+          widget.roomData.room_name ?? '',
+          widget.roomData.getAvatarGroupName(),
+          avatarUrl,
+          onTap: onTap,
+        );
+      }
+
+      if (!isGroup) {
+        String? avatarName = widget.roomData.owner?.getAvatarName();
+        String? avatarUrlWithCustomer;
+        String? shieldedUrl = (widget.roomData.shieldedID != null &&
+                widget.roomData.shieldedID != '')
+            ? '${HTTPConnection.domain}api/images/${widget.roomData.shieldedID}/256/${ChatConnection.brandCode!}'
+            : null;
+
+        if (widget.roomData.owner?.avatar != null) {
+          avatarUrlWithCustomer = widget.roomData.owner!.avatar!;
+        } else if (shieldedUrl != null) {
+          avatarUrlWithCustomer = shieldedUrl;
+        }
+        print('################################  $shieldedUrl');
+
+        return _buildAvatar(
+          '${widget.roomData.owner?.firstName} ${widget.roomData.owner?.lastName}',
+          avatarName!,
+          avatarUrlWithCustomer,
+          onTap: () => editName(),
+        );
+      }
     }
 
-    final hasCustomerType = customerAccount?.data?.type != null;
-    final hasCustomerName = customerAccount?.data?.fullName != null;
+    // Nhóm 3: Mặc định, không có customer => dùng thông tin owner
+    final fallbackAvatarUrl = widget.roomData.avatar != null
+        ? '$domain/api/images/${widget.roomData.room_avatar!.shieldedID}/256/$brandCode'
+        : (owner?.picture?.isNotEmpty == true
+            ? '$domain/api/images/${owner!.picture}/256/$brandCode'
+            : null);
 
-    final displayName = hasCustomerName
-        ? customerAccount!.data!.getName()
-        : widget.roomData.owner?.getName() ?? "";
-
-    final avatarName = hasCustomerName
-        ? customerAccount!.data!.getAvatarName()
-        : widget.roomData.owner?.getAvatarName() ?? "";
-
-    if (hasCustomerType) {
-      final avatarUrl = widget.roomData.room_avatar == null
-          ? null
-          : '${HTTPConnection.domain}api/images/${widget.roomData.shieldedID}/256';
-
-      return _buildAvatar(
-        displayName,
-        avatarName,
-        avatarUrl,
-        onTap: () => editName(),
-      );
-    } else {
-      final avatarUrl = (widget.roomData.room_avatar == null &&
-              widget.roomData.owner?.picture == null)
-          ? null
-          : url;
-
-      return _buildAvatar(
-        displayName,
-        avatarName,
-        avatarUrl,
-      );
-    }
+    return _buildAvatar(
+      displayName,
+      avatarName,
+      fallbackAvatarUrl,
+    );
   }
 
   Widget actionChatHubView() {
@@ -728,16 +697,30 @@ class _ConversationInformationScreenState
             ),
             Expanded(
               child: TabBarView(
-                children: [_chatFunction(), _chatInfo(), _chatNote()],
+                children: [
+                  _chatFunction(),
+                  _chatInfo(),
+                  _ChatNoteTab(
+                    bloc: _bloc,
+                    roomData: widget.roomData,
+                    chatMessage: widget.chatMessage,
+                    reloadNotes: () => _bloc.getNotes(widget.roomData.sId!),
+                  ),
+                ],
               ),
-            ),
+            )
           ],
         ),
       ),
     );
   }
 
-  Widget _chatNote() {
+  Widget _ChatNoteTab({
+    required ConversationBloc bloc,
+    required r.Rooms roomData,
+    required c.ChatMessage? chatMessage,
+    required VoidCallback reloadNotes,
+  }) {
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.only(bottom: 16),
@@ -745,20 +728,16 @@ class _ConversationInformationScreenState
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             _section(
-              const Icon(
-                Icons.note_add,
-                color: Color(0xff5686E1),
-                size: 35,
-              ),
+              const Icon(Icons.note_add, color: Color(0xff5686E1), size: 35),
               AppLocalizations.text(LangKey.create_note),
               () async {
                 await Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => CreateNoteScreen(
-                    roomData: widget.roomData,
-                    chatMessage: widget.chatMessage,
+                    roomData: roomData,
+                    chatMessage: chatMessage,
                   ),
                 ));
-                _bloc.getNotes(widget.roomData.sId!);
+                reloadNotes();
               },
             ),
             Padding(
@@ -769,7 +748,7 @@ class _ConversationInformationScreenState
                   Container(
                     decoration: BoxDecoration(
                         color: HexColor.fromHex('#0067AC'),
-                        borderRadius: BorderRadius.only(
+                        borderRadius: const BorderRadius.only(
                             topRight: Radius.circular(10),
                             topLeft: Radius.circular(10))),
                     width: ScreenInfo.width! * 0.95,
@@ -777,119 +756,29 @@ class _ConversationInformationScreenState
                     child: Center(
                       child: Text(
                         AppLocalizations.text(LangKey.note_content),
-                        style: TextStyle(color: Colors.white),
+                        style: const TextStyle(color: Colors.white),
                       ),
                     ),
                   ),
                   SizedBox(
                     width: ScreenInfo.width! * 0.95,
                     child: StreamBuilder(
-                      stream: _bloc.outputNotes,
+                      stream: bloc.outputNotes,
                       builder: (context, snapshot) {
-                        if (snapshot.hasData) {
+                        if (snapshot.hasData && bloc.notesValue.data != null) {
                           return ListView.builder(
                             shrinkWrap: true,
-                            physics: NeverScrollableScrollPhysics(),
-                            itemCount: _bloc.notesValue.data!.length,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: bloc.notesValue.data!.length,
                             itemBuilder: (context, index) {
-                              final note = _bloc.notesValue.data![index];
-                              return Column(
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                        top: 15,
-                                        bottom: 5,
-                                        left: 10,
-                                        right: 10),
-                                    child: Row(
-                                      children: [
-                                        AutoSizeText(
-                                            '${calculateTimeDiff(note.updatedAt!)} ${AppLocalizations.text(LangKey.note_by)} ${note.createdByStaff!.fullName}'),
-                                        Spacer(),
-                                        InkWell(
-                                          child: Icon(
-                                              Icons.mode_edit_outline_outlined),
-                                          onTap: () async {
-                                            await Navigator.of(context).push(
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        CreateNoteScreen(
-                                                          note: note,
-                                                          roomData:
-                                                              widget.roomData,
-                                                          chatMessage: widget
-                                                              .chatMessage,
-                                                        )));
-                                            _bloc
-                                                .getNotes(widget.roomData.sId!);
-                                          },
-                                        ),
-                                        Container(
-                                          width: 5,
-                                        ),
-                                        InkWell(
-                                          child: Icon(
-                                            Icons.delete_outline,
-                                            color: Colors.red,
-                                          ),
-                                          onTap: () async {
-                                            await showInfoDialog(
-                                              context,
-                                              AppLocalizations.text(
-                                                  LangKey.notifications),
-                                              content:
-                                                  '${AppLocalizations.text(LangKey.confirm_delete_message)}',
-                                              () async {
-                                                await _bloc.deleteNotes(
-                                                    widget.roomData.sId!,
-                                                    note.id!);
-                                                _bloc.getNotes(
-                                                    widget.roomData.sId!);
-                                              },
-                                              onCancel: () {},
-                                            );
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                        bottom: 5, left: 10, right: 10),
-                                    child: Align(
-                                      child: Container(
-                                        child: AutoSizeText(note.content!),
-                                        decoration: BoxDecoration(
-                                            color: HexColor.fromHex('#E8EBFA'),
-                                            borderRadius:
-                                                BorderRadius.circular(10)),
-                                        padding: EdgeInsets.only(
-                                            left: 10,
-                                            right: 10,
-                                            top: 5,
-                                            bottom: 5),
-                                      ),
-                                      alignment: Alignment.centerLeft,
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: 15,
-                                  ),
-                                  Container(
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: List.generate(20, (_) {
-                                        return Container(
-                                          width: 12,
-                                          height: 0.5,
-                                          color: Colors.grey,
-                                        );
-                                      }),
-                                    ),
-                                    width: ScreenInfo.width! * 0.95,
-                                  ),
-                                ],
+                              final note = bloc.notesValue.data![index];
+                              return _NoteItem(
+                                note: note,
+                                bloc: bloc,
+                                roomData: roomData,
+                                chatMessage: chatMessage,
+                                reloadNotes: reloadNotes,
+                                context: context,
                               );
                             },
                           );
@@ -907,6 +796,93 @@ class _ConversationInformationScreenState
           ],
         ),
       ),
+    );
+  }
+
+  Widget _NoteItem({
+    required dynamic note,
+    required ConversationBloc bloc,
+    required r.Rooms roomData,
+    required c.ChatMessage? chatMessage,
+    required VoidCallback reloadNotes,
+    required BuildContext context,
+  }) {
+    return Column(
+      children: [
+        Padding(
+          padding:
+              const EdgeInsets.only(top: 15, bottom: 5, left: 10, right: 10),
+          child: Row(
+            children: [
+              Expanded(
+                child: AutoSizeText(
+                  '${calculateTimeDiff(note.updatedAt!)} ${AppLocalizations.text(LangKey.note_by)} ${note.createdByStaff?.fullName ?? ""}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              InkWell(
+                child: const Icon(Icons.mode_edit_outline_outlined),
+                onTap: () async {
+                  await Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => CreateNoteScreen(
+                      note: note,
+                      roomData: roomData,
+                      chatMessage: chatMessage,
+                    ),
+                  ));
+                  reloadNotes();
+                },
+              ),
+              const SizedBox(width: 5),
+              InkWell(
+                child: const Icon(Icons.delete_outline, color: Colors.red),
+                onTap: () async {
+                  await showInfoDialog(
+                    context,
+                    AppLocalizations.text(LangKey.notifications),
+                    content:
+                        AppLocalizations.text(LangKey.confirm_delete_message),
+                    () async {
+                      await bloc.deleteNotes(roomData.sId!, note.id!);
+                      reloadNotes();
+                    },
+                    onCancel: () {},
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 5, left: 10, right: 10),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Container(
+              decoration: BoxDecoration(
+                color: HexColor.fromHex('#E8EBFA'),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              child: AutoSizeText(note.content ?? ''),
+            ),
+          ),
+        ),
+        const SizedBox(height: 15),
+        Container(
+          width: ScreenInfo.width! * 0.95,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: List.generate(20, (_) {
+              return Container(
+                width: 12,
+                height: 0.5,
+                color: Colors.grey,
+              );
+            }),
+          ),
+        ),
+      ],
     );
   }
 
@@ -1244,13 +1220,12 @@ class _ConversationInformationScreenState
               );
               if (result != null) {
                 showLoading();
-                await ChatConnection.customerLink(
-                  widget.roomData.sId ?? '',
-                  result['customerId'],
-                  result['customerLeadId'],
-                  result['type'],
-                  customerAccount?.data?.mappingId ?? '',
-                );
+                // await ChatConnection.customerLink(
+                //     widget.roomData.sId ?? '',
+                //     result['customerId'],
+                //     result['customerLeadId'],
+                //     result['type'],
+                //     customerAccount?.data?.mappingId ?? '');
                 Navigator.of(context).pop();
                 isShowListSearch = false;
                 customerAccountSearch = null;
@@ -1287,7 +1262,6 @@ class _ConversationInformationScreenState
               visible: ChatConnection.isChatHub,
               child: _actionButtonTile(
                 onTap: () {
-                  print(widget.roomData.channel!.sId);
                   Navigator.of(context).push(MaterialPageRoute(
                       builder: (context) => ChatGroupMembersScreen(
                           roomData: widget.roomData,
@@ -1685,11 +1659,10 @@ class _ConversationInformationScreenState
       {Function()? onTap}) {
     Widget child;
     double radius = MediaQuery.of(context).size.width * 0.125;
-    if (url != null) {
+    if (url != null && url != '') {
       child = CircleAvatar(
         radius: radius,
-        backgroundImage: CachedNetworkImageProvider(
-            '$url/${ChatConnection.brandCode!}',
+        backgroundImage: CachedNetworkImageProvider(url,
             headers: {'brand-code': ChatConnection.brandCode!}),
         backgroundColor: Colors.transparent,
       );

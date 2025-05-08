@@ -61,6 +61,7 @@ class Rooms {
   String? shieldedID;
   int? enable_bot;
   String? room_name;
+  String? avatar;
 
   Rooms({
     this.people,
@@ -81,6 +82,7 @@ class Rooms {
     this.shieldedID,
     this.enable_bot,
     this.room_name,
+    this.avatar,
   });
   factory Rooms.mappingFromRoom(ChatMessage.Room r) {
     return Rooms(
@@ -98,6 +100,7 @@ class Rooms {
   Rooms.fromJson(Map<String, dynamic> json) {
     people = (json['people'] as List?)?.map((v) => People.fromJson(v)).toList();
 
+    avatar = json['room_avatar'];
     isGroup = json['isGroup'];
     source = json['source'];
     sId = json['_id'];
@@ -278,6 +281,7 @@ class Channel {
   String? refreshExpiresIn;
   String? createdAt;
   String? updatedAt;
+  String? avatar;
   int? iV;
   int? enable_bot;
 
@@ -295,7 +299,8 @@ class Channel {
       this.createdAt,
       this.updatedAt,
       this.iV,
-      this.enable_bot});
+      this.enable_bot,
+      this.avatar});
 
   Channel.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
@@ -312,6 +317,7 @@ class Channel {
     updatedAt = json['updatedAt'];
     iV = json['__v'];
     enable_bot = json['enable_bot'];
+    avatar = json['avatar'];
   }
 
   Map<String, dynamic> toJson() {
@@ -341,6 +347,7 @@ class People {
   String? sId;
   String? username;
   String? firstName;
+  String? avatar;
   String? phone;
   String? lastName;
   String? lastOnline;
@@ -360,6 +367,7 @@ class People {
     this.phone,
     this.lastName,
     this.lastOnline,
+    this.avatar,
     List<Customer>? customer,
     this.picture,
     List<String>? userTag,
@@ -374,6 +382,7 @@ class People {
     favorites =
         (json['favorites'] != null) ? List<String>.from(json['favorites']) : [];
 
+    avatar = json['avatar'];
     tagLine = json['tagLine'];
     sId = json['_id'];
     username = json['username'];
@@ -667,6 +676,7 @@ class Owner {
   String? tagLine;
   bool? isIncognito;
   String? username;
+  String? avatar;
   String? email;
   String? firstName;
   String? lastName;
@@ -704,6 +714,7 @@ class Owner {
       this.picture,
       // this.cpoCustomerCode,
       this.cpoCustomerId,
+      this.avatar,
       // this.customerCode,
       this.customerId,
       this.createdAt,
@@ -732,7 +743,7 @@ class Owner {
       createdAt: other.createdAt,
       isBlocked: other.isBlocked,
       isFollowed: other.isFollowed,
-      customerId: int.tryParse(other.customerId ?? ''),
+      customerId: other.customerId,
 
       // tags: other.tags,
       // Các field khác như customerCode, cpoCustomerCode, customerId (String) sẽ phải handle riêng
@@ -754,7 +765,9 @@ class Owner {
         userTag!.add(v);
       });
     }
+    customerId = int.tryParse(json['customerId'].toString());
     tagLine = json['tagLine'];
+    avatar = json['avatar'];
     isIncognito = json['isIncognito'];
     username = json['username'];
     email = json['email'];

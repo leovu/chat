@@ -39,7 +39,7 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
   @override
   void initState() {
     super.initState();
-    source = widget.roomData.channel!.source!;
+    source = widget.roomData.channel!.source ?? '';
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       onGetInfoOnOpen();
     });
@@ -66,80 +66,173 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          title: AutoSizeText(
-            AppLocalizations.text(LangKey.members),
-            style: const TextStyle(
-                color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
-          ),
-          leading: InkWell(
-            child: Icon(
-                Platform.isIOS ? Icons.arrow_back_ios : Icons.arrow_back,
-                color: Colors.black),
-            onTap: () => Navigator.of(context).pop(),
-          ),
-          actions: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: SizedBox(
-                  width: 30.0,
-                  height: 30.0,
-                  child: InkWell(
-                    onTap: () async {
-                      await Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => AddMemberGroupScreen(
-                                roomData: widget.roomData,
-                                chanel_id:
-                                    widget.roomData.channel!.socialChanelId!,
-                              )));
-                      setState(() {});
-                    },
-                    child: Image.asset(
-                      'assets/icon-edit.png',
-                      package: 'chat',
-                    ),
-                  )),
-            )
-          ],
-          backgroundColor: Colors.white,
-          iconTheme: const IconThemeData(
-            color: Colors.black,
-          ),
-        ),
-        body: SafeArea(
-            child: Column(
+      backgroundColor: Colors.white,
+      appBar: _buildAppBar(context),
+      body: SafeArea(
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding:
-                  const EdgeInsets.only(left: 15.0, top: 10.0, bottom: 10.0),
-              child: Text(
-                '${AppLocalizations.text(LangKey.listMembers)} (${widget.chatMessage.room!.people!.length})',
-                style:
-                    const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+            _buildMemberTitle(),
+            isInitScreen
+                ? const Center(child: CircularProgressIndicator())
+                : _buildMemberList(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
+    return AppBar(
+      backgroundColor: Colors.white,
+      iconTheme: const IconThemeData(color: Colors.black),
+      title: AutoSizeText(
+        AppLocalizations.text(LangKey.members),
+        style: const TextStyle(
+          color: Colors.black,
+          fontWeight: FontWeight.bold,
+          fontSize: 16,
+        ),
+      ),
+      leading: InkWell(
+        onTap: () => Navigator.of(context).pop(),
+        child: Icon(
+          Platform.isIOS ? Icons.arrow_back_ios : Icons.arrow_back,
+          color: Colors.black,
+        ),
+      ),
+      actions: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          child: SizedBox(
+            width: 30.0,
+            height: 30.0,
+            child: InkWell(
+              onTap: () async {
+                await Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => AddMemberGroupScreen(
+                    roomData: widget.roomData,
+                    chanel_id: widget.roomData.channel!.socialChanelId!,
+                  ),
+                ));
+                setState(() {});
+              },
+              child: Image.asset(
+                'assets/icon-edit.png',
+                package: 'chat',
               ),
             ),
-            isInitScreen
-                ? Center(
-                    child: CircularProgressIndicator(),
-                  )
-                : Expanded(
-                    child: ListView.builder(
-                        physics: const ClampingScrollPhysics(),
-                        padding: const EdgeInsets.only(top: 5.0),
-                        keyboardDismissBehavior:
-                            ScrollViewKeyboardDismissBehavior.onDrag,
-                        itemBuilder: _itemBuilder,
-                        itemCount: source == 'zalo'
-                            ? listMemberZalo!.memberCount
-                            : infoMemberZaloPersional!.members!.length
-                        // widget.roomData.people?.length ?? 0,
-                        ),
-                  )
-          ],
-        )));
+          ),
+        ),
+      ],
+    );
   }
+
+  Widget _buildMemberTitle() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 15.0, top: 10.0, bottom: 10.0),
+      child: Text(
+        '${AppLocalizations.text(LangKey.listMembers)} (${widget.chatMessage.room!.people!.length})',
+        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+      ),
+    );
+  }
+
+  Widget _buildMemberList() {
+    final count = source == 'zalo'
+        ? (listMemberZalo?.memberCount ?? 0)
+        : (infoMemberZaloPersional?.members?.length ?? 0);
+
+    return Expanded(
+      child: ListView.builder(
+        physics: const ClampingScrollPhysics(),
+        padding: const EdgeInsets.only(top: 5.0),
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        itemBuilder: _itemBuilder,
+        itemCount: count,
+      ),
+    );
+  }
+
+  //
+  // @override
+  // Widget build(BuildContext context) {
+  //   return Scaffold(
+  //       backgroundColor: Colors.white,
+  //       appBar: AppBar(
+  //         title: AutoSizeText(
+  //           AppLocalizations.text(LangKey.members),
+  //           style: const TextStyle(
+  //               color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
+  //         ),
+  //         leading: InkWell(
+  //           child: Icon(
+  //               Platform.isIOS ? Icons.arrow_back_ios : Icons.arrow_back,
+  //               color: Colors.black),
+  //           onTap: () => Navigator.of(context).pop(),
+  //         ),
+  //         actions: [
+  //           Padding(
+  //             padding: const EdgeInsets.symmetric(horizontal: 20.0),
+  //             child: SizedBox(
+  //                 width: 30.0,
+  //                 height: 30.0,
+  //                 child: InkWell(
+  //                   onTap: () async {
+  //                     await Navigator.of(context).push(MaterialPageRoute(
+  //                         builder: (context) => AddMemberGroupScreen(
+  //                               roomData: widget.roomData,
+  //                               chanel_id:
+  //                                   widget.roomData.channel!.socialChanelId!,
+  //                             )));
+  //                     setState(() {});
+  //                   },
+  //                   child: Image.asset(
+  //                     'assets/icon-edit.png',
+  //                     package: 'chat',
+  //                   ),
+  //                 )),
+  //           )
+  //         ],
+  //         backgroundColor: Colors.white,
+  //         iconTheme: const IconThemeData(
+  //           color: Colors.black,
+  //         ),
+  //       ),
+  //       body: SafeArea(
+  //           child: Column(
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         children: [
+  //           Padding(
+  //             padding:
+  //                 const EdgeInsets.only(left: 15.0, top: 10.0, bottom: 10.0),
+  //             child: Text(
+  //               '${AppLocalizations.text(LangKey.listMembers)} (${widget.chatMessage.room!.people!.length})',
+  //               style:
+  //                   const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+  //             ),
+  //           ),
+  //           isInitScreen
+  //               ? Center(
+  //                   child: CircularProgressIndicator(),
+  //                 )
+  //               : Expanded(
+  //                   child: ListView.builder(
+  //                     physics: const ClampingScrollPhysics(),
+  //                     padding: const EdgeInsets.only(top: 5.0),
+  //                     keyboardDismissBehavior:
+  //                         ScrollViewKeyboardDismissBehavior.onDrag,
+  //                     itemBuilder: _itemBuilder,
+  //                     itemCount: source == 'zalo'
+  //                         ? (listMemberZalo?.memberCount ?? 0)
+  //                         : (infoMemberZaloPersional?.members?.length ?? 0),
+  //
+  //                     // widget.roomData.people?.length ?? 0,
+  //                   ),
+  //                 )
+  //         ],
+  //       )));
+  // }
 
   Future showLoading() async {
     return await showDialog(

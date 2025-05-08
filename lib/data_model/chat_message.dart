@@ -166,7 +166,7 @@ class Owner {
   String? cpoCustomerCode;
   int? cpoCustomerId;
   String? customerCode;
-  String? customerId;
+  int? customerId;
   String? createdAt;
   bool? isBlocked;
   int? isFollowed;
@@ -223,7 +223,7 @@ class Owner {
     cpoCustomerCode = json['cpoCustomerCode'];
     cpoCustomerId = json['cpoCustomerId'];
     customerCode = json['customerCode'] ?? '';
-    customerId = json['customerId'] ?? '';
+    customerId = int.tryParse(json['customerId'].toString());
     createdAt = json['createdAt'];
     isBlocked = json['isBlocked'];
     isFollowed = json['isFollowed'];
