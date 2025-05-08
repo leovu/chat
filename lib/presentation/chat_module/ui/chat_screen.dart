@@ -42,6 +42,7 @@ class ChatScreen extends StatefulWidget {
   final String? source;
   final bool? isChatbot;
   final Owner? groupOwner;
+
   const ChatScreen(
       {Key? key,
       required this.data,
@@ -84,6 +85,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   int? peopleLength;
   bool? isBlock = false;
   Owner? groupOwner1;
+
   @override
   void initState() {
     super.initState();
@@ -892,6 +894,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   }
 
   bool isShowUserTag = true;
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -918,13 +921,23 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                                   }),
                               backgroundColor: Colors.transparent,
                             )
-                          : CircleAvatar(
-                              radius: 18.0,
-                              child: Text(
-                                widget.data.owner!.getAvatarName(),
-                                style: const TextStyle(color: Colors.white),
-                              ),
-                            )
+                          : data!.room!.owner!.avatar != null
+                              ? CircleAvatar(
+                                  radius: 18.0,
+                                  backgroundImage: CachedNetworkImageProvider(
+                                      data!.room!.owner!.avatar!,
+                                      headers: {
+                                        'brand-code': ChatConnection.brandCode!
+                                      }),
+                                  backgroundColor: Colors.transparent,
+                                )
+                              : CircleAvatar(
+                                  radius: 18.0,
+                                  child: Text(
+                                    widget.data.owner!.getAvatarName(),
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                )
                       : (widget.data.room_avatar!.shieldedID == null &&
                               widget.data.room_avatar!.shieldedID == '')
                           ? CircleAvatar(
@@ -1515,95 +1528,108 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
-                child: !ChatConnection.isChatHub
-                    ? !widget.data.isGroup!
-                        // ? (widget.data.owner?.picture?.isEmpty ?? true)
-                        ? (extractOwner(widget.data)!.picture?.isEmpty ?? true)
-                            ? CircleAvatar(
-                                radius: 25.0,
-                                child: Text(
-                                  extractOwner(widget.data)!.getAvatarName() ??
-                                      "",
-                                  style: const TextStyle(color: Colors.white),
-                                ),
-                              )
-                            : CircleAvatar(
-                                radius: 25.0,
-                                backgroundImage: CachedNetworkImageProvider(
-                                  '${HTTPConnection.domain}api/images/${widget.data.room_avatar!.shieldedID}/256/${ChatConnection.brandCode!}',
-                                  headers: {
-                                    'brand-code': ChatConnection.brandCode!
-                                  },
-                                ),
-                                backgroundColor: Colors.transparent,
-                              )
-                        : widget.data.room_avatar == null
-                            ? CircleAvatar(
-                                radius: 25.0,
-                                child: Text(
-                                  widget.data.getAvatarGroupName(),
-                                  style: const TextStyle(color: Colors.white),
-                                ),
-                              )
-                            : CircleAvatar(
-                                radius: 25.0,
-                                backgroundImage: CachedNetworkImageProvider(
-                                    '${HTTPConnection.domain}api/images/${widget.data.room_avatar!.shieldedID}/256/${ChatConnection.brandCode!}',
-                                    headers: {
-                                      'brand-code': ChatConnection.brandCode!
-                                    }),
-                                backgroundColor: Colors.transparent,
-                              )
-                    : widget.data.isGroup == false
-                        ? widget.data.owner!.avatar == null
-                            ? (widget.data.shieldedID != '' &&
-                                    widget.data.shieldedID != null)
-                                ? CircleAvatar(
-                                    radius: 25.0,
-                                    backgroundImage: CachedNetworkImageProvider(
-                                        '${HTTPConnection.domain}api/images/${widget.data.shieldedID}/256/${ChatConnection.brandCode!}',
-                                        headers: {
-                                          'brand-code':
-                                              ChatConnection.brandCode!
-                                        }),
-                                    backgroundColor: Colors.transparent,
-                                  )
-                                : CircleAvatar(
-                                    radius: 25.0,
-                                    child: Text(
-                                      // widget.data.owner!.avatar!,
-                                      widget.data.owner!.getAvatarName(),
-                                      style:
-                                          const TextStyle(color: Colors.white),
-                                    ),
-                                  )
-                            : CircleAvatar(
-                                radius: 25.0,
-                                backgroundImage: CachedNetworkImageProvider(
-                                    widget.data.owner!.avatar!,
-                                    headers: {
-                                      'brand-code': ChatConnection.brandCode!
-                                    }),
-                                backgroundColor: Colors.transparent,
-                              )
-                        : widget.data.avatar == null
-                            ? CircleAvatar(
-                                radius: 25.0,
-                                child: Text(
-                                  // widget.data.owner!.avatar!,
-                                  widget.data.getAvatarGroupName(),
-                                  style: const TextStyle(color: Colors.white),
-                                ),
-                              )
-                            : CircleAvatar(
-                                radius: 25.0,
-                                backgroundImage: CachedNetworkImageProvider(
-                                    widget.data.avatar!,
-                                    headers: {
-                                      'brand-code': ChatConnection.brandCode!
-                                    }),
-                                backgroundColor: Colors.transparent,
-                              ),
+                child: buildAvatar(),
+                // child: !ChatConnection.isChatHub
+                //     ? !widget.data.isGroup!
+                //         // ? (widget.data.owner?.picture?.isEmpty ?? true)
+                //         ? (extractOwner(widget.data)!.picture?.isEmpty ?? true)
+                //             ? CircleAvatar(
+                //                 radius: 25.0,
+                //                 child: Text(
+                //                   extractOwner(widget.data)!.getAvatarName() ??
+                //                       "",
+                //                   style: const TextStyle(color: Colors.white),
+                //                 ),
+                //               )
+                //             : CircleAvatar(
+                //                 radius: 25.0,
+                //                 backgroundImage: CachedNetworkImageProvider(
+                //                   '${HTTPConnection.domain}api/images/${widget.data.room_avatar!.shieldedID}/256/${ChatConnection.brandCode!}',
+                //                   headers: {
+                //                     'brand-code': ChatConnection.brandCode!
+                //                   },
+                //                 ),
+                //                 backgroundColor: Colors.transparent,
+                //               )
+                //         : widget.data.room_avatar == null
+                //             ? data!.room!.owner!.avatar != null
+                //                 ? CircleAvatar(
+                //                     radius: 18.0,
+                //                     backgroundImage: CachedNetworkImageProvider(
+                //                         data!.room!.owner!.avatar!,
+                //                         headers: {
+                //                           'brand-code':
+                //                               ChatConnection.brandCode!
+                //                         }),
+                //                     backgroundColor: Colors.transparent,
+                //                   )
+                //                 : CircleAvatar(
+                //                     radius: 18.0,
+                //                     child: Text(
+                //                       widget.data.owner!.getAvatarName(),
+                //                       style:
+                //                           const TextStyle(color: Colors.white),
+                //                     ),
+                //                   )
+                //             : CircleAvatar(
+                //                 radius: 25.0,
+                //                 backgroundImage: CachedNetworkImageProvider(
+                //                     '${HTTPConnection.domain}api/images/${widget.data.room_avatar!.shieldedID}/256/${ChatConnection.brandCode!}',
+                //                     headers: {
+                //                       'brand-code': ChatConnection.brandCode!
+                //                     }),
+                //                 backgroundColor: Colors.transparent,
+                //               )
+                //     : widget.data.isGroup == false
+                //         ? widget.data.owner!.avatar == null
+                //             ? (widget.data.shieldedID != '' &&
+                //                     widget.data.shieldedID != null)
+                //                 ? CircleAvatar(
+                //                     radius: 25.0,
+                //                     backgroundImage: CachedNetworkImageProvider(
+                //                         '${HTTPConnection.domain}api/images/${widget.data.shieldedID}/256/${ChatConnection.brandCode!}',
+                //                         headers: {
+                //                           'brand-code':
+                //                               ChatConnection.brandCode!
+                //                         }),
+                //                     backgroundColor: Colors.transparent,
+                //                   )
+                //                 : CircleAvatar(
+                //                     radius: 25.0,
+                //                     child: Text(
+                //                       // widget.data.owner!.avatar!,
+                //                       widget.data.owner!.getAvatarName(),
+                //                       style:
+                //                           const TextStyle(color: Colors.white),
+                //                     ),
+                //                   )
+                //             : CircleAvatar(
+                //                 radius: 25.0,
+                //                 backgroundImage: CachedNetworkImageProvider(
+                //                     widget.data.owner!.avatar!,
+                //                     headers: {
+                //                       'brand-code': ChatConnection.brandCode!
+                //                     }),
+                //                 backgroundColor: Colors.transparent,
+                //               )
+                //         : widget.data.avatar == null
+                //             ? CircleAvatar(
+                //                 radius: 25.0,
+                //                 child: Text(
+                //                   // widget.data.owner!.avatar!,
+                //                   widget.data.getAvatarGroupName(),
+                //                   style: const TextStyle(color: Colors.white),
+                //                 ),
+                //               )
+                //             : CircleAvatar(
+                //                 radius: 25.0,
+                //                 backgroundImage: CachedNetworkImageProvider(
+                //                     widget.data.avatar!,
+                //                     headers: {
+                //                       'brand-code': ChatConnection.brandCode!
+                //                     }),
+                //                 backgroundColor: Colors.transparent,
+                //               ),
               ),
               Expanded(
                 child: Padding(
@@ -1672,6 +1698,126 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         centerTitle: false,
         titleSpacing: 0,
         leadingWidth: 0);
+  }
+
+  CircleAvatar buildAvatar() {
+    const double radius = 25.0;
+
+    if (data?.room?.owner?.avatar != null) {
+      return CircleAvatar(
+        radius: radius,
+        backgroundImage: CachedNetworkImageProvider(
+          data!.room!.owner!.avatar!,
+          headers: {'brand-code': ChatConnection.brandCode!},
+        ),
+        backgroundColor: Colors.transparent,
+      );
+    }
+
+    if (!ChatConnection.isChatHub) {
+      if (!widget.data.isGroup!) {
+        final owner = extractOwner(widget.data);
+        final isOwnerPictureEmpty = owner?.picture?.isEmpty ?? true;
+
+        return isOwnerPictureEmpty
+            ? CircleAvatar(
+                radius: radius,
+                child: Text(
+                  owner?.getAvatarName() ?? '',
+                  style: const TextStyle(color: Colors.white),
+                ),
+              )
+            : CircleAvatar(
+                radius: radius,
+                backgroundImage: CachedNetworkImageProvider(
+                  '${HTTPConnection.domain}api/images/${widget.data.room_avatar!.shieldedID}/256/${ChatConnection.brandCode!}',
+                  headers: {'brand-code': ChatConnection.brandCode!},
+                ),
+                backgroundColor: Colors.transparent,
+              );
+      } else {
+        if (widget.data.room_avatar == null) {
+          final avatar = data?.room?.owner?.avatar;
+
+          return avatar != null
+              ? CircleAvatar(
+                  radius: 18.0,
+                  backgroundImage: CachedNetworkImageProvider(
+                    avatar,
+                    headers: {'brand-code': ChatConnection.brandCode!},
+                  ),
+                  backgroundColor: Colors.transparent,
+                )
+              : CircleAvatar(
+                  radius: 18.0,
+                  child: Text(
+                    widget.data.owner?.getAvatarName() ?? '',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                );
+        } else {
+          return CircleAvatar(
+            radius: radius,
+            backgroundImage: CachedNetworkImageProvider(
+              '${HTTPConnection.domain}api/images/${widget.data.room_avatar!.shieldedID}/256/${ChatConnection.brandCode!}',
+              headers: {'brand-code': ChatConnection.brandCode!},
+            ),
+            backgroundColor: Colors.transparent,
+          );
+        }
+      }
+    } else {
+      if (widget.data.isGroup == false) {
+        final avatar = widget.data.owner?.avatar;
+
+        if (avatar == null) {
+          final sid = widget.data.shieldedID;
+
+          return (sid != null && sid != '')
+              ? CircleAvatar(
+                  radius: radius,
+                  backgroundImage: CachedNetworkImageProvider(
+                    '${HTTPConnection.domain}api/images/$sid/256/${ChatConnection.brandCode!}',
+                    headers: {'brand-code': ChatConnection.brandCode!},
+                  ),
+                  backgroundColor: Colors.transparent,
+                )
+              : CircleAvatar(
+                  radius: radius,
+                  child: Text(
+                    widget.data.owner?.getAvatarName() ?? '',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                );
+        } else {
+          return CircleAvatar(
+            radius: radius,
+            backgroundImage: CachedNetworkImageProvider(
+              avatar,
+              headers: {'brand-code': ChatConnection.brandCode!},
+            ),
+            backgroundColor: Colors.transparent,
+          );
+        }
+      } else {
+        return widget.data.avatar == null
+            ? CircleAvatar(
+                radius: radius,
+                child: Text(
+                  widget.data.getAvatarGroupName() ?? '',
+                  style: const TextStyle(color: Colors.white),
+                ),
+              )
+            : CircleAvatar(
+                radius: radius,
+                backgroundImage: CachedNetworkImageProvider(
+                  widget.data.avatar!,
+                  headers: {'brand-code': ChatConnection.brandCode!},
+                ),
+                backgroundColor: Colors.transparent,
+              );
+      }
+    }
   }
 
   r.People getPeople(List<r.People>? people) {

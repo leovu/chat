@@ -168,6 +168,7 @@ class Owner {
   String? customerCode;
   int? customerId;
   String? createdAt;
+  String? avatar;
   bool? isBlocked;
   int? isFollowed;
   List<Tags>? tags;
@@ -196,6 +197,7 @@ class Owner {
       this.createdAt,
       this.isBlocked,
       this.isFollowed,
+      this.avatar,
       this.tags});
 
   Owner.fromJson(Map<String, dynamic> json) {
@@ -209,6 +211,7 @@ class Owner {
     // }
     userTag = json['userTag'].cast<String>();
     tagLine = json['tagLine'];
+    avatar = json['avatar'];
     isIncognito = json['isIncognito'];
     username = json['username'];
     email = json['email'];

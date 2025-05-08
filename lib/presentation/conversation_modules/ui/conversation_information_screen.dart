@@ -553,14 +553,30 @@ class _ConversationInformationScreenState
                     InkWell(
                       onTap: () async {
                         showLoading();
-                        final success = await ChatConnection.customerLink(
-                          widget.roomData.owner!.sId!,
-                          e?.data?.customerId,
-                          e?.data!.type!,
-                          customerAccount!.data!.mappingId!,
-                          widget.roomData.channel!.source,
-                          widget.roomData.channel!.socialChanelId,
-                        );
+                        bool? success = false;
+                        if (widget.chatMessage!.room!.owner!.sId != null &&
+                            widget.chatMessage!.room!.owner!.source != null &&
+                            widget.chatMessage!.room!.owner!.userSocialId !=
+                                null) {
+                          success = await ChatConnection.customerLink(
+                            widget.chatMessage!.room!.owner!.sId!,
+                            e?.data?.customerId,
+                            e?.data!.type!,
+                            customerAccount!.data!.mappingId!,
+                            widget.chatMessage!.room!.owner!.source,
+                            widget.chatMessage!.room!.owner!.userSocialId,
+                          );
+                        } else {
+                          success = await ChatConnection.customerLink(
+                            widget.roomData.owner!.sId!,
+                            e?.data?.customerId,
+                            e?.data!.type!,
+                            customerAccount!.data!.mappingId!,
+                            widget.roomData.channel!.source,
+                            widget.roomData.channel!.socialChanelId,
+                          );
+                        }
+
                         if (success) {
                           isShowListSearch = false;
                           customerAccountSearch = null;
@@ -592,6 +608,14 @@ class _ConversationInformationScreenState
     final isChatHub = ChatConnection.isChatHub;
     final owner = extractOwner(widget.roomData);
 
+    if (widget.chatMessage!.room!.owner!.avatar != null) {
+      return _buildAvatar(
+        '${widget.chatMessage!.room!.owner!.firstName} ${widget.chatMessage!.room!.owner!.lastName}',
+        widget.roomData.getAvatarGroupName(),
+        widget.chatMessage!.room!.owner!.avatar,
+        onTap: () {},
+      );
+    }
     final avatarName =
         customerAccount?.data?.getAvatarName() ?? owner?.getAvatarName() ?? "";
     final displayName = customerAccount?.data?.getName() ??
@@ -643,6 +667,19 @@ class _ConversationInformationScreenState
           onTap: () => editName(),
         );
       }
+    }
+    if (!ChatConnection.isChatHub) {
+      final fallbackAvatarUrl = widget.roomData.avatar != null
+          ? '$domain/api/images/${widget.roomData.room_avatar!.shieldedID}/256/$brandCode'
+          : (owner?.picture?.isNotEmpty == true
+              ? '$domain/api/images/${owner!.picture}/256/$brandCode'
+              : null);
+
+      return _buildAvatar(
+        displayName,
+        avatarName,
+        fallbackAvatarUrl,
+      );
     }
 
     // Nhóm 3: Mặc định, không có customer => dùng thông tin owner
