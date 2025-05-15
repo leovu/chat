@@ -1,5 +1,4 @@
 import 'package:chat/connection/chat_connection.dart';
-import 'package:chat/data_model/chat_message.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:intl/intl.dart';
@@ -882,5 +881,88 @@ class Tags {
     data['tag'] = this.tag;
     data['attachedDate'] = this.attachedDate;
     return data;
+  }
+}
+
+class UserZaloOAList {
+  List<UserZaloOA>? users;
+
+  UserZaloOAList({this.users});
+
+  factory UserZaloOAList.fromJson(List<dynamic> jsonList) {
+    List<UserZaloOA> users = jsonList.map((json) {
+      return UserZaloOA.fromJson(json as Map<String, dynamic>);
+    }).toList();
+    return UserZaloOAList(users: users);
+  }
+  factory UserZaloOAList.fromJsonList(List<dynamic> json) {
+    return UserZaloOAList(
+      users: json.map((item) => UserZaloOA.fromJson(item)).toList(),
+    );
+  }
+
+  List<Map<String, dynamic>> toJson() {
+    return users!.map((e) => e.toJson()).toList();
+  }
+}
+
+
+
+class UserZaloOA {
+  final String id;
+  final String email;
+  final String firstName;
+  final String fullName;
+  final String lastName;
+  final String tagLine;
+  final String userSocialId;
+  final String username;
+  final String source;
+  final Picture? picture;
+  bool isSelected=false;
+
+  UserZaloOA({
+    required this.id,
+    required this.email,
+    required this.firstName,
+    required this.fullName,
+    required this.lastName,
+    required this.tagLine,
+    required this.userSocialId,
+    required this.username,
+    required this.source,
+    this.picture,
+  });
+
+  factory UserZaloOA.fromJson(Map<String, dynamic> json) {
+    return UserZaloOA(
+      id: json['_id'],
+      email: json['email'],
+      firstName: json['firstName'],
+      fullName: json['fullName'],
+      lastName: json['lastName'],
+      tagLine: json['tagLine'],
+      userSocialId: json['userSocialId'],
+      username: json['username'],
+      source: json['source'],
+      picture: json['picture'] != null
+          ? Picture.fromJson(json['picture'])
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      '_id': id,
+      'email': email,
+      'firstName': firstName,
+      'fullName': fullName,
+      'lastName': lastName,
+      'tagLine': tagLine,
+      'userSocialId': userSocialId,
+      'username': username,
+      'source': source,
+      'picture': picture?.toJson(),
+    };
   }
 }

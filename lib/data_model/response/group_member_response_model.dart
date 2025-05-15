@@ -3,6 +3,7 @@ class MemberZ {
   final String? oaId;
   final String? name;
   final String? avatar;
+  bool? isSelected = false;
 
   MemberZ({this.id, this.oaId, this.name, this.avatar});
 

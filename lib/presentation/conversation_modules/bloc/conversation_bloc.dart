@@ -29,9 +29,11 @@ class ConversationBloc extends BaseBloc {
   ConversationSummaryModel get summary => _summary.value;
 
   getNotes(String roomId) async {
-    NotesResponseModel? notes = await ChatConnection.notes(roomId);
-    if (notes != null) {
-      setNotes(notes);
+    if(ChatConnection.isChatHub){
+      NotesResponseModel? notes = await ChatConnection.notes(roomId);
+      if (notes != null) {
+        setNotes(notes);
+      }
     }
   }
 

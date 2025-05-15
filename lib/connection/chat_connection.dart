@@ -69,6 +69,8 @@ class ChatConnection {
   static int? notiChatHubZaloPersonal;
   static Function? openChatGPT;
   static int? uid;
+  static String? creatorIdGroup;
+  static String? ownerId;
 
   static Future<bool> init(String email, String password,
       {String? token}) async {
@@ -653,6 +655,19 @@ class ChatConnection {
     return false;
   }
 
+  static Future<ResponseData> addUserGroup(
+      List<String> member_user_ids, String channel_id, String group_id) async {
+    ResponseData responseData = await connection.post(
+      'api/zalo-personal/add-user-group',
+      {
+        'member_user_ids': member_user_ids,
+        'channel_id': channel_id,
+        'group_id': group_id,
+      },
+    );
+    return responseData;
+  }
+
   static Future<ct.Contacts?> contactsList() async {
     ResponseData responseData =
         await connection.post('api/search', {'limit': 500, 'search': ''});
@@ -855,7 +870,6 @@ class ChatConnection {
       ResponseData response = await connection.post(url, json);
       return response.isSuccess;
     } catch (e) {
-      print("Lỗi đổi status Chatbot: $e");
       return false;
     }
   }
@@ -868,7 +882,6 @@ class ChatConnection {
       ResponseData response = await connection.post(url, json);
       return response.isSuccess;
     } catch (e) {
-      print("Lỗi clear chat: $e");
       return false;
     }
   }
@@ -883,7 +896,6 @@ class ChatConnection {
         return c.Owner.fromJson(response.data['data']);
       }
     } catch (e) {
-      print("Lỗi clear chat: $e");
       return null;
     }
     return null;
@@ -907,9 +919,7 @@ class ChatConnection {
             .map((sessionJson) => SessionModel.fromJson(sessionJson))
             .toList();
       }
-    } catch (e) {
-      print("Lỗi get Session: $e");
-    }
+    } catch (e) {}
     return [];
   }
 
@@ -929,9 +939,7 @@ class ChatConnection {
             ConversationSummaryModel.fromJson(response.data['data']);
         return dataList;
       }
-    } catch (e) {
-      print("Lỗi get ConversationSummaryModel: $e");
-    }
+    } catch (e) {}
     return null;
   }
 
@@ -948,7 +956,6 @@ class ChatConnection {
       final data = RoomResponse.fromJson(response.data);
       return data;
     } catch (e) {
-      print("Error in getRoomByRoomId: $e");
       return null;
     }
   }
@@ -986,7 +993,6 @@ class ChatConnection {
         return null;
       }
     } catch (e) {
-      print("Exception in getMemberInfo: $e");
       return null;
     }
   }
@@ -997,7 +1003,7 @@ class ChatConnection {
     const String url = 'api/group/list-pending-invite';
     final Map<String, dynamic> payload = {
       'channel_id': channelId,
-      'room_id': group_id,
+      'group_id': group_id,
     };
 
     try {
@@ -1018,7 +1024,6 @@ class ChatConnection {
         return null;
       }
     } catch (e) {
-      print("Exception in getMemberInfo: $e");
       return null;
     }
   }
@@ -1045,12 +1050,12 @@ class ChatConnection {
       );
 
       if (baseResponse.error == 0 && baseResponse.data != null) {
+        creatorIdGroup = baseResponse.data!.groupInfo!.creatorId;
         return baseResponse.data;
       } else {
         return null;
       }
     } catch (e) {
-      print("Exception in getGroupInfo: $e");
       return null;
     }
   }
@@ -1077,9 +1082,28 @@ class ChatConnection {
 
       return baseResponse.error == 0;
     } catch (e) {
-      print("Exception in getGroupInfo: $e");
       return false;
     }
+  }
+  static Future<ResponseData?> removeMember(
+      String channelId, String group_id, List<String> member_user_id) async {
+    const String url = 'api/group/remove-member';
+    final Map<String, dynamic> payload = {
+      'channel_id': channelId,
+      'group_id': group_id,
+      'member_user_ids': member_user_id,
+    };
+
+    try {
+      final ResponseData response = await connection.post(
+        url,
+        payload,
+      );
+
+      return response;
+    } catch (e) {
+    }
+    return null;
   }
 
   static Future<FriendListResponse?> getListFriend(String channelId) async {
@@ -1093,9 +1117,49 @@ class ChatConnection {
       final friendListResponse = FriendListResponse.fromJson(response.data);
       return friendListResponse;
     } catch (e) {
-      print("Exception in getListFriend: $e");
       return null;
     }
+  }
+
+  static Future<r.UserZaloOAList?> getListUserZaloOA({
+    String source = 'zalo',
+    String? search,
+  }) async {
+    const String url = 'api/user/list';
+    final Map<String, dynamic> payload = {
+      'search': search,
+      'source': source,
+    };
+
+    try {
+      // Gọi hàm post và nhận về danh sách dữ liệu
+      final List<dynamic> userListJson = await connection.postReturnList(url, payload);
+
+      if (userListJson.isNotEmpty) {
+        final userList = r.UserZaloOAList.fromJsonList(userListJson);
+        return userList;
+      } else {
+        return null;
+      }
+    } catch (e, stack) {
+      return null;
+    }
+  }
+
+  static Future<ResponseData?> inviteMember(
+     String? group_id, List<String> member_user_ids, String channel_id,) async {
+    const String url = 'api/group/invite-member';
+    final Map<String, dynamic> payload = {
+      'channel_id': channel_id,
+      'group_id': group_id,
+      'member_user_ids': member_user_ids,
+    };
+
+    try {
+      final ResponseData response = await connection.post(url, payload);
+      return response;
+    } catch (e) {}
+    return null;
   }
 
   ///_____________________

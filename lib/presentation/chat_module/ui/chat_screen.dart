@@ -100,16 +100,19 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
 
       ChatConnection.listenChat(_refreshMessage);
 
-      if (widget.source == 'zalo') {
+      if (widget.source == 'zalo'&&widget.data.isGroup==false) {
         getQuota();
       }
-
       if (ChatConnection.isChatHub) {
         isBlock = widget.data.owner?.isBlocked ?? false;
       }
 
       groupOwner1 = extractOwner(widget.data);
     });
+    final imageUrl =
+        '${HTTPConnection.domain}api/images/vs9lgw7ey86805c7187f5011001205cbf6/256/${ChatConnection.brandCode!}';
+    print('Image URL: $imageUrl');
+
   }
 
   getQuota() async {
@@ -1529,107 +1532,6 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
               Padding(
                 padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
                 child: buildAvatar(),
-                // child: !ChatConnection.isChatHub
-                //     ? !widget.data.isGroup!
-                //         // ? (widget.data.owner?.picture?.isEmpty ?? true)
-                //         ? (extractOwner(widget.data)!.picture?.isEmpty ?? true)
-                //             ? CircleAvatar(
-                //                 radius: 25.0,
-                //                 child: Text(
-                //                   extractOwner(widget.data)!.getAvatarName() ??
-                //                       "",
-                //                   style: const TextStyle(color: Colors.white),
-                //                 ),
-                //               )
-                //             : CircleAvatar(
-                //                 radius: 25.0,
-                //                 backgroundImage: CachedNetworkImageProvider(
-                //                   '${HTTPConnection.domain}api/images/${widget.data.room_avatar!.shieldedID}/256/${ChatConnection.brandCode!}',
-                //                   headers: {
-                //                     'brand-code': ChatConnection.brandCode!
-                //                   },
-                //                 ),
-                //                 backgroundColor: Colors.transparent,
-                //               )
-                //         : widget.data.room_avatar == null
-                //             ? data!.room!.owner!.avatar != null
-                //                 ? CircleAvatar(
-                //                     radius: 18.0,
-                //                     backgroundImage: CachedNetworkImageProvider(
-                //                         data!.room!.owner!.avatar!,
-                //                         headers: {
-                //                           'brand-code':
-                //                               ChatConnection.brandCode!
-                //                         }),
-                //                     backgroundColor: Colors.transparent,
-                //                   )
-                //                 : CircleAvatar(
-                //                     radius: 18.0,
-                //                     child: Text(
-                //                       widget.data.owner!.getAvatarName(),
-                //                       style:
-                //                           const TextStyle(color: Colors.white),
-                //                     ),
-                //                   )
-                //             : CircleAvatar(
-                //                 radius: 25.0,
-                //                 backgroundImage: CachedNetworkImageProvider(
-                //                     '${HTTPConnection.domain}api/images/${widget.data.room_avatar!.shieldedID}/256/${ChatConnection.brandCode!}',
-                //                     headers: {
-                //                       'brand-code': ChatConnection.brandCode!
-                //                     }),
-                //                 backgroundColor: Colors.transparent,
-                //               )
-                //     : widget.data.isGroup == false
-                //         ? widget.data.owner!.avatar == null
-                //             ? (widget.data.shieldedID != '' &&
-                //                     widget.data.shieldedID != null)
-                //                 ? CircleAvatar(
-                //                     radius: 25.0,
-                //                     backgroundImage: CachedNetworkImageProvider(
-                //                         '${HTTPConnection.domain}api/images/${widget.data.shieldedID}/256/${ChatConnection.brandCode!}',
-                //                         headers: {
-                //                           'brand-code':
-                //                               ChatConnection.brandCode!
-                //                         }),
-                //                     backgroundColor: Colors.transparent,
-                //                   )
-                //                 : CircleAvatar(
-                //                     radius: 25.0,
-                //                     child: Text(
-                //                       // widget.data.owner!.avatar!,
-                //                       widget.data.owner!.getAvatarName(),
-                //                       style:
-                //                           const TextStyle(color: Colors.white),
-                //                     ),
-                //                   )
-                //             : CircleAvatar(
-                //                 radius: 25.0,
-                //                 backgroundImage: CachedNetworkImageProvider(
-                //                     widget.data.owner!.avatar!,
-                //                     headers: {
-                //                       'brand-code': ChatConnection.brandCode!
-                //                     }),
-                //                 backgroundColor: Colors.transparent,
-                //               )
-                //         : widget.data.avatar == null
-                //             ? CircleAvatar(
-                //                 radius: 25.0,
-                //                 child: Text(
-                //                   // widget.data.owner!.avatar!,
-                //                   widget.data.getAvatarGroupName(),
-                //                   style: const TextStyle(color: Colors.white),
-                //                 ),
-                //               )
-                //             : CircleAvatar(
-                //                 radius: 25.0,
-                //                 backgroundImage: CachedNetworkImageProvider(
-                //                     widget.data.avatar!,
-                //                     headers: {
-                //                       'brand-code': ChatConnection.brandCode!
-                //                     }),
-                //                 backgroundColor: Colors.transparent,
-                //               ),
               ),
               Expanded(
                 child: Padding(

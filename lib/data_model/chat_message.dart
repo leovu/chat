@@ -39,22 +39,25 @@ class Room {
   List<Images>? links;
   PinMessage? pinMessage;
   String? oa_group_id;
+  Channel? channel;
 
-  Room(
-      {sId,
-      people,
-      isGroup,
-      lastUpdate,
-      lastAuthor,
-      lastMessage,
-      messages,
-      images,
-      files,
-      links,
-      pinMessage,
-      owner,
-      messageSeen,
-      oa_group_id});
+  Room({
+    sId,
+    people,
+    isGroup,
+    lastUpdate,
+    lastAuthor,
+    lastMessage,
+    messages,
+    images,
+    files,
+    links,
+    pinMessage,
+    owner,
+    messageSeen,
+    oa_group_id,
+    channel,
+  });
 
   Room.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
@@ -121,6 +124,13 @@ class Room {
           ? PinMessage.fromJson(json['pinMessage'])
           : null;
     } catch (_) {}
+
+    // Thêm phần xử lý ChannelInfo
+    try {
+      channel = json['channelInfo'] != null
+          ? Channel.fromJson(json['channelInfo'])
+          : null;
+    } catch (_) {}
   }
 
   Map<String, dynamic> toJson() {
@@ -142,7 +152,114 @@ class Room {
     if (pinMessage != null) {
       data['pinMessage'] = pinMessage!.toJson();
     }
+
+    // Thêm ChannelInfo vào dữ liệu JSON
+    if (channel != null) {
+      data['channelInfo'] = channel!.toJson();
+    }
+
     return data;
+  }
+}
+
+
+class Channel {
+  final String id;
+  final int active;
+  final int autoCreateLead;
+  final String avatar;
+  final String cover;
+  final DateTime createdAt;
+  final int enableBackgroundIcon;
+  final int enableBot;
+  final int enableGreeting;
+  final int enableVoiceAi;
+  final int isLostConnection;
+  final List<int> managers;
+  final String nameApp;
+  final List<dynamic> quickQuestion;
+  final int showFormLivechat;
+  final String socialChanelId;
+  final String source;
+  final bool status;
+  final int subscribed;
+  final List<dynamic> zpCookie;
+  final int v;
+
+  Channel({
+    required this.id,
+    required this.active,
+    required this.autoCreateLead,
+    required this.avatar,
+    required this.cover,
+    required this.createdAt,
+    required this.enableBackgroundIcon,
+    required this.enableBot,
+    required this.enableGreeting,
+    required this.enableVoiceAi,
+    required this.isLostConnection,
+    required this.managers,
+    required this.nameApp,
+    required this.quickQuestion,
+    required this.showFormLivechat,
+    required this.socialChanelId,
+    required this.source,
+    required this.status,
+    required this.subscribed,
+    required this.zpCookie,
+    required this.v,
+  });
+
+  factory Channel.fromJson(Map<String, dynamic> json) {
+    return Channel(
+      id: json['_id'],
+      active: json['active'],
+      autoCreateLead: json['auto_create_lead'],
+      avatar: json['avatar'],
+      cover: json['cover'],
+      createdAt: DateTime.parse(json['createdAt']),
+      enableBackgroundIcon: json['enable_background_icon'],
+      enableBot: json['enable_bot'],
+      enableGreeting: json['enable_greeting'],
+      enableVoiceAi: json['enable_voice_ai'],
+      isLostConnection: json['is_lost_connection'],
+      managers: List<int>.from(json['managers']),
+      nameApp: json['nameApp'],
+      quickQuestion: List<dynamic>.from(json['quick_question']),
+      showFormLivechat: json['show_form_livechat'],
+      socialChanelId: json['socialChanelId'],
+      source: json['source'],
+      status: json['status'],
+      subscribed: json['subscribed'],
+      zpCookie: List<dynamic>.from(json['zp_cookie']),
+      v: json['__v'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      '_id': id,
+      'active': active,
+      'auto_create_lead': autoCreateLead,
+      'avatar': avatar,
+      'cover': cover,
+      'createdAt': createdAt.toIso8601String(),
+      'enable_background_icon': enableBackgroundIcon,
+      'enable_bot': enableBot,
+      'enable_greeting': enableGreeting,
+      'enable_voice_ai': enableVoiceAi,
+      'is_lost_connection': isLostConnection,
+      'managers': managers,
+      'nameApp': nameApp,
+      'quick_question': quickQuestion,
+      'show_form_livechat': showFormLivechat,
+      'socialChanelId': socialChanelId,
+      'source': source,
+      'status': status,
+      'subscribed': subscribed,
+      'zp_cookie': zpCookie,
+      '__v': v,
+    };
   }
 }
 

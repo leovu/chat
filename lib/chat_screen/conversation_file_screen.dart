@@ -147,13 +147,48 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
     );
   }
 
+  // Widget _buildSearchChip(String label, Icon icon, Function function) {
+  //   return SizedBox(width: 100,
+  //     child: InkWell(
+  //       child: Chip(
+  //         labelPadding: const EdgeInsets.all(2.0),
+  //         avatar: icon,
+  //         // label: AutoSizeText(
+  //         //   '  $label',
+  //         //   style: const TextStyle(
+  //         //     color: Colors.black,
+  //         //   ),
+  //         // ),
+  //         label: SizedBox(
+  //           width: 100, // hoặc bọc trong LayoutBuilder để set width động
+  //           child: AutoSizeText(
+  //             '  $label',
+  //             maxLines: 1,
+  //             overflow: TextOverflow.ellipsis,
+  //             style: const TextStyle(
+  //               color: Colors.black,
+  //             ),
+  //           ),
+  //         ),
+  //
+  //         backgroundColor: const Color(0xFFE5E5E5),
+  //         elevation: 6.0,
+  //         shadowColor: Colors.grey[60],
+  //         padding: const EdgeInsets.all(8.0),
+  //       ),
+  //       onTap: () => function(),
+  //     ),
+  //   );
+  // }
   Widget _buildSearchChip(String label, Icon icon, Function function) {
     return InkWell(
       child: Chip(
         labelPadding: const EdgeInsets.all(2.0),
         avatar: icon,
-        label: AutoSizeText(
+        label: Text(
           '  $label',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
           style: const TextStyle(
             color: Colors.black,
           ),

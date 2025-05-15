@@ -66,8 +66,9 @@ class _ConversationInformationScreenState
       _loadAccount();
       if (ChatConnection.isChatHub) {
         _bloc.getNotes(widget.roomData.sId!);
-      }
+
       _bloc.getSession(widget.roomData.sId!);
+      }
     });
   }
 
@@ -298,14 +299,119 @@ class _ConversationInformationScreenState
                           : const CupertinoActivityIndicator())
                   : ChatConnection.isChatHub
                       ? actionChatHubView()
-                      : SizedBox(),
+                      : actionView() ,
             ),
           ],
         ),
       ),
     );
   }
-
+  Widget actionView() {
+    return Expanded(
+      child: ListView(
+        physics: const ClampingScrollPhysics(),
+        children: [
+          _section(
+              const Icon(
+                Icons.folder,
+                color: Color(0xff5686E1),
+                size: 35,
+              ),
+              AppLocalizations.text(LangKey.file), () {
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => ConversationFileScreen(
+                  roomData: widget.roomData,
+                  chatMessage: widget.chatMessage,
+                )));
+          }),
+          /// NOTE
+          _section(
+              const Icon(
+                Icons.note_add,
+                color: Color(0xff5686E1),
+                size: 35,
+              ),
+              AppLocalizations.text(LangKey.create_note), () async {
+            await Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => CreateNoteScreen(
+                  roomData: widget.roomData,
+                  chatMessage: widget.chatMessage,
+                )));
+            _bloc.getNotes(widget.roomData.sId!);
+          }),
+          ListNoteComponent(_bloc, ()=> _bloc.getNotes(widget.roomData.sId!), widget.roomData),
+          if (widget.roomData.isGroup!)
+            Padding(
+              padding: const EdgeInsets.only(
+                  left: 50.0, right: 50.0, top: 13.0),
+              child: Container(
+                height: 1.0,
+                color: const Color(0xFFE5E5E5),
+              ),
+            ),
+          if (widget.roomData.isGroup!)
+            _section(
+                const Icon(
+                  Icons.group,
+                  color: Color(0xff5686E1),
+                  size: 35,
+                ),
+                AppLocalizations.text(LangKey.viewMembers), () {
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => ChatGroupMembersScreen(
+                      roomData: widget.roomData,
+                      chatMessage: widget.chatMessage!)));
+            }),
+          if (widget.roomData.isGroup!)
+            Padding(
+              padding: const EdgeInsets.only(
+                  left: 50.0, right: 50.0, top: 13.0),
+              child: Container(
+                height: 1.0,
+                color: const Color(0xFFE5E5E5),
+              ),
+            ),
+          if (widget.roomData.isGroup!)
+            _section(
+                const Icon(
+                  Icons.remove_circle,
+                  color: Color(0xff5686E1),
+                  size: 35,
+                ),
+                AppLocalizations.text(LangKey.leaveConversation), () {
+              _leaveRoom(widget.roomData.sId!);
+            }, textColor: Colors.black),
+          // if (!widget.roomData.isGroup! ||
+          //     (widget.roomData.owner?.sId == ChatConnection.user!.id &&
+          //         widget.roomData.isGroup!))
+          // Padding(
+          //   padding: const EdgeInsets.only(
+          //       left: 50.0, right: 50.0, top: 13.0),
+          //   child: Container(
+          //     height: 1.0,
+          //     color: const Color(0xFFE5E5E5),
+          //   ),
+          // ),
+          /// CHƯA CHECK ĐIỀU KIỆN HIỂN THỊ
+            ChatConnection.isChatHub?
+            socialInformation():Container(),
+          if (!widget.roomData.isGroup! ||
+              (widget.roomData.owner!.sId == ChatConnection.user!.id &&
+                  widget.roomData.isGroup!))
+            _section(
+                const Icon(
+                  Icons.delete,
+                  color: Colors.red,
+                  size: 35,
+                ),
+                AppLocalizations.text(LangKey.deleteConversation), () {
+              !widget.roomData.isGroup! ? _removeLeaveRoom(widget.roomData.sId!) :
+              _removeRoom(widget.roomData.sId!);
+            }, textColor: Colors.red)
+        ],
+      ),
+    );
+  }
   void editName() async {
     if (ChatConnection.isChatHub) {
       if (ChatConnection.editCustomerLead != null) {
@@ -608,7 +714,7 @@ class _ConversationInformationScreenState
     final isChatHub = ChatConnection.isChatHub;
     final owner = extractOwner(widget.roomData);
 
-    if (widget.chatMessage!.room!.owner!.avatar != null) {
+    if (widget.chatMessage?.room?.owner?.avatar != null) {
       return _buildAvatar(
         '${widget.chatMessage!.room!.owner!.firstName} ${widget.chatMessage!.room!.owner!.lastName}',
         widget.roomData.getAvatarGroupName(),
@@ -1333,25 +1439,25 @@ class _ConversationInformationScreenState
             ),
 
           ///Xóa cuộc trò chuyện
-          if (ChatConnection.isChatHub || !widget.roomData.isGroup!
-              ? (widget.roomData.owner!.sId == ChatConnection.user!.id &&
-                  widget.roomData.isGroup!)
-              : widget.groupOwner!.sId == ChatConnection.user!.id &&
-                  widget.roomData.isGroup!)
-            Visibility(
-              visible: ChatConnection.isChatHub,
-              child: _actionButtonTile(
-                onTap: () {
-                  !widget.roomData.isGroup!
-                      ? _removeLeaveRoom(widget.roomData.sId!)
-                      : _removeRoom(widget.roomData.sId!);
-                },
-                iconData: Icons.delete,
-                iconColor: Colors.red,
-                title: AppLocalizations.text(LangKey.deleteConversation),
-                textColor: Colors.red,
-              ),
-            ),
+          // if (ChatConnection.isChatHub || !widget.roomData.isGroup!
+          //     ? (widget.roomData.owner!.sId == ChatConnection.user!.id &&
+          //         widget.roomData.isGroup!)
+          //     : widget.groupOwner!.sId == ChatConnection.user!.id &&
+          //         widget.roomData.isGroup!)
+          //   Visibility(
+          //     visible: ChatConnection.isChatHub,
+          //     child: _actionButtonTile(
+          //       onTap: () {
+          //         !widget.roomData.isGroup!
+          //             ? _removeLeaveRoom(widget.roomData.sId!)
+          //             : _removeRoom(widget.roomData.sId!);
+          //       },
+          //       iconData: Icons.delete,
+          //       iconColor: Colors.red,
+          //       title: AppLocalizations.text(LangKey.deleteConversation),
+          //       textColor: Colors.red,
+          //     ),
+          //   ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 2),
             child: socialInformation(),

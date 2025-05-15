@@ -1984,17 +1984,13 @@ class _RoomListScreenState extends State<RoomListScreen>
       child: InkWell(
           onTap: () async {
             if (ChatConnection.isChatHub) {
-              print(
-                  '_______________roomListVisible!.rooms![position].sId! ${roomListVisible!.rooms![position].sId!}');
-              print(
-                  '_______________roomListVisible!.rooms![position].enable_bot! ${roomListVisible!.rooms![position].enable_bot!}');
               ChatbotService()
                   .setRoomId(roomListVisible!.rooms![position].sId!);
               ChatbotService()
                   .setStatus(roomListVisible!.rooms![position].enable_bot!);
             }
             final groupOwner = extractOwner(roomListVisible!.rooms![position]);
-            await Navigator.of(context, rootNavigator: true).push(
+              await Navigator.of(context, rootNavigator: true).push(
               MaterialPageRoute(
                   builder: (context) => ChatScreen(
                         isChatbot: ChatConnection.isChatHub
