@@ -1,0 +1,30 @@
+[
+    {
+        "merged": "wao.chat.plugin.leovu.chat_example.app-merged_res-62:/mipmap-xxxhdpi_ic_launcher.png.flat",
+        "source": "wao.chat.plugin.leovu.chat_example.app-main-64:/mipmap-xxxhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "wao.chat.plugin.leovu.chat_example.app-merged_res-62:/mipmap-xhdpi_ic_launcher.png.flat",
+        "source": "wao.chat.plugin.leovu.chat_example.app-main-64:/mipmap-xhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "wao.chat.plugin.leovu.chat_example.app-merged_res-62:/mipmap-mdpi_ic_launcher.png.flat",
+        "source": "wao.chat.plugin.leovu.chat_example.app-main-64:/mipmap-mdpi/ic_launcher.png"
+    },
+    {
+        "merged": "wao.chat.plugin.leovu.chat_example.app-merged_res-62:/xml_network_security_config.xml.flat",
+        "source": "wao.chat.plugin.leovu.chat_example.app-main-64:/xml/network_security_config.xml"
+    },
+    {
+        "merged": "wao.chat.plugin.leovu.chat_example.app-merged_res-62:/mipmap-hdpi_ic_launcher.png.flat",
+        "source": "wao.chat.plugin.leovu.chat_example.app-main-64:/mipmap-hdpi/ic_launcher.png"
+    },
+    {
+        "merged": "wao.chat.plugin.leovu.chat_example.app-merged_res-62:/mipmap-xxhdpi_ic_launcher.png.flat",
+        "source": "wao.chat.plugin.leovu.chat_example.app-main-64:/mipmap-xxhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "wao.chat.plugin.leovu.chat_example.app-merged_res-62:/drawable-v21_launch_background.xml.flat",
+        "source": "wao.chat.plugin.leovu.chat_example.app-main-64:/drawable-v21/launch_background.xml"
+    }
+]

@@ -92,7 +92,6 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     _bloc = ChatBloc();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Gán handler sau build
       ChatConnection.chatScreenNotificationHandler = _notificationHandler;
 
       if (widget.data.isGroup == false) _getTagList();

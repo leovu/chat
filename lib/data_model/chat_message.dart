@@ -6,6 +6,12 @@ import 'package:chat/localization/lang_key.dart';
 import 'package:intl/intl.dart';
 import 'package:mime/mime.dart';
 
+enum TypeMessage {
+  start,
+  inProgress,
+  end,
+}
+
 class ChatMessage {
   Room? room;
 
@@ -161,7 +167,6 @@ class Room {
     return data;
   }
 }
-
 
 class Channel {
   final String id;
@@ -435,19 +440,20 @@ class Tags {
   }
 }
 
-class Picture {
+class File {
   String? sId;
   String? name;
   String? author;
   int? size;
   String? shield;
   int? iV;
+  String? type;
   String? location;
   String? shieldedID;
 
-  Picture({sId, name, author, size, shield, iV, location, shieldedID});
+  File({sId, name, author, size, shield, iV, location, shieldedID,type});
 
-  Picture.fromJson(Map<String, dynamic> json) {
+  File.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
     name = json['name'];
     author = json['author'];
@@ -456,12 +462,14 @@ class Picture {
     iV = json['__v'];
     location = json['location'];
     shieldedID = json['shieldedID'];
+    type = json['type'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['_id'] = sId;
     data['name'] = name;
+    data['type'] = type;
     data['author'] = author;
     data['size'] = size;
     data['shield'] = shield;
@@ -481,78 +489,135 @@ class Messages {
   String? date;
   int? iV;
   String? type;
-  Picture? file;
+  File? file;
   int? edit;
   String? errorMessage;
   Staff? staff;
+  String? action;
+  String? adId;
+  int? enableBot;
+  int? forward;
+  int? isBot;
+  int? isCharge;
+  int? isSync;
+  List<dynamic>? messageItems;
+  String? messageTemplate;
+  Photos? photos;
+  int? reactionTotal;
+  int? recall;
+  int? seen;
+  String? sessionStatus;
+  String? sessionTime;
+  String? socialMessageId;
 
-  Messages(
-      {sId,
-      replies,
-      room,
-      author,
-      content,
-      date,
-      iV,
-      type,
-      file,
-      edit,
-      errorMessage,
-      staff});
+  Messages({
+    this.sId,
+    this.replies,
+    this.room,
+    this.author,
+    this.content,
+    this.date,
+    this.iV,
+    this.type,
+    this.file,
+    this.edit,
+    this.errorMessage,
+    this.staff,
+    this.action,
+    this.adId,
+    this.enableBot,
+    this.forward,
+    this.isBot,
+    this.isCharge,
+    this.isSync,
+    this.messageItems,
+    this.messageTemplate,
+    this.photos,
+    this.reactionTotal,
+    this.recall,
+    this.seen,
+    this.sessionStatus,
+    this.sessionTime,
+    this.socialMessageId,
+  });
 
-  Messages.fromJson(Map<String, dynamic> json) {
-    sId = json['_id'];
-    try {
-      replies =
-          json['replies'] != null ? Replies.fromJson(json['replies']) : null;
-    } catch (_) {}
-    room = json['room'];
-    try {
-      author = json['author'] != null ? Author.fromJson(json['author']) : null;
-    } catch (_) {}
-    content = json['content'];
-    date = json['date'];
-    iV = json['__v'];
-    type = json['type'];
-    edit = json['edit'];
-    errorMessage = json['error_message'];
-    if (content == 'Message recalled') {
-      content = AppLocalizations.text(LangKey.messageRecalled);
-      edit = 0;
+  factory Messages.fromJson(Map<String, dynamic> json) {
+    final message = Messages(
+    sId: json['_id'] as String?,
+    room: json['room'] as String?,
+    content: (json['content'] as String?) ?? '',
+    date: json['date'] as String?,
+    iV: json['__v'] as int?,
+    type: json['type'] as String?,
+    edit: json['edit'] as int? ?? 0,
+    errorMessage: json['error_message'] as String?,
+    action: json['action'] as String?,
+    adId: json['adId'] as String?,
+    enableBot: json['enableBot'] as int? ?? 0,
+    forward: json['forward'] as int? ?? 0,
+    isBot: json['isBot'] as int? ?? 0,
+    isCharge: json['isCharge'] as int? ?? 0,
+    isSync: json['isSync'] as int? ?? 0,
+    messageItems: json['messageItems'] as List<dynamic>? ?? [],
+    messageTemplate: json['messageTemplate'] as String?,
+    reactionTotal: json['reactionTotal'] as int? ?? 0,
+    recall: json['recall'] as int? ?? 0,
+    seen: json['seen'] as int? ?? 0,
+    sessionStatus: json['sessionStatus'] as String?,
+    sessionTime: json['sessionTime'] as String?,
+    socialMessageId: json['socialMessageId'] as String?,
+    replies: _safeParse(() => Replies.fromJson(json['replies'])),
+    author: _safeParse(() => Author.fromJson(json['author'])),
+    file: _safeParse(() => File.fromJson(json['file'])),
+    staff: _safeParse(() => Staff.fromJson(json['staff'])),
+    photos: _safeParse(() => Photos.fromJson(json['photos'])),
+  );
+
+    message.replies = _safeParse(() => Replies.fromJson(json['replies']));
+    message.author = _safeParse(() => Author.fromJson(json['author']));
+    message.file = _safeParse(() => File.fromJson(json['file']));
+    message.staff = _safeParse(() => Staff.fromJson(json['staff']));
+    message.photos = _safeParse(() => Photos.fromJson(json['photos']));
+
+    if (message.content == 'Message recalled') {
+      message.content = AppLocalizations.text(LangKey.messageRecalled);
+      message.edit = 0;
     }
-    try {
-      file = json['file'] != null ? Picture.fromJson(json['file']) : null;
-    } catch (_) {}
-    try {
-      staff = json['staff'] != null ? Staff.fromJson(json['staff']) : null;
-    } catch (e) {
-      print(e.toString());
-    }
+
+    return message;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['_id'] = sId;
-    if (replies != null) {
-      data['replies'] = replies!.toJson();
-    }
-    data['room'] = room;
-    if (author != null) {
-      data['author'] = author!.toJson();
-    }
-    data['content'] = content;
-    data['date'] = date;
-    data['__v'] = iV;
-    data['type'] = type;
-    if (file != null) {
-      data['file'] = file!.toJson();
-    }
-    data['edit'] = edit;
-    data['error_message'] = errorMessage;
-    if (staff != null) {
-      data['staff'] = staff!.toJson();
-    }
-    return data;
+    return {
+      '_id': sId,
+      'replies': replies?.toJson(),
+      'room': room,
+      'author': author?.toJson(),
+      'content': content,
+      'date': date,
+      '__v': iV,
+      'type': type,
+      'file': file?.toJson(),
+      'edit': edit,
+      'error_message': errorMessage,
+      'staff': staff?.toJson(),
+      'action': action,
+      'adId': adId,
+      'enableBot': enableBot,
+      'forward': forward,
+      'isBot': isBot,
+      'isCharge': isCharge,
+      'isSync': isSync,
+      'messageItems': messageItems,
+      'messageTemplate': messageTemplate,
+      'photos': photos?.toJson(),
+      'reactionTotal': reactionTotal,
+      'recall': recall,
+      'seen': seen,
+      'sessionStatus': sessionStatus,
+      'sessionTime': sessionTime,
+      'socialMessageId': socialMessageId,
+    };
   }
 
   Map<String, dynamic> toMessageJson({List<MessageSeen>? messageSeen}) {
@@ -661,6 +726,36 @@ class Messages {
   }
 }
 
+T? _safeParse<T>(T Function() fn) {
+  try {
+    return fn();
+  } catch (_) {
+    return null;
+  }
+}
+
+class Photos {
+  String? original;
+  String? fullsize;
+  String? thumbnail;
+
+  Photos({this.original, this.fullsize, this.thumbnail});
+
+  Photos.fromJson(Map<String, dynamic> json) {
+    original = json['original'];
+    fullsize = json['fullsize'];
+    thumbnail = json['thumbnail'];
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'original': original,
+      'fullsize': fullsize,
+      'thumbnail': thumbnail,
+    };
+  }
+}
+
 class MessageSeen {
   String? sId;
   Author? author;
@@ -734,7 +829,7 @@ class Author {
   String? phone;
   String? lastName;
   String? lastOnline;
-  Picture? picture;
+  File? picture;
 
   Author(
       {sId,
@@ -759,7 +854,7 @@ class Author {
     lastOnline = json['lastOnline'];
     try {
       picture =
-          json['picture'] != null ? Picture.fromJson(json['picture']) : null;
+          json['picture'] != null ? File.fromJson(json['picture']) : null;
     } catch (_) {}
   }
 
@@ -801,7 +896,7 @@ class Images {
   String? type;
   String? date;
   int? iV;
-  Picture? file;
+  File? file;
 
   Images({sId, room, author, content, type, date, file, iV});
 
@@ -814,7 +909,7 @@ class Images {
     date = json['date'];
     iV = json['__v'];
     try {
-      file = json['file'] != null ? Picture.fromJson(json['file']) : null;
+      file = json['file'] != null ? File.fromJson(json['file']) : null;
     } catch (_) {}
   }
 
@@ -848,7 +943,7 @@ class Replies {
   String? date;
   int? iV;
   String? type;
-  Picture? file;
+  File? file;
 
   Replies(
       {sId,
@@ -876,7 +971,7 @@ class Replies {
     date = json['date'];
     iV = json['__v'];
     type = json['type'];
-    file = json['file'] != null ? Picture.fromJson(json['file']) : null;
+    file = json['file'] != null ? File.fromJson(json['file']) : null;
   }
 
   Map<String, dynamic> toJson() {

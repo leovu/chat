@@ -788,9 +788,12 @@ class ChatConnection {
 
   /// CHECK USER TOKEN
   static Future<bool> checkUserToken() async {
+    Map<String,dynamic> header={
+      "brand-code":brandCode
+    };
     ResponseData responseData = await connection
-        .post('api/check-user-token', {'token': ChatConnection.user!.token});
-    https: //chat.epoints.vn/api/rooms/list
+        .post('api/check-user-token', {'token': ChatConnection.user!.token},header: header);
+    //https://chat.epoints.vn/api/rooms/list
     if (responseData.isSuccess) {
       ChatConnection.checkUserTokenResponseModel =
           CheckUserTokenResponseModel.fromJson(responseData.data);

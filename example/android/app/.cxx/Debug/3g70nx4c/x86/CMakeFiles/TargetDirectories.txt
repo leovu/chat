@@ -1,0 +1,2 @@
+D:/WAO/chat/example/android/app/.cxx/Debug/3g70nx4c/x86/CMakeFiles/edit_cache.dir
+D:/WAO/chat/example/android/app/.cxx/Debug/3g70nx4c/x86/CMakeFiles/rebuild_cache.dir

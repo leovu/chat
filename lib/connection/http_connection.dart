@@ -56,7 +56,7 @@ class HTTPConnection {
   }
 
   Future<ResponseData> post(String path, Map<String, dynamic> body,
-      {bool isJoinByNumberPhone = false}) async {
+      {bool isJoinByNumberPhone = false, Map<String, dynamic>? header}) async {
     final uri = Uri.parse('$domain$path');
     final headers = {'Content-Type': 'application/json'};
 
@@ -72,6 +72,9 @@ class HTTPConnection {
 
     final encoding = Encoding.getByName('utf-8');
     final jsonBody = json.encode(body);
+    if (header != null && header.isNotEmpty) {
+      headers.addAll(headers);
+    }
 
     http.Response response = await http.post(
       uri,
@@ -95,7 +98,8 @@ class HTTPConnection {
       final decoded = jsonDecode(response.body);
       final hasErrorField = decoded is Map && decoded.containsKey('error');
 
-      if (response.statusCode == 200 && (!hasErrorField || decoded['error'] == 0)) {
+      if (response.statusCode == 200 &&
+          (!hasErrorField || decoded['error'] == 0)) {
         data.isSuccess = true;
         data.data = decoded;
       } else {
@@ -166,7 +170,6 @@ class HTTPConnection {
     }
   }
 
-
   Future<ResponseData> get(String path) async {
     final uri = Uri.parse('$domain$path');
     Map<String, String> headers = {};
@@ -199,7 +202,8 @@ class HTTPConnection {
       final decoded = jsonDecode(response.body);
       final hasErrorField = decoded is Map && decoded.containsKey('error');
 
-      if (response.statusCode == 200 && (!hasErrorField || decoded['error'] == 0)) {
+      if (response.statusCode == 200 &&
+          (!hasErrorField || decoded['error'] == 0)) {
         data.isSuccess = true;
         data.data = decoded;
       } else {
@@ -214,7 +218,6 @@ class HTTPConnection {
 
     return data;
   }
-
 }
 
 class ResponseData {

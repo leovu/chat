@@ -1,0 +1,20 @@
+{
+    "logs": [
+        {
+            "outputFile": "wao.chat.plugin.leovu.chat_example.app-mergeDebugResources-60:/values-v25/values-v25.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\minhq\\.gradle\\caches\\transforms-3\\4faba0c3f268d5983dafbd46908995a0\\transformed\\appcompat-1.6.1\\res\\values-v25\\values-v25.xml",
+                    "from": {
+                        "startLines": "2,3,4,6",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "55,126,209,308",
+                        "endLines": "2,3,5,7",
+                        "endColumns": "70,82,12,12",
+                        "endOffsets": "121,204,303,414"
+                    }
+                }
+            ]
+        }
+    ]
+}
