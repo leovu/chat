@@ -10,12 +10,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../presentation/utils/formatter.dart';
-import 'package:chat/presentation/utils/dialog.dart';
 
 class FilterChathubScreen extends StatefulWidget {
   final String? status;
   final String? channel;
-  final List<String?>? arrLabel;
+  final List<int?>? arrLabel;
   final link_status;
   final String? startDay;
   final String? endDay;
@@ -42,7 +41,7 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
   String? status;
   String? channel;
   String? link_status;
-  List<String?> arrLabel = [];
+  List<int?> arrLabel = [];
   Tag? tag;
   List<String> arrStatus = ['not_seen', 'seen', 'replied'];
 

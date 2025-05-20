@@ -39,9 +39,11 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
     _tabController.addListener(_setActiveTabIndex);
     super.initState();
   }
+
   void _setActiveTabIndex() {
     _activeTabIndex = _tabController.index;
   }
+
   @override
   void dispose() {
     _tabController.dispose();
@@ -68,118 +70,82 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
         ),
       ),
       body: SafeArea(
-              child: Column(
+        child: Column(
+          children: [
+            Container(
+              color: Colors.white,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildSearchChip(AppLocalizations.text(LangKey.search),
+                        const Icon(Icons.search, color: Colors.black), () {
+                      _showBottomDialog();
+                    }),
+                    _buildSearchChip(AppLocalizations.text(LangKey.bySender),
+                        const Icon(Icons.people, color: Colors.black), () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => BySenderResultScreen(
+                                roomData: widget.roomData,
+                                chatMessage: widget.chatMessage,
+                                tabbarIndex: _activeTabIndex,
+                              )));
+                    }),
+                    _buildSearchChip(AppLocalizations.text(LangKey.byTimes),
+                        const Icon(Icons.timer, color: Colors.black), () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => ByTimeResultScreen(
+                                roomData: widget.roomData,
+                                chatMessage: widget.chatMessage,
+                                tabbarIndex: _activeTabIndex,
+                              )));
+                    }),
+                  ],
+                ),
+              ),
+            ),
+            // : CustomSearchTextField(_searchNode, _searchController, "Tìm ảnh, bộ sưu tạp, files, links"),
+            Container(
+              height: 3.0,
+              color: const Color(0xFFE5E5E5),
+            ),
+            TabBar(
+                unselectedLabelColor: Colors.grey,
+                labelColor: Colors.black,
+                tabs: const [
+                  Tab(
+                    text: 'IMAGE',
+                  ),
+                  Tab(
+                    text: 'FILE',
+                  ),
+                  Tab(
+                    text: 'LINK',
+                  )
+                ],
+                controller: _tabController,
+                isScrollable: true,
+
+                indicatorSize: TabBarIndicatorSize.tab,
+                indicatorColor: Colors.black),
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
                 children: [
-                  Container(
-                    color: Colors.white,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          _buildSearchChip(AppLocalizations.text(LangKey.search),
-                              const Icon(Icons.search, color: Colors.black),
-                              () {
-                            _showBottomDialog();
-                          }),
-                          _buildSearchChip(AppLocalizations.text(LangKey.bySender),
-                              const Icon(Icons.people, color: Colors.black),
-                              () {
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => BySenderResultScreen(
-                                      roomData: widget.roomData,
-                                      chatMessage: widget.chatMessage,
-                                      tabbarIndex: _activeTabIndex,
-                                    )));
-                          }),
-                          _buildSearchChip(
-                              AppLocalizations.text(LangKey.byTimes),
-                              const Icon(Icons.timer, color: Colors.black),
-                              () {
-                                Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) => ByTimeResultScreen(
-                                        roomData: widget.roomData,
-                                        chatMessage: widget.chatMessage,
-                                        tabbarIndex: _activeTabIndex,
-                                      )));
-                              }),
-                        ],
-                      ),
-                    ),
-                  ),
-                  // : CustomSearchTextField(_searchNode, _searchController, "Tìm ảnh, bộ sưu tạp, files, links"),
-                  Container(
-                    height: 3.0,
-                    color: const Color(0xFFE5E5E5),
-                  ),
-                  TabBar(
-                      unselectedLabelColor: Colors.grey,
-                      labelColor: Colors.black,
-                      tabs: const [
-                        Tab(
-                          text: 'IMAGE',
-                        ),
-                        Tab(
-                          text: 'FILE',
-                        ),
-                        Tab(
-                          text: 'LINK',
-                        )
-                      ],
-                      controller: _tabController,
-                      indicatorSize: TabBarIndicatorSize.tab,
-                      indicatorColor: Colors.black),
-                  Expanded(
-                    child: TabBarView(
-                      controller: _tabController,
-                      children: [
-                        _images(),
-                        _files(),
-                        _links(),
-                      ],
-                    ),
-                  ),
+                  _images(),
+                  _files(),
+                  _links(),
                 ],
               ),
             ),
+          ],
+        ),
+      ),
     );
   }
 
-  // Widget _buildSearchChip(String label, Icon icon, Function function) {
-  //   return SizedBox(width: 100,
-  //     child: InkWell(
-  //       child: Chip(
-  //         labelPadding: const EdgeInsets.all(2.0),
-  //         avatar: icon,
-  //         // label: AutoSizeText(
-  //         //   '  $label',
-  //         //   style: const TextStyle(
-  //         //     color: Colors.black,
-  //         //   ),
-  //         // ),
-  //         label: SizedBox(
-  //           width: 100, // hoặc bọc trong LayoutBuilder để set width động
-  //           child: AutoSizeText(
-  //             '  $label',
-  //             maxLines: 1,
-  //             overflow: TextOverflow.ellipsis,
-  //             style: const TextStyle(
-  //               color: Colors.black,
-  //             ),
-  //           ),
-  //         ),
-  //
-  //         backgroundColor: const Color(0xFFE5E5E5),
-  //         elevation: 6.0,
-  //         shadowColor: Colors.grey[60],
-  //         padding: const EdgeInsets.all(8.0),
-  //       ),
-  //       onTap: () => function(),
-  //     ),
-  //   );
-  // }
   Widget _buildSearchChip(String label, Icon icon, Function function) {
     return InkWell(
       child: Chip(
@@ -214,12 +180,13 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
         itemBuilder: (BuildContext context, int position) {
           return InkWell(
             onTap: () async {
-              openImage(context,'${HTTPConnection.domain}api/images/${widget.chatMessage?.room?.images?[position].content}/512/${ChatConnection.brandCode}');
+              openImage(context,
+                  '${HTTPConnection.domain}api/images/${widget.chatMessage?.room?.images?[position].content}/512/${ChatConnection.brandCode}');
             },
             child: CachedNetworkImage(
               imageUrl:
                   '${HTTPConnection.domain}api/images/${widget.chatMessage?.room?.images?[position].content}/512/${ChatConnection.brandCode!}',
-              httpHeaders: {'brand-code':ChatConnection.brandCode!},
+              httpHeaders: {'brand-code': ChatConnection.brandCode!},
               placeholder: (context, url) => const CupertinoActivityIndicator(),
               fit: BoxFit.cover,
               errorWidget: (context, url, error) => const Icon(Icons.error),
@@ -240,9 +207,13 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
             onTap: () async {
               showLoading();
               var message = widget.chatMessage?.room?.files?[position].file!;
-              String? result = await download(context,'${HTTPConnection.domain}api/files/${message!.shieldedID}','${widget.chatMessage?.room?.files?[position].date}_${message.name}');
+              String? result = await download(
+                  context,
+                  '${HTTPConnection.domain}api/files/${message!.shieldedID}',
+                  '${widget.chatMessage?.room?.files?[position].date}_${message.name}');
               Navigator.of(context).pop();
-              openFile(result,context,message.name ?? AppLocalizations.text(LangKey.file));
+              openFile(result, context,
+                  message.name ?? AppLocalizations.text(LangKey.file));
             },
             child: Column(
               children: [
@@ -265,7 +236,9 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
                       child: Column(
                         children: [
-                          AutoSizeText(widget.chatMessage?.room?.files?[position].file?.name ?? '')
+                          AutoSizeText(widget.chatMessage?.room
+                                  ?.files?[position].file?.name ??
+                              '')
                         ],
                       ),
                     ),
@@ -273,7 +246,10 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0),
-                  child: Container(height: 1.0,color: Colors.grey.shade200,),
+                  child: Container(
+                    height: 1.0,
+                    color: Colors.grey.shade200,
+                  ),
                 )
               ],
             ),
@@ -285,10 +261,11 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
     final urlRegExp = RegExp(
         r"((https?:www\.)|(https?:\/\/)|(www\.))[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9]{1,6}(\/[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)?");
     List<String> urls = [];
-    for(var e in widget.chatMessage?.room?.links ?? <c.Images>[] ) {
+    for (var e in widget.chatMessage?.room?.links ?? <c.Images>[]) {
       final urlMatches = urlRegExp.allMatches(e.content ?? '');
-      List<String> url = urlMatches.map(
-              (urlMatch) => (e.content ?? '').substring(urlMatch.start, urlMatch.end))
+      List<String> url = urlMatches
+          .map((urlMatch) =>
+              (e.content ?? '').substring(urlMatch.start, urlMatch.end))
           .toList();
       urls.addAll(url);
     }
@@ -302,7 +279,7 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
           return Padding(
             padding: const EdgeInsets.all(10.0),
             child: PreviewLink(
-                content: urls[position],// This disables tap event
+              content: urls[position], // This disables tap event
             ),
           );
         });
@@ -318,45 +295,48 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
             backgroundColor: Colors.transparent,
             children: <Widget>[
               Center(
-                child: Platform.isAndroid ? const CircularProgressIndicator() : const CupertinoActivityIndicator(),
+                child: Platform.isAndroid
+                    ? const CircularProgressIndicator()
+                    : const CupertinoActivityIndicator(),
               )
             ],
           );
         });
   }
 
-  Widget searchOptionItem(String title, int type , {bool dateType = false}) {
+  Widget searchOptionItem(String title, int type, {bool dateType = false}) {
     return Container(
       margin: const EdgeInsets.only(top: 16.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if(!dateType) Container(
-            margin: const EdgeInsets.only(left: 16.0, right: 16.0),
-            height: 15.0,
-            width: 15.0,
-            child: type == 1
-                ? Icon(
-                    Icons.people,
-                    color: Colors.grey.shade500,
-                  )
-                : (type == 2
-                    ? Icon(
-                        Icons.access_alarm,
-                        color: Colors.grey.shade500,
-                      )
-                    : Icon(
-                        Icons.video_call_outlined,
-                        color: Colors.grey.shade500,
-                      )),
-          ),
+          if (!dateType)
+            Container(
+              margin: const EdgeInsets.only(left: 16.0, right: 16.0),
+              height: 15.0,
+              width: 15.0,
+              child: type == 1
+                  ? Icon(
+                      Icons.people,
+                      color: Colors.grey.shade500,
+                    )
+                  : (type == 2
+                      ? Icon(
+                          Icons.access_alarm,
+                          color: Colors.grey.shade500,
+                        )
+                      : Icon(
+                          Icons.video_call_outlined,
+                          color: Colors.grey.shade500,
+                        )),
+            ),
           Expanded(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                  padding: EdgeInsets.only(left:dateType ? 15.0 : 0.0),
+                  padding: EdgeInsets.only(left: dateType ? 15.0 : 0.0),
                   child: Text(
                     title,
                     style: TextStyle(
@@ -430,7 +410,8 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                                     controller: _searchController,
                                     onChanged: (_) {},
                                     decoration: InputDecoration.collapsed(
-                                      hintText: AppLocalizations.text(LangKey.findConversationFile),
+                                      hintText: AppLocalizations.text(
+                                          LangKey.findConversationFile),
                                     ),
                                   )),
                                   Material(
@@ -460,15 +441,14 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                           )),
                           InkWell(
                               onTap: () {
-                                    if(searchType == 1) {
-                                      setState(() {
-                                        searchType = 0;
-                                      });
-                                    }
-                                    else {
-                                      Navigator.of(context).pop();
-                                    }
-                              } ,
+                                if (searchType == 1) {
+                                  setState(() {
+                                    searchType = 0;
+                                  });
+                                } else {
+                                  Navigator.of(context).pop();
+                                }
+                              },
                               child: Container(
                                 margin:
                                     const EdgeInsets.symmetric(horizontal: 8.0),
@@ -497,7 +477,8 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                               _searchController.text = '';
                               searchType = 0;
                             },
-                            child: searchOptionItem(AppLocalizations.text(LangKey.bySender), 1)),
+                            child: searchOptionItem(
+                                AppLocalizations.text(LangKey.bySender), 1)),
                       if (searchType == 0)
                         InkWell(
                             onTap: () {
@@ -505,7 +486,8 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                                 searchType = 1;
                               });
                             },
-                            child: searchOptionItem(AppLocalizations.text(LangKey.byTimes), 2)),
+                            child: searchOptionItem(
+                                AppLocalizations.text(LangKey.byTimes), 2)),
                       // if (searchType == 1) InkWell(
                       //   onTap: () {
                       //     final format2 = DateFormat("dd/MM/yyyy");
@@ -522,22 +504,31 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                       //     searchType = 0;
                       //   },
                       //     child: searchOptionItem("Today", 4, dateType: true)),
-                      if (searchType == 1) InkWell(
-                          onTap: () {
-                            final format2 = DateFormat("dd/MM/yyyy");
-                            String formattedDate = format2.format(DateTime.now().toUtc().add(const Duration(hours: 7)).subtract(const Duration(days: 1)));
-                            Navigator.of(context).pop();
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => ByTimeResultScreen(
-                                  roomData: widget.roomData,
-                                  chatMessage: widget.chatMessage,
-                                  tabbarIndex: _activeTabIndex,
-                                  search: formattedDate,
-                                  title: AppLocalizations.text(LangKey.yesterday),
-                                )));
-                            _searchController.text = '';
-                            searchType = 0;
-                          },child: searchOptionItem(AppLocalizations.text(LangKey.yesterday), 4, dateType: true)),
+                      if (searchType == 1)
+                        InkWell(
+                            onTap: () {
+                              final format2 = DateFormat("dd/MM/yyyy");
+                              String formattedDate = format2.format(
+                                  DateTime.now()
+                                      .toUtc()
+                                      .add(const Duration(hours: 7))
+                                      .subtract(const Duration(days: 1)));
+                              Navigator.of(context).pop();
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => ByTimeResultScreen(
+                                        roomData: widget.roomData,
+                                        chatMessage: widget.chatMessage,
+                                        tabbarIndex: _activeTabIndex,
+                                        search: formattedDate,
+                                        title: AppLocalizations.text(
+                                            LangKey.yesterday),
+                                      )));
+                              _searchController.text = '';
+                              searchType = 0;
+                            },
+                            child: searchOptionItem(
+                                AppLocalizations.text(LangKey.yesterday), 4,
+                                dateType: true)),
                       // if (searchType == 1) InkWell(
                       //     onTap: () {
                       //       final format2 = DateFormat("dd/MM/yyyy");
@@ -556,25 +547,40 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                       //       _searchController.text = '';
                       //       searchType = 0;
                       //     },child: searchOptionItem("This week", 4, dateType: true)),
-                      if (searchType == 1) InkWell(
-                          onTap: () {
-                            final format2 = DateFormat("dd/MM/yyyy");
-                            DateTime lastWeekFirstDay = firstDateOfTheThisWeek(DateTime.now().subtract(const Duration(days: 7)));
-                            DateTime lastWeekLastDay = lastDateOfTheThisWeek(lastWeekFirstDay);
-                            String formattedDate1 = format2.format(lastWeekFirstDay.toUtc().add(const Duration(hours: 7)));
-                            String formattedDate2 = format2.format(lastWeekLastDay.toUtc().add(const Duration(hours: 7)));
-                            Navigator.of(context).pop();
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => ByTimeResultScreen(
-                                  roomData: widget.roomData,
-                                  chatMessage: widget.chatMessage,
-                                  tabbarIndex: _activeTabIndex,
-                                  search: '$formattedDate1-$formattedDate2',
-                                  title: AppLocalizations.text(LangKey.lastWeek),
-                                )));
-                            _searchController.text = '';
-                            searchType = 0;
-                          },child: searchOptionItem(AppLocalizations.text(LangKey.lastWeek), 4, dateType: true)),
+                      if (searchType == 1)
+                        InkWell(
+                            onTap: () {
+                              final format2 = DateFormat("dd/MM/yyyy");
+                              DateTime lastWeekFirstDay =
+                                  firstDateOfTheThisWeek(DateTime.now()
+                                      .subtract(const Duration(days: 7)));
+                              DateTime lastWeekLastDay =
+                                  lastDateOfTheThisWeek(lastWeekFirstDay);
+                              String formattedDate1 = format2.format(
+                                  lastWeekFirstDay
+                                      .toUtc()
+                                      .add(const Duration(hours: 7)));
+                              String formattedDate2 = format2.format(
+                                  lastWeekLastDay
+                                      .toUtc()
+                                      .add(const Duration(hours: 7)));
+                              Navigator.of(context).pop();
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => ByTimeResultScreen(
+                                        roomData: widget.roomData,
+                                        chatMessage: widget.chatMessage,
+                                        tabbarIndex: _activeTabIndex,
+                                        search:
+                                            '$formattedDate1-$formattedDate2',
+                                        title: AppLocalizations.text(
+                                            LangKey.lastWeek),
+                                      )));
+                              _searchController.text = '';
+                              searchType = 0;
+                            },
+                            child: searchOptionItem(
+                                AppLocalizations.text(LangKey.lastWeek), 4,
+                                dateType: true)),
                       // if (searchType == 1) InkWell(
                       //     onTap: () {
                       //       final format2 = DateFormat("dd/MM/yyyy");
@@ -593,49 +599,75 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                       //       _searchController.text = '';
                       //       searchType = 0;
                       //     },child: searchOptionItem("This month", 4, dateType: true)),
-                      if (searchType == 1) InkWell(
-                          onTap: () {
-                            final format2 = DateFormat("dd/MM/yyyy");
-                            DateTime firstDayOfMonth = firstDayLastMonth(DateTime.now());
-                            DateTime lastDayOfMonth = lastDayLastMonth(DateTime.now());
-                            String formattedDate1 = format2.format(firstDayOfMonth.toUtc().add(const Duration(hours: 7)));
-                            String formattedDate2 = format2.format(lastDayOfMonth.toUtc().add(const Duration(hours: 7)));
-                            Navigator.of(context).pop();
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => ByTimeResultScreen(
-                                  roomData: widget.roomData,
-                                  chatMessage: widget.chatMessage,
-                                  tabbarIndex: _activeTabIndex,
-                                  search: '$formattedDate1-$formattedDate2',
-                                  title: AppLocalizations.text(LangKey.lastMonth),
-                                )));
-                            _searchController.text = '';
-                            searchType = 0;
-                          },child: searchOptionItem(AppLocalizations.text(LangKey.lastMonth), 4, dateType: true)),
-                      if (searchType == 1) InkWell(
-                          onTap: () async {
-                            DateTimeRange? range = await showDateRangePicker(context: context,
-                                firstDate: DateTime(1990, 1, 1),
-                                lastDate: DateTime.now(),
-                                currentDate: DateTime.now(),
-                                locale: ChatConnection.locale);
-                            if(range != null) {
+                      if (searchType == 1)
+                        InkWell(
+                            onTap: () {
                               final format2 = DateFormat("dd/MM/yyyy");
-                              String formattedDate1 = format2.format(range.start.toUtc().add(const Duration(hours: 7)));
-                              String formattedDate2 = format2.format(range.end.toUtc().add(const Duration(hours: 7)));
+                              DateTime firstDayOfMonth =
+                                  firstDayLastMonth(DateTime.now());
+                              DateTime lastDayOfMonth =
+                                  lastDayLastMonth(DateTime.now());
+                              String formattedDate1 = format2.format(
+                                  firstDayOfMonth
+                                      .toUtc()
+                                      .add(const Duration(hours: 7)));
+                              String formattedDate2 = format2.format(
+                                  lastDayOfMonth
+                                      .toUtc()
+                                      .add(const Duration(hours: 7)));
                               Navigator.of(context).pop();
                               Navigator.of(context).push(MaterialPageRoute(
                                   builder: (context) => ByTimeResultScreen(
-                                    roomData: widget.roomData,
-                                    chatMessage: widget.chatMessage,
-                                    search: '$formattedDate1-$formattedDate2',
-                                    tabbarIndex: _activeTabIndex,
-                                    title: AppLocalizations.text(LangKey.custom),
-                                  )));
+                                        roomData: widget.roomData,
+                                        chatMessage: widget.chatMessage,
+                                        tabbarIndex: _activeTabIndex,
+                                        search:
+                                            '$formattedDate1-$formattedDate2',
+                                        title: AppLocalizations.text(
+                                            LangKey.lastMonth),
+                                      )));
                               _searchController.text = '';
                               searchType = 0;
-                            }
-                          },child: searchOptionItem(AppLocalizations.text(LangKey.custom), 4, dateType: true)),
+                            },
+                            child: searchOptionItem(
+                                AppLocalizations.text(LangKey.lastMonth), 4,
+                                dateType: true)),
+                      if (searchType == 1)
+                        InkWell(
+                            onTap: () async {
+                              DateTimeRange? range = await showDateRangePicker(
+                                  context: context,
+                                  firstDate: DateTime(1990, 1, 1),
+                                  lastDate: DateTime.now(),
+                                  currentDate: DateTime.now(),
+                                  locale: ChatConnection.locale);
+                              if (range != null) {
+                                final format2 = DateFormat("dd/MM/yyyy");
+                                String formattedDate1 = format2.format(range
+                                    .start
+                                    .toUtc()
+                                    .add(const Duration(hours: 7)));
+                                String formattedDate2 = format2.format(range.end
+                                    .toUtc()
+                                    .add(const Duration(hours: 7)));
+                                Navigator.of(context).pop();
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) => ByTimeResultScreen(
+                                          roomData: widget.roomData,
+                                          chatMessage: widget.chatMessage,
+                                          search:
+                                              '$formattedDate1-$formattedDate2',
+                                          tabbarIndex: _activeTabIndex,
+                                          title: AppLocalizations.text(
+                                              LangKey.custom),
+                                        )));
+                                _searchController.text = '';
+                                searchType = 0;
+                              }
+                            },
+                            child: searchOptionItem(
+                                AppLocalizations.text(LangKey.custom), 4,
+                                dateType: true)),
                     ],
                   ),
                 ),
@@ -655,22 +687,33 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
           });
         });
   }
+
   DateTime firstDateOfTheThisWeek(DateTime dateTime) {
     return dateTime.subtract(Duration(days: dateTime.weekday - 1));
   }
+
   DateTime lastDateOfTheThisWeek(DateTime dateTime) {
-    return dateTime.add(Duration(days: DateTime.daysPerWeek - dateTime.weekday));
+    return dateTime
+        .add(Duration(days: DateTime.daysPerWeek - dateTime.weekday));
   }
+
   DateTime firstDayCurrentMonth(DateTime dateTime) {
     return DateTime(dateTime.year, dateTime.month, 1);
   }
+
   DateTime lastDayCurrentMonth(DateTime dateTime) {
-    return DateTime(dateTime.year,dateTime.month+1,).subtract(const Duration(days: 1));
+    return DateTime(
+      dateTime.year,
+      dateTime.month + 1,
+    ).subtract(const Duration(days: 1));
   }
+
   DateTime firstDayLastMonth(DateTime dateTime) {
-    return DateTime(dateTime.year, dateTime.month-1, 1);
+    return DateTime(dateTime.year, dateTime.month - 1, 1);
   }
+
   DateTime lastDayLastMonth(DateTime dateTime) {
-    return DateTime(dateTime.year,dateTime.month,1).subtract(const Duration(days: 1));
+    return DateTime(dateTime.year, dateTime.month, 1)
+        .subtract(const Duration(days: 1));
   }
 }

@@ -16,12 +16,13 @@ Future<void> showInfoDialog(
     context: context,
     barrierDismissible: false,
     builder: (BuildContext context) {
-      final Color headerColor = isError ? Colors.red : Colors.green;
+      final Color headerColor = isError ? Colors.red : Color(0xFF3398dc);
 
       return AlertDialog(
+        backgroundColor: Colors.white,
         contentPadding: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(20),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,

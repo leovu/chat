@@ -46,6 +46,7 @@ class Room {
   PinMessage? pinMessage;
   String? oa_group_id;
   Channel? channel;
+  String? title;
 
   Room({
     sId,
@@ -63,9 +64,11 @@ class Room {
     messageSeen,
     oa_group_id,
     channel,
+    this.title = '',
   });
 
   Room.fromJson(Map<String, dynamic> json) {
+    title = json['title']??'';
     sId = json['_id'];
     oa_group_id = json['oa_group_id'];
     if (json['people'] != null) {
@@ -142,6 +145,7 @@ class Room {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['_id'] = sId;
+    data['title'] = title;
     if (people != null) {
       data['people'] = people!.map((v) => v.toJson()).toList();
     }
@@ -451,7 +455,7 @@ class File {
   String? location;
   String? shieldedID;
 
-  File({sId, name, author, size, shield, iV, location, shieldedID,type});
+  File({sId, name, author, size, shield, iV, location, shieldedID, type});
 
   File.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
@@ -543,35 +547,35 @@ class Messages {
 
   factory Messages.fromJson(Map<String, dynamic> json) {
     final message = Messages(
-    sId: json['_id'] as String?,
-    room: json['room'] as String?,
-    content: (json['content'] as String?) ?? '',
-    date: json['date'] as String?,
-    iV: json['__v'] as int?,
-    type: json['type'] as String?,
-    edit: json['edit'] as int? ?? 0,
-    errorMessage: json['error_message'] as String?,
-    action: json['action'] as String?,
-    adId: json['adId'] as String?,
-    enableBot: json['enableBot'] as int? ?? 0,
-    forward: json['forward'] as int? ?? 0,
-    isBot: json['isBot'] as int? ?? 0,
-    isCharge: json['isCharge'] as int? ?? 0,
-    isSync: json['isSync'] as int? ?? 0,
-    messageItems: json['messageItems'] as List<dynamic>? ?? [],
-    messageTemplate: json['messageTemplate'] as String?,
-    reactionTotal: json['reactionTotal'] as int? ?? 0,
-    recall: json['recall'] as int? ?? 0,
-    seen: json['seen'] as int? ?? 0,
-    sessionStatus: json['sessionStatus'] as String?,
-    sessionTime: json['sessionTime'] as String?,
-    socialMessageId: json['socialMessageId'] as String?,
-    replies: _safeParse(() => Replies.fromJson(json['replies'])),
-    author: _safeParse(() => Author.fromJson(json['author'])),
-    file: _safeParse(() => File.fromJson(json['file'])),
-    staff: _safeParse(() => Staff.fromJson(json['staff'])),
-    photos: _safeParse(() => Photos.fromJson(json['photos'])),
-  );
+      sId: json['_id'] as String?,
+      room: json['room'] as String?,
+      content: (json['content'] as String?) ?? '',
+      date: json['date'] as String?,
+      iV: json['__v'] as int?,
+      type: json['type'] as String?,
+      edit: json['edit'] as int? ?? 0,
+      errorMessage: json['error_message'] as String?,
+      action: json['action'] as String?,
+      adId: json['adId'] as String?,
+      enableBot: json['enableBot'] as int? ?? 0,
+      forward: json['forward'] as int? ?? 0,
+      isBot: json['isBot'] as int? ?? 0,
+      isCharge: json['isCharge'] as int? ?? 0,
+      isSync: json['isSync'] as int? ?? 0,
+      messageItems: json['messageItems'] as List<dynamic>? ?? [],
+      messageTemplate: json['messageTemplate'] as String?,
+      reactionTotal: json['reactionTotal'] as int? ?? 0,
+      recall: json['recall'] as int? ?? 0,
+      seen: json['seen'] as int? ?? 0,
+      sessionStatus: json['sessionStatus'] as String?,
+      sessionTime: json['sessionTime'] as String?,
+      socialMessageId: json['socialMessageId'] as String?,
+      replies: _safeParse(() => Replies.fromJson(json['replies'])),
+      author: _safeParse(() => Author.fromJson(json['author'])),
+      file: _safeParse(() => File.fromJson(json['file'])),
+      staff: _safeParse(() => Staff.fromJson(json['staff'])),
+      photos: _safeParse(() => Photos.fromJson(json['photos'])),
+    );
 
     message.replies = _safeParse(() => Replies.fromJson(json['replies']));
     message.author = _safeParse(() => Author.fromJson(json['author']));
@@ -853,8 +857,7 @@ class Author {
     lastName = json['lastName'];
     lastOnline = json['lastOnline'];
     try {
-      picture =
-          json['picture'] != null ? File.fromJson(json['picture']) : null;
+      picture = json['picture'] != null ? File.fromJson(json['picture']) : null;
     } catch (_) {}
   }
 

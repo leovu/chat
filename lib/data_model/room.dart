@@ -384,10 +384,10 @@ class People {
     avatar = json['avatar'];
     tagLine = json['tagLine'];
     sId = json['_id'];
-    username = json['username'];
-    firstName = json['firstName'];
+    username = json['username']??'';
+    firstName = json['firstName']??'';
     phone = json['phone'];
-    lastName = json['lastName'];
+    lastName = json['lastName']??'';
     lastOnline = json['lastOnline'];
 
     userTag =

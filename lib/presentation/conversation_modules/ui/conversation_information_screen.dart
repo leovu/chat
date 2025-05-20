@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:chat/chat_screen/action_list_user_chathub_screen.dart';
 import 'package:chat/chat_ui/hex_color.dart';
 import 'package:chat/common/constant.dart';
 import 'package:chat/common/theme.dart';
@@ -9,11 +10,13 @@ import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/data_model/chat_message.dart' as c;
 import 'package:chat/data_model/customer_account.dart';
+import 'package:chat/data_model/response/notes_response_model.dart';
 import 'package:chat/data_model/room.dart' as r;
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:chat/presentation/conversation_modules/bloc/conversation_bloc.dart';
 import 'package:chat/presentation/utils/media_query.dart';
+import 'package:chat/presentation/utils/ultility.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../../chat_screen/chat_group_members_screen.dart';
@@ -67,15 +70,19 @@ class _ConversationInformationScreenState
       if (ChatConnection.isChatHub) {
         _bloc.getNotes(widget.roomData.sId!);
 
-      _bloc.getSession(widget.roomData.sId!);
+        _bloc.getSession(widget.roomData.sId!);
       }
     });
   }
 
   void _loadAccount() async {
     if (ChatConnection.isChatHub) {
-      customerAccount =
-          await ChatConnection.detect(widget.roomData.owner!.sId ?? '');
+      String id = widget.chatMessage?.room?.owner?.sId ?? '';
+      // (widget.roomData.owner != null && widget.roomData.owner!.sId != '')
+      //     ? id = widget.roomData.owner!.sId ?? ''
+      //     : widget.chatMessage?.room?.owner!.sId ?? '';
+
+      customerAccount = await ChatConnection.detect(id);
     }
     isInitScreen = false;
     setState(() {});
@@ -208,89 +215,91 @@ class _ConversationInformationScreenState
                   color: const Color(0xFFE5E5E5),
                 ),
               ),
-            if (!isInitScreen &&
-                customerAccount?.data?.type == null &&
-                ChatConnection.isChatHub)
-              Column(
-                children: [
-                  AutoSizeText(
-                    AppLocalizations.text(LangKey.unknownCustomer),
-                    style: const TextStyle(color: Colors.black),
-                  ),
-                  Container(
-                    height: 10.0,
-                  ),
-                  Center(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10.0),
-                        border: Border.all(color: Colors.grey.shade400),
-                      ),
-                      height: 40.0,
-                      width: MediaQuery.of(context).size.width * 0.85,
-                      child: Row(
-                        children: [
-                          const SizedBox(width: 10.0),
-                          Expanded(
-                            child: TextField(
-                              onTap: () {
-                                setState(() {
-                                  isShowListSearch = false;
-                                });
-                              },
-                              decoration: InputDecoration.collapsed(
-                                hintText: AppLocalizations.text(
-                                    LangKey.inputCustomerHint),
-                              ),
-                              onSubmitted: (value) {
-                                searchCustomer(value);
-                              },
-                              controller: _searchController,
-                            ),
-                          ),
-                          const SizedBox(width: 5.0),
-                          InkWell(
-                            onTap: () {
-                              searchCustomer(_searchController.text);
-                            },
-                            child: const Icon(Icons.search_outlined,
-                                color: Colors.blue),
-                          ),
-                          const SizedBox(width: 5.0),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            if (customerAccountSearch != null)
-              Padding(
-                padding: const EdgeInsets.only(
-                    bottom: 5.0, top: 20.0, left: 15.0, right: 15.0),
-                child: Row(
+            if (!widget.roomData.isGroup!) ...[
+              if (!isInitScreen &&
+                  customerAccount?.data?.type == null &&
+                  ChatConnection.isChatHub)
+                Column(
                   children: [
-                    Expanded(
-                      child: AutoSizeText(
-                        AppLocalizations.text(LangKey.searchingResult),
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                        textScaleFactor: 1.15,
+                    AutoSizeText(
+                      AppLocalizations.text(LangKey.unknownCustomer),
+                      style: const TextStyle(color: Colors.black),
+                    ),
+                    Container(
+                      height: 10.0,
+                    ),
+                    Center(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10.0),
+                          border: Border.all(color: Colors.grey.shade400),
+                        ),
+                        height: 40.0,
+                        width: MediaQuery.of(context).size.width * 0.85,
+                        child: Row(
+                          children: [
+                            const SizedBox(width: 10.0),
+                            Expanded(
+                              child: TextField(
+                                onTap: () {
+                                  setState(() {
+                                    isShowListSearch = false;
+                                  });
+                                },
+                                decoration: InputDecoration.collapsed(
+                                  hintText: AppLocalizations.text(
+                                      LangKey.inputCustomerHint),
+                                ),
+                                onSubmitted: (value) {
+                                  searchCustomer(value);
+                                },
+                                controller: _searchController,
+                              ),
+                            ),
+                            const SizedBox(width: 5.0),
+                            InkWell(
+                              onTap: () {
+                                searchCustomer(_searchController.text);
+                              },
+                              child: const Icon(Icons.search_outlined,
+                                  color: Colors.blue),
+                            ),
+                            const SizedBox(width: 5.0),
+                          ],
+                        ),
                       ),
                     ),
-                    InkWell(
-                        onTap: () {
-                          setState(() {
-                            isShowListSearch = !isShowListSearch;
-                          });
-                        },
-                        child: const Center(
-                            child: Icon(
-                          Icons.arrow_drop_down_outlined,
-                          color: Colors.grey,
-                          size: 30.0,
-                        )))
                   ],
                 ),
-              ),
+              if (customerAccountSearch != null)
+                Padding(
+                  padding: const EdgeInsets.only(
+                      bottom: 5.0, top: 20.0, left: 15.0, right: 15.0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: AutoSizeText(
+                          AppLocalizations.text(LangKey.searchingResult),
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                          textScaleFactor: 1.15,
+                        ),
+                      ),
+                      InkWell(
+                          onTap: () {
+                            setState(() {
+                              isShowListSearch = !isShowListSearch;
+                            });
+                          },
+                          child: const Center(
+                              child: Icon(
+                            Icons.arrow_drop_down_outlined,
+                            color: Colors.grey,
+                            size: 30.0,
+                          )))
+                    ],
+                  ),
+                ),
+            ],
             Expanded(
               child: isInitScreen
                   ? Center(
@@ -299,13 +308,14 @@ class _ConversationInformationScreenState
                           : const CupertinoActivityIndicator())
                   : ChatConnection.isChatHub
                       ? actionChatHubView()
-                      : actionView() ,
+                      : actionView(),
             ),
           ],
         ),
       ),
     );
   }
+
   Widget actionView() {
     return Expanded(
       child: ListView(
@@ -320,10 +330,11 @@ class _ConversationInformationScreenState
               AppLocalizations.text(LangKey.file), () {
             Navigator.of(context).push(MaterialPageRoute(
                 builder: (context) => ConversationFileScreen(
-                  roomData: widget.roomData,
-                  chatMessage: widget.chatMessage,
-                )));
+                      roomData: widget.roomData,
+                      chatMessage: widget.chatMessage,
+                    )));
           }),
+
           /// NOTE
           _section(
               const Icon(
@@ -334,16 +345,17 @@ class _ConversationInformationScreenState
               AppLocalizations.text(LangKey.create_note), () async {
             await Navigator.of(context).push(MaterialPageRoute(
                 builder: (context) => CreateNoteScreen(
-                  roomData: widget.roomData,
-                  chatMessage: widget.chatMessage,
-                )));
+                      roomData: widget.roomData,
+                      chatMessage: widget.chatMessage,
+                    )));
             _bloc.getNotes(widget.roomData.sId!);
           }),
-          ListNoteComponent(_bloc, ()=> _bloc.getNotes(widget.roomData.sId!), widget.roomData),
+          ListNoteComponent(_bloc, () => _bloc.getNotes(widget.roomData.sId!),
+              widget.roomData),
           if (widget.roomData.isGroup!)
             Padding(
-              padding: const EdgeInsets.only(
-                  left: 50.0, right: 50.0, top: 13.0),
+              padding:
+                  const EdgeInsets.only(left: 50.0, right: 50.0, top: 13.0),
               child: Container(
                 height: 1.0,
                 color: const Color(0xFFE5E5E5),
@@ -364,8 +376,8 @@ class _ConversationInformationScreenState
             }),
           if (widget.roomData.isGroup!)
             Padding(
-              padding: const EdgeInsets.only(
-                  left: 50.0, right: 50.0, top: 13.0),
+              padding:
+                  const EdgeInsets.only(left: 50.0, right: 50.0, top: 13.0),
               child: Container(
                 height: 1.0,
                 color: const Color(0xFFE5E5E5),
@@ -393,8 +405,7 @@ class _ConversationInformationScreenState
           //   ),
           // ),
           /// CHƯA CHECK ĐIỀU KIỆN HIỂN THỊ
-            ChatConnection.isChatHub?
-            socialInformation():Container(),
+          ChatConnection.isChatHub ? socialInformation() : Container(),
           if (!widget.roomData.isGroup! ||
               (widget.roomData.owner!.sId == ChatConnection.user!.id &&
                   widget.roomData.isGroup!))
@@ -405,34 +416,248 @@ class _ConversationInformationScreenState
                   size: 35,
                 ),
                 AppLocalizations.text(LangKey.deleteConversation), () {
-              !widget.roomData.isGroup! ? _removeLeaveRoom(widget.roomData.sId!) :
-              _removeRoom(widget.roomData.sId!);
+              !widget.roomData.isGroup!
+                  ? _removeLeaveRoom(widget.roomData.sId!)
+                  : _removeRoom(widget.roomData.sId!);
             }, textColor: Colors.red)
         ],
       ),
     );
   }
+
   void editName() async {
-    if (ChatConnection.isChatHub) {
-      if (ChatConnection.editCustomerLead != null) {
-        await ChatConnection.editCustomerLead!(
-            customerAccount?.data?.type == 'customer'
-                ? customerAccount?.data?.customerCode
-                : customerAccount?.data?.customerLeadCode,
-            customerAccount?.data?.type,
-            customerAccount?.data?.customerId);
-        _loadAccount();
-      }
+    if (ChatConnection.editCustomerLead != null &&
+        (customerAccount?.data?.type == 'customer' ||
+            customerAccount?.data?.type == 'customerLead')) {
+      await ChatConnection.editCustomerLead!(
+          customerAccount?.data?.type == 'customer'
+              ? customerAccount?.data?.customerCode
+              : customerAccount?.data?.customerLeadCode,
+          customerAccount?.data?.type,
+          customerAccount?.data?.customerId);
+      _loadAccount();
     } else {
-      _controller.text =
-          widget.roomData.title ?? customerAccount?.data?.fullName ?? '';
       final FocusNode _focusNode = FocusNode();
-      await showDialog<bool>(
+
+      await showEditNameDialog(
         context: context,
-        builder: (context) {
-          _focusNode.requestFocus();
-          return StatefulBuilder(
-              builder: (BuildContext cxtx, StateSetter setState) {
+        controller: _controller,
+        focusNode: _focusNode,
+        apiCall: (newName) async {
+          if (ChatConnection.isChatHub) {
+            return await ChatConnection.updateUserInfo(
+                  widget.chatMessage?.room?.owner?.sId ?? '',
+                  newName,
+                  '',
+                ) ??
+                false;
+          } else {
+            return await ChatConnection.updateRoomName(
+              widget.roomData.sId!,
+              newName,
+            );
+          }
+        },
+        isChatHub: ChatConnection.isChatHub,
+        onSuccess: () {
+          if (ChatConnection.isChatHub) {
+            customerAccount?.data?.fullName = _controller.value.text;
+          } else {
+            widget.roomData.title = _controller.value.text;
+          }
+          reload();
+        },
+        onError: () {
+          errorDialog(
+            content: ChatConnection.isChatHub
+                ? LangKey.getFileError
+                : AppLocalizations.text(LangKey.changeGroupNameError),
+          );
+        },
+      );
+    }
+    // if (ChatConnection.isChatHub) {
+    //   print(
+    //       '##################################### ${customerAccount?.data?.type}');
+    //   print(
+    //       '##################################### ${customerAccount?.data?.customerCode}');
+    //   print(
+    //       '##################################### ${customerAccount?.data?.customerLeadCode}');
+    //   print(
+    //       '##################################### ${customerAccount?.data?.customerId}');
+    //   if (ChatConnection.editCustomerLead != null) {
+    //     await ChatConnection.editCustomerLead!(
+    //         customerAccount?.data?.type == 'customer'
+    //             ? customerAccount?.data?.customerCode
+    //             : customerAccount?.data?.customerLeadCode,
+    //         customerAccount?.data?.type,
+    //         customerAccount?.data?.customerId);
+    //     _loadAccount();
+    //   } else {
+    //     final FocusNode _focusNode = FocusNode();
+    //     await showEditNameDialog(
+    //       context: context,
+    //       controller: _controller,
+    //       focusNode: _focusNode,
+    //       apiCall: (newName) async {
+    //         if (ChatConnection.isChatHub) {
+    //           return await ChatConnection.updateNameChatHub(
+    //             customerAccount?.data?.customerId != null
+    //                 ? customerAccount!.data!.customerId.toString()
+    //                 : customerAccount!.data!.customerLeadId.toString(),
+    //             customerAccount?.data?.type ?? '',
+    //             newName,
+    //           );
+    //         } else {
+    //           return await ChatConnection.updateRoomName(
+    //             widget.roomData.sId!,
+    //             newName,
+    //           );
+    //         }
+    //       },
+    //       isChatHub: ChatConnection.isChatHub,
+    //       onSuccess: () {
+    //         if (ChatConnection.isChatHub) {
+    //           customerAccount?.data?.fullName = _controller.value.text;
+    //         } else {
+    //           widget.roomData.title = _controller.value.text;
+    //         }
+    //         reload();
+    //       },
+    //       onError: () {
+    //         errorDialog(
+    //           content: ChatConnection.isChatHub
+    //               ? LangKey.getFileError
+    //               : AppLocalizations.text(LangKey.changeGroupNameError),
+    //         );
+    //       },
+    //     );
+    //   }
+    // } else {
+    //   final FocusNode _focusNode = FocusNode();
+    //   await showEditNameDialog(
+    //     context: context,
+    //     controller: _controller,
+    //     focusNode: _focusNode,
+    //     apiCall: (newName) async {
+    //       if (ChatConnection.isChatHub) {
+    //         return await ChatConnection.updateNameChatHub(
+    //           customerAccount?.data?.customerId != null
+    //               ? customerAccount!.data!.customerId.toString()
+    //               : customerAccount!.data!.customerLeadId.toString(),
+    //           customerAccount?.data?.type ?? '',
+    //           newName,
+    //         );
+    //       } else {
+    //         return await ChatConnection.updateRoomName(
+    //           widget.roomData.sId!,
+    //           newName,
+    //         );
+    //       }
+    //     },
+    //     isChatHub: ChatConnection.isChatHub,
+    //     onSuccess: () {
+    //       if (ChatConnection.isChatHub) {
+    //         customerAccount?.data?.fullName = _controller.value.text;
+    //       } else {
+    //         widget.roomData.title = _controller.value.text;
+    //       }
+    //       reload();
+    //     },
+    //     onError: () {
+    //       errorDialog(
+    //         content: ChatConnection.isChatHub
+    //             ? LangKey.getFileError
+    //             : AppLocalizations.text(LangKey.changeGroupNameError),
+    //       );
+    //     },
+    //   );
+    //   // _controller.text =
+    //   //     widget.roomData.title ?? customerAccount?.data?.fullName ?? '';
+    //   // final FocusNode _focusNode = FocusNode();
+    //   // await showDialog<bool>(
+    //   //   context: context,
+    //   //   builder: (context) {
+    //   //     _focusNode.requestFocus();
+    //   //     return StatefulBuilder(
+    //   //         builder: (BuildContext cxtx, StateSetter setState) {
+    //   //       return CupertinoAlertDialog(
+    //   //         title: Text(AppLocalizations.text(LangKey.members)),
+    //   //         content: Card(
+    //   //           color: Colors.transparent,
+    //   //           elevation: 0.0,
+    //   //           child: Column(
+    //   //             children: <Widget>[
+    //   //               Padding(
+    //   //                 padding: const EdgeInsets.only(top: 8.0, bottom: 3.0),
+    //   //                 child: CupertinoTextField(
+    //   //                   controller: _controller,
+    //   //                   focusNode: _focusNode,
+    //   //                   placeholder: AppLocalizations.text(LangKey.members),
+    //   //                 ),
+    //   //               ),
+    //   //               CupertinoButton(
+    //   //                   child: Text(AppLocalizations.text(LangKey.accept)),
+    //   //                   onPressed: () async {
+    //   //                     FocusManager.instance.primaryFocus?.unfocus();
+    //   //                     Navigator.of(context).pop();
+    //   //                     bool result = false;
+    //   //                     if (ChatConnection.isChatHub) {
+    //   //                       result = await ChatConnection.updateNameChatHub(
+    //   //                           customerAccount?.data?.customerId != null
+    //   //                               ? customerAccount!.data!.customerId
+    //   //                                   .toString()
+    //   //                               : customerAccount!.data!.customerLeadId
+    //   //                                   .toString(),
+    //   //                           customerAccount?.data?.type ?? '',
+    //   //                           _controller.value.text);
+    //   //                     } else {
+    //   //                       result = await ChatConnection.updateRoomName(
+    //   //                           widget.roomData.sId!, _controller.value.text);
+    //   //                     }
+    //   //                     if (result) {
+    //   //                       FocusManager.instance.primaryFocus?.unfocus();
+    //   //                       if (ChatConnection.isChatHub) {
+    //   //                         customerAccount?.data?.fullName =
+    //   //                             _controller.value.text;
+    //   //                       } else {
+    //   //                         widget.roomData.title = _controller.value.text;
+    //   //                       }
+    //   //                       reload();
+    //   //                     } else {
+    //   //                       errorDialog(
+    //   //                           content: ChatConnection.isChatHub
+    //   //                               ? LangKey.getFileError
+    //   //                               : null);
+    //   //                     }
+    //   //                   }),
+    //   //             ],
+    //   //           ),
+    //   //         ),
+    //   //       );
+    //   //     });
+    //   //   },
+    //   // );
+    // }
+  }
+
+  Future<void> showEditNameDialog({
+    required BuildContext context,
+    required TextEditingController controller,
+    required FocusNode focusNode,
+    required Future<bool> Function(String newName) apiCall, // Hàm gọi API
+    required bool isChatHub, // Điều kiện true/false
+    required VoidCallback onSuccess, // Hàm callback khi thành công
+    required VoidCallback onError, // Hàm callback khi thất bại
+  }) async {
+    controller.text = controller.text.isNotEmpty ? controller.text : '';
+    focusNode.requestFocus();
+
+    await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (BuildContext cxtx, StateSetter setState) {
             return CupertinoAlertDialog(
               title: Text(AppLocalizations.text(LangKey.members)),
               content: Card(
@@ -443,54 +668,34 @@ class _ConversationInformationScreenState
                     Padding(
                       padding: const EdgeInsets.only(top: 8.0, bottom: 3.0),
                       child: CupertinoTextField(
-                        controller: _controller,
-                        focusNode: _focusNode,
+                        controller: controller,
+                        focusNode: focusNode,
                         placeholder: AppLocalizations.text(LangKey.members),
                       ),
                     ),
                     CupertinoButton(
-                        child: Text(AppLocalizations.text(LangKey.accept)),
-                        onPressed: () async {
-                          FocusManager.instance.primaryFocus?.unfocus();
-                          Navigator.of(context).pop();
-                          bool result = false;
-                          if (ChatConnection.isChatHub) {
-                            result = await ChatConnection.updateNameChatHub(
-                                customerAccount?.data?.customerId != null
-                                    ? customerAccount!.data!.customerId
-                                        .toString()
-                                    : customerAccount!.data!.customerLeadId
-                                        .toString(),
-                                customerAccount?.data?.type ?? '',
-                                _controller.value.text);
-                          } else {
-                            result = await ChatConnection.updateRoomName(
-                                widget.roomData.sId!, _controller.value.text);
-                          }
-                          if (result) {
-                            FocusManager.instance.primaryFocus?.unfocus();
-                            if (ChatConnection.isChatHub) {
-                              customerAccount?.data?.fullName =
-                                  _controller.value.text;
-                            } else {
-                              widget.roomData.title = _controller.value.text;
-                            }
-                            reload();
-                          } else {
-                            errorDialog(
-                                content: ChatConnection.isChatHub
-                                    ? LangKey.getFileError
-                                    : null);
-                          }
-                        }),
+                      child: Text(AppLocalizations.text(LangKey.accept)),
+                      onPressed: () async {
+                        FocusManager.instance.primaryFocus?.unfocus();
+                        Navigator.of(context).pop();
+
+                        bool result = await apiCall(controller.value.text);
+
+                        if (result) {
+                          onSuccess(); // Gọi callback khi thành công
+                        } else {
+                          onError(); // Gọi callback khi thất bại
+                        }
+                      },
+                    ),
                   ],
                 ),
               ),
             );
-          });
-        },
-      );
-    }
+          },
+        );
+      },
+    );
   }
 
   void searchCustomer(String keyword) async {
@@ -713,71 +918,52 @@ class _ConversationInformationScreenState
     final isGroup = widget.roomData.isGroup ?? false;
     final isChatHub = ChatConnection.isChatHub;
     final owner = extractOwner(widget.roomData);
-
-    if (widget.chatMessage?.room?.owner?.avatar != null) {
+    final brandCode = ChatConnection.brandCode!;
+    final domain = HTTPConnection.domain;
+    if (checkCustomerTypeChatHub(widget.roomData.owner!) !=
+        null) if (widget.chatMessage?.room?.owner?.avatar != null) {
       return _buildAvatar(
         '${widget.chatMessage!.room!.owner!.firstName} ${widget.chatMessage!.room!.owner!.lastName}',
         widget.roomData.getAvatarGroupName(),
         widget.chatMessage!.room!.owner!.avatar,
-        onTap: () {},
       );
     }
+
     final avatarName =
         customerAccount?.data?.getAvatarName() ?? owner?.getAvatarName() ?? "";
-    final displayName = customerAccount?.data?.getName() ??
-        widget.roomData.owner?.getName() ??
-        "";
-    final brandCode = ChatConnection.brandCode!;
-    final domain = HTTPConnection.domain;
+    final displayName = isChatHub
+        ? customerAccount?.data?.getName() ??
+            widget.roomData.owner?.getName() ??
+            ""
+        : (!isGroup
+            ? widget.roomData.title ?? ""
+            : widget.chatMessage?.room?.title ?? "");
 
     if (isChatHub) {
-      // Nhóm 1: Trường hợp là nhóm (Group Chat)
       if (isGroup) {
-        final roomAvatar = widget.roomData.room_avatar;
-        final avatar = widget.roomData.avatar;
-        final avatarUrl = avatar != null
-            ? avatar
-            : '$domain/api/images/${roomAvatar?.shieldedID}/256/$brandCode';
-
-        final onTap = widget.roomData.owner?.sId == ChatConnection.user?.id
-            ? () => editName()
-            : null;
+        final avatarUrl = widget.roomData.avatar ??
+            '$domain/api/images/${widget.roomData.room_avatar?.shieldedID}/256/$brandCode';
 
         return _buildAvatar(
           widget.roomData.room_name ?? '',
           widget.roomData.getAvatarGroupName(),
           avatarUrl,
-          onTap: onTap,
         );
-      }
-
-      if (!isGroup) {
-        String? avatarName = widget.roomData.owner?.getAvatarName();
-        String? avatarUrlWithCustomer;
-        String? shieldedUrl = (widget.roomData.shieldedID != null &&
-                widget.roomData.shieldedID != '')
-            ? '${HTTPConnection.domain}api/images/${widget.roomData.shieldedID}/256/${ChatConnection.brandCode!}'
-            : null;
-
-        if (widget.roomData.owner?.avatar != null) {
-          avatarUrlWithCustomer = widget.roomData.owner!.avatar!;
-        } else if (shieldedUrl != null) {
-          avatarUrlWithCustomer = shieldedUrl;
-        }
-        print('################################  $shieldedUrl');
+      } else {
+        final avatarUrlWithCustomer = widget.roomData.owner?.avatar ??
+            (widget.roomData.shieldedID?.isNotEmpty == true
+                ? '$domain/api/images/${widget.roomData.shieldedID}/256/$brandCode'
+                : null);
 
         return _buildAvatar(
           '${widget.roomData.owner?.firstName} ${widget.roomData.owner?.lastName}',
-          avatarName!,
+          widget.roomData.owner?.getAvatarName() ?? "",
           avatarUrlWithCustomer,
-          onTap: () => editName(),
         );
       }
-    }
-    if (!ChatConnection.isChatHub) {
-      final fallbackAvatarUrl = widget.roomData.avatar != null
-          ? '$domain/api/images/${widget.roomData.room_avatar!.shieldedID}/256/$brandCode'
-          : (owner?.picture?.isNotEmpty == true
+    } else {
+      final fallbackAvatarUrl = widget.roomData.avatar ??
+          (owner?.picture?.isNotEmpty == true
               ? '$domain/api/images/${owner!.picture}/256/$brandCode'
               : null);
 
@@ -787,19 +973,6 @@ class _ConversationInformationScreenState
         fallbackAvatarUrl,
       );
     }
-
-    // Nhóm 3: Mặc định, không có customer => dùng thông tin owner
-    final fallbackAvatarUrl = widget.roomData.avatar != null
-        ? '$domain/api/images/${widget.roomData.room_avatar!.shieldedID}/256/$brandCode'
-        : (owner?.picture?.isNotEmpty == true
-            ? '$domain/api/images/${owner!.picture}/256/$brandCode'
-            : null);
-
-    return _buildAvatar(
-      displayName,
-      avatarName,
-      fallbackAvatarUrl,
-    );
   }
 
   Widget actionChatHubView() {
@@ -951,7 +1124,7 @@ class _ConversationInformationScreenState
   }
 
   Widget _NoteItem({
-    required dynamic note,
+    required Note note,
     required ConversationBloc bloc,
     required r.Rooms roomData,
     required c.ChatMessage? chatMessage,
@@ -967,7 +1140,7 @@ class _ConversationInformationScreenState
             children: [
               Expanded(
                 child: AutoSizeText(
-                  '${calculateTimeDiff(note.updatedAt!)} ${AppLocalizations.text(LangKey.note_by)} ${note.createdByStaff?.fullName ?? ""}',
+                  '${calculateTimeDiff(note.updatedAt ?? note.createdAt!)}// ${AppLocalizations.text(LangKey.note_by)} ${note.createdByStaff?.fullName ?? ""}',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -1225,8 +1398,11 @@ class _ConversationInformationScreenState
             length: 2,
             child: StatefulBuilder(
               builder: (context, setState) {
-                String summaryText =
-                    summarySnapshot.data![index!].summary ?? '';
+                String summaryText = '';
+                if (summarySnapshot.hasData &&
+                    summarySnapshot.data != null &&
+                    summarySnapshot.data!.isNotEmpty)
+                  summaryText = summarySnapshot.data![index!].summary ?? '';
                 // Nội dung tab tóm tắt
                 final summaryContent = Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -1340,53 +1516,6 @@ class _ConversationInformationScreenState
             height: 10,
           ),
 
-          ///Tra cứu sản phẩm
-          _actionButtonTile(
-            onTap: () {
-              if (ChatConnection.searchProducts != null) {
-                ChatConnection.searchProducts!();
-              }
-            },
-            iconData: Icons.search_outlined,
-            title: AppLocalizations.text(LangKey.productSearch),
-          ),
-
-          /// Tra cứu đơn hàng
-          _actionButtonTile(
-            onTap: () {
-              if (ChatConnection.searchOrders != null) {
-                ChatConnection.searchOrders!();
-              }
-            },
-            iconData: Icons.search_outlined,
-            title: AppLocalizations.text(LangKey.orderSearch),
-          ),
-
-          ///Các thao tác
-          _actionButtonTile(
-            onTap: () async {
-              Map<String, dynamic>? result = await Navigator.of(context).push(
-                MaterialPageRoute(builder: (ctx) => Container()),
-                // Lưu ý: Bạn có thể đổi lại thành màn hình ActionListUserChathubScreen sau.
-              );
-              if (result != null) {
-                showLoading();
-                // await ChatConnection.customerLink(
-                //     widget.roomData.sId ?? '',
-                //     result['customerId'],
-                //     result['customerLeadId'],
-                //     result['type'],
-                //     customerAccount?.data?.mappingId ?? '');
-                Navigator.of(context).pop();
-                isShowListSearch = false;
-                customerAccountSearch = null;
-                _loadAccount();
-              }
-            },
-            iconData: Icons.accessibility,
-            title: AppLocalizations.text(LangKey.actions),
-          ),
-
           /// Tập tin
           Visibility(
             visible: !ChatConnection.isChatHub,
@@ -1425,43 +1554,76 @@ class _ConversationInformationScreenState
             ),
 
           /// Rời nhóm
-          if (widget.roomData.isGroup!)
-            Visibility(
-              visible: ChatConnection.isChatHub,
-              child: _actionButtonTile(
-                onTap: () {
-                  _leaveRoom(widget.roomData.sId!);
-                },
-                iconData: Icons.remove_circle,
-                iconColor: const Color(0xff5686E1),
-                title: AppLocalizations.text(LangKey.leaveConversation),
-              ),
-            ),
-
-          ///Xóa cuộc trò chuyện
-          // if (ChatConnection.isChatHub || !widget.roomData.isGroup!
-          //     ? (widget.roomData.owner!.sId == ChatConnection.user!.id &&
-          //         widget.roomData.isGroup!)
-          //     : widget.groupOwner!.sId == ChatConnection.user!.id &&
-          //         widget.roomData.isGroup!)
+          // if (widget.roomData.isGroup!)
           //   Visibility(
           //     visible: ChatConnection.isChatHub,
           //     child: _actionButtonTile(
           //       onTap: () {
-          //         !widget.roomData.isGroup!
-          //             ? _removeLeaveRoom(widget.roomData.sId!)
-          //             : _removeRoom(widget.roomData.sId!);
+          //         _leaveRoom(widget.roomData.sId!);
           //       },
-          //       iconData: Icons.delete,
-          //       iconColor: Colors.red,
-          //       title: AppLocalizations.text(LangKey.deleteConversation),
-          //       textColor: Colors.red,
+          //       iconData: Icons.remove_circle,
+          //       iconColor: const Color(0xff5686E1),
+          //       title: AppLocalizations.text(LangKey.leaveConversation),
           //     ),
           //   ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 2),
-            child: socialInformation(),
-          ),
+
+          if (!widget.chatMessage!.room!.isGroup!) ...[
+            ///Tra cứu sản phẩm
+            _actionButtonTile(
+              onTap: () {
+                if (ChatConnection.searchProducts != null) {
+                  ChatConnection.searchProducts!();
+                }
+              },
+              iconData: Icons.search_outlined,
+              title: AppLocalizations.text(LangKey.productSearch),
+            ),
+
+            /// Tra cứu đơn hàng
+            _actionButtonTile(
+              onTap: () {
+                if (ChatConnection.searchOrders != null) {
+                  ChatConnection.searchOrders!();
+                }
+              },
+              iconData: Icons.search_outlined,
+              title: AppLocalizations.text(LangKey.orderSearch),
+            ),
+
+            ///Các thao tác
+            _actionButtonTile(
+              onTap: () async {
+                r.People info = getPeople(widget.chatMessage?.room?.people);
+                Map<String, dynamic>? result = await Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (ctx) {
+                  return ActionListUserChathubScreen(
+                      data: info, customerAccount: customerAccount);
+                }));
+                if (result != null) {
+                  showLoading();
+                  await ChatConnection.customerLink(
+                      widget.roomData.sId ?? '',
+                      result['customerId'],
+                      result['customerLeadId'],
+                      result['type'],
+                      customerAccount?.data?.mappingId ?? '',
+                      widget.roomData.channel?.source);
+                  isShowListSearch = false;
+                  customerAccountSearch = null;
+                  _loadAccount();
+                  Navigator.of(context).pop();
+                }
+              },
+              iconData: Icons.accessibility,
+              title: AppLocalizations.text(LangKey.actions),
+            ),
+
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 2),
+              child: socialInformation(),
+            ),
+          ],
+
           SizedBox(
             height: 30,
           )
@@ -1649,13 +1811,6 @@ class _ConversationInformationScreenState
           );
   }
 
-  Widget _divider() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 50.0, vertical: 13.0),
-      child: Container(height: 1.0, color: const Color(0xFFE5E5E5)),
-    );
-  }
-
   /// DEV
   Widget socialInformation() {
     return Container(
@@ -1806,8 +1961,7 @@ class _ConversationInformationScreenState
     setState(() {});
   }
 
-  Widget _buildAvatar(String name, String avatarName, String? url,
-      {Function()? onTap}) {
+  Widget _buildAvatar(String name, String avatarName, String? url) {
     Widget child;
     double radius = MediaQuery.of(context).size.width * 0.125;
     if (url != null && url != '') {
@@ -1845,7 +1999,8 @@ class _ConversationInformationScreenState
                   style: const TextStyle(
                       fontWeight: FontWeight.bold, fontSize: 20.0),
                 )),
-                if (onTap != null)
+                // if (customerAccount?.data?.type == 'customer')
+                if (!widget.roomData.isGroup!)
                   const Padding(
                     padding: EdgeInsets.only(left: 10.0),
                     child: Icon(
@@ -1857,7 +2012,9 @@ class _ConversationInformationScreenState
               ],
             ),
           ),
-          onTap: onTap,
+          onTap: () {
+            editName();
+          },
         )
       ],
     );

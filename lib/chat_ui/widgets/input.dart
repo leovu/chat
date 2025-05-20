@@ -35,37 +35,41 @@ class NewLineIntent extends Intent {
 class SendMessageIntent extends Intent {
   const SendMessageIntent();
 }
-typedef InputBuilder = void Function(BuildContext context, void Function({types.TextMessage? editContent}) focusTextField);
+
+typedef InputBuilder = void Function(BuildContext context,
+    void Function({types.TextMessage? editContent}) focusTextField);
+
 /// A class that represents bottom bar widget with a text field, attachment and
 /// send buttons inside. By default hides send button when text field is empty.
 class Input extends StatefulWidget {
   /// Creates [Input] widget
-  const Input({
-    Key? key,
-    this.isAttachmentUploading,
-    this.onAttachmentPressed,
-    this.onCameraPressed,
-    required this.onSendPressed,
-    this.onTextChanged,
-    this.onTextFieldTap,
-    this.repliedMessage,
-    required this.canSend,
-    required this.sendButtonVisibilityMode,
-    required this.builder,
-    required this.onCancelReplyPressed,
-    required this.inputBuilder,
-    required this.people,
-    required this.isGroup,
-    required this.onStickerPressed,
-    required this.onMessageTap,
-    required this.isVisible,
-    required this.roomData
-  }) : super(key: key);
+  const Input(
+      {Key? key,
+      this.isAttachmentUploading,
+      this.onAttachmentPressed,
+      this.onCameraPressed,
+      required this.onSendPressed,
+      this.onTextChanged,
+      this.onTextFieldTap,
+      this.repliedMessage,
+      required this.canSend,
+      required this.sendButtonVisibilityMode,
+      required this.builder,
+      required this.onCancelReplyPressed,
+      required this.inputBuilder,
+      required this.people,
+      required this.isGroup,
+      required this.onStickerPressed,
+      required this.onMessageTap,
+      required this.isVisible,
+      required this.roomData})
+      : super(key: key);
 
   final Rooms roomData;
   final bool canSend;
   final ChatEmojiBuilder builder;
   final InputBuilder inputBuilder;
+
   /// See [AttachmentButton.onPressed]
   final void Function()? onAttachmentPressed;
   final void Function()? onCameraPressed;
@@ -75,7 +79,8 @@ class Input extends StatefulWidget {
   final bool isVisible;
 
   /// See [Message.onMessageTap]
-  final void Function(BuildContext context, types.Message, bool isRepliedMessage)? onMessageTap;
+  final void Function(
+      BuildContext context, types.Message, bool isRepliedMessage)? onMessageTap;
 
   final bool isGroup;
   final List<People>? people;
@@ -97,14 +102,12 @@ class Input extends StatefulWidget {
   /// Defaults to [SendButtonVisibilityMode.editing].
   final SendButtonVisibilityMode sendButtonVisibilityMode;
 
-
   /// Will be called on [SendButton] tap. Has [types.PartialText] which can
   /// be transformed to [types.TextMessage] and added to the messages list.
-  final void Function(types.PartialText, {types.Message? repliedMessage , types.TextMessage? isEdit})
-  onSendPressed;
+  final void Function(types.PartialText,
+      {types.Message? repliedMessage, types.TextMessage? isEdit}) onSendPressed;
 
-  final void Function(File sticker)
-  onStickerPressed;
+  final void Function(File sticker) onStickerPressed;
 
   /// See [RepliedMessage.onCancelReplyPressed]
   final void Function() onCancelReplyPressed;
@@ -145,16 +148,16 @@ class _InputState extends State<Input> {
       regex += "r'+\b'";
     } else {
       // Nếu không có người dùng hợp lệ, sử dụng một regex mặc định hoặc bỏ qua
-      regex = 'r' '@\b' ;
+      regex = 'r' '@\b';
     }
 
     getDraft();
     _textController = RichTextController(
       targetMatches: [
         MatchTargetItem(
-            style: TextStyle(color: Colors.blueAccent, backgroundColor: Colors.grey[200]),
-            regex: RegExp(regex)
-        )
+            style: TextStyle(
+                color: Colors.blueAccent, backgroundColor: Colors.grey[200]),
+            regex: RegExp(regex))
       ],
       onMatch: (List<String> match) {},
     );
@@ -168,21 +171,21 @@ class _InputState extends State<Input> {
     }
   }
 
-
   void _deleteImage() {
-      _imageData = '';
-      setState(() {});
+    _imageData = '';
+    setState(() {});
   }
 
   void getDraft() async {
-    Map<String,dynamic>? value = await getDraftInput(ChatConnection.roomId!);
-    if(value != null) {
-      if(value.containsKey('text')) {
+    Map<String, dynamic>? value =
+        await getDraftInput(ChatConnection.roomId ?? '');
+    if (value != null) {
+      if (value.containsKey('text')) {
         setState(() {
-          _textController.text = checkTag(value['text'],widget.people);
+          _textController.text = checkTag(value['text'], widget.people);
         });
       }
-      if(value.containsKey('tag_list')) {
+      if (value.containsKey('tag_list')) {
         _idTagList = List<String>.from(value['tag_list']);
       }
     }
@@ -192,25 +195,24 @@ class _InputState extends State<Input> {
   void dispose() {
     _inputFocusNode.dispose();
     _textController.dispose();
-    Map<String,dynamic> value = {};
-    if(_textController.value.text != '') {
+    Map<String, dynamic> value = {};
+    if (_textController.value.text != '') {
       value['text'] = _textController.value.text;
     }
-    if(_idTagList.isNotEmpty) {
+    if (_idTagList.isNotEmpty) {
       value['tag_list'] = _idTagList;
     }
-    if(widget.repliedMessage != null) {
+    if (widget.repliedMessage != null) {
       value['reply'] = widget.repliedMessage!.toJson();
     }
-    if(value.isNotEmpty) {
-      try{
+    if (value.isNotEmpty) {
+      try {
         saveDraftInput(value, ChatConnection.roomId!);
-      }catch(_) {}
-    }
-    else {
-      try{
-        deleteDraftInput(ChatConnection.roomId!);
-      }catch(_) {}
+      } catch (_) {}
+    } else {
+      try {
+        deleteDraftInput(ChatConnection.roomId??'');
+      } catch (_) {}
     }
     super.dispose();
   }
@@ -224,46 +226,50 @@ class _InputState extends State<Input> {
       ),
     );
   }
+
   void _handleSendPressed() {
     _isEdit = false;
     var trimmedText = _textController.text.trim();
-    trimmedText = trimmedText.replaceAll('@${AppLocalizations.text(LangKey.all)}', '@all-all@');
-    if(widget.people != null) {
-      if(_idTagList.isNotEmpty) {
-        for(var e in _idTagList) {
+    trimmedText = trimmedText.replaceAll(
+        '@${AppLocalizations.text(LangKey.all)}', '@all-all@');
+    if (widget.people != null) {
+      if (_idTagList.isNotEmpty) {
+        for (var e in _idTagList) {
           try {
             People p = widget.people!.firstWhere((element) => element.sId == e);
-            trimmedText = trimmedText.replaceAll('@${p.firstName}${p.lastName}', '@${p.firstName}${p.lastName}-${p.sId}@');
-          }catch(_) {}
+            trimmedText = trimmedText.replaceAll('@${p.firstName}${p.lastName}',
+                '@${p.firstName}${p.lastName}-${p.sId}@');
+          } catch (_) {}
         }
       }
       _idTagList = [];
     }
     if (trimmedText != '') {
       final _partialText = types.PartialText(text: trimmedText);
-      widget.onSendPressed(_partialText,repliedMessage: InheritedRepliedMessage.of(context)
-          .repliedMessage,isEdit: editContent);
+      widget.onSendPressed(_partialText,
+          repliedMessage: InheritedRepliedMessage.of(context).repliedMessage,
+          isEdit: editContent);
       _textController.clear();
     }
     setState(() {
       _taggingSuggestList = null;
     });
-    deleteDraftInput(ChatConnection.roomId!);
+    deleteDraftInput(ChatConnection.roomId??'');
   }
 
   void _handleTextControllerChange() {
     setState(() {
       _sendButtonVisible = _textController.text.trim() != '';
-      if(!_sendButtonVisible) {
+      if (!_sendButtonVisible) {
         _idTagList = [];
       }
     });
   }
 
-  Future<void> onChanged(String value)  async {
+  Future<void> onChanged(String value) async {
     List<String> tagListDetect = detectTag(value, widget.people);
     for (var e in tagListDetect) {
-      if(!_idTagList.contains(e)) {
+      if (!_idTagList.contains(e)) {
         _idTagList.add(e);
       }
     }
@@ -271,27 +277,27 @@ class _InputState extends State<Input> {
     var cursorPos = _textController.selection.base.offset;
     int? index;
     String textBeforeCursor = _textController.text.substring(0, cursorPos);
-    for(int i=textBeforeCursor.length-1;i>=0;i--) {
-      if(textBeforeCursor[i] == ' ' || textBeforeCursor[i] == '\n' ) {
+    for (int i = textBeforeCursor.length - 1; i >= 0; i--) {
+      if (textBeforeCursor[i] == ' ' || textBeforeCursor[i] == '\n') {
         break;
       }
-      if(textBeforeCursor[i] == '@') {
+      if (textBeforeCursor[i] == '@') {
         index = i;
       }
     }
-    if(index!=null) {
+    if (index != null) {
       //TODO: Null string
-      if(_textController.text == '') {
+      if (_textController.text == '') {
         setState(() {
           _taggingSuggestList = null;
         });
-      }
-      else {
+      } else {
         //TODO: Has Tag
         String tagString;
         try {
-          tagString = textBeforeCursor.substring(index+1,textBeforeCursor.length);
-        }catch(_) {
+          tagString =
+              textBeforeCursor.substring(index + 1, textBeforeCursor.length);
+        } catch (_) {
           tagString = '';
         }
         detectTagInTextField(tagString);
@@ -302,21 +308,23 @@ class _InputState extends State<Input> {
   detectTagInTextField(String data) {
     List<People> tmp = [];
     for (var e in widget.people!) {
-      if('${e.firstName}${e.lastName}'.toLowerCase().contains(data.toLowerCase()) && e.sId != ChatConnection.user!.id) {
-        if('${e.firstName}${e.lastName}'.toLowerCase() != data.toLowerCase()) {
+      if ('${e.firstName}${e.lastName}'
+              .toLowerCase()
+              .contains(data.toLowerCase()) &&
+          e.sId != ChatConnection.user!.id) {
+        if ('${e.firstName}${e.lastName}'.toLowerCase() != data.toLowerCase()) {
           tmp.add(e);
         }
       }
     }
-    if(tmp.isNotEmpty) {
+    if (tmp.isNotEmpty) {
       _taggingSuggestList = tmp;
       setState(() {});
-    }
-    else {
-      if(data == '') {
+    } else {
+      if (data == '') {
         _taggingSuggestList = [];
         for (var e in widget.people!) {
-          if(e.sId != ChatConnection.user!.id) {
+          if (e.sId != ChatConnection.user!.id) {
             _taggingSuggestList!.add(e);
           }
         }
@@ -324,6 +332,7 @@ class _InputState extends State<Input> {
       setState(() {});
     }
   }
+
   int emojiIndex = 0;
   Widget _inputBuilder() {
     final _query = MediaQuery.of(context);
@@ -335,332 +344,411 @@ class _InputState extends State<Input> {
             _query.padding.right,
             (_query.viewInsets.bottom + _query.padding.bottom) * 0.4,
           );
-    return widget.canSend ? Focus(
-      autofocus: true,
-      child: Padding(
-        padding: InheritedChatTheme.of(context).theme.inputMargin,
-        child: Material(
-          borderRadius: InheritedChatTheme.of(context).theme.inputBorderRadius,
-          color: Colors.white,
-          child: Container(
-            decoration:
-                InheritedChatTheme.of(context).theme.inputContainerDecoration,
-            child: Column(
-              children: [
-                Visibility(
-                    visible: _taggingSuggestList != null,
-                    child: _taggingSuggestList != null ? Wrap(
-                      children: _arrayTaggingSuggestionList(_taggingSuggestList!.length == widget.people!.length-1 && widget.isGroup),
-                    ) : Container()),
-                if (InheritedRepliedMessage.of(context).repliedMessage != null)
-                  Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
-                      child: RepliedMessage(
-                        onCancelReplyPressed: widget.onCancelReplyPressed,
-                        repliedMessage: InheritedRepliedMessage.of(context)
-                            .repliedMessage,
-                        showUserNames: true,
-                        onMessageTap: widget.onMessageTap,
-                        people: widget.people,
-                      )
-                  ),
-                Container(
-                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 20).add(_safeAreaInsets),
+    return widget.canSend
+        ? Focus(
+            autofocus: true,
+            child: Padding(
+              padding: InheritedChatTheme.of(context).theme.inputMargin,
+              child: Material(
+                borderRadius:
+                    InheritedChatTheme.of(context).theme.inputBorderRadius,
+                color: Colors.white,
+                child: Container(
+                  decoration: InheritedChatTheme.of(context)
+                      .theme
+                      .inputContainerDecoration,
                   child: Column(
                     children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Expanded(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                  border: Border.all(
-                                      color: const Color(0xFFBCC5D7), width: 1.0),
-                                  borderRadius:
-                                  const BorderRadius.all(Radius.circular(10.0))),
-                              child: Padding(
-                                padding: const EdgeInsets.all(3.0),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                      Visibility(
-                                        visible: _imageData != '',
-                                        child: Stack(
-                                          children: [
-                                            SizedBox(
-                                              width: MediaQuery.of(context).size.width / 3,
-                                              child: ClipRRect(
-                                                borderRadius: BorderRadius.circular(8.0),
-                                                child: Image.memory(
-                                                  Uint8List.fromList(_imageData.codeUnits),
-                                                ),
-                                              ),
-                                            ),
-                                            Positioned(
-                                              top: 5.0,
-                                              right: 5.0,
-                                              child: GestureDetector(
-                                                onTap: _deleteImage,
-                                                child: Container(
-                                                  padding: const EdgeInsets.all(4.0),
-                                                  decoration: const BoxDecoration(
-                                                    shape: BoxShape.circle,
-                                                    color: Colors.red,
+                      Visibility(
+                          visible: _taggingSuggestList != null,
+                          child: _taggingSuggestList != null
+                              ? Wrap(
+                                  children: _arrayTaggingSuggestionList(
+                                      _taggingSuggestList!.length ==
+                                              widget.people!.length - 1 &&
+                                          widget.isGroup),
+                                )
+                              : Container()),
+                      if (InheritedRepliedMessage.of(context).repliedMessage !=
+                          null)
+                        Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
+                            child: RepliedMessage(
+                              onCancelReplyPressed: widget.onCancelReplyPressed,
+                              repliedMessage:
+                                  InheritedRepliedMessage.of(context)
+                                      .repliedMessage,
+                              showUserNames: true,
+                              onMessageTap: widget.onMessageTap,
+                              people: widget.people,
+                            )),
+                      Container(
+                        padding: const EdgeInsets.fromLTRB(24, 0, 24, 20)
+                            .add(_safeAreaInsets),
+                        child: Column(
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Expanded(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                        border: Border.all(
+                                            color: const Color(0xFFBCC5D7),
+                                            width: 1.0),
+                                        borderRadius: const BorderRadius.all(
+                                            Radius.circular(10.0))),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(3.0),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Visibility(
+                                            visible: _imageData != '',
+                                            child: Stack(
+                                              children: [
+                                                SizedBox(
+                                                  width: MediaQuery.of(context)
+                                                          .size
+                                                          .width /
+                                                      3,
+                                                  child: ClipRRect(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8.0),
+                                                    child: Image.memory(
+                                                      Uint8List.fromList(
+                                                          _imageData.codeUnits),
+                                                    ),
                                                   ),
-                                                  child: const Icon(
-                                                    Icons.close,
-                                                    color: Colors.white,
-                                                    size: 16.0,
+                                                ),
+                                                Positioned(
+                                                  top: 5.0,
+                                                  right: 5.0,
+                                                  child: GestureDetector(
+                                                    onTap: _deleteImage,
+                                                    child: Container(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              4.0),
+                                                      decoration:
+                                                          const BoxDecoration(
+                                                        shape: BoxShape.circle,
+                                                        color: Colors.red,
+                                                      ),
+                                                      child: const Icon(
+                                                        Icons.close,
+                                                        color: Colors.white,
+                                                        size: 16.0,
+                                                      ),
+                                                    ),
                                                   ),
                                                 ),
-                                              ),
+                                              ],
                                             ),
-                                          ],
-                                        ),
-                                      ),
-                                    Row(
-                                      crossAxisAlignment: CrossAxisAlignment.end,
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.only(right: 3.0),
-                                          child: SizedBox(
-                                            height: 35.0,
-                                            width: 35.0,
-                                            child: InkWell(
-                                                onTap: () {
-                                                  setState(() {
-                                                    _emojiShowing = !_emojiShowing;
-                                                    emojiIndex = 0;
-                                                    // if(_emojiShowing) {
-                                                    //   _inputFocusNode.requestFocus();
-                                                    // }
-                                                  });
-                                                },
-                                                child: Image.asset(
-                                                  'assets/icon-emoji.png',
-                                                  package: 'chat',
-                                                )),
                                           ),
-                                        ),
-                                        Expanded(
-                                            child: Padding(
-                                              padding: const EdgeInsets.only(bottom: 6.0),
-                                              child: TextField(
-                                                controller: _textController,
-                                                cursorColor: InheritedChatTheme.of(context)
-                                                    .theme
-                                                    .inputTextCursorColor,
-                                                decoration: InheritedChatTheme.of(context)
-                                                    .theme
-                                                    .inputTextDecoration
-                                                    .copyWith(
-                                                  hintStyle: InheritedChatTheme.of(context)
+                                          Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.end,
+                                            children: [
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    right: 3.0),
+                                                child: SizedBox(
+                                                  height: 35.0,
+                                                  width: 35.0,
+                                                  child: InkWell(
+                                                      onTap: () {
+                                                        setState(() {
+                                                          _emojiShowing =
+                                                              !_emojiShowing;
+                                                          emojiIndex = 0;
+                                                          // if(_emojiShowing) {
+                                                          //   _inputFocusNode.requestFocus();
+                                                          // }
+                                                        });
+                                                      },
+                                                      child: Image.asset(
+                                                        'assets/icon-emoji.png',
+                                                        package: 'chat',
+                                                      )),
+                                                ),
+                                              ),
+                                              Expanded(
+                                                  child: Padding(
+                                                padding: const EdgeInsets.only(
+                                                    bottom: 6.0),
+                                                child: TextField(
+                                                  controller: _textController,
+                                                  cursorColor:
+                                                      InheritedChatTheme.of(
+                                                              context)
+                                                          .theme
+                                                          .inputTextCursorColor,
+                                                  decoration:
+                                                      InheritedChatTheme.of(
+                                                              context)
+                                                          .theme
+                                                          .inputTextDecoration
+                                                          .copyWith(
+                                                            hintStyle:
+                                                                InheritedChatTheme.of(
+                                                                        context)
+                                                                    .theme
+                                                                    .inputTextStyle
+                                                                    .copyWith(
+                                                                      color: Colors
+                                                                          .black
+                                                                          .withValues(
+                                                                              alpha: 0.2),
+                                                                    ),
+                                                            hintText:
+                                                                AppLocalizations
+                                                                    .text(LangKey
+                                                                        .writeAMessage),
+                                                          ),
+                                                  focusNode: _inputFocusNode,
+                                                  keyboardType:
+                                                      TextInputType.multiline,
+                                                  maxLines: 5,
+                                                  minLines: 1,
+                                                  onChanged: (value) {
+                                                    onChanged(value);
+                                                  },
+                                                  onTap: widget.onTextFieldTap,
+                                                  style: InheritedChatTheme.of(
+                                                          context)
                                                       .theme
                                                       .inputTextStyle
                                                       .copyWith(
-                                                    color:
-                                                    Colors.black.withValues(alpha: 0.2),
-                                                  ),
-                                                  hintText: AppLocalizations.text(LangKey.writeAMessage),
+                                                        color: Colors.black,
+                                                      ),
+                                                  textCapitalization:
+                                                      TextCapitalization
+                                                          .sentences,
+                                                  // contentInsertionConfiguration: ContentInsertionConfiguration(
+                                                  //     onContentInserted: _handleContentInsertion,
+                                                  // ),
                                                 ),
-                                                focusNode: _inputFocusNode,
-                                                keyboardType: TextInputType.multiline,
-                                                maxLines: 5,
-                                                minLines: 1,
-                                                onChanged: (value) {
-                                                  onChanged(value);
-                                                },
-                                                onTap: widget.onTextFieldTap,
-                                                style: InheritedChatTheme.of(context)
-                                                    .theme
-                                                    .inputTextStyle
-                                                    .copyWith(
-                                                  color: Colors.black,
-                                                ),
-                                                textCapitalization: TextCapitalization.sentences,
-                                                // contentInsertionConfiguration: ContentInsertionConfiguration(
-                                                //     onContentInserted: _handleContentInsertion,
-                                                // ),
-                                              ),
-                                            ))
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                          if (widget.onAttachmentPressed != null &&
-                              widget.onCameraPressed != null)
-                            Visibility(
-                              visible: !_sendButtonVisible,
-                              child: Padding(
-                                padding: const EdgeInsets.only(left: 10.0,bottom: 5.0),
-                                child: _leftWidgetBuilder(),
-                              ),
-                            ),
-                          Visibility(
-                            visible: _isEdit,
-                            child: Padding(
-                              padding: const EdgeInsets.only(bottom: 5.0),
-                              child: RemoveEditButton(
-                                onPressed: (){
-                                  _isEdit = false;
-                                  _textController.text = '';
-                                  if(!_isEdit) {
-                                    editContent = null;
-                                  }
-                                },
-                              ),
-                            ),
-                          ),
-                          Visibility(
-                            visible: _sendButtonVisible,
-                            child: Padding(
-                              padding: const EdgeInsets.only(bottom: 5.0),
-                              child: SendButton(
-                                onPressed: _handleSendPressed,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Visibility(
-                        visible: _emojiShowing,
-                        child: SizedBox(
-                          height: 250,
-                          child: Column(
-                            children: [
-                              SizedBox(
-                                height: 50.0,
-                                child: Row(
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.only(right: 10.0),
-                                      child: InkWell(
-                                          child: Chip(
-                                            labelPadding: const EdgeInsets.all(2.0),
-                                            label: AutoSizeText(
-                                              'Emotion Icon',
-                                              style: TextStyle(
-                                                color:  emojiIndex == 0 ? Colors.white : Colors.black,
-                                              ),
-                                            ),
-                                            backgroundColor: emojiIndex == 0 ? Colors.blue : const Color(0xFFE5E5E5),
-                                            elevation: 6.0,
-                                            shadowColor: Colors.grey[60],
-                                            padding: const EdgeInsets.all(8.0),
+                                              ))
+                                            ],
                                           ),
-                                        onTap: () {
-                                          setState(() {
-                                            emojiIndex = 0;
-                                          });
-                                        }
-                                      ),
-                                    ),
-                                    InkWell(
-                                        child: Chip(
-                                          labelPadding: const EdgeInsets.all(2.0),
-                                          label: AutoSizeText(
-                                            'Sticker',
-                                            style: TextStyle(
-                                              color:  emojiIndex == 1 ? Colors.white : Colors.black,
-                                            ),
-                                          ),
-                                          backgroundColor: emojiIndex == 1 ? Colors.blue : const Color(0xFFE5E5E5),
-                                          elevation: 6.0,
-                                          shadowColor: Colors.grey[60],
-                                          padding: const EdgeInsets.all(8.0),
-                                        ),
-                                        onTap: () {
-                                          setState(() {
-                                            emojiIndex = 1;
-                                          });
-                                        }
-                                    )
-                                  ],
-                                ),
-                              ),
-                              Expanded(
-                                child:
-                                emojiIndex == 0 ?
-                                  EmojiPicker(
-                                  onEmojiSelected: (Category? category, Emoji? emoji) {
-                                    _onEmojiSelected(emoji);
-                                  },
-                                  onBackspacePressed: _onBackspacePressed,
-                                  config: Config())
-                                :
-                                Column(
-                                  children: [
-                                    Expanded(child: GridView(
-                                      scrollDirection: Axis.horizontal,
-                                      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                                          maxCrossAxisExtent: 160,
-                                          childAspectRatio: 2.25 / 2,
-                                          crossAxisSpacing: 5,
-                                          mainAxisSpacing: 5
-                                      ),
-                                      children: stickers() ,
-                                    )),
-                                    Padding(
-                                      padding: const EdgeInsets.only(top: 5.0),
-                                      child: SizedBox(height: 20.0,child: Row(
-                                        children: [
-                                          stickerSelection("assets/icon-cat.png",1),
-                                          stickerSelection("assets/icon-rabbit.png",2),
-                                          stickerSelection("assets/icon-panda.png",3),
                                         ],
-                                      ),),
-                                    )
-                                  ],
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                              )
-                            ],
-                          ),
-                      )),
+                                if (widget.onAttachmentPressed != null &&
+                                    widget.onCameraPressed != null)
+                                  Visibility(
+                                    visible: !_sendButtonVisible,
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(
+                                          left: 10.0, bottom: 5.0),
+                                      child: _leftWidgetBuilder(),
+                                    ),
+                                  ),
+                                Visibility(
+                                  visible: _isEdit,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(bottom: 5.0),
+                                    child: RemoveEditButton(
+                                      onPressed: () {
+                                        _isEdit = false;
+                                        _textController.text = '';
+                                        if (!_isEdit) {
+                                          editContent = null;
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                ),
+                                Visibility(
+                                  visible: _sendButtonVisible,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(bottom: 5.0),
+                                    child: SendButton(
+                                      onPressed: _handleSendPressed,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Visibility(
+                                visible: _emojiShowing,
+                                child: SizedBox(
+                                  height: 250,
+                                  child: Column(
+                                    children: [
+                                      SizedBox(
+                                        height: 50.0,
+                                        child: Row(
+                                          children: [
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  right: 10.0),
+                                              child: InkWell(
+                                                  child: Chip(
+                                                    labelPadding:
+                                                        const EdgeInsets.all(
+                                                            2.0),
+                                                    label: AutoSizeText(
+                                                      'Emotion Icon',
+                                                      style: TextStyle(
+                                                        color: emojiIndex == 0
+                                                            ? Colors.white
+                                                            : Colors.black,
+                                                      ),
+                                                    ),
+                                                    backgroundColor:
+                                                        emojiIndex == 0
+                                                            ? Colors.blue
+                                                            : const Color(
+                                                                0xFFE5E5E5),
+                                                    elevation: 6.0,
+                                                    shadowColor:
+                                                        Colors.grey[60],
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            8.0),
+                                                  ),
+                                                  onTap: () {
+                                                    setState(() {
+                                                      emojiIndex = 0;
+                                                    });
+                                                  }),
+                                            ),
+                                            InkWell(
+                                                child: Chip(
+                                                  labelPadding:
+                                                      const EdgeInsets.all(2.0),
+                                                  label: AutoSizeText(
+                                                    'Sticker',
+                                                    style: TextStyle(
+                                                      color: emojiIndex == 1
+                                                          ? Colors.white
+                                                          : Colors.black,
+                                                    ),
+                                                  ),
+                                                  backgroundColor: emojiIndex ==
+                                                          1
+                                                      ? Colors.blue
+                                                      : const Color(0xFFE5E5E5),
+                                                  elevation: 6.0,
+                                                  shadowColor: Colors.grey[60],
+                                                  padding:
+                                                      const EdgeInsets.all(8.0),
+                                                ),
+                                                onTap: () {
+                                                  setState(() {
+                                                    emojiIndex = 1;
+                                                  });
+                                                })
+                                          ],
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: emojiIndex == 0
+                                            ? EmojiPicker(
+                                                onEmojiSelected:
+                                                    (Category? category,
+                                                        Emoji? emoji) {
+                                                  _onEmojiSelected(emoji);
+                                                },
+                                                onBackspacePressed:
+                                                    _onBackspacePressed,
+                                                config: Config())
+                                            : Column(
+                                                children: [
+                                                  Expanded(
+                                                      child: GridView(
+                                                    scrollDirection:
+                                                        Axis.horizontal,
+                                                    gridDelegate:
+                                                        const SliverGridDelegateWithMaxCrossAxisExtent(
+                                                            maxCrossAxisExtent:
+                                                                160,
+                                                            childAspectRatio:
+                                                                2.25 / 2,
+                                                            crossAxisSpacing: 5,
+                                                            mainAxisSpacing: 5),
+                                                    children: stickers(),
+                                                  )),
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            top: 5.0),
+                                                    child: SizedBox(
+                                                      height: 20.0,
+                                                      child: Row(
+                                                        children: [
+                                                          stickerSelection(
+                                                              "assets/icon-cat.png",
+                                                              1),
+                                                          stickerSelection(
+                                                              "assets/icon-rabbit.png",
+                                                              2),
+                                                          stickerSelection(
+                                                              "assets/icon-panda.png",
+                                                              3),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  )
+                                                ],
+                                              ),
+                                      )
+                                    ],
+                                  ),
+                                )),
+                          ],
+                        ),
+                      )
                     ],
                   ),
-                )
-              ],
+                ),
+              ),
             ),
-          ),
-        ),
-      ),
-    ) :  sendInteractionMessage();
+          )
+        : sendInteractionMessage();
   }
 
-  popUpSendInteractionMessage(BuildContext buildContext){
-    return showDialog(context: buildContext, builder: (buildContext) {
-      return AlertDialog(
-        contentPadding: EdgeInsets.zero,
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(5.0))),
-        content: Container(
-            decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: new BorderRadius.all(Radius.circular(5))),
-            height: MediaQuery.of(context).size.height * 0.5,
-            width: MediaQuery.of(context).size.width,
-            padding: EdgeInsets.symmetric(vertical: 16, horizontal: 27),
-            child: Row(
-              children: [
-                messageItem('rating'),
-                Container(width: 10.0,),
-                messageItem('promotion'),
-              ],
-            )),
-      );
-    });
+  popUpSendInteractionMessage(BuildContext buildContext) {
+    return showDialog(
+        context: buildContext,
+        builder: (buildContext) {
+          return AlertDialog(
+            contentPadding: EdgeInsets.zero,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(5.0))),
+            content: Container(
+                decoration: BoxDecoration(
+                    color: AppColors.white,
+                    borderRadius: new BorderRadius.all(Radius.circular(5))),
+                height: MediaQuery.of(context).size.height * 0.5,
+                width: MediaQuery.of(context).size.width,
+                padding: EdgeInsets.symmetric(vertical: 16, horizontal: 27),
+                child: Row(
+                  children: [
+                    messageItem('rating'),
+                    Container(
+                      width: 10.0,
+                    ),
+                    messageItem('promotion'),
+                  ],
+                )),
+          );
+        });
   }
 
-  Widget messageItem(String type){
-    return Expanded(child: Container(
+  Widget messageItem(String type) {
+    return Expanded(
+        child: Container(
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8.0),
-          color: AppColors.grayBackGround
-      ),
+          color: AppColors.grayBackGround),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -668,7 +756,9 @@ class _InputState extends State<Input> {
           Container(
             margin: EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
             child: Text(
-              type == "rating" ? AppLocalizations.text(LangKey.rating_message) : AppLocalizations.text(LangKey.promotion_message),
+              type == "rating"
+                  ? AppLocalizations.text(LangKey.rating_message)
+                  : AppLocalizations.text(LangKey.promotion_message),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -691,25 +781,33 @@ class _InputState extends State<Input> {
           ),
           Expanded(
             child: Container(
-              margin: EdgeInsets.symmetric(vertical: 10.0),
-                child: Image.asset(type == "rating" ? Assets.imageRatingMessage : Assets.imagePromotionMessage, package: 'chat', fit: BoxFit.fill,)),
+                margin: EdgeInsets.symmetric(vertical: 10.0),
+                child: Image.asset(
+                  type == "rating"
+                      ? Assets.imageRatingMessage
+                      : Assets.imagePromotionMessage,
+                  package: 'chat',
+                  fit: BoxFit.fill,
+                )),
           ),
           InkWell(
-            onTap: (){
-              CustomNavigator.showCustomAlertDialog(context, null,
-                  AppLocalizations.text(LangKey.charge_message),
-                  titleHeader:
-                  AppLocalizations.text(LangKey.warning),
+            onTap: () {
+              CustomNavigator.showCustomAlertDialog(
+                  context, null, AppLocalizations.text(LangKey.charge_message),
+                  titleHeader: AppLocalizations.text(LangKey.warning),
                   enableCancel: true,
-                  textSubSubmitted:
-                  AppLocalizations.text(LangKey.cancel),
+                  textSubSubmitted: AppLocalizations.text(LangKey.cancel),
                   textSubmitted: AppLocalizations.text(LangKey.confirm),
                   onSubmitted: () async {
-                    CustomNavigator.pop(context);
-                    CustomNavigator.pop(context);
-                   await _bloc.sendTransaction(widget.roomData.channel!.socialChanelId!, type, widget.roomData.owner!.userSocialId!);
-                    _bloc.messageSystem(widget.roomData.owner!.sId!, widget.roomData.sId!);
-                  });
+                CustomNavigator.pop(context);
+                CustomNavigator.pop(context);
+                await _bloc.sendTransaction(
+                    widget.roomData.channel!.socialChanelId!,
+                    type,
+                    widget.roomData.owner!.userSocialId!);
+                _bloc.messageSystem(
+                    widget.roomData.owner!.sId!, widget.roomData.sId!);
+              });
             },
             child: Center(
               child: Container(
@@ -717,8 +815,7 @@ class _InputState extends State<Input> {
                 padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 3),
                 decoration: BoxDecoration(
                     color: Colors.blue,
-                    borderRadius: BorderRadius.circular(6.0)
-                ),
+                    borderRadius: BorderRadius.circular(6.0)),
                 child: Text(
                   AppLocalizations.text(LangKey.send_message_2),
                   style: TextStyle(color: AppColors.white),
@@ -731,17 +828,15 @@ class _InputState extends State<Input> {
     ));
   }
 
-  Widget sendInteractionMessage(){
+  Widget sendInteractionMessage() {
     return InkWell(
-      onTap: ()=> popUpSendInteractionMessage(context),
+      onTap: () => popUpSendInteractionMessage(context),
       child: Container(
         margin: EdgeInsets.only(bottom: 10.0),
         height: 40.0,
         width: MediaQuery.of(context).size.width / 2,
         decoration: BoxDecoration(
-            color: Colors.blue,
-            borderRadius: BorderRadius.circular(10.0)
-        ),
+            color: Colors.blue, borderRadius: BorderRadius.circular(10.0)),
         child: Center(
           child: Text(
             AppLocalizations.text(LangKey.interaction_message),
@@ -757,52 +852,56 @@ class _InputState extends State<Input> {
     return Padding(
       padding: const EdgeInsets.only(right: 8.0),
       child: InkWell(
-        child:
-        ImageIcon(AssetImage(icon,package: 'chat'),
-          color: emojiIndex == index ? Colors.blue : Colors.grey.shade400,),
+        child: ImageIcon(
+          AssetImage(icon, package: 'chat'),
+          color: emojiIndex == index ? Colors.blue : Colors.grey.shade400,
+        ),
         onTap: () {
           setState(() {
             emojiIndex = index;
-          });},
+          });
+        },
       ),
     );
   }
+
   List<Widget> stickers() {
-    if(emojiIndex == 1) {
+    if (emojiIndex == 1) {
       return Stickers.mimiCatStickers(widget.onStickerPressed);
-    }
-    else if(emojiIndex == 2) {
+    } else if (emojiIndex == 2) {
       return Stickers.usagyuunStickers(widget.onStickerPressed);
-    }
-    else if(emojiIndex == 3) {
+    } else if (emojiIndex == 3) {
       return Stickers.pandaStickers(widget.onStickerPressed);
-    }
-    else {
+    } else {
       return [Container()];
     }
   }
 
   List<Widget> _arrayTaggingSuggestionList(bool isAll) {
     List<Widget> _arr = [];
-    if(isAll) {
+    if (isAll) {
       _arr.add(Padding(
-        padding: const EdgeInsets.only(left: 8.0,right: 8.0,bottom: 8.0),
+        padding: const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 8.0),
         child: InkWell(
-          onTap: (){
+          onTap: () {
             int val = replaceTagInTextField(null, _textController.value.text);
             setState(() {
-              _textController.selection = TextSelection.fromPosition(TextPosition(offset: val));
+              _textController.selection =
+                  TextSelection.fromPosition(TextPosition(offset: val));
               _taggingSuggestList = null;
             });
           },
           child: Row(
             children: [
-              const Icon(Icons.group,color: Colors.grey,),
-              Expanded(child: Padding(
+              const Icon(
+                Icons.group,
+                color: Colors.grey,
+              ),
+              Expanded(
+                  child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 5.0),
                 child: AutoSizeText(AppLocalizations.text(LangKey.all),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis),
+                    maxLines: 1, overflow: TextOverflow.ellipsis),
               ))
             ],
           ),
@@ -811,48 +910,60 @@ class _InputState extends State<Input> {
     }
     for (var e in _taggingSuggestList!) {
       _arr.add(Padding(
-        padding: const EdgeInsets.only(left: 8.0,right: 8.0,bottom: 8.0),
+        padding: const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 8.0),
         child: InkWell(
           onTap: () {
-            if(!_idTagList.contains(e.sId!)) {
+            if (!_idTagList.contains(e.sId!)) {
               _idTagList.add(e.sId!);
             }
             int val = replaceTagInTextField(e, _textController.value.text);
             setState(() {
-              _textController.selection = TextSelection.fromPosition(TextPosition(offset: val));
+              _textController.selection =
+                  TextSelection.fromPosition(TextPosition(offset: val));
               _taggingSuggestList = null;
             });
           },
           child: Row(
             children: [
-              e.picture == null ? CircleAvatar(
-                radius: 12.0,
-                child: AutoSizeText(
-                  e.getAvatarName(),
-                  style: const TextStyle(color: Colors.white,fontSize: 8),),
-              ) : CircleAvatar(
-                radius: 12.0,
-                backgroundImage:
-                CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${e.picture!.shieldedID}/256/${ChatConnection.brandCode!}',headers: {'brand-code':ChatConnection.brandCode!}),
-                backgroundColor: Colors.transparent,
-              ),
-              Expanded(child: Padding(
+              e.picture == null
+                  ? CircleAvatar(
+                      radius: 12.0,
+                      child: AutoSizeText(
+                        e.getAvatarName(),
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 8),
+                      ),
+                    )
+                  : CircleAvatar(
+                      radius: 12.0,
+                      backgroundImage: CachedNetworkImageProvider(
+                          '${HTTPConnection.domain}api/images/${e.picture!.shieldedID}/256/${ChatConnection.brandCode!}',
+                          headers: {'brand-code': ChatConnection.brandCode!}),
+                      backgroundColor: Colors.transparent,
+                    ),
+              Expanded(
+                  child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 5.0),
                 child: AutoSizeText('${e.firstName}${e.lastName}',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis),
+                    maxLines: 1, overflow: TextOverflow.ellipsis),
               ))
             ],
           ),
         ),
       ));
-      if(_arr.length == 5) {
+      if (_arr.length == 5) {
         break;
       }
     }
-    if(_arr.isNotEmpty) {
-      _arr.insert(0, Padding(
-          padding: const EdgeInsets.only(bottom: 5.0),child: Container(height: 1.0,color: Colors.grey.shade200,)));
+    if (_arr.isNotEmpty) {
+      _arr.insert(
+          0,
+          Padding(
+              padding: const EdgeInsets.only(bottom: 5.0),
+              child: Container(
+                height: 1.0,
+                color: Colors.grey.shade200,
+              )));
     }
     return _arr;
   }
@@ -860,44 +971,44 @@ class _InputState extends State<Input> {
   int replaceTagInTextField(People? p, String value) {
     var cursorPos = _textController.selection.base.offset;
     String textBeforeCursor = _textController.text.substring(0, cursorPos);
-    String textAfterCursor =  _textController.text.substring(cursorPos);
+    String textAfterCursor = _textController.text.substring(cursorPos);
     String result = _textController.text;
     int? indexing;
-    if(textBeforeCursor != '') {
+    if (textBeforeCursor != '') {
       int? index;
-      for(int i=0;i<=textBeforeCursor.length-1;i++ ) {
-        if(textBeforeCursor[i] == '@') {
+      for (int i = 0; i <= textBeforeCursor.length - 1; i++) {
+        if (textBeforeCursor[i] == '@') {
           index = i;
         }
       }
-      if(index!=null) {
+      if (index != null) {
         int? indexSpace;
-        for(int i=index;i<=textBeforeCursor.length-1;i++ ) {
-          if(textBeforeCursor[i] == ' '|| textBeforeCursor[i] == '\n' ) {
+        for (int i = index; i <= textBeforeCursor.length - 1; i++) {
+          if (textBeforeCursor[i] == ' ' || textBeforeCursor[i] == '\n') {
             indexSpace = i;
           }
-          if(indexSpace == null && i == textBeforeCursor.length-1) {
+          if (indexSpace == null && i == textBeforeCursor.length - 1) {
             indexSpace = i;
           }
         }
         result = textBeforeCursor.substring(0, index);
-        if(p == null) {
+        if (p == null) {
           result += '@${AppLocalizations.text(LangKey.all)}';
-        }
-        else {
+        } else {
           result += '@${p.firstName}${p.lastName}';
         }
         indexing = result.length;
-        result += textBeforeCursor.substring(indexSpace!, textBeforeCursor.length-1);
+        result += textBeforeCursor.substring(
+            indexSpace!, textBeforeCursor.length - 1);
         result += textAfterCursor;
       }
     }
     _textController.text = result;
-    return indexing ?? _textController.text.length-1;
+    return indexing ?? _textController.text.length - 1;
   }
 
   _onEmojiSelected(Emoji? emoji) {
-    if(emoji != null) {
+    if (emoji != null) {
       _textController
         ..text += emoji.emoji
         ..selection = TextSelection.fromPosition(
@@ -935,17 +1046,17 @@ class _InputState extends State<Input> {
             children: [
               Expanded(
                   child: AttachmentButton(
-                    onPressed: widget.onCameraPressed,
-                    image: 'assets/icon-camera.png',
-                  )),
+                onPressed: widget.onCameraPressed,
+                image: 'assets/icon-camera.png',
+              )),
               Container(
                 width: 10.0,
               ),
               Expanded(
                   child: AttachmentButton(
-                    onPressed: widget.onAttachmentPressed,
-                    image: 'assets/icon-chat-add.png',
-                  ))
+                onPressed: widget.onAttachmentPressed,
+                image: 'assets/icon-chat-add.png',
+              ))
             ],
           ),
         ),
@@ -954,12 +1065,13 @@ class _InputState extends State<Input> {
   }
 
   void requestFocus({types.TextMessage? editContent}) {
-    if(editContent != null) {
+    if (editContent != null) {
       this.editContent = editContent;
-      _textController.text = checkTag(editContent.text,widget.people);
+      _textController.text = checkTag(editContent.text, widget.people);
       for (var e in widget.people!) {
-        if(editContent.text.contains('@${e.firstName}${e.lastName}-${e.sId}')) {
-          if(!_idTagList.contains(e.sId)) {
+        if (editContent.text
+            .contains('@${e.firstName}${e.lastName}-${e.sId}')) {
+          if (!_idTagList.contains(e.sId)) {
             _idTagList.add(e.sId!);
           }
         }
@@ -975,39 +1087,42 @@ class _InputState extends State<Input> {
     widget.inputBuilder.call(context, requestFocus);
     final isAndroid = Theme.of(context).platform == TargetPlatform.android;
     final isIOS = Theme.of(context).platform == TargetPlatform.iOS;
-    return !widget.isVisible ? Container(height: MediaQuery.of(context).padding.bottom,) :
-      GestureDetector(
-      onTap: () => _inputFocusNode.requestFocus(),
-      child: isAndroid || isIOS
-          ? _inputBuilder()
-          : Shortcuts(
-              shortcuts: {
-                LogicalKeySet(LogicalKeyboardKey.enter):
-                    const SendMessageIntent(),
-                LogicalKeySet(LogicalKeyboardKey.enter, LogicalKeyboardKey.alt):
-                    const NewLineIntent(),
-                LogicalKeySet(
-                        LogicalKeyboardKey.enter, LogicalKeyboardKey.shift):
-                    const NewLineIntent(),
-              },
-              child: Actions(
-                actions: {
-                  SendMessageIntent: CallbackAction<SendMessageIntent>(
-                    onInvoke: (SendMessageIntent intent) =>
-                        _handleSendPressed(),
+    return !widget.isVisible
+        ? Container(
+            height: MediaQuery.of(context).padding.bottom,
+          )
+        : GestureDetector(
+            onTap: () => _inputFocusNode.requestFocus(),
+            child: isAndroid || isIOS
+                ? _inputBuilder()
+                : Shortcuts(
+                    shortcuts: {
+                      LogicalKeySet(LogicalKeyboardKey.enter):
+                          const SendMessageIntent(),
+                      LogicalKeySet(
+                              LogicalKeyboardKey.enter, LogicalKeyboardKey.alt):
+                          const NewLineIntent(),
+                      LogicalKeySet(LogicalKeyboardKey.enter,
+                          LogicalKeyboardKey.shift): const NewLineIntent(),
+                    },
+                    child: Actions(
+                      actions: {
+                        SendMessageIntent: CallbackAction<SendMessageIntent>(
+                          onInvoke: (SendMessageIntent intent) =>
+                              _handleSendPressed(),
+                        ),
+                        NewLineIntent: CallbackAction<NewLineIntent>(
+                          onInvoke: (NewLineIntent intent) => _handleNewLine(),
+                        ),
+                      },
+                      child: _inputBuilder(),
+                    ),
                   ),
-                  NewLineIntent: CallbackAction<NewLineIntent>(
-                    onInvoke: (NewLineIntent intent) => _handleNewLine(),
-                  ),
-                },
-                child: _inputBuilder(),
-              ),
-            ),
-    );
+          );
   }
 
   void hideEmoji() {
-    if(mounted) {
+    if (mounted) {
       setState(() {
         _emojiShowing = false;
       });

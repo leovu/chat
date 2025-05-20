@@ -11,7 +11,9 @@ import 'package:chat/data_model/room.dart' as r;
 class ActionListUserChathubScreen extends StatefulWidget {
   final r.People data;
   final CustomerAccount? customerAccount;
-  const ActionListUserChathubScreen({Key? key, required this.data, required this.customerAccount}) : super(key: key);
+  const ActionListUserChathubScreen(
+      {Key? key, required this.data, required this.customerAccount})
+      : super(key: key);
   @override
   _State createState() => _State();
 }
@@ -28,7 +30,8 @@ class _State extends State<ActionListUserChathubScreen> {
                 color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
           ),
           leading: InkWell(
-            child: Icon(Platform.isIOS ? Icons.arrow_back_ios : Icons.arrow_back,
+            child: Icon(
+                Platform.isIOS ? Icons.arrow_back_ios : Icons.arrow_back,
                 color: Colors.black),
             onTap: () => Navigator.of(context).pop(),
           ),
@@ -37,78 +40,123 @@ class _State extends State<ActionListUserChathubScreen> {
             color: Colors.black,
           ),
         ),
-        body: SafeArea(child: ListView(
-          padding: const EdgeInsets.only(top: 20.0),
-          physics: const ClampingScrollPhysics(),
-          children: [
-            if(widget.customerAccount?.data?.type == null || widget.customerAccount?.data?.type == 'cpo') _action(AppLocalizations.text(LangKey.addCustomer), Icons.people, () async {
-              if(ChatConnection.addCustomer != null) {
-                Map<String,dynamic>? addCustomer = await ChatConnection.addCustomer!();
-                if(addCustomer != null) {
-                  Navigator.of(context).pop(addCustomer);
-                }
-              }
-            }),
-            if(widget.customerAccount?.data?.type == null || widget.customerAccount?.data?.type == 'cpo') Container(height: 15.0,),
-            if(widget.customerAccount?.data?.type == null) _action(AppLocalizations.text(LangKey.addCustomerPotential), Icons.emoji_people,  () async {
-              if(ChatConnection.addCustomerPotential != null) {
-                Map<String,dynamic>? addCustomer = await ChatConnection.addCustomerPotential!(widget.data.phone,'${widget.data.firstName} ${widget.data.lastName}');
-                if(addCustomer != null) {
-                  Navigator.of(context).pop(addCustomer);
-                }
-              }
-            }),
-            if(widget.customerAccount?.data?.type == null) Container(height: 15.0,),
-            _action(AppLocalizations.text(LangKey.addLabel), Icons.label_important_outline, () {
-              Navigator.of(context).push(MaterialPageRoute(builder: (ctx) {
-                return TagListScreen(data: widget.data, customerAccount: widget.customerAccount);
-              }));
-            }),
-            Container(height: 15.0,),
-            if(widget.customerAccount?.data?.type != 'cpo') _action(AppLocalizations.text(LangKey.createOrder), Icons.backpack_outlined, ChatConnection.createOrder),
-            if(widget.customerAccount?.data?.type != 'cpo') Container(height: 15.0,),
-            _action(AppLocalizations.text(LangKey.createAppointment), Icons.calendar_today_outlined, ChatConnection.createAppointment),
-            Container(height: 15.0,),
-            if(widget.customerAccount?.data?.type != null) _action(AppLocalizations.text(LangKey.createDeal), Icons.star_border, ChatConnection.createDeal),
-            if(widget.customerAccount?.data?.type != null) Container(height: 15.0,),
-            _action(AppLocalizations.text(LangKey.createTask), Icons.add_task, ChatConnection.createTask),
-            Container(height: 15.0,),
-          ],
-        ),)
+        body: SafeArea(
+          child: ListView(
+            padding: const EdgeInsets.only(top: 20.0),
+            physics: const ClampingScrollPhysics(),
+            children: [
+              if (widget.customerAccount?.data?.type == null ||
+                  widget.customerAccount?.data?.type == 'cpo')
+                _action(
+                    AppLocalizations.text(LangKey.addCustomer), Icons.people,
+                    () async {
+                  if (ChatConnection.addCustomer != null) {
+                    Map<String, dynamic>? addCustomer =
+                        await ChatConnection.addCustomer!();
+                    if (addCustomer != null) {
+                      Navigator.of(context).pop(addCustomer);
+                    }
+                  }
+                }),
+              if (widget.customerAccount?.data?.type == null ||
+                  widget.customerAccount?.data?.type == 'cpo')
+                Container(
+                  height: 15.0,
+                ),
+              if (widget.customerAccount?.data?.type == null)
+                _action(AppLocalizations.text(LangKey.addCustomerPotential),
+                    Icons.emoji_people, () async {
+                  if (ChatConnection.addCustomerPotential != null) {
+                    Map<String, dynamic>? addCustomer = await ChatConnection
+                            .addCustomerPotential!(widget.data.phone ?? '',
+                        '${widget.data.firstName ?? ''} ${widget.data.lastName ?? ''}');
+                    if (addCustomer != null) {
+                      Navigator.of(context).pop(addCustomer);
+                    }
+                  }
+                }),
+              if (widget.customerAccount?.data?.type == null)
+                Container(
+                  height: 15.0,
+                ),
+              _action(AppLocalizations.text(LangKey.addLabel),
+                  Icons.label_important_outline, () {
+                Navigator.of(context).push(MaterialPageRoute(builder: (ctx) {
+                  return TagListScreen(
+                      data: widget.data,
+                      customerAccount: widget.customerAccount);
+                }));
+              }),
+              Container(
+                height: 15.0,
+              ),
+              if (widget.customerAccount?.data?.type != 'cpo')
+                _action(AppLocalizations.text(LangKey.createOrder),
+                    Icons.backpack_outlined, ChatConnection.createOrder),
+              if (widget.customerAccount?.data?.type != 'cpo')
+                Container(
+                  height: 15.0,
+                ),
+              _action(
+                  AppLocalizations.text(LangKey.createAppointment),
+                  Icons.calendar_today_outlined,
+                  ChatConnection.createAppointment),
+              Container(
+                height: 15.0,
+              ),
+              if (widget.customerAccount?.data?.type != null)
+                _action(AppLocalizations.text(LangKey.createDeal),
+                    Icons.star_border, ChatConnection.createDeal),
+              if (widget.customerAccount?.data?.type != null)
+                Container(
+                  height: 15.0,
+                ),
+              _action(AppLocalizations.text(LangKey.createTask), Icons.add_task,
+                  ChatConnection.createTask),
+              Container(
+                height: 15.0,
+              ),
+            ],
+          ),
+        ));
+  }
+
+  void addPotentialCustomer(Map<String, dynamic> addCustomer) {
+    Navigator.of(context).pop(addCustomer);
+  }
+
+  Widget _action(String title, IconData icon, Function? action) {
+    return InkWell(
+      onTap: () {
+        if (action != null) {
+          action();
+        }
+      },
+      child: Center(
+        child: Container(
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10.0),
+              border: Border.all(color: Colors.grey.shade400)),
+          height: 40.0,
+          width: MediaQuery.of(context).size.width * 0.85,
+          child: Row(
+            children: [
+              Container(
+                width: 10.0,
+              ),
+              Icon(
+                icon,
+                color: Colors.blue,
+              ),
+              Container(
+                width: 10.0,
+              ),
+              Expanded(child: AutoSizeText(title))
+            ],
+          ),
+        ),
+      ),
     );
   }
 
-  void addPotentialCustomer(Map<String,dynamic> addCustomer) {
-    Navigator.of(context).pop(addCustomer);
-  }
-  
-  Widget _action(String title, IconData icon, Function? action) {
-    return
-      InkWell(
-        onTap: () {
-          if(action!=null) {
-            action();
-          }
-        },
-        child: Center(
-          child: Container(
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10.0),
-                border: Border.all(color: Colors.grey.shade400)
-            ),
-            height: 40.0,
-            width: MediaQuery.of(context).size.width*0.85,
-            child: Row(
-              children: [
-                Container(width: 10.0,),
-                Icon(icon,color: Colors.blue,),
-                Container(width: 10.0,),
-                Expanded(child: AutoSizeText(title))
-              ],
-            ),
-          ),
-        ),
-      );
-  }
-  
 }

@@ -22,9 +22,11 @@ class AddMemberGroupScreen extends StatefulWidget {
   final String? chanel_id;
   final ChatMessage chatMessage;
 
-
   const AddMemberGroupScreen(
-      {Key? key, required this.roomData, this.chanel_id, required this.chatMessage})
+      {Key? key,
+      required this.roomData,
+      this.chanel_id,
+      required this.chatMessage})
       : super(key: key);
   @override
   _AddMemberGroupScreenState createState() => _AddMemberGroupScreenState();
@@ -41,20 +43,18 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
   UserZaloOAList? userZaloOAListVisible;
   bool isInitScreen = true;
 
-
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (mounted) {
-        ChatConnection.isChatHub?
-        await _getContacts(): await _getContactsChat();
+        ChatConnection.isChatHub
+            ? await _getContacts()
+            : await _getContactsChat();
       }
       isInitScreen = false;
     });
-
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -164,110 +164,145 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                     )
                   ],
                 ),
-                ChatConnection.isChatHub?
-                widget.roomData.channel?.source=='zalo'?
-                Expanded(
-                  child: isInitScreen
-                      ? Center(
-                      child: Platform.isAndroid
-                          ? const CircularProgressIndicator()
-                          : const CupertinoActivityIndicator())
-                      : userZaloOAListVisible != null
-                      ? ListView.builder(
-                      keyboardDismissBehavior:
-                      ScrollViewKeyboardDismissBehavior.onDrag,
-                      itemCount:
-                      userZaloOAListVisible!.users?.length ?? 0,
-                      itemBuilder:
-                          (BuildContext context, int position) {
-                        return InkWell(
-                            onTap: () async {
+                ChatConnection.isChatHub
+                    ? widget.roomData.channel?.source == 'zalo'
+                        ? Expanded(
+                            child: isInitScreen
+                                ? Center(
+                                    child: Platform.isAndroid
+                                        ? const CircularProgressIndicator()
+                                        : const CupertinoActivityIndicator())
+                                : userZaloOAListVisible != null
+                                    ? ListView.builder(
+                                        keyboardDismissBehavior:
+                                            ScrollViewKeyboardDismissBehavior
+                                                .onDrag,
+                                        itemCount: userZaloOAListVisible!
+                                                .users?.length ??
+                                            0,
+                                        itemBuilder: (BuildContext context,
+                                            int position) {
+                                          return InkWell(
+                                              onTap: () async {
+                                                userZaloOAListVisible!
+                                                        .users![position]
+                                                        .isSelected =
+                                                    !userZaloOAListVisible!
+                                                        .users![position]
+                                                        .isSelected;
 
-                                  userZaloOAListVisible!.users![position].isSelected = !userZaloOAListVisible!.users![position].isSelected;
-
-                                setState(() { });
-                            },
-                            child:
-                            _contactsZaloOA(
-                                userZaloOAListVisible!.users![position],
-                                position ==
-                                    userZaloOAListVisible!
-                                        .users!.length -
-                                        1)
-                        );
-                      })
-                      : Container(),
-                )
-                :Expanded(
-                  child: isInitScreen
-                      ? Center(
-                          child: Platform.isAndroid
-                              ? const CircularProgressIndicator()
-                              : const CupertinoActivityIndicator())
-                      : contactsListVisible != null
-                          ? ListView.builder(
-                              keyboardDismissBehavior:
-                                  ScrollViewKeyboardDismissBehavior.onDrag,
-                              itemCount:
-                                  contactsListVisible!.friends?.length ?? 0,
-                              itemBuilder:
-                                  (BuildContext context, int position) {
-                                return InkWell(
-                                    onTap: () async {
-                                      setState(() {
-                                        if (contactsListVisible!
-                                                .friends![position]
-                                                .isSelected !=
-                                            null) {
-                                          contactsListVisible!
-                                                  .friends![position]
-                                                  .isSelected =
-                                              !contactsListVisible!
-                                                  .friends![position]
-                                                  .isSelected!;
-                                        } else {
-                                          contactsListVisible!
-                                              .friends![position]
-                                              .isSelected = true;
-                                        }
-                                      });
-                                    },
-                                    child:
-                                    _contacts(
-                                        contactsListVisible!.friends![position],
-                                        position ==
-                                            contactsListVisible!
-                                                    .friends!.length -
-                                                1));
-                              })
-                          : Container(),
-                )
-                :
-                Expanded(
-                  child:
-                  isInitScreen ? Center(child: Platform.isAndroid ? const CircularProgressIndicator() : const CupertinoActivityIndicator()) :
-                  contactsListDataChatVisible != null ? ListView.builder(
-                      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                      itemCount: contactsListDataChatVisible!.users?.length ?? 0,
-                      itemBuilder: (BuildContext context, int position) {
-                        return InkWell(
-                            onTap: () async {
-                              setState(() {
-                                if(contactsListDataChatVisible!.users![position].isSelected != null) {
-                                  contactsListDataChatVisible!.users![position].isSelected = !contactsListDataChatVisible!.users![position].isSelected!;
-                                }
-                                else {
-                                  contactsListDataChatVisible!.users![position].isSelected = true;
-                                }
-                              });
-                            },
-                            child: _contactChat(contactsListDataChatVisible!.users![position], position == contactsListDataChatVisible!.users!.length-1));
-                      }) : Container(),
-                ),
-
-                ((contactsListVisible != null && isSelectedMember(contactsListVisible?.friends)) ||
-                    (contactsListDataChatVisible != null && isSelectedMemberChat(contactsListDataChatVisible?.users))||
-                    (userZaloOAListVisible != null && isSelectedMemberZaloOA(userZaloOAListVisible?.users)))
+                                                setState(() {});
+                                              },
+                                              child: _contactsZaloOA(
+                                                  userZaloOAListVisible!
+                                                      .users![position],
+                                                  position ==
+                                                      userZaloOAListVisible!
+                                                              .users!.length -
+                                                          1));
+                                        })
+                                    : Container(),
+                          )
+                        : Expanded(
+                            child: isInitScreen
+                                ? Center(
+                                    child: Platform.isAndroid
+                                        ? const CircularProgressIndicator()
+                                        : const CupertinoActivityIndicator())
+                                : contactsListVisible != null
+                                    ? ListView.builder(
+                                        keyboardDismissBehavior:
+                                            ScrollViewKeyboardDismissBehavior
+                                                .onDrag,
+                                        itemCount: contactsListVisible!
+                                                .friends?.length ??
+                                            0,
+                                        itemBuilder: (BuildContext context,
+                                            int position) {
+                                          return InkWell(
+                                              onTap: () async {
+                                                setState(() {
+                                                  if (contactsListVisible!
+                                                          .friends![position]
+                                                          .isSelected !=
+                                                      null) {
+                                                    contactsListVisible!
+                                                            .friends![position]
+                                                            .isSelected =
+                                                        !contactsListVisible!
+                                                            .friends![position]
+                                                            .isSelected!;
+                                                  } else {
+                                                    contactsListVisible!
+                                                        .friends![position]
+                                                        .isSelected = true;
+                                                  }
+                                                });
+                                              },
+                                              child: _contacts(
+                                                  contactsListVisible!
+                                                      .friends![position],
+                                                  position ==
+                                                      contactsListVisible!
+                                                              .friends!.length -
+                                                          1));
+                                        })
+                                    : Container(),
+                          )
+                    : Expanded(
+                        child: isInitScreen
+                            ? Center(
+                                child: Platform.isAndroid
+                                    ? const CircularProgressIndicator()
+                                    : const CupertinoActivityIndicator())
+                            : contactsListDataChatVisible != null
+                                ? ListView.builder(
+                                    keyboardDismissBehavior:
+                                        ScrollViewKeyboardDismissBehavior
+                                            .onDrag,
+                                    itemCount: contactsListDataChatVisible!
+                                            .users?.length ??
+                                        0,
+                                    itemBuilder:
+                                        (BuildContext context, int position) {
+                                      return InkWell(
+                                          onTap: () async {
+                                            setState(() {
+                                              if (contactsListDataChatVisible!
+                                                      .users![position]
+                                                      .isSelected !=
+                                                  null) {
+                                                contactsListDataChatVisible!
+                                                        .users![position]
+                                                        .isSelected =
+                                                    !contactsListDataChatVisible!
+                                                        .users![position]
+                                                        .isSelected!;
+                                              } else {
+                                                contactsListDataChatVisible!
+                                                    .users![position]
+                                                    .isSelected = true;
+                                              }
+                                            });
+                                          },
+                                          child: _contactChat(
+                                              contactsListDataChatVisible!
+                                                  .users![position],
+                                              position ==
+                                                  contactsListDataChatVisible!
+                                                          .users!.length -
+                                                      1));
+                                    })
+                                : Container(),
+                      ),
+                ((contactsListVisible != null &&
+                            isSelectedMember(contactsListVisible?.friends)) ||
+                        (contactsListDataChatVisible != null &&
+                            isSelectedMemberChat(
+                                contactsListDataChatVisible?.users)) ||
+                        (userZaloOAListVisible != null &&
+                            isSelectedMemberZaloOA(
+                                userZaloOAListVisible?.users)))
                     ? Padding(
                         padding: const EdgeInsets.only(bottom: 15.0),
                         child: SizedBox(
@@ -276,10 +311,11 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                           child: MaterialButton(
                             color: const Color(0xFF5686E1),
                             onPressed: () async {
-                              ChatConnection.isChatHub?
-                              widget.roomData.channel?.source=='zalo'? addMemberZaloOA():
-                              addMember()
-                                  :addMemberChat();
+                              ChatConnection.isChatHub
+                                  ? widget.roomData.channel?.source == 'zalo'
+                                      ? addMemberZaloOA()
+                                      : addMember()
+                                  : addMemberChat();
                             },
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10.0),
@@ -302,27 +338,31 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
       ),
     );
   }
-  _getContactsChat()async{
+
+  _getContactsChat() async {
     contactsListDataChat = await ChatConnection.contactsList();
     widget.roomData.people?.forEach((e) {
-      try{
-        People? user = contactsListDataChat?.users?.firstWhere((element) => e.sId == element.sId);
-        if(user != null) {
+      try {
+        People? user = contactsListDataChat?.users
+            ?.firstWhere((element) => e.sId == element.sId);
+        if (user != null) {
           contactsListDataChat?.users?.remove(user);
         }
-      }catch(_){}
+      } catch (_) {}
     });
     _getContactsVisibleChat();
     setState(() {});
   }
+
   _getContacts() async {
-    if(widget.roomData.channel?.source=='zalo'){
-      userZaloOAList =await ChatConnection.getListUserZaloOA(source: widget.roomData.source??'zalo',search: _controllerSearch.text);
-      print('_______________________ ${userZaloOAList!.users![0].fullName}');
+    if (widget.roomData.channel?.source == 'zalo') {
+      userZaloOAList = await ChatConnection.getListUserZaloOA(
+          source: widget.roomData.source ?? 'zalo',
+          search: _controllerSearch.text);
       _getContactsVisibleZaloOA();
-    }
-    else{
-      contactsListData = await ChatConnection.getListFriend(widget.chanel_id??'');
+    } else {
+      contactsListData =
+          await ChatConnection.getListFriend(widget.chanel_id ?? '');
       _getContactsVisible();
     }
 
@@ -334,18 +374,18 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
     if (val != '') {
       userZaloOAListVisible?.users =
           userZaloOAListVisible!.users?.where((element) {
-            try {
-              if (('${element.username} ' //${element.lastName}'
+        try {
+          if (('${element.username} ' //${element.lastName}'
                   .toLowerCase()
                   .removeAccents())
-                  .contains(val)) {
-                return true;
-              }
-              return false;
-            } catch (e) {
-              return false;
-            }
-          }).toList();
+              .contains(val)) {
+            return true;
+          }
+          return false;
+        } catch (e) {
+          return false;
+        }
+      }).toList();
     } else {
       userZaloOAListVisible = r.UserZaloOAList();
       userZaloOAListVisible = userZaloOAList;
@@ -356,51 +396,56 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
       } catch (_) {}
     }
   }
+
   _getContactsVisibleChat() {
     String val = _controllerSearch.value.text.toLowerCase().removeAccents();
-    if(val != '') {
-      contactsListDataChatVisible!.users = contactsListDataChatVisible!.users!.where((element) {
+    if (val != '') {
+      contactsListDataChatVisible!.users =
+          contactsListDataChatVisible!.users!.where((element) {
         try {
-          if(
-          ('${element.firstName} ${element.lastName}'.toLowerCase().removeAccents()).contains(val)) {
+          if (('${element.firstName} ${element.lastName}'
+                  .toLowerCase()
+                  .removeAccents())
+              .contains(val)) {
             return true;
           }
           return false;
-        }catch(e){
+        } catch (e) {
           return false;
         }
       }).toList();
-    }
-    else {
+    } else {
       contactsListDataChatVisible = Contacts();
       contactsListDataChatVisible?.limit = contactsListDataChat?.limit;
       contactsListDataChatVisible?.search = contactsListDataChat?.search;
       try {
-        contactsListDataChatVisible?.users = <r.People>[...contactsListDataChat!.users!.toList()];
-      }catch(_) {}
+        contactsListDataChatVisible?.users = <r.People>[
+          ...contactsListDataChat!.users!.toList()
+        ];
+      } catch (_) {}
     }
   }
+
   _getContactsVisible() {
     String val = _controllerSearch.value.text.toLowerCase().removeAccents();
     if (val != '') {
       contactsListVisible?.friends =
           contactsListVisible!.friends?.where((element) {
-            try {
-              if (('${element.username} ' //${element.lastName}'
+        try {
+          if (('${element.username} ' //${element.lastName}'
                   .toLowerCase()
                   .removeAccents())
-                  .contains(val)) {
-                return true;
-              }
-              return false;
-            } catch (e) {
-              return false;
-            }
-          }).toList();
+              .contains(val)) {
+            return true;
+          }
+          return false;
+        } catch (e) {
+          return false;
+        }
+      }).toList();
     } else {
       contactsListVisible = FriendListResponse();
       contactsListVisible = contactsListData;
-      // contactsListVisible?.search = contactsListData?.search;
       try {
         contactsListVisible?.friends = <FriendModel>[
           ...contactsListData!.friends!.toList()
@@ -408,6 +453,7 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
       } catch (_) {}
     }
   }
+
   void addMemberZaloOA() async {
     List<String> people = [];
     try {
@@ -434,7 +480,11 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
         ),
       );
     } else {
-      final  result = await ChatConnection.inviteMember(widget.chatMessage.room?.oa_group_id,people,widget.roomData.channel!.sId!,);
+      final result = await ChatConnection.inviteMember(
+        widget.chatMessage.room?.oa_group_id,
+        people,
+        widget.roomData.channel!.sId!,
+      );
       if (result!.isSuccess) {
         Navigator.of(context).pop();
       } else {
@@ -455,6 +505,7 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
       }
     }
   }
+
   bool isSelectedMemberZaloOA(List<UserZaloOA>? data) {
     try {
       data?.firstWhere((element) => element.isSelected == true);
@@ -463,6 +514,7 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
       return false;
     }
   }
+
   Widget _contactsZaloOA(UserZaloOA data, bool isLast) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0),
@@ -477,55 +529,47 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    if (data.picture!=null)
+                    if (data.picture != null)
                       CircleAvatar(
                         radius: 25.0,
-                        backgroundImage:
-                        CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${data.picture!.shieldedID}/256/${ChatConnection.brandCode!}',headers: {'brand-code':ChatConnection.brandCode!}),
+                        backgroundImage: CachedNetworkImageProvider(
+                            '${HTTPConnection.domain}api/images/${data.picture!.shieldedID}/256/${ChatConnection.brandCode!}',
+                            headers: {'brand-code': ChatConnection.brandCode!}),
                         backgroundColor: Colors.transparent,
                       ),
-                    // : CircleAvatar(
-                    //     radius: 25.0,
-                    //     backgroundImage: CachedNetworkImageProvider(
-                    //         '${HTTPConnection.domain}api/images/${data.picture!.shieldedID}/256/${ChatConnection.brandCode!}',
-                    //         headers: {
-                    //           'brand-code': ChatConnection.brandCode!
-                    //         }),
-                    //     backgroundColor: Colors.transparent,
-                    //   ),
                     Expanded(
                         child: Container(
-                          padding: const EdgeInsets.only(
-                              top: 5.0, bottom: 5.0, left: 10.0),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: AutoSizeText(
-                                  '${data.fullName}',
-                                  maxLines: 1,
-                                ),
-                              ),
-                              Container(
-                                height: 5.0,
-                              ),
-                              Expanded(
-                                  child: AutoSizeText(
-                                    '@${data.id}',
-                                    overflow: TextOverflow.ellipsis,
-                                  ))
-                            ],
+                      padding: const EdgeInsets.only(
+                          top: 5.0, bottom: 5.0, left: 10.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: AutoSizeText(
+                              '${data.fullName}',
+                              maxLines: 1,
+                            ),
                           ),
-                        )),
+                          Container(
+                            height: 5.0,
+                          ),
+                          Expanded(
+                              child: AutoSizeText(
+                            '@${data.id}',
+                            overflow: TextOverflow.ellipsis,
+                          ))
+                        ],
+                      ),
+                    )),
                     SizedBox(
                       height: 30.0,
                       width: 30.0,
                       child: data.isSelected != null && data.isSelected!
                           ? const Icon(Icons.radio_button_checked,
-                          size: 25.0, color: Color(0xff0021F5))
+                              size: 25.0, color: Color(0xff0021F5))
                           : const Icon(Icons.radio_button_off,
-                          size: 25.0, color: Color(0xff0021F5)),
+                              size: 25.0, color: Color(0xff0021F5)),
                     )
                   ],
                 ),
@@ -534,22 +578,23 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
           ),
           !isLast
               ? Container(
-            height: 5.0,
-          )
+                  height: 5.0,
+                )
               : Container(),
           !isLast
               ? Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10.0),
-            child: Container(
-              height: 1.0,
-              color: Colors.grey.shade300,
-            ),
-          )
+                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                  child: Container(
+                    height: 1.0,
+                    color: Colors.grey.shade300,
+                  ),
+                )
               : Container(),
         ],
       ),
     );
   }
+
   void addMember() async {
     List<String> people = [];
     try {
@@ -576,11 +621,10 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
         ),
       );
     } else {
-
-      final  result = await ChatConnection.addUserGroup(people, widget.chanel_id??'', widget.roomData.channel!.sId!);
-          // await ChatConnection.addMemberGroup(people, widget.roomData.sId!);
+      final result = await ChatConnection.addUserGroup(people,
+          widget.chanel_id ?? '', widget.chatMessage.room?.oa_group_id ?? '');
+      // await ChatConnection.addMemberGroup(people, widget.roomData.sId!);
       if (result.isSuccess) {
-
         try {
           contactsListData?.friends?.forEach((element) {
             if (element.isSelected != null && element.isSelected == true) {
@@ -611,16 +655,17 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
       }
     }
   }
+
   void addMemberChat() async {
     List<String> people = [];
-    try{
+    try {
       contactsListDataChat?.users?.forEach((element) {
-        if(element.isSelected != null && element.isSelected == true) {
+        if (element.isSelected != null && element.isSelected == true) {
           people.add(element.sId!);
         }
       });
-    }catch(_){}
-    if(people.isEmpty) {
+    } catch (_) {}
+    if (people.isEmpty) {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -635,24 +680,23 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
           ],
         ),
       );
-    }
-    else {
-      bool result = await ChatConnection.addMemberGroup(people,widget.roomData.sId!);
-      if(result) {
-        try{
+    } else {
+      bool result =
+          await ChatConnection.addMemberGroup(people, widget.roomData.sId!);
+      if (result) {
+        try {
           contactsListDataChat?.users?.forEach((element) {
-            if(element.isSelected != null && element.isSelected == true) {
+            if (element.isSelected != null && element.isSelected == true) {
               widget.roomData.people?.add(element);
             }
           });
-        }catch(_){}
+        } catch (_) {}
         Navigator.of(context).pop();
-        try{
+        try {
           ChatConnection.refreshRoom.call();
           ChatConnection.refreshFavorites.call();
-        }catch(_){}
-      }
-      else {
+        } catch (_) {}
+      } else {
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
@@ -670,6 +714,7 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
       }
     }
   }
+
   bool isSelectedMember(List<FriendModel>? data) {
     try {
       data?.firstWhere((element) => element.isSelected == true);
@@ -678,14 +723,16 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
       return false;
     }
   }
+
   bool isSelectedMemberChat(List<People>? data) {
     try {
       data?.firstWhere((element) => element.isSelected == true);
       return true;
-    }catch(_){
+    } catch (_) {
       return false;
     }
   }
+
   Widget _contacts(FriendModel data, bool isLast) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0),
@@ -706,15 +753,6 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                         child: Image.network(data.avatar),
                         // child: Text(data.getAvatarName()),
                       ),
-                    // : CircleAvatar(
-                    //     radius: 25.0,
-                    //     backgroundImage: CachedNetworkImageProvider(
-                    //         '${HTTPConnection.domain}api/images/${data.picture!.shieldedID}/256/${ChatConnection.brandCode!}',
-                    //         headers: {
-                    //           'brand-code': ChatConnection.brandCode!
-                    //         }),
-                    //     backgroundColor: Colors.transparent,
-                    //   ),
                     Expanded(
                         child: Container(
                       padding: const EdgeInsets.only(
@@ -772,6 +810,7 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
       ),
     );
   }
+
   Widget _contactChat(People data, bool isLast) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0),
@@ -786,46 +825,73 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    data.picture == null ? CircleAvatar(
-                      radius: 25.0,
-                      child: Text(data.getAvatarName()),
-                    ) : CircleAvatar(
-                      radius: 25.0,
-                      backgroundImage:
-                      CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${data.picture!.shieldedID}/256/${ChatConnection.brandCode!}',headers: {'brand-code':ChatConnection.brandCode!}),
-                      backgroundColor: Colors.transparent,
-                    ),
-                    Expanded(child: Container(
-                      padding: const EdgeInsets.only(top: 5.0,bottom: 5.0,left: 10.0),
+                    data.picture == null
+                        ? CircleAvatar(
+                            radius: 25.0,
+                            child: Text(data.getAvatarName()),
+                          )
+                        : CircleAvatar(
+                            radius: 25.0,
+                            backgroundImage: CachedNetworkImageProvider(
+                                '${HTTPConnection.domain}api/images/${data.picture!.shieldedID}/256/${ChatConnection.brandCode!}',
+                                headers: {
+                                  'brand-code': ChatConnection.brandCode!
+                                }),
+                            backgroundColor: Colors.transparent,
+                          ),
+                    Expanded(
+                        child: Container(
+                      padding: const EdgeInsets.only(
+                          top: 5.0, bottom: 5.0, left: 10.0),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(
-                            child: AutoSizeText('${data.firstName} ${data.lastName}',maxLines: 1,),
+                            child: AutoSizeText(
+                              '${data.firstName} ${data.lastName}',
+                              maxLines: 1,
+                            ),
                           ),
-                          Container(height: 5.0,),
-                          Expanded(child: AutoSizeText('@${data.username}',
-                            overflow: TextOverflow.ellipsis,))
+                          Container(
+                            height: 5.0,
+                          ),
+                          Expanded(
+                              child: AutoSizeText(
+                            '@${data.username}',
+                            overflow: TextOverflow.ellipsis,
+                          ))
                         ],
                       ),
                     )),
                     SizedBox(
                       height: 30.0,
                       width: 30.0,
-                      child: data.isSelected != null && data.isSelected! ? const Icon(Icons.radio_button_checked,size: 25.0,color: Color(0xff0021F5))
-                          : const Icon(Icons.radio_button_off,size: 25.0,color: Color(0xff0021F5)),
+                      child: data.isSelected != null && data.isSelected!
+                          ? const Icon(Icons.radio_button_checked,
+                              size: 25.0, color: Color(0xff0021F5))
+                          : const Icon(Icons.radio_button_off,
+                              size: 25.0, color: Color(0xff0021F5)),
                     )
                   ],
                 ),
               ),
             ),
           ),
-          !isLast ? Container(height: 5.0,) : Container(),
-          !isLast ?  Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10.0),
-            child: Container(height: 1.0,color: Colors.grey.shade300,),
-          ) : Container(),
+          !isLast
+              ? Container(
+                  height: 5.0,
+                )
+              : Container(),
+          !isLast
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                  child: Container(
+                    height: 1.0,
+                    color: Colors.grey.shade300,
+                  ),
+                )
+              : Container(),
         ],
       ),
     );

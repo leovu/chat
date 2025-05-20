@@ -40,11 +40,10 @@ typedef ChatEmojiBuilder = void Function(void Function() hideEmoji);
 
 class ChatController {
   late void Function(types.Message? message) reply;
-  late void Function(types.Message? message,c.Messages? value) edit;
+  late void Function(types.Message? message, c.Messages? value) edit;
 }
 
 class Chat extends StatefulWidget {
-
   /// Creates a chat widget
   const Chat({
     Key? key,
@@ -215,7 +214,7 @@ class Chat extends StatefulWidget {
   final void Function()? onAttachmentPressed;
 
   /// See [Input.onAttachmentPressed]
-  final void Function()?  onCameraPressed;
+  final void Function()? onCameraPressed;
 
   /// See [Message.onAvatarTap]
   final void Function(types.User)? onAvatarTap;
@@ -243,7 +242,8 @@ class Chat extends StatefulWidget {
   final void Function(BuildContext context, types.Message)? onMessageStatusTap;
 
   /// See [Message.onMessageTap]
-  final void Function(BuildContext context, types.Message, bool isRepliedMessage)? onMessageTap;
+  final void Function(
+      BuildContext context, types.Message, bool isRepliedMessage)? onMessageTap;
 
   /// See [Message.onMessageVisibilityChanged]
   final void Function(types.Message, bool visible)? onMessageVisibilityChanged;
@@ -253,8 +253,8 @@ class Chat extends StatefulWidget {
       onPreviewDataFetched;
 
   /// See [Input.onSendPressed]
-  final void Function(types.PartialText, {types.Message? repliedMessage, types.TextMessage? isEdit})
-  onSendPressed;
+  final void Function(types.PartialText,
+      {types.Message? repliedMessage, types.TextMessage? isEdit}) onSendPressed;
 
   /// See [Input.onTextChanged]
   final void Function(String)? onTextChanged;
@@ -272,14 +272,13 @@ class Chat extends StatefulWidget {
 
   /// See [Message.showUserAvatars]
   final bool showUserAvatars;
-  final Map<String,int> listIdMessages;
+  final Map<String, int> listIdMessages;
 
   /// Show user names for received messages. Useful for a group chat. Will be
   /// shown only on text messages.
   final bool showUserNames;
 
-  final void Function(File sticker)
-  onStickerPressed;
+  final void Function(File sticker) onStickerPressed;
 
   /// See [Message.textMessageBuilder]
   final Widget Function(
@@ -326,7 +325,8 @@ class _ChatState extends State<Chat> {
       _repliedMessage = message?.copyWith();
     });
   }
-  void edit(types.Message? message,c.Messages? value) {
+
+  void edit(types.Message? message, c.Messages? value) {
     requestFocusTextField(editContent: (message as types.TextMessage));
   }
 
@@ -341,9 +341,10 @@ class _ChatState extends State<Chat> {
   }
 
   void getDraft() async {
-    Map<String,dynamic>? value = await getDraftInput(ChatConnection.roomId!);
-    if(value != null) {
-      if(value.containsKey('reply')) {
+    Map<String, dynamic>? value =
+        await getDraftInput(ChatConnection.roomId ?? '');
+    if (value != null) {
+      if (value.containsKey('reply')) {
         types.Message message = types.Message.fromJson(value['reply']);
         reply(message);
       }
@@ -355,17 +356,14 @@ class _ChatState extends State<Chat> {
     super.didUpdateWidget(oldWidget);
 
     if (widget.messages.isNotEmpty) {
-      final result = calculateChatMessages(
-        widget.messages,
-        widget.user,
-        customDateHeaderText: widget.customDateHeaderText,
-        dateFormat: widget.dateFormat,
-        dateHeaderThreshold: widget.dateHeaderThreshold,
-        dateLocale: widget.dateLocale,
-        groupMessagesThreshold: widget.groupMessagesThreshold,
-        showUserNames: widget.showUserNames,
-        timeFormat: widget.timeFormat
-      );
+      final result = calculateChatMessages(widget.messages, widget.user,
+          customDateHeaderText: widget.customDateHeaderText,
+          dateFormat: widget.dateFormat,
+          dateHeaderThreshold: widget.dateHeaderThreshold,
+          dateLocale: widget.dateLocale,
+          groupMessagesThreshold: widget.groupMessagesThreshold,
+          showUserNames: widget.showUserNames,
+          timeFormat: widget.timeFormat);
       _chatMessages = result[0] as List<Object>;
       for (var i = 0; i < _chatMessages.length; i++) {
         if (_chatMessages[i] is DateHeader) {
@@ -404,7 +402,9 @@ class _ChatState extends State<Chat> {
             backgroundColor: Colors.transparent,
             children: <Widget>[
               Center(
-                child: Platform.isAndroid ? const CircularProgressIndicator() : const CupertinoActivityIndicator(),
+                child: Platform.isAndroid
+                    ? const CircularProgressIndicator()
+                    : const CupertinoActivityIndicator(),
               )
             ],
           );
@@ -434,14 +434,15 @@ class _ChatState extends State<Chat> {
               : min(constraints.maxWidth * 0.78, 440).floor();
       final metadata = message.metadata;
       List<c.Author?>? seenPeople;
-      if(metadata != null) {
-        List<Map<String,dynamic>>? list = metadata['messageSeen'];
-        if(list != null) {
-          List<c.MessageSeen> messageSeen = list.map((e) => c.MessageSeen.fromJson(e)).toList();
+      if (metadata != null) {
+        List<Map<String, dynamic>>? list = metadata['messageSeen'];
+        if (list != null) {
+          List<c.MessageSeen> messageSeen =
+              list.map((e) => c.MessageSeen.fromJson(e)).toList();
           seenPeople = [];
           for (var e in messageSeen) {
-            if(e.message == message.id) {
-              if(e.author!.sId != ChatConnection.user!.id) {
+            if (e.message == message.id) {
+              if (e.author!.sId != ChatConnection.user!.id) {
                 seenPeople.add(e.author);
               }
             }
@@ -468,7 +469,8 @@ class _ChatState extends State<Chat> {
         people: widget.people,
         onMessageTap: (context, tappedMessage, isRepliedMessage) {
           if (tappedMessage is types.ImageMessage &&
-              widget.disableImageGallery != true && !isRepliedMessage) {
+              widget.disableImageGallery != true &&
+              !isRepliedMessage) {
             _onImagePressed(tappedMessage);
           }
           widget.onMessageTap?.call(context, tappedMessage, isRepliedMessage);
@@ -482,7 +484,9 @@ class _ChatState extends State<Chat> {
         showUserAvatars: widget.showUserAvatars,
         textMessageBuilder: widget.textMessageBuilder,
         usePreviewData: widget.usePreviewData,
-        replySwipeDirection: message.author.id != widget.user.id ? SwipeDirection.startToEnd : SwipeDirection.endToStart,
+        replySwipeDirection: message.author.id != widget.user.id
+            ? SwipeDirection.startToEnd
+            : SwipeDirection.endToStart,
         onMessageReply: _onMessageReply,
         focusSearch: requestFocusTextField,
       );
@@ -496,7 +500,7 @@ class _ChatState extends State<Chat> {
   }
 
   void _onImagePressed(types.ImageMessage message) async {
-    openImage(context,message.uri);
+    openImage(context, message.uri);
   }
 
   void _onPreviewDataFetched(
@@ -506,11 +510,13 @@ class _ChatState extends State<Chat> {
     widget.onPreviewDataFetched?.call(message, previewData);
   }
 
-  void _onSendPressed(types.PartialText message, {types.Message? repliedMessage, types.TextMessage? isEdit}) {
+  void _onSendPressed(types.PartialText message,
+      {types.Message? repliedMessage, types.TextMessage? isEdit}) {
     setState(() {
       _repliedMessage = null;
     });
-    widget.onSendPressed(message, repliedMessage: repliedMessage, isEdit:isEdit);
+    widget.onSendPressed(message,
+        repliedMessage: repliedMessage, isEdit: isEdit);
   }
 
   void _onStickerPressed(File sticker) {
@@ -556,29 +562,38 @@ class _ChatState extends State<Chat> {
                                           BoxConstraints constraints) =>
                                       ChatList(
                                     isLastPage: widget.isLastPage,
-                                    itemBuilder: (item, index) => _messageBuilder(item, constraints),
+                                    itemBuilder: (item, index) =>
+                                        _messageBuilder(item, constraints),
                                     items: _chatMessages,
                                     onEndReached: widget.onEndReached,
                                     onEndReachedThreshold:
-                                          widget.onEndReachedThreshold,
+                                        widget.onEndReachedThreshold,
                                     scrollPhysics: widget.scrollPhysics,
-                                            itemScrollController: widget.itemScrollController,
-                                            itemPositionsListener: widget.itemPositionsListener,
-                                        loadMore: widget.loadMore,
-                                        progressUpdate: widget.progressUpdate,
+                                    itemScrollController:
+                                        widget.itemScrollController,
+                                    itemPositionsListener:
+                                        widget.itemPositionsListener,
+                                    loadMore: widget.loadMore,
+                                    progressUpdate: widget.progressUpdate,
                                   ),
                                 ),
                               ),
                       ),
-                      if(widget.note!=null) Padding(
-                        padding: const EdgeInsets.only(left: 5.0,right: 5.0,bottom: 8.0),
-                        child: AutoSizeText(widget.note!,style: const TextStyle(
-                          color: Colors.green,
-                          fontWeight: FontWeight.bold
-                        ),),
-                      ),
-                      !widget.isSearchChat ? widget.customBottomWidget ??
-                          checkSourceAvailableChat()  : Container(),
+                      if (widget.note != null)
+                        Padding(
+                          padding: const EdgeInsets.only(
+                              left: 5.0, right: 5.0, bottom: 8.0),
+                          child: AutoSizeText(
+                            widget.note!,
+                            style: const TextStyle(
+                                color: Colors.green,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      !widget.isSearchChat
+                          ? widget.customBottomWidget ??
+                              checkSourceAvailableChat()
+                          : Container(),
                     ],
                   ),
                 ),
@@ -590,7 +605,7 @@ class _ChatState extends State<Chat> {
     );
   }
 
-  Widget bannerCantSendOA(){
+  Widget bannerCantSendOA() {
     return Container(
       padding: const EdgeInsets.all(10.0),
       width: MediaQuery.of(context).size.width,
@@ -602,21 +617,22 @@ class _ChatState extends State<Chat> {
             margin: const EdgeInsets.only(right: 10.0),
             height: 20.0,
             width: 20.0,
-            child: Icon(Icons.warning_amber, color: AppColors.orange1,),
+            child: Icon(
+              Icons.warning_amber,
+              color: AppColors.orange1,
+            ),
           ),
-          Expanded(child: Column(
+          Expanded(
+              child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                  AppLocalizations.text(LangKey.banner_cant_send_OA)
-              ),
+              Text(AppLocalizations.text(LangKey.banner_cant_send_OA)),
               InkWell(
-                onTap: ()=> launchUrl(Uri.parse(httpPolicyOA)),
+                onTap: () => launchUrl(Uri.parse(httpPolicyOA)),
                 child: Text(
                   AppLocalizations.text(LangKey.watch_detail),
                   style: TextStyle(color: AppColors.orange1),
-
                 ),
               )
             ],
@@ -628,7 +644,7 @@ class _ChatState extends State<Chat> {
 
   Widget checkSourceAvailableChat() {
     bool isVisible = true;
-    if(ChatConnection.isChatHub) {
+    if (ChatConnection.isChatHub) {
       // TODO: Hide Facebook 1 day not replied
       // try {
       //   List<types.Message> customerMessage = widget.messages.where((e) => e.author.id != ChatConnection.user!.id).toList();
@@ -649,12 +665,12 @@ class _ChatState extends State<Chat> {
       onTextChanged: widget.onTextChanged,
       onTextFieldTap: widget.onTextFieldTap,
       people: widget.people,
-      sendButtonVisibilityMode:
-      widget.sendButtonVisibilityMode,
+      sendButtonVisibilityMode: widget.sendButtonVisibilityMode,
       onCancelReplyPressed: _onCancelReplyPressed,
       onSendPressed: _onSendPressed,
       onStickerPressed: _onStickerPressed,
-      inputBuilder: (BuildContext context, void Function({types.TextMessage? editContent}) method) {
+      inputBuilder: (BuildContext context,
+          void Function({types.TextMessage? editContent}) method) {
         requestFocusTextField = method;
       },
       repliedMessage: _repliedMessage,

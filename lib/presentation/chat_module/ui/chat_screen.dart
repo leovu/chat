@@ -6,7 +6,6 @@ import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/chat_screen/forward_screen.dart';
-import 'package:chat/chat_screen/select_tags.dart';
 import 'package:chat/chat_ui/flutter_chat_ui.dart';
 import 'package:chat/connection/app_lifecycle.dart';
 import 'package:chat/connection/chat_connection.dart';
@@ -94,12 +93,13 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ChatConnection.chatScreenNotificationHandler = _notificationHandler;
 
-      if (widget.data.isGroup == false) _getTagList();
+      if (widget.data.isGroup == false && ChatConnection.isChatHub)
+        _getTagList();
       _loadMessages();
 
       ChatConnection.listenChat(_refreshMessage);
 
-      if (widget.source == 'zalo'&&widget.data.isGroup==false) {
+      if (widget.source == 'zalo' && widget.data.isGroup == false) {
         getQuota();
       }
       if (ChatConnection.isChatHub) {
@@ -111,7 +111,6 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     final imageUrl =
         '${HTTPConnection.domain}api/images/vs9lgw7ey86805c7187f5011001205cbf6/256/${ChatConnection.brandCode!}';
     print('Image URL: $imageUrl');
-
   }
 
   getQuota() async {
@@ -130,10 +129,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
 
   Future<void> _getTagList() async {
     if (ChatConnection.isChatHub && widget.data.isGroup == true) return;
-    // tagByUser = null;
-    // tag = await ChatConnection.getTagList();
-    String chatPartnerId = (widget.data.owner!.sId!);
-    tagByUser = await ChatConnection.getTagListByUser(chatPartnerId);
+    tagByUser = await ChatConnection.getTagListByUser(widget.data.owner?.sId??'');
     setState(() {});
   }
 
@@ -300,6 +296,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         });
       }
     } catch (_) {
+      
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -1012,70 +1009,25 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                           children: tagByUser!.data!
                               .map((e) => _tagChip(e))
                               .toList()))),
-          Row(
-            children: [
-              isShowUserTag
-                  ? Padding(
-                      padding: const EdgeInsets.only(
-                          left: 5.0, right: 5.0, bottom: 5.0),
-                      child: Container(
-                        decoration: BoxDecoration(
-                            border:
-                                Border.all(color: HexColor.fromHex('#0067AC')),
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10.0)),
-                        child: InkWell(
-                          onTap: () async {
-                            await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => SelectTagsScreen(
-                                    items: tagByUser!.data ?? [],
-                                    onSave: (selectedItems) async {
-                                      List<String> selectedIds = selectedItems
-                                          .where((e) => e.sId != null)
-                                          .map((e) => e.sId!)
-                                          .toList();
-                                      await ChatConnection.updateTag(
-                                          selectedIds, widget.data.owner!.sId!);
-                                    },
-                                  ),
-                                ));
-                            _getTagList();
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                                top: 5.0, left: 5.0, right: 5.0, bottom: 5),
-                            child: Icon(
-                              Icons.add,
-                              color: HexColor.fromHex('#0067AC'),
-                            ),
-                          ),
-                        ),
-                      ),
-                    )
-                  : Container(),
-              Padding(
-                padding: const EdgeInsets.only(right: 5.0),
-                child: InkWell(
-                  splashColor: Colors.transparent,
-                  onTap: () {
-                    setState(() {
-                      isShowUserTag = !isShowUserTag;
-                    });
-                  },
-                  child: Container(
-                      color: Colors.white,
-                      constraints: const BoxConstraints(minHeight: 30),
-                      child: Icon(
-                          isShowUserTag
-                              ? Icons.remove_red_eye
-                              : Icons.remove_red_eye_outlined,
-                          color: HexColor.fromHex('#0067AC'))),
-                ),
-              ),
-            ],
-          )
+          Padding(
+            padding: const EdgeInsets.only(right: 5.0),
+            child: InkWell(
+              splashColor: Colors.transparent,
+              onTap: () {
+                setState(() {
+                  isShowUserTag = !isShowUserTag;
+                });
+              },
+              child: Container(
+                  color: Colors.white,
+                  constraints: const BoxConstraints(minHeight: 30),
+                  child: Icon(
+                      isShowUserTag
+                          ? Icons.remove_red_eye
+                          : Icons.remove_red_eye_outlined,
+                      color: HexColor.fromHex('#0067AC'))),
+            ),
+          ),
         ],
       ),
     );
@@ -1199,24 +1151,28 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
           });
         }
       },
-      onAvatarTap: (types.User user) async {
-        if (user.id != ChatConnection.user!.id && data!.room!.isGroup!) {
-          showLoading();
-          r.Rooms? rooms = await ChatConnection.createRoom(user.id);
-          Navigator.of(context).pop();
-          await Navigator.of(context, rootNavigator: true).pushReplacement(
-            MaterialPageRoute(
-                builder: (context) =>
-                    ChatScreen(data: rooms!, source: rooms.source),
-                settings: const RouteSettings(name: 'chat_screen')),
-          );
-          try {
-            ChatConnection.refreshRoom.call();
-            ChatConnection.refreshFavorites.call();
-            ChatConnection.refreshContact.call();
-          } catch (_) {}
-        }
-      },
+      onAvatarTap: (p0) {},
+      //  (types.User user) async {
+      //Lỗi chưa xác định, xử lí phần chathub
+      // if (user.id != ChatConnection.user!.id && data!.room!.isGroup!) {
+      //   showLoading();
+      //   r.Rooms? rooms = await ChatConnection.createRoom(user.id);
+      //   Navigator.of(context).pop();
+      //   ChatConnection.roomId = rooms!.sId!;
+
+      //   await Navigator.of(context, rootNavigator: true).pushReplacement(
+      //     MaterialPageRoute(
+      //         builder: (context) =>
+      //             ChatScreen(data: rooms, source: rooms.source),
+      //         settings: const RouteSettings(name: 'chat_screen')),
+      //   );
+      //   try {
+      //     ChatConnection.refreshRoom.call();
+      //     ChatConnection.refreshFavorites.call();
+      //     ChatConnection.refreshContact.call();
+      //   } catch (_) {}
+      // }
+      // },
       onStickerPressed: _onStickerPressed,
       showUserAvatars: true,
       showUserNames: true,
@@ -1544,7 +1500,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                         if (ChatConnection.isChatHub)
                           AutoSizeText(
                             !widget.data.isGroup!
-                                ? '${widget.data.owner!.firstName} ${widget.data.owner!.lastName}'
+                                ? '${data?.room?.owner?.firstName ?? ''} ${data?.room?.owner?.lastName ?? ''}'
                                 : widget.data.title ?? widget.data.room_name!,
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
@@ -1575,13 +1531,21 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                         if (widget.data.isGroup!)
                           Padding(
                             padding: const EdgeInsets.only(bottom: 3.0),
-                            child: AutoSizeText(
-                              '${peopleLength != null ? peopleLength! : ''} '
-                              '${AppLocalizations.text(LangKey.members).toLowerCase()}',
-                              maxLines: 1,
-                              style: const TextStyle(
-                                  color: Colors.black, fontSize: 12),
-                            ),
+                            child: !ChatConnection.isChatHub
+                                ? AutoSizeText(
+                                    '${widget.data.people!.length} '
+                                    '${AppLocalizations.text(LangKey.members).toLowerCase()}',
+                                    maxLines: 1,
+                                    style: const TextStyle(
+                                        color: Colors.black, fontSize: 12),
+                                  )
+                                : AutoSizeText(
+                                    '${peopleLength != null ? peopleLength! - 1 : ''} '
+                                    '${AppLocalizations.text(LangKey.members).toLowerCase()}',
+                                    maxLines: 1,
+                                    style: const TextStyle(
+                                        color: Colors.black, fontSize: 12),
+                                  ),
                           )
                       ],
                     ),

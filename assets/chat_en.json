@@ -194,5 +194,6 @@
   "chat_summary": "Summary content",
   "chat_messages": "Chat messages",
   "close": "Close",
-  "select_tags":"'Select Tags"
+  "select_tags":"'Select Tags",
+  "i_got_it":"I got it"
 }

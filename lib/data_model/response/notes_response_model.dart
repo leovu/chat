@@ -56,7 +56,8 @@ class Note {
 
   factory Note.fromJson(Map<String, dynamic> json) {
     return Note(
-      id: json['_id'],
+      // id: json['_id'] is int ? json['_id'] : null,
+      id: json['_id'] != null ? json['_id'].toString() : null,
       content: json['content'],
       room: json['room'],
       createdStaffId: json['created_staff_id'],

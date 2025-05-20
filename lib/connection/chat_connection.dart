@@ -14,6 +14,7 @@ import 'package:chat/data_model/response/notes_response_model.dart';
 import 'package:chat/data_model/response/quota_response_model.dart';
 import 'package:chat/data_model/response/room_info_response_model.dart';
 import 'package:chat/data_model/room.dart' as r;
+import 'package:chat/data_model/room.dart';
 import 'package:chat/data_model/session.dart';
 import 'package:chat/data_model/tag.dart';
 import 'package:chat/data_model/user.dart';
@@ -150,7 +151,7 @@ class ChatConnection {
     String? source,
     String? channelId,
     String? status,
-    List<String?>? tagIds,
+    List<int?>? tagIds,
     int page = 1,
     r.Room? roomData,
     String? link_status,
@@ -174,9 +175,8 @@ class ChatConnection {
     json['limit'] = 100;
     if (tagIds != null && tagIds.isNotEmpty) {
       final parsedTagIds = tagIds
-          .where((e) =>
-              e != null && int.tryParse(e) != null) // lọc null và parse lỗi
-          .map((e) => int.parse(e!)) // an toàn vì đã lọc ở trên
+          .where((e) => e != null && e != null) // lọc null và parse lỗi
+          .map((e) => e!) // an toàn vì đã lọc ở trên
           .toList();
 
       if (parsedTagIds.isNotEmpty) {
@@ -310,9 +310,6 @@ class ChatConnection {
     String? socialId, {
     String? customerLeadId = '',
   }) async {
-    print('@@@@@@@@@@@@@@@@@@@@@@ $customerId');
-    print(
-        'user_id $userId mapping_id $mappingId  type_customer  $typeCustomer  customer_id $customerId');
     Map<String, dynamic> json = {
       'user_id': userId,
       'mapping_id': userId,
@@ -705,20 +702,21 @@ class ChatConnection {
     return null;
   }
 
-  static Future<bool> createTag(String name, String color) async {
-    ResponseData responseData = await connection
-        .post('api/v2/tags/create', {'name': name, 'color': color});
+  static Future<bool> createTag(
+      String name, String color, String userId) async {
+    ResponseData responseData = await connection.post('api/v2/tags/create',
+        {'name': name, 'color': color, 'user_id': userId});
     return responseData.isSuccess;
   }
 
   static Future<Map<String, dynamic>> removeTag(
-      String tagId, String userId) async {
+      int tagId, String userId) async {
     ResponseData responseData = await connection
         .post('api/tags/remove', {'tag_id': tagId, 'user_id': userId});
     return responseData.data;
   }
 
-  static Future<bool> updateTag(List<String> tagIds, String userId) async {
+  static Future<bool> updateTag(List<int> tagIds, String userId) async {
     ResponseData responseData = await connection
         .post('api/tags/user-add', {'tag_ids': tagIds, 'user_id': userId});
     return responseData.isSuccess;
@@ -788,11 +786,10 @@ class ChatConnection {
 
   /// CHECK USER TOKEN
   static Future<bool> checkUserToken() async {
-    Map<String,dynamic> header={
-      "brand-code":brandCode
-    };
-    ResponseData responseData = await connection
-        .post('api/check-user-token', {'token': ChatConnection.user!.token},header: header);
+    Map<String, dynamic> header = {"brand-code": brandCode};
+    ResponseData responseData = await connection.post(
+        'api/check-user-token', {'token': ChatConnection.user!.token},
+        header: header);
     //https://chat.epoints.vn/api/rooms/list
     if (responseData.isSuccess) {
       ChatConnection.checkUserTokenResponseModel =
@@ -861,8 +858,6 @@ class ChatConnection {
       ),
     );
   }
-
-  ///_____________________
 
   //Bật tắt chatbot
   static Future<bool> changeStatusChatbot(String roomId, int status) async {
@@ -1088,6 +1083,7 @@ class ChatConnection {
       return false;
     }
   }
+
   static Future<ResponseData?> removeMember(
       String channelId, String group_id, List<String> member_user_id) async {
     const String url = 'api/group/remove-member';
@@ -1104,8 +1100,7 @@ class ChatConnection {
       );
 
       return response;
-    } catch (e) {
-    }
+    } catch (e) {}
     return null;
   }
 
@@ -1136,7 +1131,8 @@ class ChatConnection {
 
     try {
       // Gọi hàm post và nhận về danh sách dữ liệu
-      final List<dynamic> userListJson = await connection.postReturnList(url, payload);
+      final List<dynamic> userListJson =
+          await connection.postReturnList(url, payload);
 
       if (userListJson.isNotEmpty) {
         final userList = r.UserZaloOAList.fromJsonList(userListJson);
@@ -1150,7 +1146,10 @@ class ChatConnection {
   }
 
   static Future<ResponseData?> inviteMember(
-     String? group_id, List<String> member_user_ids, String channel_id,) async {
+    String? group_id,
+    List<String> member_user_ids,
+    String channel_id,
+  ) async {
     const String url = 'api/group/invite-member';
     final Map<String, dynamic> payload = {
       'channel_id': channel_id,
@@ -1165,5 +1164,40 @@ class ChatConnection {
     return null;
   }
 
-  ///_____________________
+  // static Future<People?> updateUserInfo(
+  //     String userId, String name, String phone) async {
+  //   const String url = 'api/user/update-info';
+  //   final Map<String, dynamic> body = {
+  //     "user_id": userId,
+  //     "params": {
+  //       "firstName": name,
+  //       "phone": phone,
+  //     },
+  //   };
+
+  //   try {
+  //     final ResponseData response = await connection.post(url, body);
+  //     return People.fromJson(response.data);
+  //   } catch (e) {
+  //     return null;
+  //   }
+  // }
+    static Future<bool?> updateUserInfo(
+      String userId, String name, String phone) async {
+    const String url = 'api/user/update-info';
+    final Map<String, dynamic> body = {
+      "user_id": userId,
+      "params": {
+        "firstName": name,
+        "phone": phone,
+      },
+    };
+
+    try {
+      final ResponseData response = await connection.post(url, body);
+      return response.isSuccess;
+    } catch (e) {
+      return false;
+    }
+  }
 }

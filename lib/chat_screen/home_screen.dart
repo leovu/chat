@@ -18,7 +18,6 @@ import 'package:chat/data_model/room.dart' as r;
 import 'package:chat/connection/app_lifecycle.dart';
 import 'package:badges/badges.dart' as bdg;
 
-import '../presentation/utils/media_query.dart';
 
 typedef RefreshBuilder = void Function(
     BuildContext context, void Function() refresh);
