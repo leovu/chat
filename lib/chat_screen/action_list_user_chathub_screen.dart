@@ -11,8 +11,12 @@ import 'package:chat/data_model/room.dart' as r;
 class ActionListUserChathubScreen extends StatefulWidget {
   final r.People data;
   final CustomerAccount? customerAccount;
+  final bool isGroup;
   const ActionListUserChathubScreen(
-      {Key? key, required this.data, required this.customerAccount})
+      {Key? key,
+      required this.data,
+      required this.customerAccount,
+      this.isGroup = false})
       : super(key: key);
   @override
   _State createState() => _State();
@@ -79,14 +83,17 @@ class _State extends State<ActionListUserChathubScreen> {
                 Container(
                   height: 15.0,
                 ),
-              _action(AppLocalizations.text(LangKey.addLabel),
-                  Icons.label_important_outline, () {
-                Navigator.of(context).push(MaterialPageRoute(builder: (ctx) {
-                  return TagListScreen(
-                      data: widget.data,
-                      customerAccount: widget.customerAccount);
-                }));
-              }),
+              widget.isGroup == false
+                  ? _action(AppLocalizations.text(LangKey.addLabel),
+                      Icons.label_important_outline, () {
+                      Navigator.of(context)
+                          .push(MaterialPageRoute(builder: (ctx) {
+                        return TagListScreen(
+                            data: widget.data,
+                            customerAccount: widget.customerAccount);
+                      }));
+                    })
+                  : SizedBox(),
               Container(
                 height: 15.0,
               ),
@@ -158,5 +165,4 @@ class _State extends State<ActionListUserChathubScreen> {
       ),
     );
   }
-
 }

@@ -1584,76 +1584,65 @@ class _ConversationInformationScreenState
               ),
             ),
 
-          /// Rời nhóm
-          // if (widget.roomData.isGroup!)
-          //   Visibility(
-          //     visible: ChatConnection.isChatHub,
-          //     child: _actionButtonTile(
-          //       onTap: () {
-          //         _leaveRoom(widget.roomData.sId!);
-          //       },
-          //       iconData: Icons.remove_circle,
-          //       iconColor: const Color(0xff5686E1),
-          //       title: AppLocalizations.text(LangKey.leaveConversation),
-          //     ),
-          //   ),
+          // if (!widget.chatMessage!.room!.isGroup!) ...[
+          ///Tra cứu sản phẩm
+          _actionButtonTile(
+            onTap: () {
+              if (ChatConnection.searchProducts != null) {
+                ChatConnection.searchProducts!();
+              }
+            },
+            iconData: Icons.search_outlined,
+            title: AppLocalizations.text(LangKey.productSearch),
+          ),
 
-          if (!widget.chatMessage!.room!.isGroup!) ...[
-            ///Tra cứu sản phẩm
-            _actionButtonTile(
-              onTap: () {
-                if (ChatConnection.searchProducts != null) {
-                  ChatConnection.searchProducts!();
-                }
-              },
-              iconData: Icons.search_outlined,
-              title: AppLocalizations.text(LangKey.productSearch),
-            ),
+          /// Tra cứu đơn hàng
+          _actionButtonTile(
+            onTap: () {
+              if (ChatConnection.searchOrders != null) {
+                ChatConnection.searchOrders!();
+              }
+            },
+            iconData: Icons.search_outlined,
+            title: AppLocalizations.text(LangKey.orderSearch),
+          ),
 
-            /// Tra cứu đơn hàng
-            _actionButtonTile(
-              onTap: () {
-                if (ChatConnection.searchOrders != null) {
-                  ChatConnection.searchOrders!();
-                }
-              },
-              iconData: Icons.search_outlined,
-              title: AppLocalizations.text(LangKey.orderSearch),
-            ),
+          ///Các thao tác
+          _actionButtonTile(
+            onTap: () async {
+              r.People info = getPeople(widget.chatMessage?.room?.people);
+              Map<String, dynamic>? result = await Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (ctx) {
+                return ActionListUserChathubScreen(
+                  data: info,
+                  customerAccount: customerAccount,
+                  isGroup: widget.chatMessage?.room?.isGroup ?? false,
+                );
+              }));
+              if (result != null) {
+                showLoading(context);
+                await ChatConnection.customerLink(
+                    widget.roomData.sId ?? '',
+                    result['customerId'],
+                    result['customerLeadId'],
+                    result['type'],
+                    customerAccount?.data?.mappingId ?? '',
+                    widget.roomData.channel?.source);
+                isShowListSearch = false;
+                customerAccountSearch = null;
+                _loadAccount();
+                Navigator.of(context).pop();
+              }
+            },
+            iconData: Icons.accessibility,
+            title: AppLocalizations.text(LangKey.actions),
+          ),
 
-            ///Các thao tác
-            _actionButtonTile(
-              onTap: () async {
-                r.People info = getPeople(widget.chatMessage?.room?.people);
-                Map<String, dynamic>? result = await Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (ctx) {
-                  return ActionListUserChathubScreen(
-                      data: info, customerAccount: customerAccount);
-                }));
-                if (result != null) {
-                  showLoading(context);
-                  await ChatConnection.customerLink(
-                      widget.roomData.sId ?? '',
-                      result['customerId'],
-                      result['customerLeadId'],
-                      result['type'],
-                      customerAccount?.data?.mappingId ?? '',
-                      widget.roomData.channel?.source);
-                  isShowListSearch = false;
-                  customerAccountSearch = null;
-                  _loadAccount();
-                  Navigator.of(context).pop();
-                }
-              },
-              iconData: Icons.accessibility,
-              title: AppLocalizations.text(LangKey.actions),
-            ),
-
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 2),
-              child: socialInformation(),
-            ),
-          ],
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 2),
+            child: socialInformation(),
+          ),
+          // ],
 
           SizedBox(
             height: 30,
