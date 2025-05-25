@@ -195,6 +195,10 @@
   "chat_messages": "Tin Nhắn phiên chat",
   "close": "Đóng",
   "select_tags":"Chọn tag",
-  "i_got_it":"Tôi đã hiểu"
+  "i_got_it":"Tôi đã hiểu",
+  "request_to_join_group": "Yêu cầu tham gia nhóm",
+  "reject": "Từ chối"
+
+
 
 }

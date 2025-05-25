@@ -20,7 +20,7 @@ import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/check_tag.dart';
 import 'package:chat/localization/color_platform_chathub.dart';
 import 'package:chat/localization/lang_key.dart';
-import 'package:chat/presentation/utils/dialog.dart';
+import 'package:chat/presentation/conversation_modules/src/bloc/chatbot_bloc.dart';
 import 'package:chat/presentation/utils/ultility.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -28,7 +28,6 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import '../presentation/chat_module/ui/chat_screen.dart';
-import '../presentation/conversation_modules/bloc/chatbot_bloc.dart';
 
 typedef ChatHubListFilerBuilder = void Function(void Function() filter);
 
@@ -78,7 +77,6 @@ class _RoomListScreenState extends State<RoomListScreen>
   Timer? _debounce;
   Room? roomListSearch;
 
-  Owner? _ownerChat;
   @override
   void initState() {
     super.initState();

@@ -197,4 +197,8 @@ class LangKey {
   static const String close = "close";
   static const String select_tags = "select_tags";
   static const String i_got_it = "i_got_it";
+  static const String request_to_join_group = "request_to_join_group";
+  static const String reject = "reject";
+
+
 }

@@ -1,5 +1,8 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:chat/chat_ui/widgets/audio_message.dart';
+import 'package:chat/chat_ui/widgets/audio_player.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:flutter/material.dart';
@@ -271,6 +274,18 @@ class Message extends StatelessWidget {
                 people: people,
                 onMessageTap: onMessageTap,
               );
+      case types.MessageType.audio:
+        final voiceMessage = message as types.AudioMessage;
+        // return PlayAudio(
+        //   url: voiceMessage.uri,
+        // );
+        return AudioMessage(
+          message: voiceMessage,
+          showName: showName,
+          showUserNameForRepliedMessage: true,
+          onMessageTap: onMessageTap,
+          people: people,
+        );
       default:
         return const SizedBox();
     }

@@ -47,28 +47,33 @@ class Room {
   String? oa_group_id;
   Channel? channel;
   String? title;
+  String? roomLink;
+  int? duration;
 
-  Room({
-    sId,
-    people,
-    isGroup,
-    lastUpdate,
-    lastAuthor,
-    lastMessage,
-    messages,
-    images,
-    files,
-    links,
-    pinMessage,
-    owner,
-    messageSeen,
-    oa_group_id,
-    channel,
-    this.title = '',
-  });
+  Room(
+      {sId,
+      people,
+      isGroup,
+      lastUpdate,
+      lastAuthor,
+      lastMessage,
+      messages,
+      images,
+      files,
+      links,
+      pinMessage,
+      owner,
+      messageSeen,
+      oa_group_id,
+      channel,
+      this.title = '',
+      this.roomLink,
+      this.duration = 0});
 
   Room.fromJson(Map<String, dynamic> json) {
-    title = json['title']??'';
+    duration = json['duration'];
+    roomLink = json['room_link'] ?? '';
+    title = json['title'] ?? '';
     sId = json['_id'];
     oa_group_id = json['oa_group_id'];
     if (json['people'] != null) {
@@ -684,6 +689,13 @@ class Messages {
       data['name'] = 'image';
       data['uri'] =
           '${HTTPConnection.domain}api/images/$content/${ChatConnection.brandCode}';
+    } else if (type == 'audio') {
+      data['size'] = 0;
+      data['type'] = 'audio';
+      data['name'] = 'audio';
+      data['duration'] = 1;
+      data['uri'] = file?.location;
+      // '${HTTPConnection.domain}api/images/$content/${ChatConnection.brandCode}';
     } else {
       data['type'] = 'text';
       data['text'] = content;

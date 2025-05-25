@@ -18,7 +18,7 @@ import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/check_tag.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:chat/presentation/chat_module/bloc/chat_bloc.dart';
-import 'package:chat/presentation/conversation_modules/ui/conversation_information_screen.dart';
+import 'package:chat/presentation/conversation_modules/src/ui/conversation_information_screen.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -129,7 +129,8 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
 
   Future<void> _getTagList() async {
     if (ChatConnection.isChatHub && widget.data.isGroup == true) return;
-    tagByUser = await ChatConnection.getTagListByUser(widget.data.owner?.sId??'');
+    tagByUser =
+        await ChatConnection.getTagListByUser(widget.data.owner?.sId ?? '');
     setState(() {});
   }
 
@@ -296,7 +297,6 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         });
       }
     } catch (_) {
-      
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -757,27 +757,33 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     data = await ChatConnection.joinRoom(widget.data.sId!);
     peopleLength = data!.room!.people!.length;
     isInitScreen = false;
+
     if (data != null) {
-      List<c.Messages>? messages = data?.room?.messages;
+      final messages = data?.room?.messages;
+      final List<types.Message> values = [];
+
       if (messages != null) {
-        List<types.Message> values = [];
         for (var e in messages) {
-          Map<String, dynamic> result =
-              e.toMessageJson(messageSeen: data?.room?.messageSeen);
           if (e.author?.sId != null && e.sId != null) {
-            values.add(types.Message.fromJson(result));
+            final result = Map<String, dynamic>.from(
+              e.toMessageJson(messageSeen: data?.room?.messageSeen),
+            );
+            try {
+              final msg = types.Message.fromJson(result);
+              values.add(msg);
+            } catch (err) {}
           }
         }
+
         _messages = values;
       }
     }
+
     if (mounted) {
       setState(() {});
     } else {
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        if (mounted) {
-          setState(() {});
-        }
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() {});
       });
     }
   }

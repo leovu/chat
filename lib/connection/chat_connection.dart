@@ -1182,7 +1182,7 @@ class ChatConnection {
   //     return null;
   //   }
   // }
-    static Future<bool?> updateUserInfo(
+  static Future<bool?> updateUserInfo(
       String userId, String name, String phone) async {
     const String url = 'api/user/update-info';
     final Map<String, dynamic> body = {
@@ -1198,6 +1198,38 @@ class ChatConnection {
       return response.isSuccess;
     } catch (e) {
       return false;
+    }
+  }
+
+  static Future<ResponseData?> acceptPendingInvite(
+      String chanelId, String groupId, List<String> memeberUserIds) async {
+    String url = 'api/group/accept-pending-invite';
+    Map<String, dynamic> body = {
+      'channel_id': chanelId,
+      'group_id': groupId,
+      'member_user_ids': memeberUserIds
+    };
+    try {
+      final ResponseData response = await connection.post(url, body);
+      return response;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  static Future<ResponseData?> rejectPendingInvite(
+      String chanelId, String groupId, List<String> memeberUserIds) async {
+    String url = 'api/group/reject-pending-invite';
+    Map<String, dynamic> body = {
+      'channel_id': chanelId,
+      'group_id': groupId,
+      'member_user_ids': memeberUserIds
+    };
+    try {
+      final ResponseData response = await connection.post(url, body);
+      return response;
+    } catch (e) {
+      return null;
     }
   }
 }

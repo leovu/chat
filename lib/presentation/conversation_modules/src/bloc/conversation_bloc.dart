@@ -1,0 +1,102 @@
+/*
+* Created by: nguyenan
+* Created at: 2024/05/02 10:06
+*/
+import 'package:chat/common/base_bloc.dart';
+import 'package:chat/common/theme.dart';
+import 'package:chat/connection/chat_connection.dart';
+import 'package:chat/data_model/response/notes_response_model.dart';
+import 'package:chat/data_model/response/quota_response_model.dart';
+import 'package:chat/localization/app_localizations.dart';
+import 'package:chat/localization/lang_key.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:rxdart/rxdart.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import '../../../../data_model/session.dart';
+import '../../../../data_model/summary.dart';
+
+class ConversationBloc extends BaseBloc {
+  final notes = BehaviorSubject<NotesResponseModel>();
+  final BehaviorSubject<List<SessionModel>> _session =
+      BehaviorSubject<List<SessionModel>>.seeded([]);
+  final BehaviorSubject<ConversationSummaryModel> _summary =
+      BehaviorSubject<ConversationSummaryModel>();
+
+  ValueStream<NotesResponseModel> get outputNotes => notes.stream;
+  NotesResponseModel get notesValue => notes.value;
+  setNotes(NotesResponseModel event) => set(notes, event);
+
+  Stream<List<SessionModel>> get sessionStream => _session.stream;
+  List<SessionModel> get session => _session.value;
+
+  Stream<ConversationSummaryModel> get summaryStream => _summary.stream;
+  ConversationSummaryModel get summary => _summary.value;
+
+  getNotes(String roomId) async {
+    if (ChatConnection.isChatHub) {
+      NotesResponseModel? notes = await ChatConnection.notes(roomId);
+      if (notes != null) {
+        setNotes(notes);
+      }
+    }
+  }
+
+  Future<bool?> getQuota(String socialChannelId, String userSocialId) async {
+    QuotaResponseModel? notes =
+        await ChatConnection.getQuota(socialChannelId, userSocialId);
+    if (notes != null) {
+      return notes.canSend;
+    }
+    return false;
+  }
+
+  Future<bool?> deleteNotes(String roomId, String noteId) async {
+    bool? check = await ChatConnection.deleteNotes(roomId, noteId);
+    return check;
+  }
+
+  Future<void> getSession(String roomId,
+      {int offset = 0, int limit = 5}) async {
+    try {
+      final response =
+          await ChatConnection.getSession(roomId, limit: limit, offset: offset);
+      _session.sink.add(response);
+    } catch (_) {}
+  }
+
+  Future<void> getSummary(String sessionId) async {
+    try {
+      final response = await ChatConnection.getSummary(sessionId);
+      if (response != null) {
+        _summary.sink.add(response);
+      }
+    } catch (_) {}
+  }
+
+  Future<void> openUrl(String url) async {
+    final Uri uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.platformDefault);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
+  copyTextToClipboard(BuildContext context, String text) async {
+    await Clipboard.setData(ClipboardData(text: text));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+          backgroundColor: AppColors.grey,
+          content: Text(AppLocalizations.text(LangKey.copyAlert))),
+    );
+  }
+
+  @override
+  void dispose() {
+    _session.close();
+    super.dispose();
+  }
+}

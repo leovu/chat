@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:chat/data_model/room.dart' show Owner;
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 
@@ -21,3 +24,21 @@ configKeyboardActions(List<KeyboardActionsItem> actions) {
     } catch (_) {}
     return result;
   }
+  Future showLoading(BuildContext context) async {
+  return await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          elevation: 0.0,
+          backgroundColor: Colors.transparent,
+          children: <Widget>[
+            Center(
+              child: Platform.isAndroid
+                  ? const CircularProgressIndicator()
+                  : const CupertinoActivityIndicator(),
+            )
+          ],
+        );
+      });
+}

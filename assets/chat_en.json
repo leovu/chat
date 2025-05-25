@@ -195,5 +195,9 @@
   "chat_messages": "Chat messages",
   "close": "Close",
   "select_tags":"'Select Tags",
-  "i_got_it":"I got it"
+  "i_got_it":"I got it",
+  "request_to_join_group": "Request to join group",
+  "reject": "Reject"
+
+
 }
