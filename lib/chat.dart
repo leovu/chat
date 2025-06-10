@@ -50,31 +50,27 @@ class Chat {
     ChatConnection.dispose(isDispose: true);
   }
 
-  static Future<String?> open(
-    BuildContext context,
-    String email,
-    String password,
-    String appIcon,
-    Locale locale, {
-    String? domain,
-    String? token,
-    String? brandCode,
-    bool isChatHub = false,
-    String? phoneNumber,
-    Map<String, dynamic>? notificationData,
-    List<Map<String, dynamic>>? addOnModules,
-    Function? searchProducts,
-    Function? searchOrders,
-    Function? createOrder,
-    Function? createAppointment,
-    Function? createDeal,
-    Function? createTask,
-    Function? addCustomer,
-    Function? addCustomerPotential,
-    Function? viewProfileChatHub,
-    Function? editCustomerLead,
-    Function? openChatGPT,
-  }) async {
+  static Future<String?> open(BuildContext context, String email,
+      String password, String appIcon, Locale locale,
+      {String? domain,
+      String? token,
+      String? brandCode,
+      bool isChatHub = false,
+      String? phoneNumber,
+      Map<String, dynamic>? notificationData,
+      List<Map<String, dynamic>>? addOnModules,
+      Function? searchProducts,
+      Function? searchOrders,
+      Function? createOrder,
+      Function? createAppointment,
+      Function? createDeal,
+      Function? createTask,
+      Function? addCustomer,
+      Function? addCustomerPotential,
+      Function? viewProfileChatHub,
+      Function? editCustomerLead,
+      Function? openChatGPT,
+      String? roomId}) async {
     showLoading(context);
     await initializeDateFormatting();
     if (domain != null) {
@@ -114,11 +110,12 @@ class Chat {
     Navigator.of(context).pop();
     ScreenInfo.initialize(MediaQuery.of(context));
     if (result) {
+      await ChatConnection.checkUserToken();
       if (phoneNumber != null) {
-        await ChatConnection.checkUserToken();
         return await onOpenChatScreen(phoneNumber, context);
+      } else if (roomId != null) {
+        return await openChatScreen(context, roomId: roomId);
       } else {
-        await ChatConnection.checkUserToken();
         await Navigator.of(context, rootNavigator: true).push(
           MaterialPageRoute(
             builder: (context) => AppChat(email: email, password: password),
@@ -156,6 +153,27 @@ class Chat {
             ),
           );
         }
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+    return null;
+  }
+
+  static Future<String?> openChatScreen(
+    BuildContext context, {
+    String? roomId,
+  }) async {
+    try {
+      ChatMessage? chat = await ChatConnection.joinRoom(roomId!);
+      if (chat?.room != null) {
+        await Navigator.of(context, rootNavigator: true).push(
+          MaterialPageRoute(
+            builder: (context) =>
+                ChatScreen(data: r.Rooms.mappingFromRoom(chat!.room!)),
+            settings: const RouteSettings(name: 'chat_screen'),
+          ),
+        );
       }
     } catch (e) {
       print('Error: $e');

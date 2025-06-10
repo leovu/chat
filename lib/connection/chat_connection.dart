@@ -274,6 +274,8 @@ class ChatConnection {
         print(
             '${c.ChatMessage.fromJson(responseData.data).room!.people.toString()}');
         print('${c.ChatMessage.fromJson(responseData.data).room!.oa_group_id}');
+        print(
+            '##############3 ${c.ChatMessage.fromJson(responseData.data).room?.channel}');
         return c.ChatMessage.fromJson(responseData.data);
       }
     } catch (_) {

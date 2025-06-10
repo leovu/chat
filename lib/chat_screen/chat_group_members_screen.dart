@@ -117,7 +117,7 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
               onTap: () async {
                 await Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => AddMemberGroupScreen(
-                    roomData: widget.roomData,
+                    // roomData: widget.roomData,
                     chanel_id: ChatConnection.isChatHub
                         ? widget.roomData.channel?.socialChanelId
                         : '',
@@ -283,7 +283,6 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
       }
     } else {}
     return const SizedBox.shrink();
-   
   }
 
   Widget _itemChat(BuildContext context, int index) {

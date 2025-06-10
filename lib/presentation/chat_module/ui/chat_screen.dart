@@ -755,7 +755,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   _loadMessages() async {
     ChatConnection.roomId = widget.data.sId!;
     data = await ChatConnection.joinRoom(widget.data.sId!);
-    peopleLength = data!.room!.people!.length;
+    peopleLength = data?.room?.people?.length;
     isInitScreen = false;
 
     if (data != null) {
@@ -1507,7 +1507,9 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                           AutoSizeText(
                             !widget.data.isGroup!
                                 ? '${data?.room?.owner?.firstName ?? ''} ${data?.room?.owner?.lastName ?? ''}'
-                                : widget.data.title ?? widget.data.room_name!,
+                                : widget.data.title ??
+                                    data?.room?.roomName ??
+                                    '',
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
                             style: const TextStyle(
@@ -1638,8 +1640,8 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         }
       }
     } else {
-      if (widget.data.isGroup == false) {
-        final avatar = widget.data.owner?.avatar;
+      if (data?.room?.isGroup == false) {
+        final avatar = data?.room?.owner?.avatar;
 
         if (avatar == null) {
           final sid = widget.data.shieldedID;
@@ -1671,7 +1673,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
           );
         }
       } else {
-        return widget.data.avatar == null
+        return data?.room?.roomAvatar == null
             ? CircleAvatar(
                 radius: radius,
                 child: Text(
@@ -1682,7 +1684,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
             : CircleAvatar(
                 radius: radius,
                 backgroundImage: CachedNetworkImageProvider(
-                  widget.data.avatar!,
+                  data?.room?.roomAvatar ?? '',
                   headers: {'brand-code': ChatConnection.brandCode!},
                 ),
                 backgroundColor: Colors.transparent,

@@ -49,6 +49,9 @@ class Room {
   String? title;
   String? roomLink;
   int? duration;
+  String? roomName;
+  String? roomAvatar;
+  String? source;
 
   Room(
       {sId,
@@ -66,11 +69,17 @@ class Room {
       messageSeen,
       oa_group_id,
       channel,
+      this.roomName,
+      this.roomAvatar,
       this.title = '',
       this.roomLink,
+      this.source,
       this.duration = 0});
 
   Room.fromJson(Map<String, dynamic> json) {
+    source = json['source'];
+    roomAvatar = json['room_avatar'];
+    roomName = json['room_name'];
     duration = json['duration'];
     roomLink = json['room_link'] ?? '';
     title = json['title'] ?? '';
@@ -139,12 +148,13 @@ class Room {
           : null;
     } catch (_) {}
 
-    // Thêm phần xử lý ChannelInfo
     try {
-      channel = json['channelInfo'] != null
-          ? Channel.fromJson(json['channelInfo'])
-          : null;
-    } catch (_) {}
+      channel =
+          json['channel'] != null ? Channel.fromJson(json['channel']) : null;
+    } catch (_) {
+      channel = Channel.fromJson(json['channel']);
+    }
+    // channel = json['channel'];
   }
 
   Map<String, dynamic> toJson() {
@@ -170,7 +180,7 @@ class Room {
 
     // Thêm ChannelInfo vào dữ liệu JSON
     if (channel != null) {
-      data['channelInfo'] = channel!.toJson();
+      data['channel '] = channel!.toJson();
     }
 
     return data;
@@ -182,22 +192,22 @@ class Channel {
   final int active;
   final int autoCreateLead;
   final String avatar;
-  final String cover;
-  final DateTime createdAt;
-  final int enableBackgroundIcon;
+  // final String cover;
+  // final String createdAt;
+  // final int enableBackgroundIcon;
   final int enableBot;
   final int enableGreeting;
   final int enableVoiceAi;
   final int isLostConnection;
   final List<int> managers;
   final String nameApp;
-  final List<dynamic> quickQuestion;
+  // final List<dynamic> quickQuestion;
   final int showFormLivechat;
   final String socialChanelId;
   final String source;
   final bool status;
   final int subscribed;
-  final List<dynamic> zpCookie;
+  // final List<dynamic> zpCookie;
   final int v;
 
   Channel({
@@ -205,22 +215,22 @@ class Channel {
     required this.active,
     required this.autoCreateLead,
     required this.avatar,
-    required this.cover,
-    required this.createdAt,
-    required this.enableBackgroundIcon,
+    // required this.cover,
+    // required this.createdAt,
+    // required this.enableBackgroundIcon,
     required this.enableBot,
     required this.enableGreeting,
     required this.enableVoiceAi,
     required this.isLostConnection,
     required this.managers,
     required this.nameApp,
-    required this.quickQuestion,
+    // required this.quickQuestion,
     required this.showFormLivechat,
     required this.socialChanelId,
     required this.source,
     required this.status,
     required this.subscribed,
-    required this.zpCookie,
+    // required this.zpCookie,
     required this.v,
   });
 
@@ -230,22 +240,22 @@ class Channel {
       active: json['active'],
       autoCreateLead: json['auto_create_lead'],
       avatar: json['avatar'],
-      cover: json['cover'],
-      createdAt: DateTime.parse(json['createdAt']),
-      enableBackgroundIcon: json['enable_background_icon'],
+      // cover: json['cover'],
+      // createdAt: json['createdAt'],
+      // enableBackgroundIcon: json['enable_background_icon'],
       enableBot: json['enable_bot'],
       enableGreeting: json['enable_greeting'],
       enableVoiceAi: json['enable_voice_ai'],
       isLostConnection: json['is_lost_connection'],
       managers: List<int>.from(json['managers']),
       nameApp: json['nameApp'],
-      quickQuestion: List<dynamic>.from(json['quick_question']),
+      // quickQuestion: List<dynamic>.from(json['quick_question']),
       showFormLivechat: json['show_form_livechat'],
       socialChanelId: json['socialChanelId'],
       source: json['source'],
       status: json['status'],
       subscribed: json['subscribed'],
-      zpCookie: List<dynamic>.from(json['zp_cookie']),
+      // zpCookie: List<dynamic>.from(json['zp_cookie']),
       v: json['__v'],
     );
   }
@@ -256,22 +266,22 @@ class Channel {
       'active': active,
       'auto_create_lead': autoCreateLead,
       'avatar': avatar,
-      'cover': cover,
-      'createdAt': createdAt.toIso8601String(),
-      'enable_background_icon': enableBackgroundIcon,
+      // 'cover': cover,
+      // 'createdAt': createdAt,
+      // 'enable_background_icon': enableBackgroundIcon,
       'enable_bot': enableBot,
       'enable_greeting': enableGreeting,
       'enable_voice_ai': enableVoiceAi,
       'is_lost_connection': isLostConnection,
-      'managers': managers,
+      // 'managers': managers,
       'nameApp': nameApp,
-      'quick_question': quickQuestion,
-      'show_form_livechat': showFormLivechat,
+      // 'quick_question': quickQuestion,
+      // 'show_form_livechat': showFormLivechat,
       'socialChanelId': socialChanelId,
       'source': source,
       'status': status,
       'subscribed': subscribed,
-      'zp_cookie': zpCookie,
+      // 'zp_cookie': zpCookie,
       '__v': v,
     };
   }
