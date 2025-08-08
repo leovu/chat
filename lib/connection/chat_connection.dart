@@ -175,7 +175,7 @@ class ChatConnection {
     json['limit'] = 100;
     if (tagIds != null && tagIds.isNotEmpty) {
       final parsedTagIds = tagIds
-          .where((e) => e != null && e != null) // lọc null và parse lỗi
+          .where((e) => e != null) // lọc null và parse lỗi
           .map((e) => e!) // an toàn vì đã lọc ở trên
           .toList();
 
@@ -271,11 +271,7 @@ class ChatConnection {
           streamSocket.joinRoom(id);
         }
         await autoUpdateChatSeenWhenJoinRoom(id);
-        print(
-            '${c.ChatMessage.fromJson(responseData.data).room!.people.toString()}');
-        print('${c.ChatMessage.fromJson(responseData.data).room!.oa_group_id}');
-        print(
-            '##############3 ${c.ChatMessage.fromJson(responseData.data).room?.channel}');
+        
         return c.ChatMessage.fromJson(responseData.data);
       }
     } catch (_) {
@@ -1142,7 +1138,7 @@ class ChatConnection {
       } else {
         return null;
       }
-    } catch (e, stack) {
+    } catch (e) {
       return null;
     }
   }

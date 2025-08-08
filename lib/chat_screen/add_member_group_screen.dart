@@ -458,7 +458,7 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
     List<String> people = [];
     try {
       userZaloOAList?.users?.forEach((element) {
-        if (element.isSelected != null && element.isSelected == true) {
+        if (element.isSelected == true) {
           people.add(element.userSocialId);
         }
       });
@@ -565,7 +565,7 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                     SizedBox(
                       height: 30.0,
                       width: 30.0,
-                      child: data.isSelected != null && data.isSelected!
+                      child: data.isSelected
                           ? const Icon(Icons.radio_button_checked,
                               size: 25.0, color: Color(0xff0021F5))
                           : const Icon(Icons.radio_button_off,

@@ -30,6 +30,156 @@ class ChatMessage {
   }
 }
 
+// class Room {
+//   String? sId;
+//   List<People>? people;
+//   bool? isGroup;
+//   Owner? owner;
+//   String? lastUpdate;
+//   String? lastAuthor;
+//   String? lastMessage;
+//   List<Messages>? messages;
+//   List<MessageSeen>? messageSeen;
+//   List<Images>? images;
+//   List<Images>? files;
+//   List<Images>? links;
+//   PinMessage? pinMessage;
+//   String? oa_group_id;
+//   Channel? channel;
+//   String? title;
+//   String? roomLink;
+//   int? duration;
+//   String? roomName;
+//   String? roomAvatar;
+//   String? source;
+//   Room(
+//       {sId,
+//       people,
+//       isGroup,
+//       lastUpdate,
+//       lastAuthor,
+//       lastMessage,
+//       messages,
+//       images,
+//       files,
+//       links,
+//       pinMessage,
+//       owner,
+//       messageSeen,
+//       oa_group_id,
+//       channel,
+//       this.roomName,
+//       this.roomAvatar,
+//       this.title = '',
+//       this.roomLink,
+//       this.source,
+//       this.duration = 0});
+//   Room.fromJson(Map<String, dynamic> json) {
+//     source = json['source'];
+//     roomAvatar = json['room_avatar'];
+//     roomName = json['room_name'];
+//     duration = json['duration'];
+//     roomLink = json['room_link'] ?? '';
+//     title = json['title'] ?? '';
+//     sId = json['_id'];
+//     oa_group_id = json['oa_group_id'];
+//     if (json['people'] != null) {
+//       people = <People>[];
+//       json['people'].forEach((v) {
+//         people!.add(People.fromJson(v));
+//       });
+//     }
+//     try {
+//       if (json['messageSeen'] != null) {
+//         messageSeen = <MessageSeen>[];
+//         json['messageSeen'].forEach((v) {
+//           messageSeen!.add(MessageSeen.fromJson(v));
+//         });
+//       }
+//     } catch (_) {}
+//     isGroup = json['isGroup'];
+//     lastUpdate = json['lastUpdate'];
+//     lastAuthor = json['lastAuthor'];
+//     try {
+//       owner = json['owner'] != null ? Owner.fromJson(json['owner']) : null;
+//     } catch (_) {}
+//     try {
+//       lastMessage = json['lastMessage'];
+//     } catch (_) {}
+//     if (json['messages'] != null) {
+//       messages = <Messages>[];
+//       json['messages'].forEach((v) {
+//         if (v['content'] == 'Message recalled' && v['type'] == 'image') {
+//         } else {
+//           messages!.add(Messages.fromJson(v));
+//         }
+//       });
+//       messages = messages?.reversed.toList();
+//     }
+//     if (json['images'] != null) {
+//       images = <Images>[];
+//       json['images'].forEach((v) {
+//         if (v['content'] != 'Message recalled') {
+//           images!.add(Images.fromJson(v));
+//         }
+//       });
+//     }
+//     if (json['files'] != null) {
+//       files = <Images>[];
+//       json['files'].forEach((v) {
+//         if (v['content'] != 'Message recalled') {
+//           files!.add(Images.fromJson(v));
+//         }
+//       });
+//     }
+//     if (json['links'] != null) {
+//       links = <Images>[];
+//       json['links'].forEach((v) {
+//         if (v['content'] != 'Message recalled') {
+//           links!.add(Images.fromJson(v));
+//         }
+//       });
+//     }
+//     try {
+//       pinMessage = json['pinMessage'] != null
+//           ? PinMessage.fromJson(json['pinMessage'])
+//           : null;
+//     } catch (_) {}
+//     try {
+//       channel =
+//           json['channel'] != null ? Channel.fromJson(json['channel']) : null;
+//     } catch (_) {
+//       channel = Channel.fromJson(json['channel']);
+//     }
+//   }
+//   Map<String, dynamic> toJson() {
+//     final Map<String, dynamic> data = <String, dynamic>{};
+//     data['_id'] = sId;
+//     data['title'] = title;
+//     if (people != null) {
+//       data['people'] = people!.map((v) => v.toJson()).toList();
+//     }
+//     data['isGroup'] = isGroup;
+//     data['lastUpdate'] = lastUpdate;
+//     data['lastAuthor'] = lastAuthor;
+//     data['lastMessage'] = lastMessage;
+//     if (messages != null) {
+//       data['messages'] = messages!.map((v) => v.toJson()).toList();
+//     }
+//     if (images != null) {
+//       data['images'] = images!.map((v) => v.toJson()).toList();
+//     }
+//     if (pinMessage != null) {
+//       data['pinMessage'] = pinMessage!.toJson();
+//     }
+//     // Thêm ChannelInfo vào dữ liệu JSON
+//     if (channel != null) {
+//       data['channel '] = channel!.toJson();
+//     }
+//     return data;
+//   }
+// }
+
 class Room {
   String? sId;
   List<People>? people;
@@ -43,6 +193,17 @@ class Room {
   List<Images>? images;
   List<Images>? files;
   List<Images>? links;
+  List<Messages>? stickers;
+  List<Messages>? systemMessages;
+  List<Messages>? audioMessages;
+  List<Messages>? fileUrls;
+  List<Messages>? imageUrls;
+  List<Messages>? productMessages;
+  List<Messages>? genericMessages;
+  List<Messages>? oaListMessages;
+  List<Messages>? zpListMessages;
+  List<Messages>? oaTemplates;
+  List<Messages>? textMessages;
   PinMessage? pinMessage;
   String? oa_group_id;
   Channel? channel;
@@ -64,6 +225,17 @@ class Room {
       images,
       files,
       links,
+      stickers,
+      systemMessages,
+      audioMessages,
+      fileUrls,
+      imageUrls,
+      productMessages,
+      genericMessages,
+      oaListMessages,
+      zpListMessages,
+      oaTemplates,
+      textMessages,
       pinMessage,
       owner,
       messageSeen,
@@ -108,16 +280,70 @@ class Room {
     try {
       lastMessage = json['lastMessage'];
     } catch (_) {}
+
     if (json['messages'] != null) {
       messages = <Messages>[];
+      stickers = <Messages>[];
+      systemMessages = <Messages>[];
+      audioMessages = <Messages>[];
+      fileUrls = <Messages>[];
+      imageUrls = <Messages>[];
+      productMessages = <Messages>[];
+      genericMessages = <Messages>[];
+      oaListMessages = <Messages>[];
+      zpListMessages = <Messages>[];
+      oaTemplates = <Messages>[];
+      textMessages = <Messages>[];
+
       json['messages'].forEach((v) {
         if (v['content'] == 'Message recalled' && v['type'] == 'image') {
-        } else {
-          messages!.add(Messages.fromJson(v));
+          return;
+        }
+
+        final type = v['type'];
+        final msg = Messages.fromJson(v);
+
+        messages!.add(msg);
+
+        switch (type) {
+          case 'sticker':
+            stickers!.add(msg);
+            break;
+          case 'system':
+            systemMessages!.add(msg);
+            break;
+          case 'audio':
+            audioMessages!.add(msg);
+            break;
+          case 'file_url':
+            fileUrls!.add(msg);
+            break;
+          case 'image_url':
+            imageUrls!.add(msg);
+            break;
+          case 'products':
+            productMessages!.add(msg);
+            break;
+          case 'generic':
+            genericMessages!.add(msg);
+            break;
+          case 'oa_list':
+            oaListMessages!.add(msg);
+            break;
+          case 'zp_list':
+            zpListMessages!.add(msg);
+            break;
+          case 'oa_template':
+            oaTemplates!.add(msg);
+            break;
+          case 'text':
+            textMessages!.add(msg);
+            break;
         }
       });
       messages = messages?.reversed.toList();
     }
+
     if (json['images'] != null) {
       images = <Images>[];
       json['images'].forEach((v) {
@@ -154,35 +380,31 @@ class Room {
     } catch (_) {
       channel = Channel.fromJson(json['channel']);
     }
-    // channel = json['channel'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
+    final Map<String, dynamic> data = {};
     data['_id'] = sId;
-    data['title'] = title;
-    if (people != null) {
-      data['people'] = people!.map((v) => v.toJson()).toList();
-    }
+    data['people'] = people?.map((v) => v.toJson()).toList();
     data['isGroup'] = isGroup;
+    data['owner'] = owner?.toJson();
     data['lastUpdate'] = lastUpdate;
     data['lastAuthor'] = lastAuthor;
     data['lastMessage'] = lastMessage;
-    if (messages != null) {
-      data['messages'] = messages!.map((v) => v.toJson()).toList();
-    }
-    if (images != null) {
-      data['images'] = images!.map((v) => v.toJson()).toList();
-    }
-    if (pinMessage != null) {
-      data['pinMessage'] = pinMessage!.toJson();
-    }
-
-    // Thêm ChannelInfo vào dữ liệu JSON
-    if (channel != null) {
-      data['channel '] = channel!.toJson();
-    }
-
+    data['messages'] = messages?.map((v) => v.toJson()).toList();
+    data['messageSeen'] = messageSeen?.map((v) => v.toJson()).toList();
+    data['images'] = images?.map((v) => v.toJson()).toList();
+    data['files'] = files?.map((v) => v.toJson()).toList();
+    data['links'] = links?.map((v) => v.toJson()).toList();
+    data['pinMessage'] = pinMessage?.toJson();
+    data['oa_group_id'] = oa_group_id;
+    data['channel'] = channel?.toJson();
+    data['title'] = title;
+    data['room_link'] = roomLink;
+    data['duration'] = duration;
+    data['room_name'] = roomName;
+    data['room_avatar'] = roomAvatar;
+    data['source'] = source;
     return data;
   }
 }
@@ -239,7 +461,7 @@ class Channel {
       id: json['_id'],
       active: json['active'],
       autoCreateLead: json['auto_create_lead'],
-      avatar: json['avatar'],
+      avatar: json['avatar'] ?? '',
       // cover: json['cover'],
       // createdAt: json['createdAt'],
       // enableBackgroundIcon: json['enable_background_icon'],
@@ -528,6 +750,8 @@ class Messages {
   String? sessionStatus;
   String? sessionTime;
   String? socialMessageId;
+  String? sticker;
+  Map<String, dynamic>? messageObject;
 
   Messages({
     this.sId,
@@ -558,6 +782,8 @@ class Messages {
     this.sessionStatus,
     this.sessionTime,
     this.socialMessageId,
+    this.sticker,
+    this.messageObject,
   });
 
   factory Messages.fromJson(Map<String, dynamic> json) {
@@ -590,19 +816,18 @@ class Messages {
       file: _safeParse(() => File.fromJson(json['file'])),
       staff: _safeParse(() => Staff.fromJson(json['staff'])),
       photos: _safeParse(() => Photos.fromJson(json['photos'])),
+      sticker: json['sticker'] as String?,
+      messageObject: json['message_object'] as Map<String, dynamic>?,
     );
-
     message.replies = _safeParse(() => Replies.fromJson(json['replies']));
     message.author = _safeParse(() => Author.fromJson(json['author']));
     message.file = _safeParse(() => File.fromJson(json['file']));
     message.staff = _safeParse(() => Staff.fromJson(json['staff']));
     message.photos = _safeParse(() => Photos.fromJson(json['photos']));
-
     if (message.content == 'Message recalled') {
       message.content = AppLocalizations.text(LangKey.messageRecalled);
       message.edit = 0;
     }
-
     return message;
   }
 
@@ -636,21 +861,21 @@ class Messages {
       'sessionStatus': sessionStatus,
       'sessionTime': sessionTime,
       'socialMessageId': socialMessageId,
+      'sticker': sticker,
+      'message_object': messageObject,
     };
   }
 
   Map<String, dynamic> toMessageJson({List<MessageSeen>? messageSeen}) {
     final Map<String, dynamic> data = <String, dynamic>{};
+
+    final Map<String, dynamic> metadata = {};
     if (errorMessage != null) {
-      if (messageSeen != null) {
-        data['metadata'] = {
-          'error_message': errorMessage,
-          'messageSeen': messageSeen.map((e) => e.toJson()).toList()
-        };
-      } else {
-        data['metadata'] = {'error_message': errorMessage};
-      }
+      metadata['error_message'] = errorMessage;
       data['status'] = 'error';
+    }
+    if (messageSeen != null) {
+      metadata['messageSeen'] = messageSeen.map((e) => e.toJson()).toList();
     }
     if (edit != null) {
       data['remoteId'] = '$edit';
@@ -679,36 +904,104 @@ class Messages {
       };
     }
     if (date != null) {
-      final format = DateFormat("yyyy-MM-dd'T'HH:mm:ss");
-      final dt = format.parse(date!, true);
-      data['createdAt'] = dt.toUtc().millisecondsSinceEpoch;
+      try {
+        final format = DateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        final dt = format.parse(date!, true);
+        data['createdAt'] = dt.toUtc().millisecondsSinceEpoch;
+      } catch (e) {
+        data['createdAt'] = DateTime.now().toUtc().millisecondsSinceEpoch;
+      }
     }
     data['id'] = sId;
-    if (type == 'file' && file != null) {
-      data['size'] = 0;
-      data['type'] = 'file';
-      final mimeType = lookupMimeType(file!.name!);
-      data['mimeType'] = mimeType;
-      data['size'] = file!.size;
-      data['name'] = file!.name;
-      data['uri'] =
-          '${HTTPConnection.domain}api/files/${file!.shieldedID}/${ChatConnection.brandCode}';
-    } else if (type == 'image') {
-      data['size'] = 0;
-      data['type'] = 'image';
-      data['name'] = 'image';
-      data['uri'] =
-          '${HTTPConnection.domain}api/images/$content/${ChatConnection.brandCode}';
-    } else if (type == 'audio') {
-      data['size'] = 0;
-      data['type'] = 'audio';
-      data['name'] = 'audio';
-      data['duration'] = 1;
-      data['uri'] = file?.location;
-      // '${HTTPConnection.domain}api/images/$content/${ChatConnection.brandCode}';
-    } else {
-      data['type'] = 'text';
-      data['text'] = content;
+    switch (type) {
+      case 'text':
+        data['type'] = 'text';
+        data['text'] = content;
+        break;
+
+      case 'image':
+        data['type'] = 'image';
+        data['size'] = 0;
+        data['name'] = 'image.jpg';
+        data['uri'] = (photos?.original ?? photos?.fullsize) ??
+            '${HTTPConnection.domain}api/images/$content/${ChatConnection.brandCode}';
+        break;
+
+      case 'file':
+        if (file != null) {
+          data['type'] = 'file';
+          data['size'] = file!.size;
+          data['name'] = file!.name;
+          data['uri'] =
+              '${HTTPConnection.domain}api/files/${file!.shieldedID}/${ChatConnection.brandCode}';
+          data['mimeType'] = lookupMimeType(file!.name!);
+        }
+        break;
+
+      case 'file_url':
+        data['type'] = 'file';
+        data['uri'] = messageObject?['file_url'];
+        data['name'] = messageObject?['file_name'] ?? 'File';
+        data['size'] =
+            int.tryParse(messageObject?['file_size']?.toString() ?? '0') ?? 0;
+        data['mimeType'] = lookupMimeType(data['name']);
+        break;
+
+      case 'audio':
+        data['type'] = 'audio';
+        data['size'] = 0;
+        data['name'] = 'audio';
+        data['duration'] = const Duration(seconds: 1).inMilliseconds;
+        data['uri'] = file?.location;
+        break;
+
+      case 'sticker':
+        data['type'] = 'custom';
+        metadata['custom_type'] = 'sticker';
+        metadata['url'] = sticker;
+        break;
+
+      case 'products':
+        data['type'] = 'custom';
+        metadata['custom_type'] = 'products';
+        metadata['items'] = messageItems;
+        break;
+
+      case 'generic':
+        data['type'] = 'custom';
+        metadata['custom_type'] = 'generic';
+        metadata['elements'] =
+            (messageItems)?.first?['payload']?['elements'];
+        break;
+
+      case 'system':
+      case 'zp_list':
+        data['type'] = 'custom';
+        metadata['custom_type'] = 'system';
+        metadata['text'] =
+            (messageItems)?.first?['title'] ?? content;
+        break;
+
+      case 'oa_template':
+        data['type'] = 'custom';
+        metadata['custom_type'] = 'oa_template';
+        metadata['html'] = messageTemplate;
+        break;
+
+      case 'oa_list':
+        data['type'] = 'custom';
+        metadata['custom_type'] = 'oa_list';
+        metadata['data'] = (messageItems)?.first?['payload'];
+        break;
+
+      default:
+        data['type'] = 'text';
+        data['text'] = content;
+        break;
+    }
+
+    if (metadata.isNotEmpty) {
+      data['metadata'] = metadata;
     }
     // data['status'] = 'delivered';
     if (replies != null) {
@@ -1064,4 +1357,241 @@ class PinMessage {
     data['type'] = type;
     return data;
   }
+}
+
+//_________________________________
+
+class PhotoModel {
+  final String original;
+  final String fullsize;
+  final String thumbnail;
+
+  PhotoModel({
+    required this.original,
+    required this.fullsize,
+    required this.thumbnail,
+  });
+
+  factory PhotoModel.fromJson(Map<String, dynamic> json) => PhotoModel(
+        original: json['original'] ?? '',
+        fullsize: json['fullsize'] ?? '',
+        thumbnail: json['thumbnail'] ?? '',
+      );
+
+  Map<String, dynamic> toJson() => {
+        'original': original,
+        'fullsize': fullsize,
+        'thumbnail': thumbnail,
+      };
+}
+
+class ProductItem {
+  final String url;
+  final String name;
+  final String code;
+  final String price;
+  final List<String> imageUrls;
+  final String description;
+
+  ProductItem({
+    required this.url,
+    required this.name,
+    required this.code,
+    required this.price,
+    required this.imageUrls,
+    required this.description,
+  });
+
+  factory ProductItem.fromJson(Map<String, dynamic> json) => ProductItem(
+        url: json['url'] ?? '',
+        name: json['name'] ?? '',
+        code: json['code'] ?? '',
+        price: json['price'] ?? '',
+        imageUrls: List<String>.from(json['image_urls'] ?? []),
+        description: json['description'] ?? '',
+      );
+
+  Map<String, dynamic> toJson() => {
+        'url': url,
+        'name': name,
+        'code': code,
+        'price': price,
+        'image_urls': imageUrls,
+        'description': description,
+      };
+}
+
+class TemplateButton {
+  final String title;
+  final String payload;
+  final int pageId;
+  final int appId;
+  final String notificationMessagesFrequency;
+  final String notificationMessagesReoptin;
+  final String notificationMessagesTimezone;
+  final String notificationMessagesCtaText;
+  final int notificationMessagesTemplateSentTime;
+  final String imageUrl;
+  final String notificationMessagesCtaEntryPoint;
+  final int notificationMessagesCtmAdId;
+  final String notificationMessagesUniqueId;
+
+  TemplateButton({
+    required this.title,
+    required this.payload,
+    required this.pageId,
+    required this.appId,
+    required this.notificationMessagesFrequency,
+    required this.notificationMessagesReoptin,
+    required this.notificationMessagesTimezone,
+    required this.notificationMessagesCtaText,
+    required this.notificationMessagesTemplateSentTime,
+    required this.imageUrl,
+    required this.notificationMessagesCtaEntryPoint,
+    required this.notificationMessagesCtmAdId,
+    required this.notificationMessagesUniqueId,
+  });
+
+  factory TemplateButton.fromJson(Map<String, dynamic> json) => TemplateButton(
+        title: json['title'] ?? '',
+        payload: json['payload'] ?? '',
+        pageId: json['page_id'] ?? 0,
+        appId: json['app_id'] ?? 0,
+        notificationMessagesFrequency:
+            json['notification_messages_frequency'] ?? '',
+        notificationMessagesReoptin:
+            json['notification_messages_reoptin'] ?? '',
+        notificationMessagesTimezone:
+            json['notification_messages_timezone'] ?? '',
+        notificationMessagesCtaText:
+            json['notification_messages_cta_text'] ?? '',
+        notificationMessagesTemplateSentTime:
+            json['notification_messages_template_sent_time'] ?? 0,
+        imageUrl: json['image_url'] ?? '',
+        notificationMessagesCtaEntryPoint:
+            json['notification_messages_cta_entry_point'] ?? '',
+        notificationMessagesCtmAdId:
+            json['notification_messages_ctm_ad_id'] ?? 0,
+        notificationMessagesUniqueId:
+            json['notification_messages_unique_id'] ?? '',
+      );
+
+  Map<String, dynamic> toJson() => {
+        'title': title,
+        'payload': payload,
+        'page_id': pageId,
+        'app_id': appId,
+        'notification_messages_frequency': notificationMessagesFrequency,
+        'notification_messages_reoptin': notificationMessagesReoptin,
+        'notification_messages_timezone': notificationMessagesTimezone,
+        'notification_messages_cta_text': notificationMessagesCtaText,
+        'notification_messages_template_sent_time':
+            notificationMessagesTemplateSentTime,
+        'image_url': imageUrl,
+        'notification_messages_cta_entry_point':
+            notificationMessagesCtaEntryPoint,
+        'notification_messages_ctm_ad_id': notificationMessagesCtmAdId,
+        'notification_messages_unique_id': notificationMessagesUniqueId,
+      };
+}
+
+class LinkItem {
+  final String thumbnail;
+  final String description;
+  final String title;
+  final String url;
+
+  LinkItem({
+    required this.thumbnail,
+    required this.description,
+    required this.title,
+    required this.url,
+  });
+
+  factory LinkItem.fromJson(Map<String, dynamic> json) => LinkItem(
+        thumbnail: json['thumbnail'] ?? '',
+        description: json['description'] ?? '',
+        title: json['title'] ?? '',
+        url: json['url'] ?? '',
+      );
+
+  Map<String, dynamic> toJson() => {
+        'thumbnail': thumbnail,
+        'description': description,
+        'title': title,
+        'url': url,
+      };
+}
+
+class ActionItem {
+  final String title;
+  final String description;
+  final String href;
+  final String thumb;
+  final int childNumber;
+  final String action;
+  final String params;
+  final String type;
+
+  ActionItem({
+    required this.title,
+    required this.description,
+    required this.href,
+    required this.thumb,
+    required this.childNumber,
+    required this.action,
+    required this.params,
+    required this.type,
+  });
+
+  factory ActionItem.fromJson(Map<String, dynamic> json) => ActionItem(
+        title: json['title'] ?? '',
+        description: json['description'] ?? '',
+        href: json['href'] ?? '',
+        thumb: json['thumb'] ?? '',
+        childNumber: json['childnumber'] ?? 0,
+        action: json['action'] ?? '',
+        params: json['params'] ?? '',
+        type: json['type'] ?? '',
+      );
+
+  Map<String, dynamic> toJson() => {
+        'title': title,
+        'description': description,
+        'href': href,
+        'thumb': thumb,
+        'childnumber': childNumber,
+        'action': action,
+        'params': params,
+        'type': type,
+      };
+}
+
+class MessageFileObject {
+  final String fileUrl;
+  final String fileName;
+  final String fileSize;
+  final String fileType;
+
+  MessageFileObject({
+    required this.fileUrl,
+    required this.fileName,
+    required this.fileSize,
+    required this.fileType,
+  });
+
+  factory MessageFileObject.fromJson(Map<String, dynamic> json) =>
+      MessageFileObject(
+        fileUrl: json['file_url'] ?? '',
+        fileName: json['file_name'] ?? '',
+        fileSize: json['file_size'] ?? '',
+        fileType: json['file_type'] ?? '',
+      );
+
+  Map<String, dynamic> toJson() => {
+        'file_url': fileUrl,
+        'file_name': fileName,
+        'file_size': fileSize,
+        'file_type': fileType,
+      };
 }

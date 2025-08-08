@@ -9,7 +9,6 @@ import 'package:chat/data_model/response/notes_response_model.dart';
 import 'package:chat/data_model/response/quota_response_model.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:rxdart/rxdart.dart';

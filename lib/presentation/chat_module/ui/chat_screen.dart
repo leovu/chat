@@ -32,6 +32,7 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../chat_ui/hex_color.dart';
+import '../../../chat_ui/widgets/custom_message_builder.dart';
 import '../../../data_model/room.dart';
 import '../../utils/dialog.dart';
 
@@ -760,6 +761,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
 
     if (data != null) {
       final messages = data?.room?.messages;
+
       final List<types.Message> values = [];
 
       if (messages != null) {
@@ -1157,6 +1159,10 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
           });
         }
       },
+
+      // imageMessageBuilder: ,
+      // customMessageBuilder: ,
+
       onAvatarTap: (p0) {},
       //  (types.User user) async {
       //Lỗi chưa xác định, xử lí phần chathub
@@ -1165,7 +1171,6 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       //   r.Rooms? rooms = await ChatConnection.createRoom(user.id);
       //   Navigator.of(context).pop();
       //   ChatConnection.roomId = rooms!.sId!;
-
       //   await Navigator.of(context, rootNavigator: true).pushReplacement(
       //     MaterialPageRoute(
       //         builder: (context) =>
@@ -1179,6 +1184,8 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       //   } catch (_) {}
       // }
       // },
+
+      customMessageBuilder: customMessageBuilder,
       onStickerPressed: _onStickerPressed,
       showUserAvatars: true,
       showUserNames: true,
