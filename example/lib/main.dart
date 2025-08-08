@@ -40,6 +40,9 @@ class _MyAppState extends State<MyApp> {
   final TextEditingController _userNameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _domainController = TextEditingController();
+  final TextEditingController _siteController = TextEditingController();
+  final TextEditingController _tokenController = TextEditingController();
+
 
   @override
   void initState() {
@@ -51,7 +54,9 @@ class _MyAppState extends State<MyApp> {
         // _domainController.text = 'https://chat-hub-stag.epoints.vn/';
         _userNameController.text = 'admin@pioapps.vn';
         _passwordController.text = 'Waosupport@2025';
-        _domainController.text = 'https://chat-hub-stag.epoints.vn/';
+        // _domainController.text = 'https://chat-hub-stag.epoints.vn/';
+        _domainController.text = 'https://chathub.epoints.vn/';
+        _siteController.text = 'sale';
       });
     });
   }
@@ -120,6 +125,42 @@ class _MyAppState extends State<MyApp> {
               ),
             ),
           ),
+          Padding(
+            padding:
+                const EdgeInsets.only(bottom: 15.0, left: 15.0, right: 15.0),
+            child: Container(
+              height: 40.0,
+              decoration: BoxDecoration(border: Border.all(width: 1.0)),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                child: Center(
+                  child: TextField(
+                    decoration:
+                        const InputDecoration.collapsed(hintText: 'Site'),
+                    controller: _siteController,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding:
+                const EdgeInsets.only(bottom: 15.0, left: 15.0, right: 15.0),
+            child: Container(
+              height: 40.0,
+              decoration: BoxDecoration(border: Border.all(width: 1.0)),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                child: Center(
+                  child: TextField(
+                    decoration:
+                        const InputDecoration.collapsed(hintText: 'Token'),
+                    controller: _tokenController,
+                  ),
+                ),
+              ),
+            ),
+          ),
           Center(
             child: InkWell(
                 onTap: () async {
@@ -139,21 +180,21 @@ class _MyAppState extends State<MyApp> {
                   await Chat.open(
                       // phoneNumber: '0708983437',
                       // phoneNumber: '+8490688627',
+                       // roomId: '681b21711dfeab2a7af5b027'
                       context,
                       _userNameController.value.text,
                       _passwordController.value.text,
                       'assets/icon-app.png',
                       const Locale(LangKey.langVi, 'VI'),
-                      domain: 'https://chathub.epoints.vn/',
-                      // domain: 'https://chat.epoints.vn/',
-                      brandCode: 'sale',
+                      domain: _domainController.value.text,
+                      brandCode: _siteController.value.text,
+                      // token: _tokenController.value.text,
+
+                      // domain: 'https://chathub.epoints.vn/',
+                    // brandCode: 'bonboz',
                       isChatHub: true,
-                      // token:
-                      //     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ZmNjMjM1ZDAwYzZjMDAxMjVlZmViNSIsInNpZCI6ImFkbWluQHBpb2FwcHMudm4iLCJlbWFpbCI6InlvdXJfZW1haWxAZXhhbXBsZS5jb20iLCJsZXZlbCI6InN0YW5kYXJkIiwiZmlyc3ROYW1lIjoiSm9obiIsImxhc3ROYW1lIjoiRG9lIiwidXNlcm5hbWUiOiJhZG1pbkBwaW9hcHBzLnZuIiwiYnJhbmQiOiJzYWxlIiwiaWF0IjoxNzQ2NjA2NTc3LCJleHAiOjE3NTE3OTA1Nzd9.uCwGYgHPImV6PYhRQ5EBiUBppV9vNzvBsekHcuiJu-k");
-                      // //
                       token:
-                          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyZmQwMjA0ZDcwMzNlMjRkYTc5YzYwNiIsInVpZCI6MSwic2lkIjoiYWRtaW4iLCJlbWFpbCI6InZ1QHBpb2FwcHMudm4iLCJsZXZlbCI6InJvb3QiLCJmaXJzdE5hbWUiOiJBZG1pbiIsImxhc3ROYW1lIjoiVXNlciIsInVzZXJuYW1lIjoiYWRtaW4iLCJicmFuZF9jb2RlIjoic2FsZSIsImlhdCI6MTc0NDg2MzU4NSwiZXhwIjoxNzUwMDQ3NTg1fQ.v9by8eKSqJUzOVK3RhTgYaudkfLpfujCyNGu0-bM6WM",
-                      // roomId: '681b21711dfeab2a7af5b027'
+                          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyZmQwMjA0ZDcwMzNlMjRkYTc5YzYwNiIsInVpZCI6MSwic2lkIjoiYWRtaW4iLCJlbWFpbCI6InZ1QHBpb2FwcHMudm4iLCJsZXZlbCI6InJvb3QiLCJmaXJzdE5hbWUiOiJBZG1pbiIsImxhc3ROYW1lIjoiVXNlciIsInVzZXJuYW1lIjoiYWRtaW4iLCJicmFuZF9jb2RlIjoic2FsZSIsImlhdCI6MTc1NDYyMTM3MywiZXhwIjoxNzU5ODA1MzczfQ.e5elZb7UBwdrFdRhMrNVHxjQkmLI8S81pbNnWjnTnIk",
                       );
 
                   // Chat.open(context,_userNameController.value.text, _passwordController.value.text, 'assets/icon-app.png',const Locale(LangKey.langVi, 'VN'), domain: _domainController.value.text,brandCode: 'qc',isChatHub: true,
