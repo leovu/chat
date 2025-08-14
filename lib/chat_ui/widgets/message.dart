@@ -54,7 +54,8 @@ class Message extends StatelessWidget {
       required this.onMessageReply,
       required this.people,
       this.seenPeople,
-      this.circleAvatar})
+      this.circleAvatar,
+      this.content})
       : super(key: key);
 
   /// Customize the default bubble using this function. `child` is a content
@@ -82,6 +83,8 @@ class Message extends StatelessWidget {
   /// Build a file message inside predefined bubble
   final Widget Function(types.FileMessage, {required int messageWidth})?
       fileMessageBuilder;
+
+      final String? content;
 
   /// Hide background for messages containing only emojis.
   final bool hideBackgroundOnEmojiMessages;
@@ -245,15 +248,18 @@ class Message extends StatelessWidget {
                 people: people,
               );
       case types.MessageType.image:
-        final imageMessage = message as types.ImageMessage;
+        final imageMessage = message; // as types.ImageMessage;
         return imageMessageBuilder != null
-            ? imageMessageBuilder!(imageMessage, messageWidth: messageWidth)
+            ? imageMessageBuilder!(imageMessage as types.ImageMessage,
+                messageWidth: messageWidth)
+            // : Text(message.toJson().toString());
             : ImageMessage(
-                message: imageMessage,
+                message: imageMessage as types.ImageMessage,
                 messageWidth: messageWidth,
                 showUserNameForRepliedMessage: true,
                 onMessageTap: onMessageTap,
                 people: people,
+                content: content,
               );
       case types.MessageType.text:
         final textMessage = message as types.TextMessage;

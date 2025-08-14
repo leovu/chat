@@ -32,156 +32,6 @@ class ChatMessage {
   }
 }
 
-// class Room {
-//   String? sId;
-//   List<People>? people;
-//   bool? isGroup;
-//   Owner? owner;
-//   String? lastUpdate;
-//   String? lastAuthor;
-//   String? lastMessage;
-//   List<Messages>? messages;
-//   List<MessageSeen>? messageSeen;
-//   List<Images>? images;
-//   List<Images>? files;
-//   List<Images>? links;
-//   PinMessage? pinMessage;
-//   String? oa_group_id;
-//   Channel? channel;
-//   String? title;
-//   String? roomLink;
-//   int? duration;
-//   String? roomName;
-//   String? roomAvatar;
-//   String? source;
-//   Room(
-//       {sId,
-//       people,
-//       isGroup,
-//       lastUpdate,
-//       lastAuthor,
-//       lastMessage,
-//       messages,
-//       images,
-//       files,
-//       links,
-//       pinMessage,
-//       owner,
-//       messageSeen,
-//       oa_group_id,
-//       channel,
-//       this.roomName,
-//       this.roomAvatar,
-//       this.title = '',
-//       this.roomLink,
-//       this.source,
-//       this.duration = 0});
-//   Room.fromJson(Map<String, dynamic> json) {
-//     source = json['source'];
-//     roomAvatar = json['room_avatar'];
-//     roomName = json['room_name'];
-//     duration = json['duration'];
-//     roomLink = json['room_link'] ?? '';
-//     title = json['title'] ?? '';
-//     sId = json['_id'];
-//     oa_group_id = json['oa_group_id'];
-//     if (json['people'] != null) {
-//       people = <People>[];
-//       json['people'].forEach((v) {
-//         people!.add(People.fromJson(v));
-//       });
-//     }
-//     try {
-//       if (json['messageSeen'] != null) {
-//         messageSeen = <MessageSeen>[];
-//         json['messageSeen'].forEach((v) {
-//           messageSeen!.add(MessageSeen.fromJson(v));
-//         });
-//       }
-//     } catch (_) {}
-//     isGroup = json['isGroup'];
-//     lastUpdate = json['lastUpdate'];
-//     lastAuthor = json['lastAuthor'];
-//     try {
-//       owner = json['owner'] != null ? Owner.fromJson(json['owner']) : null;
-//     } catch (_) {}
-//     try {
-//       lastMessage = json['lastMessage'];
-//     } catch (_) {}
-//     if (json['messages'] != null) {
-//       messages = <Messages>[];
-//       json['messages'].forEach((v) {
-//         if (v['content'] == 'Message recalled' && v['type'] == 'image') {
-//         } else {
-//           messages!.add(Messages.fromJson(v));
-//         }
-//       });
-//       messages = messages?.reversed.toList();
-//     }
-//     if (json['images'] != null) {
-//       images = <Images>[];
-//       json['images'].forEach((v) {
-//         if (v['content'] != 'Message recalled') {
-//           images!.add(Images.fromJson(v));
-//         }
-//       });
-//     }
-//     if (json['files'] != null) {
-//       files = <Images>[];
-//       json['files'].forEach((v) {
-//         if (v['content'] != 'Message recalled') {
-//           files!.add(Images.fromJson(v));
-//         }
-//       });
-//     }
-//     if (json['links'] != null) {
-//       links = <Images>[];
-//       json['links'].forEach((v) {
-//         if (v['content'] != 'Message recalled') {
-//           links!.add(Images.fromJson(v));
-//         }
-//       });
-//     }
-//     try {
-//       pinMessage = json['pinMessage'] != null
-//           ? PinMessage.fromJson(json['pinMessage'])
-//           : null;
-//     } catch (_) {}
-//     try {
-//       channel =
-//           json['channel'] != null ? Channel.fromJson(json['channel']) : null;
-//     } catch (_) {
-//       channel = Channel.fromJson(json['channel']);
-//     }
-//   }
-//   Map<String, dynamic> toJson() {
-//     final Map<String, dynamic> data = <String, dynamic>{};
-//     data['_id'] = sId;
-//     data['title'] = title;
-//     if (people != null) {
-//       data['people'] = people!.map((v) => v.toJson()).toList();
-//     }
-//     data['isGroup'] = isGroup;
-//     data['lastUpdate'] = lastUpdate;
-//     data['lastAuthor'] = lastAuthor;
-//     data['lastMessage'] = lastMessage;
-//     if (messages != null) {
-//       data['messages'] = messages!.map((v) => v.toJson()).toList();
-//     }
-//     if (images != null) {
-//       data['images'] = images!.map((v) => v.toJson()).toList();
-//     }
-//     if (pinMessage != null) {
-//       data['pinMessage'] = pinMessage!.toJson();
-//     }
-//     // Thêm ChannelInfo vào dữ liệu JSON
-//     if (channel != null) {
-//       data['channel '] = channel!.toJson();
-//     }
-//     return data;
-//   }
-// }
-
 class Room {
   String? sId;
   List<People>? people;
@@ -930,13 +780,13 @@ class Messages {
         data['type'] = 'image';
         data['size'] = image?.size ?? 0; // Lấy size từ object image nếu có
         data['name'] = image?.name ?? 'image.jpg';
-        // LOGIC LẤY URI MỚI, ROBUST HƠN
         data['uri'] = photos?.original ??
             photos?.fullsize ??
-            image?.location ?? // <-- Kiểm tra nguồn mới
+            image?.location ??
             (content != null && content!.isNotEmpty
                 ? '${HTTPConnection.domain}api/images/$content/${ChatConnection.brandCode}'
                 : null);
+        metadata['content'] = content;
         break;
 
       case 'file':

@@ -454,6 +454,7 @@ class _ChatState extends State<Chat> {
       }
       return Message(
         key: ValueKey(message.id),
+        content: message.metadata?['content'],
         bubbleBuilder: widget.bubbleBuilder,
         searchController: widget.searchController,
         customMessageBuilder: widget.customMessageBuilder,

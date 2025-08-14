@@ -13,19 +13,21 @@ import 'inherited_user.dart';
 /// ratio is very small or very big.
 class ImageMessage extends StatefulWidget {
   /// Creates an image message widget based on [types.ImageMessage]
-  const ImageMessage({
-    Key? key,
-    required this.message,
-    required this.messageWidth,
-    required this.showUserNameForRepliedMessage,
-    required this.onMessageTap,
-    required this.people,
-  }) : super(key: key);
+  const ImageMessage(
+      {Key? key,
+      required this.message,
+      required this.messageWidth,
+      required this.showUserNameForRepliedMessage,
+      required this.onMessageTap,
+      required this.people,
+      this.content})
+      : super(key: key);
 
   /// [types.ImageMessage]
   final types.ImageMessage message;
 
   final List<People>? people;
+  final String? content;
 
   /// Maximum message width
   final int messageWidth;
@@ -197,19 +199,29 @@ class _ImageMessageState extends State<ImageMessage> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Flexible(
-              child: Container(
-            constraints: const BoxConstraints(maxHeight: 150),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (widget.message.repliedMessage != null)
-                  _repliedMessageBuilder(_user),
-                Flexible(
+              child: Padding(
+            padding: EdgeInsets.all(widget.content != '' ? 8 : 0),
+            child: Container(
+              constraints: const BoxConstraints(maxHeight: 150),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (widget.message.repliedMessage != null)
+                    _repliedMessageBuilder(_user),
+                  Flexible(
                     child: Image(
-                  fit: BoxFit.contain,
-                  image: _image!,
-                )),
-              ],
+                      fit: BoxFit.contain,
+                      image: _image!,
+                    ),
+                  ),
+                  if (widget.content != '') ...[
+                    Text(widget.content ?? ''),
+                    SizedBox(
+                      height: 8,
+                    )
+                  ]
+                ],
+              ),
             ),
           ))
         ],
