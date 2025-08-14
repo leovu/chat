@@ -23,38 +23,39 @@ import '../../data_model/room.dart' as r;
 /// a nice look on larger screens.
 class Message extends StatelessWidget {
   /// Creates a particular message from any message type
-  const Message({
-    Key? key,
-    this.bubbleBuilder,
-    this.customMessageBuilder,
-    required this.emojiEnlargementBehavior,
-    this.fileMessageBuilder,
-    required this.hideBackgroundOnEmojiMessages,
-    this.imageMessageBuilder,
-    required this.message,
-    required this.messageWidth,
-    this.onAvatarTap,
-    this.onMessageDoubleTap,
-    this.onMessageLongPress,
-    this.onMessageStatusLongPress,
-    this.onMessageStatusTap,
-    this.onMessageTap,
-    this.onMessageVisibilityChanged,
-    this.onPreviewDataFetched,
-    required this.roundBorder,
-    required this.showAvatar,
-    required this.showName,
-    required this.showStatus,
-    required this.showUserAvatars,
-    this.textMessageBuilder,
-    required this.usePreviewData,
-    required this.searchController,
-    required this.focusSearch,
-    required this.replySwipeDirection,
-    required this.onMessageReply,
-    required this.people,
-    this.seenPeople,
-  }) : super(key: key);
+  const Message(
+      {Key? key,
+      this.bubbleBuilder,
+      this.customMessageBuilder,
+      required this.emojiEnlargementBehavior,
+      this.fileMessageBuilder,
+      required this.hideBackgroundOnEmojiMessages,
+      this.imageMessageBuilder,
+      required this.message,
+      required this.messageWidth,
+      this.onAvatarTap,
+      this.onMessageDoubleTap,
+      this.onMessageLongPress,
+      this.onMessageStatusLongPress,
+      this.onMessageStatusTap,
+      this.onMessageTap,
+      this.onMessageVisibilityChanged,
+      this.onPreviewDataFetched,
+      required this.roundBorder,
+      required this.showAvatar,
+      required this.showName,
+      required this.showStatus,
+      required this.showUserAvatars,
+      this.textMessageBuilder,
+      required this.usePreviewData,
+      required this.searchController,
+      required this.focusSearch,
+      required this.replySwipeDirection,
+      required this.onMessageReply,
+      required this.people,
+      this.seenPeople,
+      this.circleAvatar})
+      : super(key: key);
 
   /// Customize the default bubble using this function. `child` is a content
   /// you should render inside your bubble, `message` is a current message
@@ -70,6 +71,8 @@ class Message extends StatelessWidget {
   /// Build a custom message inside predefined bubble
   final Widget Function(types.CustomMessage, {required int messageWidth})?
       customMessageBuilder;
+
+  final CircleAvatar? circleAvatar;
 
   /// Controls the enlargement behavior of the emojis in the
   /// [types.TextMessage].
@@ -341,7 +344,7 @@ class Message extends StatelessWidget {
   Widget build(BuildContext context) {
     final _query = MediaQuery.of(context);
     final _currentUserIsAuthor =
-        ChatConnection.checkUserTokenResponseModel!.user!.sId ==
+        ChatConnection.checkUserTokenResponseModel?.user?.sId ==
             message.author.id;
     var _enlargeEmojis =
         emojiEnlargementBehavior != EmojiEnlargementBehavior.never &&
@@ -463,11 +466,17 @@ class Message extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (!_currentUserIsAuthor && showUserAvatars)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 5.0),
-                    child: _avatarBuilder(context),
-                  ),
+                if (!_currentUserIsAuthor && showUserAvatars) ...[
+                  circleAvatar != null
+                      ? Padding(
+                          padding: const EdgeInsets.only(right: 5.0, top: 5.0),
+                          child: circleAvatar,
+                        )
+                      : Padding(
+                          padding: const EdgeInsets.only(top: 5.0),
+                          child: _avatarBuilder(context),
+                        ),
+                ],
                 if (message.remoteId != null &&
                     message.remoteId == '1' &&
                     _currentUserIsAuthor)

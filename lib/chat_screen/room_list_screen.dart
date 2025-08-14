@@ -1094,14 +1094,27 @@ class _RoomListScreenState extends State<RoomListScreen>
                   Stack(
                     children: [
                       data.isGroup == false
-                          ? data.owner!.picture == null
-                              ? CircleAvatar(
-                                  radius: 25.0,
-                                  child: Text(
-                                    data.owner!.getAvatarName(),
-                                    style: const TextStyle(color: Colors.white),
-                                  ),
-                                )
+                          ? data.owner?.picture == null
+                              ? data.owner?.avatar != null
+                                  ? CircleAvatar(
+                                      radius: 25.0,
+                                      backgroundImage:
+                                          CachedNetworkImageProvider(
+                                              '${data.owner?.avatar}',
+                                              headers: {
+                                            'brand-code':
+                                                ChatConnection.brandCode!
+                                          }),
+                                      backgroundColor: Colors.transparent,
+                                    )
+                                  : CircleAvatar(
+                                      radius: 25.0,
+                                      child: Text(
+                                        data.owner!.getAvatarName(),
+                                        style: const TextStyle(
+                                            color: Colors.white),
+                                      ),
+                                    )
                               : (data.shieldedID != null &&
                                       data.shieldedID != '')
                                   ? CircleAvatar(

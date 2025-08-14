@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/data_model/room.dart';
@@ -260,7 +262,7 @@ class Room {
     if (json['people'] != null) {
       people = <People>[];
       json['people'].forEach((v) {
-        people!.add(People.fromJson(v));
+        people?.add(People.fromJson(v));
       });
     }
     try {
@@ -348,7 +350,7 @@ class Room {
       images = <Images>[];
       json['images'].forEach((v) {
         if (v['content'] != 'Message recalled') {
-          images!.add(Images.fromJson(v));
+          images?.add(Images.fromJson(v));
         }
       });
     }
@@ -356,7 +358,7 @@ class Room {
       files = <Images>[];
       json['files'].forEach((v) {
         if (v['content'] != 'Message recalled') {
-          files!.add(Images.fromJson(v));
+          files?.add(Images.fromJson(v));
         }
       });
     }
@@ -364,7 +366,7 @@ class Room {
       links = <Images>[];
       json['links'].forEach((v) {
         if (v['content'] != 'Message recalled') {
-          links!.add(Images.fromJson(v));
+          files?.add(Images.fromJson(v));
         }
       });
     }
@@ -752,6 +754,7 @@ class Messages {
   String? socialMessageId;
   String? sticker;
   Map<String, dynamic>? messageObject;
+  ImageInfo? image;
 
   Messages({
     this.sId,
@@ -784,6 +787,7 @@ class Messages {
     this.socialMessageId,
     this.sticker,
     this.messageObject,
+    this.image,
   });
 
   factory Messages.fromJson(Map<String, dynamic> json) {
@@ -803,8 +807,10 @@ class Messages {
       isBot: json['isBot'] as int? ?? 0,
       isCharge: json['isCharge'] as int? ?? 0,
       isSync: json['isSync'] as int? ?? 0,
-      messageItems: json['messageItems'] as List<dynamic>? ?? [],
-      messageTemplate: json['messageTemplate'] as String?,
+      // messageItems: json['messageItems'] as List<dynamic>? ?? [],
+
+      messageItems: json['message_items'] as List<dynamic>? ?? [],
+      messageTemplate: json['message_template'] as String?,
       reactionTotal: json['reactionTotal'] as int? ?? 0,
       recall: json['recall'] as int? ?? 0,
       seen: json['seen'] as int? ?? 0,
@@ -818,6 +824,7 @@ class Messages {
       photos: _safeParse(() => Photos.fromJson(json['photos'])),
       sticker: json['sticker'] as String?,
       messageObject: json['message_object'] as Map<String, dynamic>?,
+      image: _safeParse(() => ImageInfo.fromJson(json['image'])),
     );
     message.replies = _safeParse(() => Replies.fromJson(json['replies']));
     message.author = _safeParse(() => Author.fromJson(json['author']));
@@ -921,10 +928,15 @@ class Messages {
 
       case 'image':
         data['type'] = 'image';
-        data['size'] = 0;
-        data['name'] = 'image.jpg';
-        data['uri'] = (photos?.original ?? photos?.fullsize) ??
-            '${HTTPConnection.domain}api/images/$content/${ChatConnection.brandCode}';
+        data['size'] = image?.size ?? 0; // Lấy size từ object image nếu có
+        data['name'] = image?.name ?? 'image.jpg';
+        // LOGIC LẤY URI MỚI, ROBUST HƠN
+        data['uri'] = photos?.original ??
+            photos?.fullsize ??
+            image?.location ?? // <-- Kiểm tra nguồn mới
+            (content != null && content!.isNotEmpty
+                ? '${HTTPConnection.domain}api/images/$content/${ChatConnection.brandCode}'
+                : null);
         break;
 
       case 'file':
@@ -944,6 +956,7 @@ class Messages {
         data['name'] = messageObject?['file_name'] ?? 'File';
         data['size'] =
             int.tryParse(messageObject?['file_size']?.toString() ?? '0') ?? 0;
+        data['file_type'] = messageObject?['file_type'];
         data['mimeType'] = lookupMimeType(data['name']);
         break;
 
@@ -970,22 +983,57 @@ class Messages {
       case 'generic':
         data['type'] = 'custom';
         metadata['custom_type'] = 'generic';
-        metadata['elements'] =
-            (messageItems)?.first?['payload']?['elements'];
+
+        final items = (messageItems is List) ? messageItems as List : const [];
+
+        Map<String, dynamic>? firstItem;
+        if (items.isNotEmpty && items.first is Map<String, dynamic>) {
+          firstItem = items.first as Map<String, dynamic>;
+        }
+
+        final payload = firstItem?['payload'];
+        final elements = (payload is Map && payload['elements'] is List)
+            ? payload['elements'] as List
+            : null;
+
+        if (elements != null && elements.isNotEmpty) {
+          metadata['elements'] = elements;
+        }
         break;
 
       case 'system':
+      // case 'zp_list':
+      //   data['type'] = 'custom';
+      //   metadata['custom_type'] = 'zp_list';
+      //   metadata['text'] = (messageItems)?.first?['title'] ?? content;
+      //   break;
       case 'zp_list':
-        data['type'] = 'custom';
-        metadata['custom_type'] = 'system';
-        metadata['text'] =
-            (messageItems)?.first?['title'] ?? content;
-        break;
+        {
+          data['type'] = 'custom';
+          metadata['custom_type'] = 'zp_list';
+
+          // text fallback cho preview / search
+          final firstTitle = (messageItems)?.isNotEmpty == true
+              ? (messageItems!.first['title'] as String? ?? '')
+              : (content ?? '');
+
+          metadata['text'] = firstTitle;
+
+          // Lưu toàn bộ danh sách để render
+          // (params ở server là chuỗi JSON => giữ nguyên để widget parse)
+          try {
+            metadata['zp_list_items'] = jsonEncode(messageItems ?? []);
+          } catch (_) {
+            metadata['zp_list_items'] = '[]';
+          }
+          break;
+        }
 
       case 'oa_template':
         data['type'] = 'custom';
         metadata['custom_type'] = 'oa_template';
         metadata['html'] = messageTemplate;
+        metadata['text'] = content ?? 'Tin nhắn mẫu OA';
         break;
 
       case 'oa_list':
@@ -1003,43 +1051,192 @@ class Messages {
     if (metadata.isNotEmpty) {
       data['metadata'] = metadata;
     }
-    // data['status'] = 'delivered';
     if (replies != null) {
-      Map<String, dynamic> json = {};
-      json = {
-        'author': {
-          'firstName': replies?.author?.firstName,
-          'lastName': replies?.author?.lastName,
-          'id': replies?.author?.sId,
-          'imageUrl': replies?.author?.picture != null
-              ? '${HTTPConnection.domain}api/images/${replies?.author?.picture!.shieldedID}/512/${ChatConnection.brandCode}'
-              : null,
-        },
+      final Map<String, dynamic> repliedJson = {};
+
+      repliedJson['author'] = {
+        'firstName': replies!.author?.firstName,
+        'id': replies!.author?.sId,
       };
-      json['id'] = replies!.sId!;
-      final format = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z");
-      final dt = format.parse(replies!.date!, true);
-      json['createdAt'] = dt.toUtc().millisecondsSinceEpoch;
-      if (replies?.type == 'file' && replies?.file != null) {
-        json['size'] = 0;
-        json['type'] = 'file';
-        final mimeType = lookupMimeType(replies!.file!.name!);
-        json['mimeType'] = mimeType;
-        json['size'] = replies!.file!.size;
-        json['name'] = replies!.file!.name;
-        json['uri'] =
-            '${HTTPConnection.domain}api/files/${replies!.file!.shieldedID}/${ChatConnection.brandCode}';
-      } else if (replies?.type == 'image') {
-        json['size'] = 0;
-        json['type'] = 'image';
-        json['name'] = 'image';
-        json['uri'] =
-            '${HTTPConnection.domain}api/images/${replies!.content}/${ChatConnection.brandCode}';
-      } else {
-        json['type'] = 'text';
-        json['text'] = replies!.content;
+      repliedJson['id'] = replies!.sId!;
+      try {
+        // Dùng try-catch để phòng trường hợp định dạng date không đúng
+        final format = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z");
+        final dt = format.parse(replies!.date!, true);
+        repliedJson['createdAt'] = dt.toUtc().millisecondsSinceEpoch;
+      } catch (_) {}
+
+      switch (replies?.type) {
+        case 'image':
+          repliedJson['type'] = 'image';
+          repliedJson['name'] = replies!.image?.name ?? 'image.jpg';
+          repliedJson['size'] = replies!.image?.size ?? 0;
+          // Áp dụng logic lấy URL thông minh và chính xác
+          repliedJson['uri'] = replies!.photos?.original ??
+              replies!.photos?.fullsize ??
+              replies!.image?.location ??
+              (replies!.content != null && replies!.content!.isNotEmpty
+                  ? '${HTTPConnection.domain}api/images/${replies!.content}/${ChatConnection.brandCode}'
+                  : null);
+          break;
+
+        case 'file':
+        // case 'file_url':
+        //   repliedJson['type'] = 'file';
+        //   if (replies!.file != null) {
+        //     repliedJson['name'] = replies!.file!.name ?? 'file';
+        //     repliedJson['size'] = replies!.file!.size ?? 0;
+        //     repliedJson['uri'] =
+        //         '${HTTPConnection.domain}api/files/${replies!.file!.shieldedID}/${ChatConnection.brandCode}';
+        //   }
+        //   break;
+
+        case 'file_url':
+          repliedJson['type'] = 'file';
+          if (replies!.messageObject != null) {
+            repliedJson['name'] =
+                replies!.messageObject?['file_name'] ?? 'File';
+            repliedJson['size'] = int.tryParse(
+                    replies!.messageObject?['file_size']?.toString() ?? '0') ??
+                0;
+            repliedJson['uri'] = replies!.messageObject?['file_url'] ?? '';
+            repliedJson['mimeType'] =
+                lookupMimeType(replies!.messageObject?['file_name']);
+          }
+          break;
+
+        case 'audio':
+          repliedJson['type'] =
+              'text'; // Hiển thị preview dưới dạng text cho đơn giản
+          repliedJson['text'] = '▶ Tin nhắn thoại';
+          break;
+
+        case 'sticker':
+          repliedJson['type'] = 'custom';
+          repliedJson['text'] =
+              'Sticker'; // Tùy chỉnh text hiển thị cho sticker
+          repliedJson['url'] = replies!.sticker; // URL sticker
+          if (replies?.sticker != null) {
+            repliedJson['metadata'] = {
+              'custom_type': 'sticker',
+              'url': replies?.sticker,
+            };
+          }
+          break;
+
+        case 'products':
+          repliedJson['type'] = 'custom';
+          repliedJson['text'] = 'Products List';
+          repliedJson['items'] = replies!.messageItems?.map((item) {
+            return {
+              'url': item['url'],
+              'name': item['name'],
+              'code': item['code'],
+              'price': item['price'],
+              'image_urls': item['image_urls'],
+              'description': item['description'],
+            };
+          }).toList();
+          break;
+
+        case 'generic':
+          repliedJson['type'] = 'custom';
+          repliedJson['text'] = 'Generic Template';
+
+          final repItems = (replies!.messageItems is List)
+              ? replies!.messageItems as List
+              : const [];
+
+          Map<String, dynamic>? firstItem;
+          if (repItems.isNotEmpty && repItems.first is Map<String, dynamic>) {
+            firstItem = repItems.first as Map<String, dynamic>;
+          }
+
+          final payload = firstItem?['payload'];
+          final elements = (payload is Map && payload['elements'] is List)
+              ? payload['elements'] as List
+              : null;
+
+          if (elements != null && elements.isNotEmpty) {
+            repliedJson['metadata'] = {
+              'custom_type': 'generic',
+              'elements': elements,
+            };
+          }
+          break;
+
+        case 'system':
+          repliedJson['type'] = 'custom';
+          repliedJson['text'] = replies!.content ?? 'System Message';
+          break;
+
+        case 'zp_list':
+          {
+            repliedJson['type'] = 'custom';
+            repliedJson['custom_type'] = 'zp_list';
+
+            final rawItems = (replies is Map<String, dynamic>)
+                ? replies?.messageItems
+                : null;
+
+            final List<Map<String, dynamic>> items =
+                (rawItems is List) ? rawItems.cast<Map<String, dynamic>>() : [];
+
+            repliedJson['text'] = items.isNotEmpty
+                ? (items.first['title'] as String? ?? replies?.content ?? '')
+                : (replies?.content ?? '');
+
+            repliedJson['items'] = items
+                .map((item) => {
+                      'title': item['title'] ?? '',
+                      'description': item['description'] ?? '',
+                      'href': item['href'] ?? '',
+                      'thumb': item['thumb'] ?? '',
+                      'childnumber': item['childnumber'] ?? 0,
+                      'action': item['action'] ?? '',
+                      'params': item['params'] ?? '',
+                      'type': item['type'] ?? '',
+                    })
+                .toList();
+
+            break;
+          }
+
+        // case 'oa_template':
+        //   repliedJson['type'] = 'custom';
+        //   repliedJson['html'] =
+        //       replies!.messageTemplate; // HTML từ messageTemplate
+        //   break;
+
+        case 'oa_template':
+          // Khi là tin nhắn được trả lời, ta đơn giản hóa nó thành dạng 'text'
+          repliedJson['type'] = 'text';
+
+          // Sử dụng trường 'content' của tin nhắn gốc làm nội dung preview
+          repliedJson['text'] = replies?.content ?? 'Tin nhắn mẫu OA';
+
+          break;
+
+        case 'oa_list':
+          repliedJson['type'] = 'custom';
+          repliedJson['text'] = 'OA List Message';
+          repliedJson['items'] = replies?.messageItems?.map((item) {
+            return {
+              'thumbnail': item['thumbnail'],
+              'description': item['description'],
+              'title': item['title'],
+              'url': item['url'],
+            };
+          }).toList();
+          break;
+
+        default:
+          repliedJson['type'] = 'text';
+          repliedJson['text'] = replies?.content;
+          break;
       }
-      data['repliedMessage'] = json;
+
+      data['repliedMessage'] = repliedJson;
     }
     return data;
   }
@@ -1262,20 +1459,33 @@ class Replies {
   int? iV;
   String? type;
   File? file;
+  Photos? photos;
+  ImageInfo? image;
+  List<dynamic>? messageItems; // Mảng messageItems
+  String? sticker; // URL của sticker
+  Map<String, dynamic>? messageObject; // Thêm field messageObject
+  Map<String, dynamic>? metadata; // Thêm trường metadata
 
-  Replies(
-      {sId,
-      recall,
-      edit,
-      reactionTotal,
-      seen,
-      room,
-      author,
-      content,
-      date,
-      iV,
-      type,
-      file});
+  Replies({
+    sId,
+    recall,
+    edit,
+    reactionTotal,
+    seen,
+    room,
+    author,
+    content,
+    date,
+    iV,
+    type,
+    file,
+    this.photos,
+    this.image,
+    this.messageItems,
+    this.sticker,
+    this.messageObject,
+    this.metadata, // Thêm metadata vào constructor
+  });
 
   Replies.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
@@ -1290,6 +1500,22 @@ class Replies {
     iV = json['__v'];
     type = json['type'];
     file = json['file'] != null ? File.fromJson(json['file']) : null;
+    photos = _safeParse(() => Photos.fromJson(json['photos']));
+    image = _safeParse(() => ImageInfo.fromJson(json['image']));
+    messageItems = json['message_items'] != null
+        ? List<dynamic>.from(json['message_items'])
+        : null;
+    sticker = json['sticker'];
+
+    // Parse messageObject
+    if (json['message_object'] != null) {
+      messageObject = json['message_object'];
+    }
+
+    // Parse metadata (thêm phần này)
+    if (json['metadata'] != null) {
+      metadata = json['metadata'];
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -1310,6 +1536,18 @@ class Replies {
     if (file != null) {
       data['file'] = file!.toJson();
     }
+
+    data['photos'] = photos?.toJson();
+    data['image'] = image?.toJson();
+    data['message_items'] = messageItems;
+    data['sticker'] = sticker;
+    data['message_object'] = messageObject; // Thêm message_object vào json
+
+    // Thêm metadata vào json
+    if (metadata != null) {
+      data['metadata'] = metadata;
+    }
+
     return data;
   }
 }
@@ -1593,5 +1831,27 @@ class MessageFileObject {
         'file_name': fileName,
         'file_size': fileSize,
         'file_type': fileType,
+      };
+}
+
+class ImageInfo {
+  String? location;
+  String? name;
+  int? size;
+
+  ImageInfo({this.location, this.name, this.size});
+
+  factory ImageInfo.fromJson(Map<String, dynamic> json) {
+    return ImageInfo(
+      location: json['location'] as String?,
+      name: json['name'] as String?,
+      size: json['size'] as int?,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'location': location,
+        'name': name,
+        'size': size,
       };
 }

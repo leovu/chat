@@ -29,11 +29,13 @@ class ImageMessage extends StatefulWidget {
 
   /// Maximum message width
   final int messageWidth;
+
   /// Show user name for replied message.
   final bool showUserNameForRepliedMessage;
 
   /// See [Message.onMessageTap]
-  final void Function(BuildContext context, types.Message, bool isRepliedMessage)? onMessageTap;
+  final void Function(
+      BuildContext context, types.Message, bool isRepliedMessage)? onMessageTap;
 
   @override
   _ImageMessageState createState() => _ImageMessageState();
@@ -159,11 +161,11 @@ class _ImageMessageState extends State<ImageMessage> {
                           widget.message.name,
                           style: _user.id == widget.message.author.id
                               ? InheritedChatTheme.of(context)
-                              .theme
-                              .sentMessageBodyTextStyle
+                                  .theme
+                                  .sentMessageBodyTextStyle
                               : InheritedChatTheme.of(context)
-                              .theme
-                              .receivedMessageBodyTextStyle,
+                                  .theme
+                                  .receivedMessageBodyTextStyle,
                           textWidthBasis: TextWidthBasis.longestLine,
                         ),
                         Container(
@@ -174,11 +176,11 @@ class _ImageMessageState extends State<ImageMessage> {
                             formatBytes(widget.message.size.truncate()),
                             style: _user.id == widget.message.author.id
                                 ? InheritedChatTheme.of(context)
-                                .theme
-                                .sentMessageCaptionTextStyle
+                                    .theme
+                                    .sentMessageCaptionTextStyle
                                 : InheritedChatTheme.of(context)
-                                .theme
-                                .receivedMessageCaptionTextStyle,
+                                    .theme
+                                    .receivedMessageCaptionTextStyle,
                           ),
                         ),
                       ],
@@ -194,16 +196,16 @@ class _ImageMessageState extends State<ImageMessage> {
       return Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Flexible(child: Container(
-            constraints: const BoxConstraints(
-                maxHeight: 150
-            ),
+          Flexible(
+              child: Container(
+            constraints: const BoxConstraints(maxHeight: 150),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (widget.message.repliedMessage != null)
                   _repliedMessageBuilder(_user),
-                Flexible(child: Image(
+                Flexible(
+                    child: Image(
                   fit: BoxFit.contain,
                   image: _image!,
                 )),

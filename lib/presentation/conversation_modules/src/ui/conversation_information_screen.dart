@@ -398,8 +398,8 @@ class _ConversationInformationScreenState
 
   @override
   Widget build(BuildContext context) {
-    String url =
-        '${HTTPConnection.domain}api/images/${widget.roomData.room_avatar?.shieldedID ?? widget.roomData.shieldedID ?? widget.roomData.owner?.picture}/256';
+    // String url =
+    //     '${HTTPConnection.domain}api/images/${widget.roomData.room_avatar?.shieldedID ?? widget.roomData.shieldedID ?? widget.roomData.owner?.picture}/256';
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: Colors.white,

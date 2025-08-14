@@ -106,6 +106,7 @@ class Chat extends StatefulWidget {
     this.note,
     this.canSend = true,
     required this.roomData,
+    this.avatar
   }) : super(key: key);
 
   /// See [Message.bubbleBuilder]
@@ -126,6 +127,8 @@ class Chat extends StatefulWidget {
   final bool isGroup;
 
   final ChatController chatController;
+
+  final CircleAvatar? avatar;
 
   final InputBuilder builder;
 
@@ -442,7 +445,7 @@ class _ChatState extends State<Chat> {
           seenPeople = [];
           for (var e in messageSeen) {
             if (e.message == message.id) {
-              if (e.author!.sId != ChatConnection.user!.id) {
+              if (e.author?.sId != ChatConnection.user?.id) {
                 seenPeople.add(e.author);
               }
             }
@@ -459,6 +462,7 @@ class _ChatState extends State<Chat> {
         hideBackgroundOnEmojiMessages: widget.hideBackgroundOnEmojiMessages,
         imageMessageBuilder: widget.imageMessageBuilder,
         message: message,
+        circleAvatar: widget.avatar,
         messageWidth: _messageWidth,
         seenPeople: seenPeople,
         onAvatarTap: widget.onAvatarTap,

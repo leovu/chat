@@ -3,13 +3,15 @@ import 'package:chat/localization/check_tag.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-import 'package:flutter_link_previewer/flutter_link_previewer.dart' show LinkPreview;
+import 'package:flutter_link_previewer/flutter_link_previewer.dart'
+    show LinkPreview;
 import 'package:url_launcher/url_launcher.dart';
 import '../../data_model/room.dart' as r;
 import '../models/emoji_enlargement_behavior.dart';
 import '../util.dart';
 import 'inherited_chat_theme.dart';
 import 'inherited_user.dart';
+
 /// A class that represents text message widget with optional link preview
 class TextMessage extends StatelessWidget {
   /// Creates a text message widget from a [types.TextMessage] class
@@ -52,7 +54,8 @@ class TextMessage extends StatelessWidget {
   final bool showUserNameForRepliedMessage;
 
   /// See [Message.onMessageTap]
-  final void Function(BuildContext context, types.Message, bool isRepliedMessage)? onMessageTap;
+  final void Function(
+      BuildContext context, types.Message, bool isRepliedMessage)? onMessageTap;
 
   final List<r.People>? people;
 
@@ -107,7 +110,7 @@ class TextMessage extends StatelessWidget {
         vertical: InheritedChatTheme.of(context).theme.messageInsetsVertical,
       ),
       previewData: message.previewData,
-      text: checkTag(message.text,people),
+      text: checkTag(message.text, people),
       textWidget: Text.rich(
         TextSpan(
           children: contentMessages(message.text, user, context, color, false),
@@ -131,13 +134,14 @@ class TextMessage extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (message.repliedMessage != null)
-          RepliedMessage(
-            messageAuthorId: message.author.id,
-            repliedMessage: message.repliedMessage,
-            showUserNames: showUserNameForRepliedMessage,
-            onMessageTap: onMessageTap,
-            people: people,
-          ),
+         
+        RepliedMessage(
+          messageAuthorId: message.author.id,
+          repliedMessage: message.repliedMessage,
+          showUserNames: showUserNameForRepliedMessage,
+          onMessageTap: onMessageTap,
+          people: people,
+        ),
         if (showName)
           Padding(
             padding: const EdgeInsets.only(bottom: 6),
@@ -150,28 +154,30 @@ class TextMessage extends StatelessWidget {
           ),
         Text.rich(
           TextSpan(
-            children: contentMessages(message.text, user, context, color, enlargeEmojis),
+            children: contentMessages(
+                message.text, user, context, color, enlargeEmojis),
           ),
         ),
       ],
     );
   }
 
-  List<InlineSpan> contentMessages(String value,
-      types.User user,
-      BuildContext context,
-      Color color,
-      bool enlargeEmojis) {
+  List<InlineSpan> contentMessages(String value, types.User user,
+      BuildContext context, Color color, bool enlargeEmojis) {
     List<InlineSpan> arr = [];
-    value.splitMapJoin(RegExp('@((?!@).)*-((?!@).)*@'), onMatch: (match){
-      arr.add(contentMessage(checkTag('${match[0]}',people), user, context, color, enlargeEmojis, true, false));
+    value.splitMapJoin(RegExp('@((?!@).)*-((?!@).)*@'), onMatch: (match) {
+      arr.add(contentMessage(checkTag('${match[0]}', people), user, context,
+          color, enlargeEmojis, true, false));
       return match.input;
-    }, onNonMatch: (text){
-      text.splitMapJoin(RegExp(r'(?:https?://)?\S+\.\S+\.\S+'), onMatch: (match){
-        arr.add(contentMessage('${match[0]}', user, context, color, enlargeEmojis, false, true));
+    }, onNonMatch: (text) {
+      text.splitMapJoin(RegExp(r'(?:https?://)?\S+\.\S+\.\S+'),
+          onMatch: (match) {
+        arr.add(contentMessage(
+            '${match[0]}', user, context, color, enlargeEmojis, false, true));
         return match.input;
-      }, onNonMatch: (text){
-        arr.add(contentMessage(text, user, context, color, enlargeEmojis, false, false));
+      }, onNonMatch: (text) {
+        arr.add(contentMessage(
+            text, user, context, color, enlargeEmojis, false, false));
         return text;
       });
       return text;
@@ -179,7 +185,8 @@ class TextMessage extends StatelessWidget {
     return arr;
   }
 
-  InlineSpan contentMessage(String element,
+  InlineSpan contentMessage(
+      String element,
       types.User user,
       BuildContext context,
       Color color,
@@ -187,53 +194,54 @@ class TextMessage extends StatelessWidget {
       bool isTag,
       bool isUrl) {
     final theme = InheritedChatTheme.of(context).theme;
-    if(element.toLowerCase() == searchController.value.text.toLowerCase() && searchController.value.text != '') {
+    if (element.toLowerCase() == searchController.value.text.toLowerCase() &&
+        searchController.value.text != '') {
       return TextSpan(
           text: element,
-          style:
-          TextStyle(
-            color: isTag? const Color(0xffffffff) : Colors.blueAccent,
+          style: TextStyle(
+            color: isTag ? const Color(0xffffffff) : Colors.blueAccent,
             fontSize: 16,
             fontWeight: isTag ? FontWeight.bold : FontWeight.w500,
             height: 1.5,
-            background: Paint()
-              ..color = Colors.redAccent,
+            background: Paint()..color = Colors.redAccent,
           ));
-    }
-    else {
-      return isTag ? TextSpan(
-          text: element,
-          style: TextStyle(
-            color: user.id != message.author.id ? Colors.blueAccent : Colors.black,
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            decoration: isUrl? TextDecoration.underline : TextDecoration.none,
-            height: 1.5,
-          ))
-          :
-      isUrl ? TextSpan(
-          text: element,
-          recognizer: TapGestureRecognizer()
-            ..onTap = () {
-              launchUrl(Uri.parse(element));
-            },
-          style: const TextStyle(
-            color: Color(0xff0F2BE6),
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            decoration: TextDecoration.underline,
-            height: 1.5,
-          )) :
-      TextSpan(
-          text: element,
-          style: user.id == message.author.id
-              ? enlargeEmojis
-              ? theme.sentEmojiMessageTextStyle
-              : theme.sentMessageBodyTextStyle
-              : enlargeEmojis
-              ? theme.receivedEmojiMessageTextStyle
-              : theme.receivedMessageBodyTextStyle)
-      ;
+    } else {
+      return isTag
+          ? TextSpan(
+              text: element,
+              style: TextStyle(
+                color: user.id != message.author.id
+                    ? Colors.blueAccent
+                    : Colors.black,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                decoration:
+                    isUrl ? TextDecoration.underline : TextDecoration.none,
+                height: 1.5,
+              ))
+          : isUrl
+              ? TextSpan(
+                  text: element,
+                  recognizer: TapGestureRecognizer()
+                    ..onTap = () {
+                      launchUrl(Uri.parse(element));
+                    },
+                  style: const TextStyle(
+                    color: Color(0xff0F2BE6),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    decoration: TextDecoration.underline,
+                    height: 1.5,
+                  ))
+              : TextSpan(
+                  text: element,
+                  style: user.id == message.author.id
+                      ? enlargeEmojis
+                          ? theme.sentEmojiMessageTextStyle
+                          : theme.sentMessageBodyTextStyle
+                      : enlargeEmojis
+                          ? theme.receivedEmojiMessageTextStyle
+                          : theme.receivedMessageBodyTextStyle);
     }
   }
 
@@ -242,7 +250,7 @@ class TextMessage extends StatelessWidget {
     var _enlargeEmojis =
         emojiEnlargementBehavior != EmojiEnlargementBehavior.never &&
             isConsistsOfEmojis(emojiEnlargementBehavior, message);
-    if(message.repliedMessage != null) {
+    if (message.repliedMessage != null) {
       _enlargeEmojis = false;
     }
     final _theme = InheritedChatTheme.of(context).theme;

@@ -14,7 +14,6 @@ import 'package:chat/data_model/response/notes_response_model.dart';
 import 'package:chat/data_model/response/quota_response_model.dart';
 import 'package:chat/data_model/response/room_info_response_model.dart';
 import 'package:chat/data_model/room.dart' as r;
-import 'package:chat/data_model/room.dart';
 import 'package:chat/data_model/session.dart';
 import 'package:chat/data_model/tag.dart';
 import 'package:chat/data_model/user.dart';
@@ -271,7 +270,6 @@ class ChatConnection {
           streamSocket.joinRoom(id);
         }
         await autoUpdateChatSeenWhenJoinRoom(id);
-        
         return c.ChatMessage.fromJson(responseData.data);
       }
     } catch (_) {

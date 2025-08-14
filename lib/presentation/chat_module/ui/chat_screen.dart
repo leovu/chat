@@ -761,7 +761,6 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
 
     if (data != null) {
       final messages = data?.room?.messages;
-
       final List<types.Message> values = [];
 
       if (messages != null) {
@@ -1159,11 +1158,8 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
           });
         }
       },
-
-      // imageMessageBuilder: ,
-      // customMessageBuilder: ,
-
       onAvatarTap: (p0) {},
+      avatar: buildAvatar(width: 15),
       //  (types.User user) async {
       //Lỗi chưa xác định, xử lí phần chathub
       // if (user.id != ChatConnection.user!.id && data!.room!.isGroup!) {
@@ -1171,6 +1167,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       //   r.Rooms? rooms = await ChatConnection.createRoom(user.id);
       //   Navigator.of(context).pop();
       //   ChatConnection.roomId = rooms!.sId!;
+
       //   await Navigator.of(context, rootNavigator: true).pushReplacement(
       //     MaterialPageRoute(
       //         builder: (context) =>
@@ -1184,7 +1181,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       //   } catch (_) {}
       // }
       // },
-
+      fileMessageBuilder: buildFileWidget,
       customMessageBuilder: customMessageBuilder,
       onStickerPressed: _onStickerPressed,
       showUserAvatars: true,
@@ -1378,14 +1375,14 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         leadingWidth: 0);
   }
 
-  void scroll(int index) {
+  scroll(int index) {
     itemScrollController.scrollTo(
         index: index,
         duration: const Duration(milliseconds: 500),
         curve: Curves.linear);
   }
 
-  void searchChat() {
+  searchChat() {
     _listIdSearch = [];
     currentIndexSearch = 0;
     try {
@@ -1580,14 +1577,14 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         leadingWidth: 0);
   }
 
-  CircleAvatar buildAvatar() {
-    const double radius = 25.0;
+  CircleAvatar buildAvatar({double? width}) {
+    double radius = width ?? 25.0;
 
     if (data?.room?.owner?.avatar != null) {
       return CircleAvatar(
         radius: radius,
         backgroundImage: CachedNetworkImageProvider(
-          data!.room!.owner!.avatar!,
+          data?.room?.owner?.avatar ?? '',
           headers: {'brand-code': ChatConnection.brandCode!},
         ),
         backgroundColor: Colors.transparent,
@@ -1610,7 +1607,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
             : CircleAvatar(
                 radius: radius,
                 backgroundImage: CachedNetworkImageProvider(
-                  '${HTTPConnection.domain}api/images/${widget.data.room_avatar!.shieldedID}/256/${ChatConnection.brandCode!}',
+                  '${HTTPConnection.domain}api/images/${widget.data.room_avatar?.shieldedID}/256/${ChatConnection.brandCode ?? ''}',
                   headers: {'brand-code': ChatConnection.brandCode!},
                 ),
                 backgroundColor: Colors.transparent,
@@ -1649,10 +1646,8 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     } else {
       if (data?.room?.isGroup == false) {
         final avatar = data?.room?.owner?.avatar;
-
         if (avatar == null) {
           final sid = widget.data.shieldedID;
-
           return (sid != null && sid != '')
               ? CircleAvatar(
                   radius: radius,
@@ -1674,7 +1669,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
             radius: radius,
             backgroundImage: CachedNetworkImageProvider(
               avatar,
-              headers: {'brand-code': ChatConnection.brandCode!},
+              // headers: {'brand-code': ChatConnection.brandCode!},
             ),
             backgroundColor: Colors.transparent,
           );
@@ -1684,7 +1679,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
             ? CircleAvatar(
                 radius: radius,
                 child: Text(
-                  widget.data.getAvatarGroupName() ?? '',
+                  widget.data.getAvatarGroupName(),
                   style: const TextStyle(color: Colors.white),
                 ),
               )
@@ -1727,7 +1722,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       if (p!.favorites.contains(roomId)) {
         p.favorites.remove(roomId);
       } else {
-        p.favorites ??= [];
+        p.favorites;
         p.favorites.add(roomId!);
       }
       try {
@@ -1805,7 +1800,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     }
   }
 
-  void loadMore() async {
+  loadMore() async {
     List<c.Messages>? value = await ChatConnection.loadMoreMessageRoom(
         ChatConnection.roomId!,
         _messages.last.id,

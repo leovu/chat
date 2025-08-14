@@ -1,15 +1,21 @@
+import 'dart:convert';
+
+import 'package:chat/common/theme.dart';
+import 'package:chat/common/widges/widget.dart';
+import 'package:chat/presentation/utils/parse_html.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
-import 'package:url_launcher/url_launcher.dart'; 
+import 'package:flutter_html/flutter_html.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-Widget customMessageBuilder(types.CustomMessage message, {required int messageWidth}) {
+Widget customMessageBuilder(types.CustomMessage message,
+    {required int messageWidth}) {
   final customType = message.metadata?['custom_type'] as String?;
 
   switch (customType) {
     case 'sticker':
       return buildStickerWidget(message);
-    
+
     case 'system':
       return buildSystemMessageWidget(message);
 
@@ -18,12 +24,15 @@ Widget customMessageBuilder(types.CustomMessage message, {required int messageWi
 
     case 'generic':
       return buildGenericTemplateWidget(message, messageWidth);
-    
+
     case 'oa_list':
       return buildOaListWidget(message, messageWidth);
 
     case 'oa_template':
       return buildHtmlTemplateWidget(message);
+
+    case 'zp_list':
+      return buildZpListWidget(message, messageWidth);
 
     default:
       return const SizedBox.shrink();
@@ -34,7 +43,7 @@ Widget customMessageBuilder(types.CustomMessage message, {required int messageWi
 Widget buildStickerWidget(types.CustomMessage message) {
   final url = message.metadata?['url'] as String?;
   if (url == null || url.isEmpty) return const SizedBox.shrink();
-  
+
   return Container(
     constraints: const BoxConstraints(maxWidth: 130, maxHeight: 130),
     child: Image.network(url, fit: BoxFit.contain),
@@ -51,7 +60,8 @@ Widget buildSystemMessageWidget(types.CustomMessage message) {
     margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
     child: Text(
       text,
-      style: const TextStyle(color: Colors.grey, fontStyle: FontStyle.italic, fontSize: 12),
+      style: const TextStyle(
+          color: Colors.grey, fontStyle: FontStyle.italic, fontSize: 12),
       textAlign: TextAlign.center,
     ),
   );
@@ -59,73 +69,99 @@ Widget buildSystemMessageWidget(types.CustomMessage message) {
 
 /// WIDGET CON: Hiển thị danh sách Sản phẩm
 Widget buildProductWidget(types.CustomMessage message, int messageWidth) {
-    final items = message.metadata?['items'] as List<dynamic>? ?? [];
-    if (items.isEmpty) return const SizedBox.shrink();
+  final items = message.metadata?['items'] as List<dynamic>? ?? [];
+  if (items.isEmpty) return const SizedBox.shrink();
 
-    return Container(
-      width: messageWidth.toDouble(),
-      child: Column(
-          children: items.map((item) {
-              final Map<String, dynamic> product = item as Map<String, dynamic>;
-              final imageUrl = (product['image_urls'] as List<dynamic>?)?.first as String?;
+  return Container(
+    width: messageWidth.toDouble(),
+    child: Column(
+      children: items.map((item) {
+        final Map<String, dynamic> product = item as Map<String, dynamic>;
+        final imageUrl =
+            (product['image_urls'] as List<dynamic>?)?.first as String?;
 
-              return Card(
-                  margin: const EdgeInsets.symmetric(vertical: 4),
-                  child: ListTile(
-                      leading: imageUrl != null 
-                          ? Image.network(imageUrl, width: 50, height: 50, fit: BoxFit.cover) 
-                          : const SizedBox(width: 50, height: 50, child: Icon(Icons.shopping_bag)),
-                      title: Text(product['name'] ?? 'Sản phẩm'),
-                      subtitle: Text(product['description'] ?? '', maxLines: 2, overflow: TextOverflow.ellipsis),
-                      trailing: Text(product['price'] ?? 'Liên hệ'),
-                      onTap: () { /* TODO: Xử lý sự kiện nhấn vào sản phẩm */ },
-                  ),
-              );
-          }).toList(),
-      ),
-    );
+        return Card(
+          margin: const EdgeInsets.symmetric(vertical: 4),
+          child: ListTile(
+            leading: imageUrl != null
+                ? Image.network(imageUrl,
+                    width: 50, height: 50, fit: BoxFit.cover)
+                : const SizedBox(
+                    width: 50, height: 50, child: Icon(Icons.shopping_bag)),
+            title: Text(product['name'] ?? 'Sản phẩm'),
+            subtitle: Text(product['description'] ?? '',
+                maxLines: 2, overflow: TextOverflow.ellipsis),
+            trailing: Text(product['price'] ?? 'Liên hệ'),
+            onTap: () {/* TODO: Xử lý sự kiện nhấn vào sản phẩm */},
+          ),
+        );
+      }).toList(),
+    ),
+  );
 }
 
-/// WIDGET CON: Hiển thị Mẫu chung (Facebook Generic Template)
-Widget buildGenericTemplateWidget(types.CustomMessage message, int messageWidth) {
-  final elements = message.metadata?['elements'] as List<dynamic>? ?? [];
+Widget buildGenericTemplateWidget(
+    types.CustomMessage message, int messageWidth) {
+  final rawElements = message.metadata?['elements'];
+  final elements =
+      (rawElements is List) ? rawElements.whereType<Map>().toList() : <Map>[];
   if (elements.isEmpty) return const SizedBox.shrink();
-  
-  final element = elements.first as Map<String, dynamic>;
-  final buttons = element['buttons'] as List<dynamic>? ?? [];
 
-  return Card(
-    clipBehavior: Clip.antiAlias,
-    margin: const EdgeInsets.all(4),
-    child: Container(
-      width: messageWidth.toDouble() * 0.8, // Cho card nhỏ hơn một chút
+  final element = elements.first;
+  final rawButtons = element['buttons'];
+  final buttons =
+      (rawButtons is List) ? rawButtons.whereType<Map>().toList() : <Map>[];
+
+  final img = element['image_url'] as String?;
+  final hasImage = (img != null && img.isNotEmpty);
+
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+    child: SizedBox(
+      width: messageWidth * 0.8,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (element['image_url'] != null) 
-            Image.network(element['image_url'], width: double.infinity, fit: BoxFit.cover),
+          if (hasImage)
+            InkWell(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12), // giá trị bo góc
+                child: Image.network(
+                  img,
+                  width: double.infinity,
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                ),
+              ),
+            ),
           Padding(
-            padding: const EdgeInsets.all(12.0),
+            padding: const EdgeInsets.symmetric(vertical: 8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(element['title'] ?? '', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                if (element['subtitle'] != null) ...[
-                  const SizedBox(height: 4),
-                  Text(element['subtitle']),
+                Text(
+                  (element['title'] ?? '').toString(),
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                if ((element['subtitle'] as String?)?.isNotEmpty ?? false) ...[
+                  const SizedBox(height: 8),
+                  Text(element['subtitle'].toString()),
                 ],
-                const SizedBox(height: 8),
-                ...buttons.map((buttonData) {
-                    final button = buttonData as Map<String, dynamic>;
-                    return Container(
-                      width: double.infinity,
-                      margin: const EdgeInsets.only(top: 4),
-                      child: ElevatedButton(
-                          onPressed: () { print('Button Payload: ${button['payload']}'); },
-                          child: Text(button['title'] ?? 'Button'),
+                const SizedBox(height: 12),
+                ...buttons.map((button) {
+                  final title = (button['title'] ?? 'Button').toString();
+                  final payload = button['payload'];
+                  return SizedBox(
+                    width: double.infinity,
+                    child: InkWell(
+                      child: CustomButton(
+                        backgroundColor: AppColors.blueColor,
+                        text: title,
                       ),
-                    );
-                }).toList(),
+                    ),
+                  );
+                }),
               ],
             ),
           ),
@@ -141,35 +177,187 @@ Widget buildOaListWidget(types.CustomMessage message, int messageWidth) {
   if (payload == null) return const SizedBox.shrink();
 
   final Uri? url = Uri.tryParse(payload['url'] ?? '');
+  final imgUrl = payload['thumbnail'] as String?;
+  final title = payload['title'] ?? 'Xem chi tiết';
+  final description = payload['description'] ?? '';
 
-  return Card(
-    margin: const EdgeInsets.all(4),
+  return Padding(
+    padding: const EdgeInsets.all(12),
     child: InkWell(
-      onTap: url == null ? null : () async {
-        if (await canLaunchUrl(url)) {
-          await launchUrl(url, mode: LaunchMode.externalApplication);
-        }
-      },
+      onTap: url == null
+          ? null
+          : () async {
+              await launchUrl(url, mode: LaunchMode.externalApplication);
+            },
       child: Container(
         width: messageWidth.toDouble() * 0.8,
-        child: ListTile(
-          leading: payload['thumbnail'] != null 
-            ? Image.network(payload['thumbnail'], width: 50, height: 50, fit: BoxFit.cover)
-            : null,
-          title: Text(payload['title'] ?? 'Xem chi tiết'),
-          subtitle: Text(payload['description'] ?? '', maxLines: 2, overflow: TextOverflow.ellipsis),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (imgUrl != null && imgUrl.isNotEmpty)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12), // Bo góc ảnh
+                child: Image.network(
+                  imgUrl,
+                  width: double.infinity,
+                  height: 150, // bạn có thể chỉnh chiều cao
+                  fit: BoxFit.cover,
+                ),
+              ),
+            const SizedBox(height: 8),
+            Text(
+              title,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+            if (description.isNotEmpty) ...[
+              const SizedBox(height: 4),
+              Text(
+                description,
+              ),
+            ],
+          ],
         ),
       ),
     ),
   );
 }
 
+// /// WIDGET CON: Hiển thị HTML
+// Widget buildHtmlTemplateWidget(types.CustomMessage message) {
+//   print('--- DEBUG CUSTOM MESSAGE METADATA ---');
+//   print(message.metadata);
+//   final html = message.metadata?['html'] as String?;
+//   if (html == null || html.isEmpty) {
+//     return const SizedBox.shrink();
+//   }
 
-/// WIDGET CON: Hiển thị HTML
-Widget buildHtmlTemplateWidget(types.CustomMessage message) {
-    final html = message.metadata?['html'] as String?;
-    if (html == null || html.isEmpty) return const SizedBox.shrink();
-    
-    // Yêu cầu package: flutter_widget_from_html
-    return HtmlWidget(html);
+//   return Padding(
+//     padding: const EdgeInsets.all(8.0),
+//     child: Html(
+//       shrinkWrap: true,
+//       data: html,
+//       style: {
+//         "body": Style(
+//           fontSize: FontSize(14),
+//           // margin: EdgeInsets.zero,
+//           // padding: EdgeInsets.zero,
+//         ),
+//       },
+//     ),
+//   );
+// }
+
+Widget buildFileWidget(types.FileMessage fileMessage,
+    {required int messageWidth}) {
+  return Padding(
+    padding: const EdgeInsets.only(right: 8.0),
+    child: Container(
+      width: double.tryParse(messageWidth.toString()),
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
+      child: Row(
+        children: [
+          Icon(
+            Icons.insert_drive_file,
+            size: 30,
+            color: Colors.blueAccent,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  fileMessage.name,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+                Text(
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  '${(fileMessage.size / 1024).toStringAsFixed(2)} KB',
+                  style: TextStyle(
+                    color: Colors.black.withOpacity(0.6),
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            icon: Icon(Icons.download),
+            onPressed: () {
+              print('Download file from ${fileMessage.uri}');
+            },
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+Widget buildZpListWidget(types.CustomMessage message, int messageWidth) {
+  final metadata = message.metadata ?? {};
+  List<dynamic> items = [];
+
+  try {
+    final rawItems = metadata['zp_list_items'];
+    if (rawItems is String && rawItems.isNotEmpty) {
+      items = jsonDecode(rawItems) as List<dynamic>;
+    } else if (rawItems is List) {
+      items = rawItems;
+    }
+  } catch (e) {
+    // Nếu parse lỗi thì để trống
+    items = [];
+  }
+
+  if (items.isEmpty) {
+    return const SizedBox();
+  }
+
+  final firstItem = items.first;
+  final title = firstItem['title'] ?? '';
+  final description = firstItem['description'] ?? '';
+  final href = firstItem['href'] ?? '';
+
+  Future<void> _openUrl(String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+
+  return InkWell(
+    onTap: () => _openUrl(href),
+    child: Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade200,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(description),
+        ],
+      ),
+    ),
+  );
 }

@@ -203,7 +203,7 @@ class _InputState extends State<Input> {
       value['tag_list'] = _idTagList;
     }
     if (widget.repliedMessage != null) {
-      value['reply'] = widget.repliedMessage!.toJson();
+      value['reply'] = widget.repliedMessage?.toJson();
     }
     if (value.isNotEmpty) {
       try {
@@ -344,6 +344,8 @@ class _InputState extends State<Input> {
             _query.padding.right,
             (_query.viewInsets.bottom + _query.padding.bottom) * 0.4,
           );
+
+          
     return widget.canSend
         ? Focus(
             autofocus: true,

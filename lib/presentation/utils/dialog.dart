@@ -1,4 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:chat/common/custom_navigator.dart';
+import 'package:chat/common/widges/widget.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/material.dart';
@@ -103,4 +105,82 @@ void showSnackBarError(String message, BuildContext context) {
       duration: const Duration(seconds: 2),
     ),
   );
+}
+
+
+class CustomDialogWidget extends StatelessWidget {
+  final Widget screen;
+  final bool cancelable;
+
+  CustomDialogWidget({
+    required this.screen,
+    this.cancelable = true,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    return CustomScaffold(
+      backgroundColor: Colors.black.withValues(alpha: 0.3),
+      body: SingleChildScrollView(
+        child: Container(
+          height: MediaQuery.sizeOf(context).height,
+          child: Stack(
+            fit: StackFit.expand,
+            children: <Widget>[
+              GestureDetector(
+                onTap: cancelable ? () => CustomNavigator.pop(context) : null,
+              ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Container(
+                    constraints: BoxConstraints(
+                      maxWidth:  MediaQuery.sizeOf(context).height,
+                    ),
+                    margin:
+                        EdgeInsets.symmetric(horizontal: 16),
+                    child: screen,
+                  )
+                ],
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+class CustomPopupDialog extends StatelessWidget {
+
+  final Widget child;
+  final bool isExpanded;
+
+  CustomPopupDialog({
+    required this.child,
+    this.isExpanded = false
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      child: isExpanded?Container(
+        decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.all(Radius.circular(20.0))
+        ),
+        height: MediaQuery.of(context).size.height * 0.5,
+        child: child,
+      ):Container(
+        decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.all(Radius.circular(20.0))
+        ),
+        child: child,
+      ),
+      onTap: () {
+        FocusManager.instance.primaryFocus?.unfocus();
+      },
+    );
+  }
 }

@@ -88,7 +88,7 @@ class Rooms {
       sId: r.sId,
       people: r.people,
       isGroup: r.isGroup,
-      owner: Owner.fromAnotherOwner(r.owner!),
+      owner: Owner.fromAnotherOwner(other: r.owner),
       lastUpdate: r.lastUpdate,
       lastAuthor: r.lastAuthor,
       lastMessage:
@@ -384,10 +384,10 @@ class People {
     avatar = json['avatar'];
     tagLine = json['tagLine'];
     sId = json['_id'];
-    username = json['username']??'';
-    firstName = json['firstName']??'';
+    username = json['username'] ?? '';
+    firstName = json['firstName'] ?? '';
     phone = json['phone'];
-    lastName = json['lastName']??'';
+    lastName = json['lastName'] ?? '';
     lastOnline = json['lastOnline'];
 
     userTag =
@@ -721,28 +721,28 @@ class Owner {
       this.isFollowed,
       this.tags});
 
-  factory Owner.fromAnotherOwner(ChatMessage.Owner other) {
+  factory Owner.fromAnotherOwner({ChatMessage.Owner? other}) {
     return Owner(
-      sId: other.sId,
-      level: other.level,
-      userTag: other.userTag,
-      tagLine: other.tagLine,
-      isIncognito: other.isIncognito,
-      username: other.username,
-      email: other.email,
-      firstName: other.firstName,
-      lastName: other.lastName,
-      userSocialId: other.userSocialId,
-      source: other.source,
-      password: other.password,
-      lastOnline: other.lastOnline,
-      iV: other.iV,
-      picture: other.picture,
-      cpoCustomerId: other.cpoCustomerId,
-      createdAt: other.createdAt,
-      isBlocked: other.isBlocked,
-      isFollowed: other.isFollowed,
-      customerId: other.customerId,
+      sId: other?.sId,
+      level: other?.level,
+      userTag: other?.userTag,
+      tagLine: other?.tagLine,
+      isIncognito: other?.isIncognito,
+      username: other?.username,
+      email: other?.email,
+      firstName: other?.firstName,
+      lastName: other?.lastName,
+      userSocialId: other?.userSocialId,
+      source: other?.source,
+      password: other?.password,
+      lastOnline: other?.lastOnline,
+      iV: other?.iV,
+      picture: other?.picture,
+      cpoCustomerId: other?.cpoCustomerId,
+      createdAt: other?.createdAt,
+      isBlocked: other?.isBlocked,
+      isFollowed: other?.isFollowed,
+      customerId: other?.customerId,
 
       // tags: other.tags,
       // Các field khác như customerCode, cpoCustomerCode, customerId (String) sẽ phải handle riêng
@@ -838,6 +838,9 @@ class Owner {
   }
 
   String getAvatarName() {
+    // if (avatar != null) {
+    //   return avatar ?? '';
+    // }
     String avatarName = '';
     String? firstNameResult = firstName?.replaceAll(RegExp('[^A-Za-z0-9]'), '');
     if (firstNameResult != '' && firstNameResult != null) {
@@ -906,8 +909,6 @@ class UserZaloOAList {
   }
 }
 
-
-
 class UserZaloOA {
   final String id;
   final String email;
@@ -919,7 +920,7 @@ class UserZaloOA {
   final String username;
   final String source;
   final Picture? picture;
-  bool isSelected=false;
+  bool isSelected = false;
 
   UserZaloOA({
     required this.id,
@@ -945,9 +946,8 @@ class UserZaloOA {
       userSocialId: json['userSocialId'],
       username: json['username'],
       source: json['source'],
-      picture: json['picture'] != null
-          ? Picture.fromJson(json['picture'])
-          : null,
+      picture:
+          json['picture'] != null ? Picture.fromJson(json['picture']) : null,
     );
   }
 

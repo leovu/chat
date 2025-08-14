@@ -15,7 +15,6 @@ import 'package:chat/connection/app_lifecycle.dart';
 
 import '../data_model/chat_message.dart';
 import '../data_model/response/friend_response_model.dart';
-import '../data_model/response/group_member_response_model.dart';
 
 class AddMemberGroupScreen extends StatefulWidget {
   // final r.Rooms roomData;
