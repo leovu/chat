@@ -851,26 +851,15 @@ class Messages {
         }
         break;
 
-      case 'system':
-      // case 'zp_list':
-      //   data['type'] = 'custom';
-      //   metadata['custom_type'] = 'zp_list';
-      //   metadata['text'] = (messageItems)?.first?['title'] ?? content;
-      //   break;
       case 'zp_list':
         {
           data['type'] = 'custom';
           metadata['custom_type'] = 'zp_list';
-
-          // text fallback cho preview / search
           final firstTitle = (messageItems)?.isNotEmpty == true
               ? (messageItems!.first['title'] as String? ?? '')
               : (content ?? '');
 
           metadata['text'] = firstTitle;
-
-          // Lưu toàn bộ danh sách để render
-          // (params ở server là chuỗi JSON => giữ nguyên để widget parse)
           try {
             metadata['zp_list_items'] = jsonEncode(messageItems ?? []);
           } catch (_) {
@@ -910,7 +899,6 @@ class Messages {
       };
       repliedJson['id'] = replies!.sId!;
       try {
-        // Dùng try-catch để phòng trường hợp định dạng date không đúng
         final format = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z");
         final dt = format.parse(replies!.date!, true);
         repliedJson['createdAt'] = dt.toUtc().millisecondsSinceEpoch;
@@ -929,17 +917,6 @@ class Messages {
                   ? '${HTTPConnection.domain}api/images/${replies!.content}/${ChatConnection.brandCode}'
                   : null);
           break;
-
-        case 'file':
-        // case 'file_url':
-        //   repliedJson['type'] = 'file';
-        //   if (replies!.file != null) {
-        //     repliedJson['name'] = replies!.file!.name ?? 'file';
-        //     repliedJson['size'] = replies!.file!.size ?? 0;
-        //     repliedJson['uri'] =
-        //         '${HTTPConnection.domain}api/files/${replies!.file!.shieldedID}/${ChatConnection.brandCode}';
-        //   }
-        //   break;
 
         case 'file_url':
           repliedJson['type'] = 'file';
@@ -1020,51 +997,93 @@ class Messages {
           repliedJson['text'] = replies!.content ?? 'System Message';
           break;
 
+        // case 'zp_list':
+        //   {
+        //     repliedJson['type'] = 'custom';
+        //     repliedJson['custom_type'] = 'zp_list';
+
+        //     final rawItems = (replies is Map<String, dynamic>)
+        //         ? replies?.messageItems
+        //         : null;
+
+        //     final List<Map<String, dynamic>> items =
+        //         (rawItems is List) ? rawItems.cast<Map<String, dynamic>>() : [];
+
+        //     repliedJson['text'] = items.isNotEmpty
+        //         ? (items.first['title'] as String? ?? replies?.content ?? '')
+        //         : (replies?.content ?? '');
+
+        //     repliedJson['items'] = items
+        //         .map((item) => {
+        //               'title': item['title'] ?? '',
+        //               'description': item['description'] ?? '',
+        //               'href': item['href'] ?? '',
+        //               'thumb': item['thumb'] ?? '',
+        //               'childnumber': item['childnumber'] ?? 0,
+        //               'action': item['action'] ?? '',
+        //               'params': item['params'] ?? '',
+        //               'type': item['type'] ?? '',
+        //             })
+        //         .toList();
+
+        //     break;
+        //   }
+
         case 'zp_list':
           {
             repliedJson['type'] = 'custom';
-            repliedJson['custom_type'] = 'zp_list';
+            final rawItems = replies!.messageItems; // dynamic
 
-            final rawItems = (replies is Map<String, dynamic>)
-                ? replies?.messageItems
-                : null;
+            final List<Map<String, dynamic>> items = (rawItems is List)
+                ? rawItems
+                    .whereType<Map>() 
+                    .map((e) =>
+                        e.cast<String, dynamic>()) // cast key/value đúng kiểu
+                    .toList()
+                : <Map<String, dynamic>>[];
 
-            final List<Map<String, dynamic>> items =
-                (rawItems is List) ? rawItems.cast<Map<String, dynamic>>() : [];
+            // 3) Text fallback — ưu tiên title của item đầu
+            final fallbackText = items.isNotEmpty
+                ? (items.first['title'] as String? ?? replies!.content ?? '')
+                : (replies!.content ?? '');
 
-            repliedJson['text'] = items.isNotEmpty
-                ? (items.first['title'] as String? ?? replies?.content ?? '')
-                : (replies?.content ?? '');
+            // 4) Đặt đúng vào repliedJson['metadata'] vì widget đang đọc từ đây
+            repliedJson['metadata'] = {
+              'custom_type': 'zp_list',
+              'text': fallbackText,
+              'items': items
+                  .map((item) => {
+                        'title': item['title'] ?? '',
+                        'description': item['description'] ?? '',
+                        'href': item['href'] ?? '',
+                        'thumb': item['thumb'] ?? '',
+                        'childnumber': item['childnumber'] ?? 0,
+                        'action': item['action'] ?? '',
+                        'params': item['params'] ?? '', // server là JSON string
+                        'type': item['type'] ?? '',
+                      })
+                  .toList(),
 
-            repliedJson['items'] = items
-                .map((item) => {
-                      'title': item['title'] ?? '',
-                      'description': item['description'] ?? '',
-                      'href': item['href'] ?? '',
-                      'thumb': item['thumb'] ?? '',
-                      'childnumber': item['childnumber'] ?? 0,
-                      'action': item['action'] ?? '',
-                      'params': item['params'] ?? '',
-                      'type': item['type'] ?? '',
-                    })
-                .toList();
+              // (tuỳ chọn) header nhanh cho UI
+              'title': items.isNotEmpty
+                  ? (items.first['title'] as String? ?? '')
+                  : '',
+              'description': items.isNotEmpty
+                  ? (items.first['description'] as String? ?? '')
+                  : '',
+              'href': items.isNotEmpty
+                  ? (items.first['href'] as String? ?? '')
+                  : '',
+            };
+
+            repliedJson['text'] = fallbackText;
 
             break;
           }
 
-        // case 'oa_template':
-        //   repliedJson['type'] = 'custom';
-        //   repliedJson['html'] =
-        //       replies!.messageTemplate; // HTML từ messageTemplate
-        //   break;
-
         case 'oa_template':
-          // Khi là tin nhắn được trả lời, ta đơn giản hóa nó thành dạng 'text'
           repliedJson['type'] = 'text';
-
-          // Sử dụng trường 'content' của tin nhắn gốc làm nội dung preview
           repliedJson['text'] = replies?.content ?? 'Tin nhắn mẫu OA';
-
           break;
 
         case 'oa_list':

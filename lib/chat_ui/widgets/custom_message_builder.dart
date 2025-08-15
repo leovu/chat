@@ -33,6 +33,7 @@ Widget customMessageBuilder(types.CustomMessage message,
 
     case 'zp_list':
       return buildZpListWidget(message, messageWidth);
+      // return Text('return buildZpListWidget(message, messageWidth);');
 
     default:
       return const SizedBox.shrink();
@@ -338,10 +339,7 @@ Widget buildZpListWidget(types.CustomMessage message, int messageWidth) {
     onTap: () => _openUrl(href),
     child: Container(
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade200,
-        borderRadius: BorderRadius.circular(8),
-      ),
+      
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

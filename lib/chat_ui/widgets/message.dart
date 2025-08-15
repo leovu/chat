@@ -84,7 +84,7 @@ class Message extends StatelessWidget {
   final Widget Function(types.FileMessage, {required int messageWidth})?
       fileMessageBuilder;
 
-      final String? content;
+  final String? content;
 
   /// Hide background for messages containing only emojis.
   final bool hideBackgroundOnEmojiMessages;

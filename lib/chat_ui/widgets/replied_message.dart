@@ -239,7 +239,6 @@ class RepliedMessage extends StatelessWidget {
               }
             },
             child: Container(
-              // width: messageWidth,
               padding: const EdgeInsets.all(8),
               child: Text(
                 text,
@@ -269,47 +268,40 @@ class RepliedMessage extends StatelessWidget {
         constraints: BoxConstraints(maxWidth: messageWidth.toDouble()),
         child: InkWell(
           onTap: canTap ? () => _openUrl(href) : null,
-          child: Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade200,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (title.isNotEmpty) ...[
-                  Text(
-                    title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (title.isNotEmpty) ...[
+                Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
                   ),
-                  if (description.isNotEmpty) const SizedBox(height: 4),
-                ],
-                if (description.isNotEmpty)
-                  Text(
-                    description,
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                if (href.isNotEmpty && title.isEmpty) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    href,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      decoration: TextDecoration.underline,
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
+                ),
+                if (description.isNotEmpty) const SizedBox(height: 4),
               ],
-            ),
+              if (description.isNotEmpty)
+                Text(
+                  description,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              if (href.isNotEmpty && title.isEmpty) ...[
+                const SizedBox(height: 4),
+                Text(
+                  href,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    decoration: TextDecoration.underline,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ],
           ),
         ),
       );
@@ -426,47 +418,52 @@ class RepliedMessage extends StatelessWidget {
       required bool showUserNames,
     }) {
       return Expanded(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (repliedMessage?.author.firstName != null && showUserNames)
-              AutoSizeText(
+        child: Padding(
+          padding: const EdgeInsets.only(left: 4),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (repliedMessage?.author.firstName != null && showUserNames)
+                AutoSizeText(
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  closable
+                      ? '${AppLocalizations.text(LangKey.replying)} ${repliedMessage?.author.firstName ?? ''} ${repliedMessage?.author.lastName ?? ''}'
+                      : text,
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    height: 1.5,
+                  ),
+                ),
+              Text(
                 closable
-                    ? '${AppLocalizations.text(LangKey.replying)} ${repliedMessage?.author.firstName ?? ''} ${repliedMessage?.author.lastName ?? ''}'
-                    : text,
-                style: const TextStyle(
-                  color: Colors.black,
-                  fontSize: 14,
+                    ? text
+                    : '${repliedMessage?.author.firstName ?? ''} ${repliedMessage?.author.lastName ?? ''}',
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: closable
+                      ? Colors.grey
+                      : isCurrentUser
+                          ? Colors.grey.shade600
+                          : Colors.grey,
+                  fontSize: 12,
                   fontWeight: FontWeight.w500,
                   height: 1.5,
                 ),
               ),
-            Text(
-              closable
-                  ? text
-                  : '${repliedMessage?.author.firstName ?? ''} ${repliedMessage?.author.lastName ?? ''}',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: closable
-                    ? Colors.grey
-                    : isCurrentUser
-                        ? Colors.grey.shade600
-                        : Colors.grey,
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                height: 1.5,
-              ),
-            ),
-            if (!closable)
-              const Padding(
-                padding: EdgeInsets.only(top: 1.0),
-                child: SizedBox(
-                  height: 1.0,
-                  child: ColoredBox(color: Colors.grey),
+              if (!closable)
+                const Padding(
+                  padding: EdgeInsets.only(top: 1.0),
+                  child: SizedBox(
+                    height: 1.0,
+                    child: ColoredBox(color: Colors.grey),
+                  ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       );
     }

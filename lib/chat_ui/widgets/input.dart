@@ -211,7 +211,7 @@ class _InputState extends State<Input> {
       } catch (_) {}
     } else {
       try {
-        deleteDraftInput(ChatConnection.roomId??'');
+        deleteDraftInput(ChatConnection.roomId ?? '');
       } catch (_) {}
     }
     super.dispose();
@@ -254,7 +254,7 @@ class _InputState extends State<Input> {
     setState(() {
       _taggingSuggestList = null;
     });
-    deleteDraftInput(ChatConnection.roomId??'');
+    deleteDraftInput(ChatConnection.roomId ?? '');
   }
 
   void _handleTextControllerChange() {
@@ -345,7 +345,6 @@ class _InputState extends State<Input> {
             (_query.viewInsets.bottom + _query.padding.bottom) * 0.4,
           );
 
-          
     return widget.canSend
         ? Focus(
             autofocus: true,
@@ -586,6 +585,7 @@ class _InputState extends State<Input> {
                                     children: [
                                       SizedBox(
                                         height: 50.0,
+                                        width: 100,
                                         child: Row(
                                           children: [
                                             Padding(
@@ -664,20 +664,29 @@ class _InputState extends State<Input> {
                                                 config: Config())
                                             : Column(
                                                 children: [
-                                                  Expanded(
-                                                      child: GridView(
-                                                    scrollDirection:
-                                                        Axis.horizontal,
-                                                    gridDelegate:
-                                                        const SliverGridDelegateWithMaxCrossAxisExtent(
-                                                            maxCrossAxisExtent:
-                                                                160,
-                                                            childAspectRatio:
-                                                                2.25 / 2,
-                                                            crossAxisSpacing: 5,
-                                                            mainAxisSpacing: 5),
-                                                    children: stickers(),
-                                                  )),
+                                                  SizedBox(
+                                                    width: MediaQuery.sizeOf(
+                                                            context)
+                                                        .width,
+                                                    height: MediaQuery.sizeOf(
+                                                            context)
+                                                        .width,
+                                                    child: GridView(
+                                                      scrollDirection:
+                                                          Axis.horizontal,
+                                                      gridDelegate:
+                                                          const SliverGridDelegateWithMaxCrossAxisExtent(
+                                                              maxCrossAxisExtent:
+                                                                  160,
+                                                              childAspectRatio:
+                                                                  2.25 / 2,
+                                                              crossAxisSpacing:
+                                                                  5,
+                                                              mainAxisSpacing:
+                                                                  5),
+                                                      children: stickers(),
+                                                    ),
+                                                  ),
                                                   Padding(
                                                     padding:
                                                         const EdgeInsets.only(
