@@ -1,11 +1,9 @@
 import 'dart:convert';
-
 import 'package:chat/common/theme.dart';
 import 'package:chat/common/widges/widget.dart';
 import 'package:chat/presentation/utils/parse_html.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-import 'package:flutter_html/flutter_html.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 Widget customMessageBuilder(types.CustomMessage message,
@@ -231,30 +229,6 @@ Widget buildOaListWidget(types.CustomMessage message, int messageWidth) {
   );
 }
 
-// /// WIDGET CON: Hiển thị HTML
-// Widget buildHtmlTemplateWidget(types.CustomMessage message) {
-//   print('--- DEBUG CUSTOM MESSAGE METADATA ---');
-//   print(message.metadata);
-//   final html = message.metadata?['html'] as String?;
-//   if (html == null || html.isEmpty) {
-//     return const SizedBox.shrink();
-//   }
-
-//   return Padding(
-//     padding: const EdgeInsets.all(8.0),
-//     child: Html(
-//       shrinkWrap: true,
-//       data: html,
-//       style: {
-//         "body": Style(
-//           fontSize: FontSize(14),
-//           // margin: EdgeInsets.zero,
-//           // padding: EdgeInsets.zero,
-//         ),
-//       },
-//     ),
-//   );
-// }
 
 Widget buildFileWidget(types.FileMessage fileMessage,
     {required int messageWidth}) {

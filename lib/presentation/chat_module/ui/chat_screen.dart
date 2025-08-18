@@ -151,7 +151,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       int index = _messages.indexOf(ms);
       _messages[index] = textMessage;
       if (mounted) {
-        setState(() {});
+        // setState(() {});
         int? index = listIdMessages[ms.id]!;
         scroll(index);
       }
@@ -160,11 +160,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       await ChatConnection.updateChat(message.text, ms.id, data?.room,
           reppliedMessageId: reppliedMessageId);
     } else {
-      if (mounted) {
-        setState(() {
-          _messages.insert(0, message);
-        });
-      }
+      _messages.insert(0, message);
       if (message.type.name == 'text') {
         note = await ChatConnection.sendChat(
             data,
@@ -174,10 +170,11 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
             data?.room,
             ChatConnection.checkUserTokenResponseModel?.user?.sId ?? '',
             reppliedMessageId: repliedMessageId);
-        if (mounted) {
-          setState(() {});
-        }
       }
+    }
+    _loadMessages();
+    if (mounted) {
+      setState(() {});
     }
   }
 
@@ -701,7 +698,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     });
   }
 
-  void _handleSendPressed(types.PartialText message,{types.Message? repliedMessage, types.TextMessage? isEdit}) {
+  void _handleSendPressed(types.PartialText message, {types.Message? repliedMessage, types.TextMessage? isEdit}) {
     String id = const Uuid().v4();
     final textMessage = types.TextMessage(
         author: _user,

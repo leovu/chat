@@ -384,7 +384,7 @@ class _InputState extends State<Input> {
                               people: widget.people,
                             )),
                       Container(
-                        padding: const EdgeInsets.fromLTRB(24, 0, 24, 20)
+                        padding: const EdgeInsets.fromLTRB(8, 0, 8, 8)
                             .add(_safeAreaInsets),
                         child: Column(
                           children: [
@@ -466,9 +466,10 @@ class _InputState extends State<Input> {
                                                           _emojiShowing =
                                                               !_emojiShowing;
                                                           emojiIndex = 0;
-                                                          // if(_emojiShowing) {
-                                                          //   _inputFocusNode.requestFocus();
-                                                          // }
+                                                          if (_emojiShowing) {
+                                                            _inputFocusNode
+                                                                .requestFocus();
+                                                          }
                                                         });
                                                       },
                                                       child: Image.asset(
@@ -584,19 +585,32 @@ class _InputState extends State<Input> {
                                   child: Column(
                                     children: [
                                       SizedBox(
-                                        height: 50.0,
-                                        width: 100,
-                                        child: Row(
-                                          children: [
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                  right: 10.0),
-                                              child: InkWell(
-                                                  child: Chip(
-                                                    labelPadding:
-                                                        const EdgeInsets.all(
-                                                            2.0),
-                                                    label: AutoSizeText(
+                                        height: 30,
+                                        width: double.infinity,
+                                        child: SingleChildScrollView(
+                                          scrollDirection: Axis.horizontal,
+                                          padding:
+                                              const EdgeInsets.only(right: 8),
+                                          child: Row(
+                                            children: [
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    right: 10.0),
+                                                child: InkWell(
+                                                  onTap: () => setState(
+                                                      () => emojiIndex = 0),
+                                                  child: Container(
+                                                    padding: EdgeInsets.all(4),
+                                                    decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              8),
+                                                      color: emojiIndex == 0
+                                                          ? Colors.blue
+                                                          : const Color(
+                                                              0xFFE5E5E5),
+                                                    ),
+                                                    child: Text(
                                                       'Emotion Icon',
                                                       style: TextStyle(
                                                         color: emojiIndex == 0
@@ -604,29 +618,24 @@ class _InputState extends State<Input> {
                                                             : Colors.black,
                                                       ),
                                                     ),
-                                                    backgroundColor:
-                                                        emojiIndex == 0
-                                                            ? Colors.blue
-                                                            : const Color(
-                                                                0xFFE5E5E5),
-                                                    elevation: 6.0,
-                                                    shadowColor:
-                                                        Colors.grey[60],
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            8.0),
                                                   ),
-                                                  onTap: () {
-                                                    setState(() {
-                                                      emojiIndex = 0;
-                                                    });
-                                                  }),
-                                            ),
-                                            InkWell(
-                                                child: Chip(
-                                                  labelPadding:
-                                                      const EdgeInsets.all(2.0),
-                                                  label: AutoSizeText(
+                                                ),
+                                              ),
+                                              InkWell(
+                                                onTap: () => setState(
+                                                    () => emojiIndex = 1),
+                                                child: Container(
+                                                  padding: EdgeInsets.all(4),
+                                                  decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8),
+                                                    color: emojiIndex == 1
+                                                        ? Colors.blue
+                                                        : const Color(
+                                                            0xFFE5E5E5),
+                                                  ),
+                                                  child: Text(
                                                     'Sticker',
                                                     style: TextStyle(
                                                       color: emojiIndex == 1
@@ -634,21 +643,10 @@ class _InputState extends State<Input> {
                                                           : Colors.black,
                                                     ),
                                                   ),
-                                                  backgroundColor: emojiIndex ==
-                                                          1
-                                                      ? Colors.blue
-                                                      : const Color(0xFFE5E5E5),
-                                                  elevation: 6.0,
-                                                  shadowColor: Colors.grey[60],
-                                                  padding:
-                                                      const EdgeInsets.all(8.0),
                                                 ),
-                                                onTap: () {
-                                                  setState(() {
-                                                    emojiIndex = 1;
-                                                  });
-                                                })
-                                          ],
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                       ),
                                       Expanded(
@@ -664,29 +662,6 @@ class _InputState extends State<Input> {
                                                 config: Config())
                                             : Column(
                                                 children: [
-                                                  SizedBox(
-                                                    width: MediaQuery.sizeOf(
-                                                            context)
-                                                        .width,
-                                                    height: MediaQuery.sizeOf(
-                                                            context)
-                                                        .width,
-                                                    child: GridView(
-                                                      scrollDirection:
-                                                          Axis.horizontal,
-                                                      gridDelegate:
-                                                          const SliverGridDelegateWithMaxCrossAxisExtent(
-                                                              maxCrossAxisExtent:
-                                                                  160,
-                                                              childAspectRatio:
-                                                                  2.25 / 2,
-                                                              crossAxisSpacing:
-                                                                  5,
-                                                              mainAxisSpacing:
-                                                                  5),
-                                                      children: stickers(),
-                                                    ),
-                                                  ),
                                                   Padding(
                                                     padding:
                                                         const EdgeInsets.only(
@@ -707,7 +682,31 @@ class _InputState extends State<Input> {
                                                         ],
                                                       ),
                                                     ),
-                                                  )
+                                                  ),
+                                                  SizedBox(
+                                                    width: MediaQuery.sizeOf(
+                                                            context)
+                                                        .width,
+                                                    height: 170,
+                                                    // height: MediaQuery.sizeOf(
+                                                    //         context)
+                                                    //     .width,
+                                                    child: GridView(
+                                                      scrollDirection:
+                                                          Axis.vertical,
+                                                      gridDelegate:
+                                                          const SliverGridDelegateWithMaxCrossAxisExtent(
+                                                              maxCrossAxisExtent:
+                                                                  160,
+                                                              childAspectRatio:
+                                                                  2.25 / 2,
+                                                              crossAxisSpacing:
+                                                                  5,
+                                                              mainAxisSpacing:
+                                                                  5),
+                                                      children: stickers(),
+                                                    ),
+                                                  ),
                                                 ],
                                               ),
                                       )

@@ -1,4 +1,3 @@
-
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:chat/chat_ui/widgets/message.dart';
 import 'package:chat/common/theme.dart';
@@ -191,14 +190,13 @@ class RepliedMessage extends StatelessWidget {
           );
         }
       }
-      return const SizedBox
-          .shrink(); // Nếu không có sticker, trả về SizedBox trống
+      return const SizedBox.shrink();
     }
 
     Widget _buildProductsWidget() {
       if (repliedMessage?.metadata != null) {
         final metadata = repliedMessage!.metadata;
-        final products = metadata?['items']; // Lấy sản phẩm từ metadata
+        final products = metadata?['items'];
 
         if (products != null) {
           return ListView.builder(
@@ -214,8 +212,7 @@ class RepliedMessage extends StatelessWidget {
           );
         }
       }
-      return const SizedBox
-          .shrink(); // Nếu không có sản phẩm, trả về SizedBox trống
+      return const SizedBox.shrink();
     }
 
     Widget _buildZpListWidget({required double messageWidth}) {
@@ -230,23 +227,20 @@ class RepliedMessage extends StatelessWidget {
         final text = (metadata['text'] as String?) ?? '';
         if (text.isEmpty) return const SizedBox.shrink();
 
-        return Expanded(
-          child: InkWell(
-            onTap: () async {
-              final uri = Uri.tryParse(text);
-              if (uri != null && await canLaunchUrl(uri)) {
-                await launchUrl(uri, mode: LaunchMode.externalApplication);
-              }
-            },
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              child: Text(
-                text,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style:
-                    const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-              ),
+        return InkWell(
+          onTap: () async {
+            final uri = Uri.tryParse(text);
+            if (uri != null && await canLaunchUrl(uri)) {
+              await launchUrl(uri, mode: LaunchMode.externalApplication);
+            }
+          },
+          child: Container(
+            padding: const EdgeInsets.all(8),
+            child: Text(
+              text,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
             ),
           ),
         );
@@ -317,43 +311,75 @@ class RepliedMessage extends StatelessWidget {
         if (elements != null && elements.isNotEmpty) {
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-            child: SizedBox(
-              width: MediaQuery.sizeOf(context).width * 0.6,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  InkWell(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Image.network(
-                        elements[0]['image_url'].toString(),
-                        width: double.infinity,
-                        fit: BoxFit.contain,
-                        errorBuilder: (_, __, ___) => const SizedBox.shrink(),
-                      ),
+            child: _closable
+                ? Container(
+                    child: Row(
+                      children: [
+                        InkWell(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Image.network(
+                              elements[0]['image_url'].toString(),
+                              width: 40,
+                              height: 40,
+                              fit: BoxFit.contain,
+                              errorBuilder: (_, __, ___) =>
+                                  const SizedBox.shrink(),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 6),
+                            child: Text(
+                              (elements[0]['title'] ?? '').toString(),
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.normal, fontSize: 14),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
+                  )
+                : SizedBox(
+                    width: MediaQuery.sizeOf(context).width * 0.6,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          (elements[0]['title'] ?? '').toString(),
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 16),
+                        InkWell(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Image.network(
+                              elements[0]['image_url'].toString(),
+                              width: double.infinity,
+                              fit: BoxFit.contain,
+                              errorBuilder: (_, __, ___) =>
+                                  const SizedBox.shrink(),
+                            ),
+                          ),
                         ),
-                        if ((elements[0]['subtitle'] as String?)?.isNotEmpty ??
-                            false) ...[
-                          const SizedBox(height: 8),
-                          Text(elements[0]['subtitle'].toString()),
-                        ],
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                (elements[0]['title'] ?? '').toString(),
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 16),
+                              ),
+                              if ((elements[0]['subtitle'] as String?)
+                                      ?.isNotEmpty ??
+                                  false) ...[
+                                const SizedBox(height: 8),
+                                Text(elements[0]['subtitle'].toString()),
+                              ],
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   ),
-                ],
-              ),
-            ),
           );
         }
       }
@@ -362,7 +388,7 @@ class RepliedMessage extends StatelessWidget {
 
     Widget _buildOaTemplateWidget() {
       return Icon(
-        Icons.file_copy, // Biểu tượng tượng trưng cho template
+        Icons.file_copy,
         size: 40,
         color: AppColors.bluePrimary,
       );
@@ -417,53 +443,51 @@ class RepliedMessage extends StatelessWidget {
       required types.Message? repliedMessage,
       required bool showUserNames,
     }) {
-      return Expanded(
-        child: Padding(
-          padding: const EdgeInsets.only(left: 4),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (repliedMessage?.author.firstName != null && showUserNames)
-                AutoSizeText(
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  closable
-                      ? '${AppLocalizations.text(LangKey.replying)} ${repliedMessage?.author.firstName ?? ''} ${repliedMessage?.author.lastName ?? ''}'
-                      : text,
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    height: 1.5,
-                  ),
-                ),
-              Text(
-                closable
-                    ? text
-                    : '${repliedMessage?.author.firstName ?? ''} ${repliedMessage?.author.lastName ?? ''}',
+      return Padding(
+        padding: const EdgeInsets.only(left: 4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (repliedMessage?.author.firstName != null && showUserNames)
+              AutoSizeText(
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: closable
-                      ? Colors.grey
-                      : isCurrentUser
-                          ? Colors.grey.shade600
-                          : Colors.grey,
-                  fontSize: 12,
+                closable
+                    ? '${AppLocalizations.text(LangKey.replying)} ${repliedMessage?.author.firstName ?? ''} ${repliedMessage?.author.lastName ?? ''}'
+                    : text,
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontSize: 14,
                   fontWeight: FontWeight.w500,
                   height: 1.5,
                 ),
               ),
-              if (!closable)
-                const Padding(
-                  padding: EdgeInsets.only(top: 1.0),
-                  child: SizedBox(
-                    height: 1.0,
-                    child: ColoredBox(color: Colors.grey),
-                  ),
+            Text(
+              closable
+                  ? text
+                  : '${repliedMessage?.author.firstName ?? ''} ${repliedMessage?.author.lastName ?? ''}',
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: closable
+                    ? Colors.grey
+                    : isCurrentUser
+                        ? Colors.grey.shade600
+                        : Colors.grey,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                height: 1.5,
+              ),
+            ),
+            if (!closable)
+              const Padding(
+                padding: EdgeInsets.only(top: 1.0),
+                child: SizedBox(
+                  height: 1.0,
+                  child: ColoredBox(color: Colors.grey),
                 ),
-            ],
-          ),
+              ),
+          ],
         ),
       );
     }
@@ -524,13 +548,27 @@ class RepliedMessage extends StatelessWidget {
           ),
           child: Row(
             children: [
-              _buildPreview(),
-              _buildReplyInfoSection(
-                closable: _closable,
-                isCurrentUser: _isCurrentUser,
-                text: _text,
-                repliedMessage: repliedMessage,
-                showUserNames: showUserNames,
+              Expanded(
+                child: Container(
+                  padding: EdgeInsets.only(left: 4, right: 4, top: 4),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      color: Colors.grey.shade100),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildPreview(),
+                      _buildReplyInfoSection(
+                        closable: _closable,
+                        isCurrentUser: _isCurrentUser,
+                        text: _text,
+                        repliedMessage: repliedMessage,
+                        showUserNames: showUserNames,
+                      ),
+                    ],
+                  ),
+                ),
               ),
               if (_closable)
                 _buildCloseReplyButton(
@@ -550,11 +588,11 @@ enum ReplyType {
   video,
   none,
   custom,
-  sticker, // Thêm sticker
-  products, // Thêm products
-  generic, // Thêm generic
-  system, // Thêm system
-  zp_list, // Thêm zp_list
-  oa_template, // Thêm oa_template
-  oa_list // Thêm oa_list
+  sticker,
+  products,
+  generic,
+  system,
+  zp_list,
+  oa_template,
+  oa_list
 }
