@@ -33,7 +33,7 @@ Widget customMessageBuilder(types.CustomMessage message,
 
     case 'zp_list':
       return buildZpListWidget(message, messageWidth);
-      // return Text('return buildZpListWidget(message, messageWidth);');
+    // return Text('return buildZpListWidget(message, messageWidth);');
 
     default:
       return const SizedBox.shrink();
@@ -153,9 +153,14 @@ Widget buildGenericTemplateWidget(
                 ...buttons.map((button) {
                   final title = (button['title'] ?? 'Button').toString();
                   final payload = button['payload'];
+                  final url = button['url'];
                   return SizedBox(
                     width: double.infinity,
                     child: InkWell(
+                      onTap: () async {
+                        await launchUrl(Uri.parse(url),
+                            mode: LaunchMode.externalApplication);
+                      },
                       child: CustomButton(
                         backgroundColor: AppColors.blueColor,
                         text: title,
@@ -339,7 +344,6 @@ Widget buildZpListWidget(types.CustomMessage message, int messageWidth) {
     onTap: () => _openUrl(href),
     child: Container(
       padding: const EdgeInsets.all(12),
-      
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

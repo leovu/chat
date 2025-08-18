@@ -701,8 +701,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     });
   }
 
-  void _handleSendPressed(types.PartialText message,
-      {types.Message? repliedMessage, types.TextMessage? isEdit}) {
+  void _handleSendPressed(types.PartialText message,{types.Message? repliedMessage, types.TextMessage? isEdit}) {
     String id = const Uuid().v4();
     final textMessage = types.TextMessage(
         author: _user,

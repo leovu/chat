@@ -396,11 +396,13 @@ class ChatConnection {
     Map<String, dynamic> json = {
       'authorID': authorId,
       'content': message,
-      'contentType': "text",
+      // 'contentType': "text",
+      'type': 'text',
       'roomID': room?.sId
     };
     if (reppliedMessageId != null) {
       json['replies'] = reppliedMessageId;
+      json['action'] = 'reply';
     }
     String version = ChatConnection.isChatHub ? '/v2' : '';
     ResponseData responseData =
