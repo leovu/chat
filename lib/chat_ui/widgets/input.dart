@@ -687,7 +687,7 @@ class _InputState extends State<Input> {
                                                     width: MediaQuery.sizeOf(
                                                             context)
                                                         .width,
-                                                    height: 170,
+                                                    height: 180,
                                                     // height: MediaQuery.sizeOf(
                                                     //         context)
                                                     //     .width,

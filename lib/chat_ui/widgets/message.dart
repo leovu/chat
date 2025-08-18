@@ -215,16 +215,17 @@ class Message extends StatelessWidget {
         : enlargeEmojis && hideBackgroundOnEmojiMessages
             ? _messageBuilder()
             : Container(
+              padding: EdgeInsets.symmetric(horizontal: 4),
                 key: key,
                 decoration: BoxDecoration(
-                  borderRadius: borderRadius,
+                  borderRadius: BorderRadius.circular(12), //borderRadius,
                   color: !currentUserIsAuthor ||
                           message.type == types.MessageType.image
                       ? InheritedChatTheme.of(context).theme.secondaryColor
                       : InheritedChatTheme.of(context).theme.primaryColor,
                 ),
                 child: ClipRRect(
-                  borderRadius: borderRadius,
+                  borderRadius: BorderRadius.circular(12), // borderRadius,
                   child: _messageBuilder(),
                 ),
               );

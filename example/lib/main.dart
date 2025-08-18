@@ -153,7 +153,7 @@ class _MyAppState extends State<MyApp> {
                       // //
                       token:
                           "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyZmQwMjA0ZDcwMzNlMjRkYTc5YzYwNiIsInVpZCI6MSwic2lkIjoiYWRtaW4iLCJlbWFpbCI6InZ1QHBpb2FwcHMudm4iLCJsZXZlbCI6InJvb3QiLCJmaXJzdE5hbWUiOiJBZG1pbiIsImxhc3ROYW1lIjoiVXNlciIsInVzZXJuYW1lIjoiYWRtaW4iLCJicmFuZF9jb2RlIjoic2FsZSIsImlhdCI6MTc1NDY0MDM3MiwiZXhwIjoxNzU5ODI0MzcyfQ.iR47mQVLVqx2CEDYBwn_iu3L-wFt4Hc7b_ixz1RXVek",
-                      // roomId: '632a88f7dd01b42c37330585'
+                      roomId: '632bd1f3dd01b42c37330603'
                       );
 
                   // Chat.open(context,_userNameController.value.text, _passwordController.value.text, 'assets/icon-app.png',const Locale(LangKey.langVi, 'VN'), domain: _domainController.value.text,brandCode: 'qc',isChatHub: true,
