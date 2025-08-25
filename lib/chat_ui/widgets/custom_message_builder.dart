@@ -150,7 +150,7 @@ Widget buildGenericTemplateWidget(
                 const SizedBox(height: 12),
                 ...buttons.map((button) {
                   final title = (button['title'] ?? 'Button').toString();
-                  final payload = button['payload'];
+                  // final payload = button['payload'];
                   final url = button['url'];
                   return SizedBox(
                     width: double.infinity,
@@ -263,7 +263,7 @@ Widget buildFileWidget(types.FileMessage fileMessage,
                   overflow: TextOverflow.ellipsis,
                   '${(fileMessage.size / 1024).toStringAsFixed(2)} KB',
                   style: TextStyle(
-                    color: Colors.black.withOpacity(0.6),
+                    color: Colors.black.withValues(alpha: 0.6),
                     fontSize: 12,
                   ),
                 ),

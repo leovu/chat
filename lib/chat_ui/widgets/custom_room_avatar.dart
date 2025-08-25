@@ -17,7 +17,6 @@ class GroupAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final double avatarSize = size * 0.5; // kích thước từng avatar
-    final double offset = size * 0.25; // khoảng cách tam giác
 
     return SizedBox(
       width: size,

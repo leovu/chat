@@ -7,7 +7,6 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/chat_screen/forward_screen.dart';
 import 'package:chat/chat_ui/flutter_chat_ui.dart';
-import 'package:chat/chat_ui/widgets/custom_room_avatar.dart';
 import 'package:chat/connection/app_lifecycle.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/download.dart';
