@@ -1036,7 +1036,7 @@ class Messages {
 
             final List<Map<String, dynamic>> items = (rawItems is List)
                 ? rawItems
-                    .whereType<Map>() 
+                    .whereType<Map>()
                     .map((e) =>
                         e.cast<String, dynamic>()) // cast key/value đúng kiểu
                     .toList()
@@ -1215,6 +1215,7 @@ class Author {
   String? lastName;
   String? lastOnline;
   File? picture;
+  String? avatar;
 
   Author(
       {sId,
@@ -1226,6 +1227,7 @@ class Author {
       phone,
       lastName,
       lastOnline,
+      avatar,
       picture});
 
   Author.fromJson(Map<String, dynamic> json) {
@@ -1235,6 +1237,7 @@ class Author {
     username = json['username'];
     firstName = json['firstName'];
     phone = json['phone'];
+    avatar = json['avatar'];
     lastName = json['lastName'];
     lastOnline = json['lastOnline'];
     try {

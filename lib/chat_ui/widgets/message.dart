@@ -215,7 +215,7 @@ class Message extends StatelessWidget {
         : enlargeEmojis && hideBackgroundOnEmojiMessages
             ? _messageBuilder()
             : Container(
-              padding: EdgeInsets.symmetric(horizontal: 4),
+                // padding: EdgeInsets.symmetric(horizontal: 4),
                 key: key,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12), //borderRadius,

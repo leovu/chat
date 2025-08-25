@@ -195,36 +195,61 @@ class _ImageMessageState extends State<ImageMessage> {
         ),
       );
     } else {
-      return Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Flexible(
-              child: Padding(
-            padding: EdgeInsets.all(widget.content != '' ? 8 : 0),
-            child: Container(
-              constraints: const BoxConstraints(maxHeight: 150),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (widget.message.repliedMessage != null)
-                    _repliedMessageBuilder(_user),
-                  Flexible(
-                    child: Image(
-                      fit: BoxFit.contain,
-                      image: _image!,
+      return Container(
+        decoration: BoxDecoration(
+          color: _user.id == widget.message.author.id
+              ? InheritedChatTheme.of(context).theme.primaryColor
+              : InheritedChatTheme.of(context).theme.secondaryColor,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Flexible(
+                child: Padding(
+              padding: EdgeInsets.all(widget.content != '' ? 8 : 0),
+              child: Container(
+                color: Colors.transparent,
+                constraints: const BoxConstraints(maxHeight: 150),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(6.0),
+                      child: Text(
+                        '${widget.message.author.firstName ?? ''}${widget.message.author.lastName ?? ''}',
+                        style: InheritedChatTheme.of(context)
+                            .theme
+                            .userNameTextStyle
+                            .copyWith(
+                                color: getUserAvatarNameColor(
+                                    widget.message.author,
+                                    InheritedChatTheme.of(context)
+                                        .theme
+                                        .userAvatarNameColors)),
+                      ),
                     ),
-                  ),
-                  if (widget.content != '') ...[
-                    Text(widget.content ?? ''),
-                    SizedBox(
-                      height: 8,
-                    )
-                  ]
-                ],
+                    if (widget.message.repliedMessage != null)
+                      _repliedMessageBuilder(_user),
+                    Flexible(
+                      child: Image(
+                        width: 100,
+                        fit: BoxFit.contain,
+                        image: _image!,
+                      ),
+                    ),
+                    if (widget.content != '') ...[
+                      Text(widget.content ?? ''),
+                      SizedBox(
+                        height: 8,
+                      )
+                    ],
+                  ],
+                ),
               ),
-            ),
-          ))
-        ],
+            ))
+          ],
+        ),
       );
     }
   }

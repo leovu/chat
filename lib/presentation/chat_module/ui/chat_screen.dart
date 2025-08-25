@@ -7,6 +7,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/chat_screen/forward_screen.dart';
 import 'package:chat/chat_ui/flutter_chat_ui.dart';
+import 'package:chat/chat_ui/widgets/custom_room_avatar.dart';
 import 'package:chat/connection/app_lifecycle.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/download.dart';
@@ -698,7 +699,8 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     });
   }
 
-  void _handleSendPressed(types.PartialText message, {types.Message? repliedMessage, types.TextMessage? isEdit}) {
+  void _handleSendPressed(types.PartialText message,
+      {types.Message? repliedMessage, types.TextMessage? isEdit}) {
     String id = const Uuid().v4();
     final textMessage = types.TextMessage(
         author: _user,
@@ -1491,9 +1493,15 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
-                child: buildAvatar(),
-              ),
+                  padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
+                  child: buildAvatar(),
+                  // GroupAvatar(
+                  //   img1: safeAvatar(data?.room?.people, 3),
+                  //   img2: safeAvatar(data?.room?.people, 1),
+                  //   img3: safeAvatar(data?.room?.people, 2),
+                  //   size: 40,
+                  // )
+                  ),
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.only(left: 10.0),

@@ -7,6 +7,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/chat_screen/filter_chathub_screen.dart';
 import 'package:chat/chat_screen/home_screen.dart';
 import 'package:chat/chat_ui/widgets/chat_room_widget.dart';
+import 'package:chat/chat_ui/widgets/custom_room_avatar.dart';
 import 'package:chat/common/assets.dart';
 import 'package:chat/common/global.dart';
 import 'package:chat/common/shared_prefs/shared_prefs_key.dart';
@@ -1140,30 +1141,32 @@ class _RoomListScreenState extends State<RoomListScreen>
                               ? CircleAvatar(
                                   radius: 25.0,
                                   child: Text(
-                                    // data.owner!.avatar!,
                                     data.getAvatarGroupName(),
                                     style: const TextStyle(color: Colors.white),
                                   ),
                                 )
-                              : CircleAvatar(
-                                  radius: 25.0,
-                                  backgroundImage: CachedNetworkImageProvider(
-                                      data.avatar!,
-                                      headers: {
-                                        'brand-code': ChatConnection.brandCode!
-                                      }),
-                                  backgroundColor: Colors.transparent,
+                              : GroupAvatar(
+                                  img1: data.people?[0].avatar ?? '',
+                                  img2: data.people?[1].avatar ?? '',
+                                  img3: data.people?[2].avatar ?? '',
+                                  size: 50,
                                 ),
+                      // CircleAvatar(
+                      //     radius: 25.0,
+                      //     backgroundImage: CachedNetworkImageProvider(
+                      //         data.avatar!,
+                      //         headers: {
+                      //           'brand-code': ChatConnection.brandCode!
+                      //         }),
+                      //     backgroundColor: Colors.transparent,
+                      //   ),
                       if (data.source != null)
                         Positioned(
-                            right: -8.0,
-                            bottom: 0.0,
+                            right: -7.0,
+                            bottom: -2.0,
                             child: Padding(
                               padding: const EdgeInsets.only(right: 6.0),
                               child: Container(
-                                decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(20.0)),
                                 child: Image.asset(
                                   data.source == 'zalo'
                                       ? 'assets/icon-zalo.png'
@@ -1173,8 +1176,8 @@ class _RoomListScreenState extends State<RoomListScreen>
                                               ? 'assets/icon-facebook.png'
                                               : 'assets/icon_zalo_personal.png',
                                   package: 'chat',
-                                  width: 25.0,
-                                  height: 25.0,
+                                  width: 20.0,
+                                  height: 20.0,
                                 ),
                               ),
                             )),
@@ -1205,10 +1208,10 @@ class _RoomListScreenState extends State<RoomListScreen>
                                 ),
                               ),
                             Expanded(
-                              child: // Text(data.room_name!)
+                              child: 
                                   Text(
                                 !data.isGroup!
-                                    ? '${data.owner!.firstName} ${data.owner!.lastName}'
+                                    ? '${data.owner?.firstName} ${data.owner?.lastName}'
                                     : data.room_name != null
                                         ? data.room_name!
                                         : data.title ??
