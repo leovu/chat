@@ -185,13 +185,12 @@ class ChatConnection {
     ;
     String url =
         ChatConnection.isChatHub ? 'api/v3/list-rooms' : 'api/rooms/list';
-    // String url = 'api/v3/list-rooms';
     ResponseData responseData = await connection.post(url, json);
     if (responseData.isSuccess) {
       /// xử lý add room với trường hợp loadmore
       r.Room room = r.Room.fromJson(responseData.data);
       if (ChatConnection.isChatHub) {
-        await notificationCount();
+        // await notificationCount();
       }
       if (page != 1) {
         if (roomData != null) {
