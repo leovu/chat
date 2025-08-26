@@ -82,8 +82,8 @@ class _RoomListScreenState extends State<RoomListScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _getRooms();
       checkUserToken();
+      _getRooms();
       _listViewController = ScrollController()..addListener(_scrollListener);
     });
   }
@@ -99,15 +99,15 @@ class _RoomListScreenState extends State<RoomListScreen>
   final RefreshController _refreshController =
       RefreshController(initialRefresh: false);
 
-  void _scrollListener() {
+  void _scrollListener() async {
     if (_listViewController.position.maxScrollExtent ==
         _listViewController.offset) {
-      _getRooms(page: _currentPage + 1);
+      await _getRooms(page: _currentPage + 1);
     }
   }
 
-  void _onRefresh() async {
-    await Future.delayed(const Duration(milliseconds: 1000));
+  _onRefresh() async {
+    _controllerSearch.text = '';
     await _getRooms();
     _refreshController.refreshCompleted();
     setState(() {
@@ -115,14 +115,15 @@ class _RoomListScreenState extends State<RoomListScreen>
     });
   }
 
-  void _onLoading() async {
-    await Future.delayed(const Duration(milliseconds: 1000));
-    await _getRooms();
+  _onLoading() async {
+    if (_currentPage == 1) {
+      await _getRooms(page: _currentPage + 1);
+    }
     _refreshController.loadComplete();
   }
 
-  checkUserToken() {
-    ChatConnection.checkUserToken();
+  checkUserToken() async {
+    await ChatConnection.checkUserToken();
   }
 
   _getRooms({int page = 1}) async {
@@ -141,12 +142,13 @@ class _RoomListScreenState extends State<RoomListScreen>
       );
       _getRoomVisible();
       isInitScreen = false;
-      setState(() {});
       if (ChatConnection.isChatHub) {
         if (widget.refreshTabNoti != null) {
           widget.refreshTabNoti!();
         }
       }
+
+      setState(() {});
     } else {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         roomListData = await ChatConnection.roomList(
@@ -155,6 +157,7 @@ class _RoomListScreenState extends State<RoomListScreen>
             status: status,
             tagIds: tagIds,
             page: page,
+            keyword: _controllerSearch.value.text,
             roomData: roomListData,
             link_status: link_status,
             isGroup: isGroup,
@@ -162,12 +165,13 @@ class _RoomListScreenState extends State<RoomListScreen>
             startDate: startDay);
         _getRoomVisible();
         isInitScreen = false;
-        setState(() {});
         if (ChatConnection.isChatHub) {
           if (widget.refreshTabNoti != null) {
             widget.refreshTabNoti!();
           }
         }
+
+        setState(() {});
       });
     }
     if (page != 1)
@@ -201,6 +205,8 @@ class _RoomListScreenState extends State<RoomListScreen>
       } catch (_) {}
       setState(() {});
     }
+
+    isInitScreen = false;
   }
 
   void filter() async {
@@ -499,6 +505,7 @@ class _RoomListScreenState extends State<RoomListScreen>
                               _debounce =
                                   Timer(const Duration(milliseconds: 300), () {
                                 setState(() {
+                                  isInitScreen = true;
                                   _getRoomVisible();
                                 });
                               });
@@ -524,6 +531,7 @@ class _RoomListScreenState extends State<RoomListScreen>
                                 _controllerSearch.text = '';
                                 FocusManager.instance.primaryFocus?.unfocus();
                                 setState(() {
+                                  isInitScreen = true;
                                   _getRoomVisible();
                                 });
                               },
@@ -544,36 +552,60 @@ class _RoomListScreenState extends State<RoomListScreen>
                     : roomListVisible?.rooms != null
                         ? SmartRefresher(
                             enablePullDown: true,
-                            enablePullUp: false,
+                            enablePullUp: true,
                             controller: _refreshController,
                             onRefresh: _onRefresh,
                             onLoading: _onLoading,
                             header: const WaterDropHeader(),
+                            footer: CustomFooter(
+                              builder:
+                                  (BuildContext context, LoadStatus? mode) {
+                                Widget body;
+                                if (mode == LoadStatus.failed) {
+                                  body = const Text(
+                                      "Tải thêm thất bại! Nhấn để thử lại.");
+                                } else {
+                                  body = Platform.isAndroid
+                                      ? const SizedBox(
+                                          width: 24,
+                                          height: 24,
+                                          child: CircularProgressIndicator(
+                                              strokeWidth: 3),
+                                        )
+                                      : const CupertinoActivityIndicator();
+                                }
+                                return SizedBox(
+                                  height: 60,
+                                  child: Center(child: body),
+                                );
+                              },
+                            ),
                             child: ListView.builder(
-                                controller: _listViewController,
-                                keyboardDismissBehavior:
-                                    ScrollViewKeyboardDismissBehavior.onDrag,
-                                itemCount: (ChatConnection.openChatGPT != null)
-                                    ? (roomListVisible!.rooms?.length ?? 0) + 1
-                                    : (roomListVisible!.rooms?.length ?? 0),
-                                itemBuilder: (BuildContext context, int index) {
-                                  int position =
-                                      (ChatConnection.openChatGPT != null)
-                                          ? index - 1
-                                          : index;
-                                  if (ChatConnection.openChatGPT != null &&
-                                      index == 0) {
-                                    return InkWell(
-                                        onTap: () {
-                                          ChatConnection.openChatGPT!();
-                                        },
-                                        child: _gptRoom(
-                                            !(roomListVisible?.rooms != null &&
-                                                roomListVisible!
-                                                    .rooms!.isNotEmpty)));
-                                  }
-                                  return parseRoom(position);
-                                }),
+                              controller: _listViewController,
+                              keyboardDismissBehavior:
+                                  ScrollViewKeyboardDismissBehavior.onDrag,
+                              itemCount: (ChatConnection.openChatGPT != null)
+                                  ? (roomListVisible?.rooms?.length ?? 0) + 1
+                                  : (roomListVisible?.rooms?.length ?? 0),
+                              itemBuilder: (BuildContext context, int index) {
+                                int position =
+                                    (ChatConnection.openChatGPT != null)
+                                        ? index - 1
+                                        : index;
+                                if (ChatConnection.openChatGPT != null &&
+                                    index == 0) {
+                                  return InkWell(
+                                    onTap: () {
+                                      ChatConnection.openChatGPT!();
+                                    },
+                                    child: _gptRoom(!(roomListVisible?.rooms !=
+                                            null &&
+                                        roomListVisible!.rooms!.isNotEmpty)),
+                                  );
+                                }
+                                return parseRoom(position);
+                              },
+                            ),
                           )
                         : Container(),
               ),
@@ -613,7 +645,7 @@ class _RoomListScreenState extends State<RoomListScreen>
                       ),
                   settings: const RouteSettings(name: 'chat_screen')),
             );
-            _getRooms();
+            // _getRooms();
           },
           child: Slidable(
               enabled: !ChatConnection.isChatHub,
@@ -805,20 +837,6 @@ class _RoomListScreenState extends State<RoomListScreen>
                   if (value) {
                     _getRooms();
                   } else {
-                    // await showInfoDialog(
-                    //   isError: true,
-                    //   content: AppLocalizations.text(LangKey.deleteError),
-                    //   context,
-                    //   AppLocalizations.text(LangKey.warning),
-                    //   () {
-                    //     ElevatedButton(
-                    //         onPressed: () {
-                    //           Navigator.pop(cxt);
-                    //         },
-                    //         child: Text(AppLocalizations.text(LangKey.accept)));
-                    //   },
-                    //   onCancel: () {},
-                    // );
                     showDialog(
                       context: context,
                       builder: (cxxt) => AlertDialog(
@@ -1208,8 +1226,7 @@ class _RoomListScreenState extends State<RoomListScreen>
                                 ),
                               ),
                             Expanded(
-                              child: 
-                                  Text(
+                              child: Text(
                                 !data.isGroup!
                                     ? '${data.owner?.firstName} ${data.owner?.lastName}'
                                     : data.room_name != null

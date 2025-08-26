@@ -1494,12 +1494,6 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
               Padding(
                   padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
                   child: buildAvatar(),
-                  // GroupAvatar(
-                  //   img1: safeAvatar(data?.room?.people, 3),
-                  //   img2: safeAvatar(data?.room?.people, 1),
-                  //   img3: safeAvatar(data?.room?.people, 2),
-                  //   size: 40,
-                  // )
                   ),
               Expanded(
                 child: Padding(

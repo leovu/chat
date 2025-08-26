@@ -171,7 +171,7 @@ class ChatConnection {
     isGroup == true ? json['is_group'] = isGroup : null;
     keyword != null ? json['keyword'] = keyword : null;
 
-    json['limit'] = 100;
+    json['limit'] = 15;
     if (tagIds != null && tagIds.isNotEmpty) {
       final parsedTagIds = tagIds
           .where((e) => e != null) // lọc null và parse lỗi

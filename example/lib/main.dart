@@ -146,7 +146,7 @@ class _MyAppState extends State<MyApp> {
                       const Locale(LangKey.langVi, 'VI'),
                       domain: 'https://chathub.epoints.vn/',
                       // domain: 'https://chat.epoints.vn/',E:\WAO\EP\chatHub\lib\chat_ui\widgets\input.dart
-                      brandCode: 'sale',
+                      brandCode: 'bonboz',
                       isChatHub: true,
                       // token:
                       //     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ZmNjMjM1ZDAwYzZjMDAxMjVlZmViNSIsInNpZCI6ImFkbWluQHBpb2FwcHMudm4iLCJlbWFpbCI6InlvdXJfZW1haWxAZXhhbXBsZS5jb20iLCJsZXZlbCI6InN0YW5kYXJkIiwiZmlyc3ROYW1lIjoiSm9obiIsImxhc3ROYW1lIjoiRG9lIiwidXNlcm5hbWUiOiJhZG1pbkBwaW9hcHBzLnZuIiwiYnJhbmQiOiJzYWxlIiwiaWF0IjoxNzQ2NjA2NTc3LCJleHAiOjE3NTE3OTA1Nzd9.uCwGYgHPImV6PYhRQ5EBiUBppV9vNzvBsekHcuiJu-k");
