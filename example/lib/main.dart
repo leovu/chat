@@ -146,14 +146,14 @@ class _MyAppState extends State<MyApp> {
                       const Locale(LangKey.langVi, 'VI'),
                       domain: 'https://chathub.epoints.vn/',
                       // domain: 'https://chat.epoints.vn/',E:\WAO\EP\chatHub\lib\chat_ui\widgets\input.dart
-                      brandCode: 'bonboz',
+                      brandCode: 'sale',
                       isChatHub: true,
                       // token:
                       //     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ZmNjMjM1ZDAwYzZjMDAxMjVlZmViNSIsInNpZCI6ImFkbWluQHBpb2FwcHMudm4iLCJlbWFpbCI6InlvdXJfZW1haWxAZXhhbXBsZS5jb20iLCJsZXZlbCI6InN0YW5kYXJkIiwiZmlyc3ROYW1lIjoiSm9obiIsImxhc3ROYW1lIjoiRG9lIiwidXNlcm5hbWUiOiJhZG1pbkBwaW9hcHBzLnZuIiwiYnJhbmQiOiJzYWxlIiwiaWF0IjoxNzQ2NjA2NTc3LCJleHAiOjE3NTE3OTA1Nzd9.uCwGYgHPImV6PYhRQ5EBiUBppV9vNzvBsekHcuiJu-k");
                       // //
                       token:
-                          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyZmQwMjA0ZDcwMzNlMjRkYTc5YzYwNiIsInVpZCI6MSwic2lkIjoiYWRtaW4iLCJlbWFpbCI6InZ1QHBpb2FwcHMudm4iLCJsZXZlbCI6InJvb3QiLCJmaXJzdE5hbWUiOiJBZG1pbiIsImxhc3ROYW1lIjoiVXNlciIsInVzZXJuYW1lIjoiYWRtaW4iLCJicmFuZF9jb2RlIjoic2FsZSIsImlhdCI6MTc1NDY0MDM3MiwiZXhwIjoxNzU5ODI0MzcyfQ.iR47mQVLVqx2CEDYBwn_iu3L-wFt4Hc7b_ixz1RXVek",
-                      // roomId: '632bd1f3dd01b42c37330603'
+                          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyZmQwMjA0ZDcwMzNlMjRkYTc5YzYwNiIsInVpZCI6MSwic2lkIjoiYWRtaW4iLCJlbWFpbCI6InZ1QHBpb2FwcHMudm4iLCJsZXZlbCI6InJvb3QiLCJmaXJzdE5hbWUiOiJBZG1pbiIsImxhc3ROYW1lIjoiVXNlciIsInVzZXJuYW1lIjoiYWRtaW4iLCJicmFuZF9jb2RlIjoic2FsZSIsImlhdCI6MTc1NjE5NzY0MSwiZXhwIjoxNzYxMzgxNjQxfQ.G9JDudw09AuBnJQHGfdFbX59l6LBaz44XlUPAFLKEaM",
+                      // roomId: '632a88f7dd01b42c37330585'
                       );
 
                   // Chat.open(context,_userNameController.value.text, _passwordController.value.text, 'assets/icon-app.png',const Locale(LangKey.langVi, 'VN'), domain: _domainController.value.text,brandCode: 'qc',isChatHub: true,
