@@ -170,9 +170,11 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
             data?.room,
             ChatConnection.checkUserTokenResponseModel?.user?.sId ?? '',
             reppliedMessageId: repliedMessageId);
+      } else {
+        _loadMessages();
       }
     }
-    // _loadMessages();
+
     if (mounted) {
       setState(() {});
     }
