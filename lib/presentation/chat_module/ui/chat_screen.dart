@@ -140,7 +140,6 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       String? repliedMessageId,
       types.TextMessage? isEdit}) async {
     if (isEdit != null) {
-      print('___________________isEdit != null');
       types.Message ms =
           _messages.firstWhere((element) => element.id == isEdit.id);
       final textMessage = types.TextMessage(
@@ -161,9 +160,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       await ChatConnection.updateChat(message.text, ms.id, data?.room,
           reppliedMessageId: reppliedMessageId);
     } else {
-       print('___________________isEdit == null');
-      // _messages.insert(0, message);
-      print('____________________messages.insert(0, message);');
+      _messages.insert(0, message);
       if (message.type.name == 'text') {
         note = await ChatConnection.sendChat(
             data,
@@ -174,10 +171,8 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
             ChatConnection.checkUserTokenResponseModel?.user?.sId ?? '',
             reppliedMessageId: repliedMessageId);
       }
-      print('___________________end Edit');
     }
-    print('___________________loadMessage');
-    _loadMessages();
+    // _loadMessages();
     if (mounted) {
       setState(() {});
     }
@@ -705,7 +700,6 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
 
   void _handleSendPressed(types.PartialText message,
       {types.Message? repliedMessage, types.TextMessage? isEdit}) {
-        print('___________________loadMessage1');
     String id = const Uuid().v4();
     final textMessage = types.TextMessage(
         author: _user,
@@ -713,7 +707,6 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         id: id,
         text: message.text,
         repliedMessage: repliedMessage);
-         print('___________________loadMessage2');
     _addMessage(textMessage, id,
         text: message.text,
         repliedMessageId: repliedMessage?.id,

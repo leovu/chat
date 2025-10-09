@@ -946,7 +946,7 @@ class _RoomListScreenState extends State<RoomListScreen>
 
       return roomChatHubWidget(data, author!, isLast);
     } else {
-      return roomWidget(data, owner??Owner(), author, isLast);
+      return roomWidget(data, owner ?? Owner(), author, isLast);
     }
   }
 
@@ -1015,9 +1015,9 @@ class _RoomListScreenState extends State<RoomListScreen>
                             Expanded(
                               child: Text(
                                 !data.isGroup!
-                                    ? '${people.firstName} ${people.lastName}'
+                                    ? '${people.firstName ?? 'Unknow'} ${people.lastName ?? 'User'}'
                                     : data.title ??
-                                        '${AppLocalizations.text(LangKey.group)} ${people.firstName} ${people.lastName}',
+                                        '${AppLocalizations.text(LangKey.group)} ${people.firstName ?? ''} ${people.lastName ?? ''}',
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
                                 style: TextStyle(
