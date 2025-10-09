@@ -159,7 +159,6 @@ class ChatConnection {
     bool? isGroup,
     String? keyword,
   }) async {
-    /// thay đổi limit thành page, truyền page loadmore vô chỗ này + list truyền room ra
     Map<String, dynamic> json = {'page': page};
     if (source != null) json['source'] = source;
     if (channelId != null) json['channel_id'] = channelId;
@@ -174,8 +173,8 @@ class ChatConnection {
     json['limit'] = 15;
     if (tagIds != null && tagIds.isNotEmpty) {
       final parsedTagIds = tagIds
-          .where((e) => e != null) // lọc null và parse lỗi
-          .map((e) => e!) // an toàn vì đã lọc ở trên
+          .where((e) => e != null) 
+          .map((e) => e!) 
           .toList();
 
       if (parsedTagIds.isNotEmpty) {
@@ -187,16 +186,16 @@ class ChatConnection {
         ChatConnection.isChatHub ? 'api/v3/list-rooms' : 'api/rooms/list';
     ResponseData responseData = await connection.post(url, json);
     if (responseData.isSuccess) {
-      /// xử lý add room với trường hợp loadmore
       r.Room room = r.Room.fromJson(responseData.data);
       if (ChatConnection.isChatHub) {
         // await notificationCount();
       }
-      if (page != 1) {
-        if (roomData != null) {
-          roomData.rooms!.addAll(room.rooms!);
-          return roomData;
-        }
+      if (page != 1 && roomData != null) {
+        final existingIds = roomData.rooms!.map((r) => r.sId).toSet();
+        final newRooms =
+            room.rooms!.where((r) => !existingIds.contains(r.sId)).toList();
+        roomData.rooms!.addAll(newRooms);
+        return roomData;
       } else
         return room;
     }
@@ -259,7 +258,7 @@ class ChatConnection {
 
   static Future<c.ChatMessage?> joinRoom(String id,
       {bool refresh = false}) async {
-    // String version = ChatConnection.isChatHub ? '/v3' : '';// Lỗi chat 404
+    // String version = ChatConnection.isChatHub ? '/v3' : '';
     try {
       String url =
           ChatConnection.isChatHub ? 'api/v3/join-room' : 'api/room/join';
@@ -313,12 +312,6 @@ class ChatConnection {
       "type_social": source,
       "social_id": socialId
     };
-    // if (customerId != null) {
-    //   json['customer_id'] = customerId;
-    // }
-    // if (customerLeadId != null) {
-    //   json['customer_id'] = customerLeadId;
-    // }
     ResponseData responseData =
         await connection.post('api/customer/link', json);
     if (responseData.isSuccess) {
@@ -385,54 +378,97 @@ class ChatConnection {
   }
 
   static Future<String?> sendChat(
-      c.ChatMessage? data,
-      List<types.Message> listMessage,
-      String id,
-      String? message,
-      c.Room? room,
-      String authorId,
-      {String? reppliedMessageId}) async {
-    Map<String, dynamic> json = {
+    c.ChatMessage? data,
+    List<types.Message> listMessage,
+    String id,
+    String? message,
+    c.Room? room,
+    String authorId, {
+    String? reppliedMessageId,
+  }) async {
+    final json = {
       'authorID': authorId,
-      'content': message,
-      // 'contentType': "text",
+      'content': message ?? '',
       'type': 'text',
-      'roomID': room?.sId
+      'roomID': room?.sId ?? '',
+      if (reppliedMessageId != null) ...{
+        'replies': reppliedMessageId,
+        'action': 'reply',
+      }
     };
-    if (reppliedMessageId != null) {
-      json['replies'] = reppliedMessageId;
-      json['action'] = 'reply';
-    }
-    String version = ChatConnection.isChatHub ? '/v2' : '';
-    ResponseData responseData =
+
+    final version = ChatConnection.isChatHub ? '/v2' : '';
+    final ResponseData responseData =
         await connection.post('api$version/message', json);
-    if (responseData.isSuccess) {
-      streamSocket.sendMessage(message, room);
-      types.Message val = listMessage.firstWhere((element) => element.id == id);
-      int index = listMessage.indexOf(val);
-      c.Messages valueResponse =
-          c.Messages.fromJson(responseData.data['data']['message']);
-      listMessage[index] = types.TextMessage(
-          author: listMessage[index].author,
-          createdAt: listMessage[index].createdAt,
-          id: valueResponse.sId!,
-          text: (listMessage[index] as types.TextMessage).text,
-          repliedMessage: listMessage[index].repliedMessage,
-          status: (responseData.data['error'] == 0) ? null : types.Status.error,
-          metadata: (responseData.data['message'] != null)
-              ? {"error_message": responseData.data['message']}
-              : null);
-      data?.room?.messages?.insert(0, valueResponse);
-      if (responseData.data['data']['quota'] != null) {
-        if (responseData.data['data']['quota']['type'] == 'OA Tier') {
-          return AppLocalizations.text(LangKey.zaloSendOATier);
-        } else if (responseData.data['data']['quota']['type'] == 'reply') {
-          return '${AppLocalizations.text(LangKey.zaloSendReply1)}${responseData.data['data']['quota']['remain']}/${responseData.data['data']['quota']['total']}${AppLocalizations.text(LangKey.zaloSendReply2)}';
-        } else {
-          return AppLocalizations.text(LangKey.zaloSendOther);
-        }
+
+    if (!responseData.isSuccess) return null;
+
+    streamSocket.sendMessage(message, room);
+
+    final defaultAuthor = types.User(id: 'default-user');
+
+    final val = listMessage.cast<types.Message?>().firstWhere(
+          (element) => element?.id == id,
+          orElse: () => types.TextMessage(
+            id: 'default-id',
+            author: defaultAuthor,
+            text: '',
+            createdAt: DateTime.now().millisecondsSinceEpoch,
+          ),
+        )!;
+
+    final index = listMessage.indexWhere((element) => element.id == val.id);
+
+    final targetIndex = index != -1 ? index : listMessage.length;
+
+    final messageJson = responseData.data?['data']?['message'];
+    if (messageJson == null) return null;
+
+    final valueResponse = c.Messages.fromJson(messageJson);
+
+    final oldMessage = index != -1 ? listMessage[index] : val;
+    listMessage.length <= targetIndex
+        ? listMessage.add(types.TextMessage(
+            author: oldMessage.author,
+            createdAt: oldMessage.createdAt,
+            id: valueResponse.sId ?? 'default-id',
+            text: (oldMessage as types.TextMessage).text,
+            repliedMessage: oldMessage.repliedMessage,
+            status:
+                (responseData.data?['error'] == 0) ? null : types.Status.error,
+            metadata: responseData.data?['message'] != null
+                ? {'error_message': responseData.data!['message']}
+                : null,
+          ))
+        : listMessage[targetIndex] = types.TextMessage(
+            author: oldMessage.author,
+            createdAt: oldMessage.createdAt,
+            id: valueResponse.sId ?? 'default-id',
+            text: (oldMessage as types.TextMessage).text,
+            repliedMessage: oldMessage.repliedMessage,
+            status:
+                (responseData.data?['error'] == 0) ? null : types.Status.error,
+            metadata: responseData.data?['message'] != null
+                ? {'error_message': responseData.data!['message']}
+                : null,
+          );
+
+    // Thêm message vào room
+    data?.room?.messages?.insert(0, valueResponse);
+
+    // Xử lý quota
+    final quota = responseData.data?['data']?['quota'];
+    if (quota != null) {
+      final type = quota['type'];
+      if (type == 'OA Tier') {
+        return AppLocalizations.text(LangKey.zaloSendOATier);
+      } else if (type == 'reply') {
+        return '${AppLocalizations.text(LangKey.zaloSendReply1)}${quota['remain'] ?? 0}/${quota['total'] ?? 0}${AppLocalizations.text(LangKey.zaloSendReply2)}';
+      } else {
+        return AppLocalizations.text(LangKey.zaloSendOther);
       }
     }
+
     return null;
   }
 

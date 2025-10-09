@@ -681,6 +681,27 @@ class Messages {
     message.file = _safeParse(() => File.fromJson(json['file']));
     message.staff = _safeParse(() => Staff.fromJson(json['staff']));
     message.photos = _safeParse(() => Photos.fromJson(json['photos']));
+
+    if (message.type == 'image_url') {
+      final imageUrl = message.content ?? '';
+
+      if (imageUrl.isNotEmpty) {
+        // Gắn giá trị image và photos dựa trên content
+        message.image = ImageInfo(
+          name: imageUrl.split('/').last,
+          location: imageUrl,
+          size: 0,
+          shieldedID: imageUrl.split('/').last,
+        );
+
+        message.photos = Photos(
+          original: imageUrl,
+          fullsize: imageUrl,
+          thumbnail: imageUrl,
+        );
+      }
+    }
+
     if (message.content == 'Message recalled') {
       message.content = AppLocalizations.text(LangKey.messageRecalled);
       message.edit = 0;
@@ -720,6 +741,7 @@ class Messages {
       'socialMessageId': socialMessageId,
       'sticker': sticker,
       'message_object': messageObject,
+      'image': image?.toJson(),
     };
   }
 
@@ -786,6 +808,16 @@ class Messages {
             (content != null && content!.isNotEmpty
                 ? '${HTTPConnection.domain}api/images/$content/${ChatConnection.brandCode}'
                 : null);
+        metadata['content'] = content;
+        break;
+
+      case 'image_url':
+        data['type'] = 'custom';
+        data['name'] = image?.name ?? 'external_image.jpg';
+        data['size'] = image?.size ?? 0;
+        data['uri'] = image?.location ?? photos?.original ?? content;
+        metadata['custom_type'] = 'image_url';
+        metadata['source'] = 'external';
         metadata['content'] = content;
         break;
 
@@ -918,6 +950,20 @@ class Messages {
                   : null);
           break;
 
+        case 'image_url':
+          repliedJson['type'] = 'image';
+          repliedJson['name'] = replies!.image?.name ?? 'external_image.jpg';
+          repliedJson['size'] = replies!.image?.size ?? 0;
+          repliedJson['uri'] = replies!.image?.location ??
+              replies!.photos?.original ??
+              replies!.content;
+          repliedJson['metadata'] = {
+            'custom_type': 'image_url',
+            'source': 'external',
+            'content': replies!.content,
+          };
+          break;
+
         case 'file_url':
           repliedJson['type'] = 'file';
           if (replies!.messageObject != null) {
@@ -996,38 +1042,6 @@ class Messages {
           repliedJson['type'] = 'custom';
           repliedJson['text'] = replies!.content ?? 'System Message';
           break;
-
-        // case 'zp_list':
-        //   {
-        //     repliedJson['type'] = 'custom';
-        //     repliedJson['custom_type'] = 'zp_list';
-
-        //     final rawItems = (replies is Map<String, dynamic>)
-        //         ? replies?.messageItems
-        //         : null;
-
-        //     final List<Map<String, dynamic>> items =
-        //         (rawItems is List) ? rawItems.cast<Map<String, dynamic>>() : [];
-
-        //     repliedJson['text'] = items.isNotEmpty
-        //         ? (items.first['title'] as String? ?? replies?.content ?? '')
-        //         : (replies?.content ?? '');
-
-        //     repliedJson['items'] = items
-        //         .map((item) => {
-        //               'title': item['title'] ?? '',
-        //               'description': item['description'] ?? '',
-        //               'href': item['href'] ?? '',
-        //               'thumb': item['thumb'] ?? '',
-        //               'childnumber': item['childnumber'] ?? 0,
-        //               'action': item['action'] ?? '',
-        //               'params': item['params'] ?? '',
-        //               'type': item['type'] ?? '',
-        //             })
-        //         .toList();
-
-        //     break;
-        //   }
 
         case 'zp_list':
           {
@@ -1710,20 +1724,22 @@ class ImageInfo {
   String? location;
   String? name;
   int? size;
+  String? shieldedID;
 
-  ImageInfo({this.location, this.name, this.size});
+  ImageInfo({this.location, this.name, this.size, this.shieldedID});
 
   factory ImageInfo.fromJson(Map<String, dynamic> json) {
     return ImageInfo(
-      location: json['location'] as String?,
-      name: json['name'] as String?,
-      size: json['size'] as int?,
-    );
+        location: (json['location'] ?? '') as String?,
+        name: (json['name'] ?? '') as String?,
+        size: (json['size'] ?? 0) as int?,
+        shieldedID: json['shieldedID'].toString());
   }
 
   Map<String, dynamic> toJson() => {
         'location': location,
         'name': name,
         'size': size,
+        'shieldedID': shieldedID
       };
 }

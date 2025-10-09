@@ -11,6 +11,9 @@ Widget customMessageBuilder(types.CustomMessage message,
   final customType = message.metadata?['custom_type'] as String?;
 
   switch (customType) {
+    case 'image_url':
+      return buildImageUrlWidget(message, messageWidth);
+
     case 'sticker':
       return buildStickerWidget(message);
 
@@ -229,7 +232,6 @@ Widget buildOaListWidget(types.CustomMessage message, int messageWidth) {
   );
 }
 
-
 Widget buildFileWidget(types.FileMessage fileMessage,
     {required int messageWidth}) {
   return Padding(
@@ -333,6 +335,28 @@ Widget buildZpListWidget(types.CustomMessage message, int messageWidth) {
           const SizedBox(height: 4),
           Text(description),
         ],
+      ),
+    ),
+  );
+}
+
+Widget buildImageUrlWidget(types.CustomMessage message, int messageWidth) {
+  final imageUrl = message.metadata?['content'] as String? ??
+      message.metadata?['url'] as String? ??
+      '';
+
+  if (imageUrl.isEmpty) return const SizedBox.shrink();
+
+  return ClipRRect(
+    borderRadius: BorderRadius.circular(12),
+    child: Image.network(
+      imageUrl,
+      width: messageWidth.toDouble() * 0.7,
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) => Container(
+        width: messageWidth.toDouble() * 0.7,
+        height: 100,
+        child: const Icon(Icons.broken_image, size: 100, color: Colors.grey),
       ),
     ),
   );

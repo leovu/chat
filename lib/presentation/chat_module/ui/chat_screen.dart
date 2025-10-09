@@ -140,6 +140,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       String? repliedMessageId,
       types.TextMessage? isEdit}) async {
     if (isEdit != null) {
+      print('___________________isEdit != null');
       types.Message ms =
           _messages.firstWhere((element) => element.id == isEdit.id);
       final textMessage = types.TextMessage(
@@ -151,7 +152,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       int index = _messages.indexOf(ms);
       _messages[index] = textMessage;
       if (mounted) {
-        // setState(() {});
+        setState(() {});
         int? index = listIdMessages[ms.id]!;
         scroll(index);
       }
@@ -160,7 +161,9 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       await ChatConnection.updateChat(message.text, ms.id, data?.room,
           reppliedMessageId: reppliedMessageId);
     } else {
-      _messages.insert(0, message);
+       print('___________________isEdit == null');
+      // _messages.insert(0, message);
+      print('____________________messages.insert(0, message);');
       if (message.type.name == 'text') {
         note = await ChatConnection.sendChat(
             data,
@@ -171,7 +174,9 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
             ChatConnection.checkUserTokenResponseModel?.user?.sId ?? '',
             reppliedMessageId: repliedMessageId);
       }
+      print('___________________end Edit');
     }
+    print('___________________loadMessage');
     _loadMessages();
     if (mounted) {
       setState(() {});
@@ -700,6 +705,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
 
   void _handleSendPressed(types.PartialText message,
       {types.Message? repliedMessage, types.TextMessage? isEdit}) {
+        print('___________________loadMessage1');
     String id = const Uuid().v4();
     final textMessage = types.TextMessage(
         author: _user,
@@ -707,6 +713,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         id: id,
         text: message.text,
         repliedMessage: repliedMessage);
+         print('___________________loadMessage2');
     _addMessage(textMessage, id,
         text: message.text,
         repliedMessageId: repliedMessage?.id,
@@ -1492,9 +1499,9 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                 ),
               ),
               Padding(
-                  padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
-                  child: buildAvatar(),
-                  ),
+                padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
+                child: buildAvatar(),
+              ),
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.only(left: 10.0),

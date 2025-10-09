@@ -946,7 +946,7 @@ class _RoomListScreenState extends State<RoomListScreen>
 
       return roomChatHubWidget(data, author!, isLast);
     } else {
-      return roomWidget(data, owner!, author, isLast);
+      return roomWidget(data, owner??Owner(), author, isLast);
     }
   }
 
