@@ -702,6 +702,15 @@ class Messages {
       }
     }
 
+    if (message.type == 'link') {
+      final linkText = message.content ?? '';
+      final url = message._extractFirstUrl(linkText);
+      message.messageObject = {
+        'url': url,
+        'text': linkText,
+      };
+    }
+
     if (message.content == 'Message recalled') {
       message.content = AppLocalizations.text(LangKey.messageRecalled);
       message.edit = 0;
@@ -821,6 +830,13 @@ class Messages {
         metadata['content'] = content;
         break;
 
+      case 'link':
+        data['type'] = 'custom';
+        metadata['custom_type'] = 'link';
+        metadata['text'] = content ?? '';
+        metadata['url'] = _extractFirstUrl(content ?? '');
+        break;
+
       case 'file':
         if (file != null) {
           data['type'] = 'file';
@@ -937,6 +953,18 @@ class Messages {
       } catch (_) {}
 
       switch (replies?.type) {
+        
+        case 'link':
+          repliedJson['type'] = 'custom';
+          repliedJson['text'] = replies!.content ?? '';
+          final url = _extractFirstUrl(replies!.content ?? '');
+          repliedJson['metadata'] = {
+            'custom_type': 'link',
+            'url': url,
+            'text': replies!.content,
+          };
+          break;
+
         case 'image':
           repliedJson['type'] = 'image';
           repliedJson['name'] = replies!.image?.name ?? 'image.jpg';
@@ -1122,6 +1150,23 @@ class Messages {
       data['repliedMessage'] = repliedJson;
     }
     return data;
+  }
+
+  String? _extractFirstUrl(String text) {
+    final urlPattern = RegExp(
+      r'((https?:\/\/)?([a-zA-Z0-9\-]+\.)+[a-zA-Z]{2,}(\/\S*)?)',
+      caseSensitive: false,
+    );
+    final match = urlPattern.firstMatch(text);
+    if (match != null) {
+      var url = match.group(0);
+      // Thêm https nếu thiếu
+      if (url != null && !url.startsWith('http')) {
+        url = 'https://$url';
+      }
+      return url;
+    }
+    return null;
   }
 }
 
