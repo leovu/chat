@@ -562,8 +562,7 @@ class _RoomListScreenState extends State<RoomListScreen>
                                   (BuildContext context, LoadStatus? mode) {
                                 Widget body;
                                 if (mode == LoadStatus.failed) {
-                                  body = const Text(
-                                      LangKey.load_more_failed);
+                                  body = const Text(LangKey.load_more_failed);
                                 } else {
                                   body = Platform.isAndroid
                                       ? const SizedBox(
