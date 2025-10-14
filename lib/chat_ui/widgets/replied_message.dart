@@ -491,23 +491,6 @@ class RepliedMessage extends StatelessWidget {
                   height: 1.5,
                 ),
               ),
-            Text(
-              closable
-                  ? text
-                  : '${repliedMessage?.author.firstName ?? ''} ${repliedMessage?.author.lastName ?? ''}',
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: closable
-                    ? Colors.grey
-                    : isCurrentUser
-                        ? Colors.grey.shade600
-                        : Colors.grey,
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                height: 1.5,
-              ),
-            ),
             if (!closable)
               const Padding(
                 padding: EdgeInsets.only(top: 1.0),
@@ -566,10 +549,7 @@ class RepliedMessage extends StatelessWidget {
       },
       child: Container(
           width: MediaQuery.of(context).size.width,
-          margin: EdgeInsets.only(bottom: _closable ? 0 : 8),
-          padding: _closable
-              ? _theme.closableRepliedMessagePadding
-              : const EdgeInsets.fromLTRB(0, 0, 0, 0),
+          padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
           decoration: BoxDecoration(
             borderRadius:
                 const BorderRadius.vertical(top: Radius.circular(10.0)),
@@ -582,7 +562,6 @@ class RepliedMessage extends StatelessWidget {
                   padding: EdgeInsets.only(left: 4, right: 4, top: 4),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
-                    // color: Colors.grey.shade100
                   ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,

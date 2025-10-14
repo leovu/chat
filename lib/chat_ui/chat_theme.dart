@@ -303,9 +303,9 @@ class DefaultChatTheme extends ChatTheme {
       color: neutral2WithOpacity,
     ),
     EdgeInsets closableRepliedMessageImageMargin =
-    const EdgeInsets.only(left: 16),
+        const EdgeInsets.only(left: 16),
     EdgeInsets closableRepliedMessagePadding =
-    const EdgeInsets.fromLTRB(16, 12, 16, 12),
+        const EdgeInsets.fromLTRB(16, 12, 16, 12),
     EdgeInsets dateDividerMargin = const EdgeInsets.only(
       bottom: 16,
       top: 8,
@@ -446,7 +446,7 @@ class DefaultChatTheme extends ChatTheme {
           attachmentButtonIcon: attachmentButtonIcon,
           backgroundColor: backgroundColor,
           closableRepliedMessageBoxDecoration:
-          closableRepliedMessageBoxDecoration,
+              closableRepliedMessageBoxDecoration,
           closableRepliedMessageImageMargin: closableRepliedMessageImageMargin,
           closableRepliedMessagePadding: closableRepliedMessagePadding,
           dateDividerMargin: dateDividerMargin,
@@ -480,7 +480,7 @@ class DefaultChatTheme extends ChatTheme {
           repliedMessageImageMargin: repliedMessageImageMargin,
           repliedMessagePadding: repliedMessagePadding,
           repliedMessageReceivedBoxDecoration:
-          repliedMessageReceivedBoxDecoration,
+              repliedMessageReceivedBoxDecoration,
           repliedMessageSentBoxDecoration: repliedMessageSentBoxDecoration,
           replyIcon: replyIcon,
           secondaryColor: secondaryColor,
@@ -520,9 +520,8 @@ class DarkChatTheme extends ChatTheme {
       color: neutral2WithOpacity,
     ),
     EdgeInsets closableRepliedMessageImageMargin =
-    const EdgeInsets.only(left: 16),
-    EdgeInsets closableRepliedMessagePadding =
-    const EdgeInsets.fromLTRB(16, 12, 16, 12),
+        const EdgeInsets.only(left: 16),
+    EdgeInsets closableRepliedMessagePadding = const EdgeInsets.all(2),
     EdgeInsets dateDividerMargin = const EdgeInsets.only(
       bottom: 16,
       top: 8,
@@ -663,7 +662,7 @@ class DarkChatTheme extends ChatTheme {
           attachmentButtonIcon: attachmentButtonIcon,
           backgroundColor: backgroundColor,
           closableRepliedMessageBoxDecoration:
-          closableRepliedMessageBoxDecoration,
+              closableRepliedMessageBoxDecoration,
           closableRepliedMessageImageMargin: closableRepliedMessageImageMargin,
           closableRepliedMessagePadding: closableRepliedMessagePadding,
           dateDividerMargin: dateDividerMargin,
@@ -697,7 +696,7 @@ class DarkChatTheme extends ChatTheme {
           repliedMessageImageMargin: repliedMessageImageMargin,
           repliedMessagePadding: repliedMessagePadding,
           repliedMessageReceivedBoxDecoration:
-          repliedMessageReceivedBoxDecoration,
+              repliedMessageReceivedBoxDecoration,
           repliedMessageSentBoxDecoration: repliedMessageSentBoxDecoration,
           replyIcon: replyIcon,
           secondaryColor: secondaryColor,
