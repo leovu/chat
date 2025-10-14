@@ -1,5 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:chat/chat_ui/widgets/message.dart';
+import 'package:chat/chat_ui/widgets/template_card.dart';
 import 'package:chat/common/theme.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
@@ -394,6 +395,22 @@ class RepliedMessage extends StatelessWidget {
       );
     }
 
+    Widget _buildTemplateWidget() {
+      final metadata = repliedMessage?.metadata;
+
+      final title = metadata?['template_title'] as String? ?? 'Template';
+      final desc = metadata?['template_description'].toString();
+      final linkUrl = metadata?['template_url'].toString();
+      final imageUrl = metadata?['template_image'] as String?;
+
+      return TemplateCard(
+        title: title,
+        description: desc ?? '',
+        imageUrl: imageUrl,
+        linkUrl: linkUrl,
+      );
+    }
+
     Widget _buildCustom() {
       if (repliedMessage?.metadata == null) {
         return const SizedBox.shrink();
@@ -414,6 +431,9 @@ class RepliedMessage extends StatelessWidget {
           return _buildZpListWidget(
               messageWidth: MediaQuery.sizeOf(context).width *
                   0.4); // Hiển thị ZP list nếu custom_type là 'zp_list'
+        case 'template':
+          return _buildTemplateWidget();
+
         default:
           return const SizedBox.shrink();
       }
@@ -552,8 +572,9 @@ class RepliedMessage extends StatelessWidget {
                 child: Container(
                   padding: EdgeInsets.only(left: 4, right: 4, top: 4),
                   decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      color: Colors.grey.shade100),
+                    borderRadius: BorderRadius.circular(8),
+                    // color: Colors.grey.shade100
+                  ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -595,4 +616,18 @@ enum ReplyType {
   zp_list,
   oa_template,
   oa_list
+}
+
+Widget _buildPlaceholderIcon(IconData icon) {
+  return SizedBox(
+    width: 44,
+    height: 44,
+    child: Center(
+      child: Icon(
+        icon,
+        size: 16,
+        color: Colors.grey.shade600,
+      ),
+    ),
+  );
 }

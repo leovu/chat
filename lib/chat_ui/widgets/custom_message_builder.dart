@@ -44,7 +44,7 @@ Widget customMessageBuilder(types.CustomMessage message,
     case 'link':
       return buildLinkWidget(message, messageWidth);
 
-    case 'template': // THÊM MẪU MỚI
+    case 'template': 
       return buildTemplateWidget(message, messageWidth);
 
     default:
