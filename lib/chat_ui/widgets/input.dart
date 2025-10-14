@@ -373,16 +373,17 @@ class _InputState extends State<Input> {
                       if (InheritedRepliedMessage.of(context).repliedMessage !=
                           null)
                         Padding(
-                            padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
-                            child: RepliedMessage(
-                              onCancelReplyPressed: widget.onCancelReplyPressed,
-                              repliedMessage:
-                                  InheritedRepliedMessage.of(context)
-                                      .repliedMessage,
-                              showUserNames: true,
-                              onMessageTap: widget.onMessageTap,
-                              people: widget.people,
-                            )),
+                          padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
+                          child: RepliedMessage(
+                            isView: true,
+                            onCancelReplyPressed: widget.onCancelReplyPressed,
+                            repliedMessage: InheritedRepliedMessage.of(context)
+                                .repliedMessage,
+                            showUserNames: true,
+                            onMessageTap: widget.onMessageTap,
+                            people: widget.people,
+                          ),
+                        ),
                       Container(
                         padding: const EdgeInsets.fromLTRB(8, 0, 8, 8)
                             .add(_safeAreaInsets),

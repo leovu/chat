@@ -135,8 +135,7 @@ class _TemplateCardState extends State<TemplateCard> {
                   children: [
                     AnimatedCrossFade(
                       firstChild: ConstrainedBox(
-                        constraints: const BoxConstraints(
-                            maxHeight: 100), 
+                        constraints: const BoxConstraints(maxHeight: 100),
                         child: SingleChildScrollView(
                           physics: const NeverScrollableScrollPhysics(),
                           child: Html(
@@ -171,7 +170,9 @@ class _TemplateCardState extends State<TemplateCard> {
                             onTap: () =>
                                 setState(() => isExpanded = !isExpanded),
                             child: Text(
-                              isExpanded ? '${LangKey.collapse} ▲' : '${LangKey.expand} ▼',
+                              isExpanded
+                                  ? '${LangKey.collapse} ▲'
+                                  : '${LangKey.expand} ▼',
                             ),
                           )),
                   ],
@@ -180,6 +181,137 @@ class _TemplateCardState extends State<TemplateCard> {
             SizedBox(
               height: 8,
             )
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class ReplyMessageCard extends StatefulWidget {
+  final String title;
+  final String description;
+  final String? imageUrl;
+  final String? linkUrl;
+
+  const ReplyMessageCard({
+    super.key,
+    required this.title,
+    required this.description,
+    this.imageUrl,
+    this.linkUrl,
+  });
+
+  @override
+  State<ReplyMessageCard> createState() => _ReplyMessageCardState();
+}
+
+class _ReplyMessageCardState extends State<ReplyMessageCard> {
+  bool isExpanded = false;
+
+  Future<void> _launchUrl(String url) async {
+    try {
+      final uri = Uri.tryParse(url);
+      if (uri != null) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      }
+    } catch (_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Không thể mở đường liên kết"),
+          duration: Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  void _showImagePopup(String imageUrl) {
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.all(24),
+        child: GestureDetector(
+          onTap: () => Navigator.pop(context),
+          child: InteractiveViewer(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.network(imageUrl, fit: BoxFit.contain),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final hasUrl = widget.linkUrl != null && widget.linkUrl!.isNotEmpty;
+    final imageUrl = widget.imageUrl;
+
+    return InkWell(
+      onTap: hasUrl ? () => _launchUrl(widget.linkUrl!) : null,
+      child: Container(
+        width: MediaQuery.of(context).size.width * 0.8,
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: hasUrl ? Colors.white : Colors.grey.shade50,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey.shade300, width: 1),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Hình ảnh bên trái
+            if (imageUrl != null && imageUrl.isNotEmpty)
+              GestureDetector(
+                onTap: () => _showImagePopup(imageUrl),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(
+                    imageUrl,
+                    width: 80,
+                    height: 80,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                  ),
+                ),
+              ),
+            const SizedBox(width: 8),
+
+            Expanded(
+              child: SizedBox(
+                height: 100,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 14,
+                        color: Colors.blue,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Expanded(
+                      child: Html(
+                        data: widget.description,
+                        style: htmlTagStyles(),
+                        onLinkTap: (url, attributes, element) async {
+                          if (url != null && url.isNotEmpty) {
+                            await _launchUrl(url);
+                          }
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),

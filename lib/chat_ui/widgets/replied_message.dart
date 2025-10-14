@@ -20,11 +20,13 @@ class RepliedMessage extends StatelessWidget {
       this.showUserNames = false,
       required this.onMessageTap,
       required this.people,
+      this.isView = false,
       this.isActive = true})
       : super(key: key);
 
   final bool isActive;
   final List<r.People>? people;
+  final bool? isView;
 
   /// Called when user presses cancel reply button
   final void Function()? onCancelReplyPressed;
@@ -403,12 +405,19 @@ class RepliedMessage extends StatelessWidget {
       final linkUrl = metadata?['template_url'].toString();
       final imageUrl = metadata?['template_image'] as String?;
 
-      return TemplateCard(
-        title: title,
-        description: desc ?? '',
-        imageUrl: imageUrl,
-        linkUrl: linkUrl,
-      );
+      return isView == false
+          ? TemplateCard(
+              title: title,
+              description: desc ?? '',
+              imageUrl: imageUrl,
+              linkUrl: linkUrl,
+            )
+          : ReplyMessageCard(
+              title: title,
+              description: desc ?? '',
+              imageUrl: imageUrl,
+              linkUrl: linkUrl,
+            );
     }
 
     Widget _buildCustom() {
@@ -563,7 +572,7 @@ class RepliedMessage extends StatelessWidget {
               : const EdgeInsets.fromLTRB(0, 0, 0, 0),
           decoration: BoxDecoration(
             borderRadius:
-                const BorderRadius.vertical(top: Radius.circular(30.0)),
+                const BorderRadius.vertical(top: Radius.circular(10.0)),
             color: _closable ? Colors.grey.shade50 : Colors.transparent,
           ),
           child: Row(
@@ -616,18 +625,4 @@ enum ReplyType {
   zp_list,
   oa_template,
   oa_list
-}
-
-Widget _buildPlaceholderIcon(IconData icon) {
-  return SizedBox(
-    width: 44,
-    height: 44,
-    child: Center(
-      child: Icon(
-        icon,
-        size: 16,
-        color: Colors.grey.shade600,
-      ),
-    ),
-  );
 }
