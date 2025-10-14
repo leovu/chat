@@ -1,10 +1,14 @@
 import 'dart:convert';
+import 'package:chat/chat_ui/widgets/template_card.dart';
+import 'package:chat/common/chat_format.dart';
 import 'package:chat/common/theme.dart';
 import 'package:chat/common/widges/widget.dart';
+import 'package:chat/localization/lang_key.dart';
 import 'package:chat/presentation/utils/parse_html.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:flutter_html/flutter_html.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 Widget customMessageBuilder(types.CustomMessage message,
@@ -39,6 +43,9 @@ Widget customMessageBuilder(types.CustomMessage message,
 
     case 'link':
       return buildLinkWidget(message, messageWidth);
+
+    case 'template': // THÊM MẪU MỚI
+      return buildTemplateWidget(message, messageWidth);
 
     default:
       return const SizedBox.shrink();
@@ -94,10 +101,10 @@ Widget buildProductWidget(types.CustomMessage message, int messageWidth) {
                     width: 50, height: 50, fit: BoxFit.cover)
                 : const SizedBox(
                     width: 50, height: 50, child: Icon(Icons.shopping_bag)),
-            title: Text(product['name'] ?? 'Sản phẩm'),
+            title: Text(product['name'] ?? ''),
             subtitle: Text(product['description'] ?? '',
                 maxLines: 2, overflow: TextOverflow.ellipsis),
-            trailing: Text(product['price'] ?? 'Liên hệ'),
+            trailing: Text(product['price'] ?? ''),
             onTap: () {/* TODO: Xử lý sự kiện nhấn vào sản phẩm */},
           ),
         );
@@ -106,6 +113,7 @@ Widget buildProductWidget(types.CustomMessage message, int messageWidth) {
   );
 }
 
+/// WIDGET CON: Hiển thị template generic
 Widget buildGenericTemplateWidget(
     types.CustomMessage message, int messageWidth) {
   final rawElements = message.metadata?['elements'];
@@ -189,7 +197,7 @@ Widget buildOaListWidget(types.CustomMessage message, int messageWidth) {
 
   final Uri? url = Uri.tryParse(payload['url'] ?? '');
   final imgUrl = payload['thumbnail'] as String?;
-  final title = payload['title'] ?? 'Xem chi tiết';
+  final title = payload['title'] ?? LangKey.view_detail;
   final description = payload['description'] ?? '';
 
   return Padding(
@@ -207,11 +215,11 @@ Widget buildOaListWidget(types.CustomMessage message, int messageWidth) {
           children: [
             if (imgUrl != null && imgUrl.isNotEmpty)
               ClipRRect(
-                borderRadius: BorderRadius.circular(12), // Bo góc ảnh
+                borderRadius: BorderRadius.circular(12),
                 child: Image.network(
                   imgUrl,
                   width: double.infinity,
-                  height: 150, // bạn có thể chỉnh chiều cao
+                  height: 150,
                   fit: BoxFit.cover,
                 ),
               ),
@@ -236,6 +244,7 @@ Widget buildOaListWidget(types.CustomMessage message, int messageWidth) {
   );
 }
 
+/// WIDGET CON: Hiển thị file
 Widget buildFileWidget(types.FileMessage fileMessage,
     {required int messageWidth}) {
   return Padding(
@@ -288,6 +297,7 @@ Widget buildFileWidget(types.FileMessage fileMessage,
   );
 }
 
+/// WIDGET CON: Hiển thị zalo persional
 Widget buildZpListWidget(types.CustomMessage message, int messageWidth) {
   final metadata = message.metadata ?? {};
   List<dynamic> items = [];
@@ -344,6 +354,7 @@ Widget buildZpListWidget(types.CustomMessage message, int messageWidth) {
   );
 }
 
+/// WIDGET CON: Hiển thị hình ảnh
 Widget buildImageUrlWidget(types.CustomMessage message, int messageWidth) {
   final imageUrl = message.metadata?['content'] as String? ??
       message.metadata?['url'] as String? ??
@@ -366,6 +377,7 @@ Widget buildImageUrlWidget(types.CustomMessage message, int messageWidth) {
   );
 }
 
+/// WIDGET CON: Hiển thị link
 Widget buildLinkWidget(types.CustomMessage message, int messageWidth) {
   final text = message.metadata?['text'] as String? ?? '';
   if (text.isEmpty) return const SizedBox.shrink();
@@ -413,14 +425,28 @@ Widget buildLinkWidget(types.CustomMessage message, int messageWidth) {
 
   return Container(
     padding: const EdgeInsets.all(10),
-    decoration: BoxDecoration(
-    ),
+    decoration: BoxDecoration(),
     child: RichText(
       text: TextSpan(
         style: const TextStyle(color: Colors.black, fontSize: 14),
         children: spans,
       ),
     ),
+  );
+}
+
+/// WIDGET CON: Hiển thị template html css
+Widget buildTemplateWidget(types.CustomMessage message, int messageWidth) {
+  final metadata = message.metadata;
+  final title = metadata?['template_title'] as String? ?? 'Template';
+  final description = metadata?['template_description'] as String? ?? '';
+  final imageUrl = metadata?['template_image'] as String?;
+  final url = metadata?['template_url'] as String?;
+  return TemplateCard(
+    title: title,
+    description: description,
+    imageUrl: imageUrl,
+    linkUrl: url,
   );
 }
 

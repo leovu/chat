@@ -929,6 +929,21 @@ class Messages {
         metadata['data'] = (messageItems)?.first?['payload'];
         break;
 
+      case 'template':
+        data['type'] = 'custom';
+        metadata['custom_type'] = 'template';
+        data['text'] = messageObject?['title'] as String? ?? 'Message Template';
+        if (messageObject != null) {
+          metadata['template_title'] = messageObject!['title'];
+          metadata['template_description'] = messageObject!['description'];
+          metadata['template_url'] = messageObject!['url'];
+          metadata['template_image'] = messageObject!['image'];
+          if ((content ?? '').isNotEmpty) {
+            data['text'] = content;
+          }
+        }
+        break;
+
       default:
         data['type'] = 'text';
         data['text'] = content;
@@ -953,7 +968,6 @@ class Messages {
       } catch (_) {}
 
       switch (replies?.type) {
-        
         case 'link':
           repliedJson['type'] = 'custom';
           repliedJson['text'] = replies!.content ?? '';
@@ -1139,6 +1153,19 @@ class Messages {
               'url': item['url'],
             };
           }).toList();
+          break;
+
+        case 'template': 
+          repliedJson['type'] = 'custom';
+          repliedJson['text'] =
+              replies!.messageObject?['title'] as String? ?? 'Message Template';
+          repliedJson['metadata'] = {
+            'custom_type': 'template',
+            'template_title': replies!.messageObject?['title'],
+            'template_description': replies!.messageObject?['description'],
+            'template_url': replies!.messageObject?['url'],
+            'template_image': replies!.messageObject?['image'],
+          };
           break;
 
         default:

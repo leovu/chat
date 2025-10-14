@@ -563,7 +563,7 @@ class _RoomListScreenState extends State<RoomListScreen>
                                 Widget body;
                                 if (mode == LoadStatus.failed) {
                                   body = const Text(
-                                      "Tải thêm thất bại! Nhấn để thử lại.");
+                                      LangKey.load_more_failed);
                                 } else {
                                   body = Platform.isAndroid
                                       ? const SizedBox(

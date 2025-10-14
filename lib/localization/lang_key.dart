@@ -199,6 +199,11 @@ class LangKey {
   static const String i_got_it = "i_got_it";
   static const String request_to_join_group = "request_to_join_group";
   static const String reject = "reject";
-
-
+  static const String reject_link = "reject_link";
+  static const String see_more = "see_more";
+  static const String collapse = "collapse";
+  static const String view_detail = "view_detail";
+  static const String expand = "expand";
+  static const String load_more_failed = "load_more_failed";
+  static const String retry = "retry";
 }
