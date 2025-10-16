@@ -109,9 +109,6 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
 
       groupOwner1 = extractOwner(widget.data);
     });
-    final imageUrl =
-        '${HTTPConnection.domain}api/images/vs9lgw7ey86805c7187f5011001205cbf6/256/${ChatConnection.brandCode!}';
-    print('Image URL: $imageUrl');
   }
 
   getQuota() async {

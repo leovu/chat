@@ -199,5 +199,7 @@
   "collapse": "Collapse",
   "expand": "See more",
   "view_detail": "View details",
-  "load_more_failed": "Load failed! Tap to retry."
+  "load_more_failed": "Load failed! Tap to retry.",
+   "oa_template_message": "OA Template Message",
+  "content_not_displayed": "Content cannot be displayed"
 }

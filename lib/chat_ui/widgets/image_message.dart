@@ -233,8 +233,8 @@ class _ImageMessageState extends State<ImageMessage> {
                       _repliedMessageBuilder(_user),
                     Flexible(
                       child: Image(
-                        width: 100,
-                        fit: BoxFit.contain,
+                        // width: _size.width/2,
+                        fit: BoxFit.cover,
                         image: _image!,
                       ),
                     ),

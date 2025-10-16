@@ -1,7 +1,12 @@
+import 'dart:convert';
+
+import 'package:chat/localization/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:html/dom.dart' as dom;
 import 'package:html/parser.dart' as parser;
+
+import '../../localization/lang_key.dart';
 
 Widget buildHtmlTemplateWidget(types.CustomMessage message) {
   final html = message.metadata?['html'] as String?;
@@ -10,12 +15,11 @@ Widget buildHtmlTemplateWidget(types.CustomMessage message) {
   }
 
   final templateData = _parseOaTemplateHtml(html);
-
   if (templateData == null) {
     return Padding(
       padding: const EdgeInsets.all(12),
       child: Text(
-        '[Nội dung không thể hiển thị]',
+        '[${AppLocalizations.text(LangKey.content_not_displayed)}]',
         style:
             TextStyle(color: Colors.grey.shade600, fontStyle: FontStyle.italic),
       ),
@@ -84,6 +88,11 @@ Map<String, dynamic>? _parseOaTemplateHtml(String htmlString) {
             ?.attributes['src'] ??
         '';
 
+    final buttonElement = document.querySelector('.oam_button_primary_wrapper');
+    final String buttonAction =
+        buttonElement?.attributes['data-click-action'] ?? '';
+    final String buttonActionData =
+        buttonElement?.attributes['data-click-data'] ?? '';
     return {
       "banner_url": bannerUrl,
       "tag": tag,
@@ -95,6 +104,8 @@ Map<String, dynamic>? _parseOaTemplateHtml(String htmlString) {
         "text": buttonText,
         "icon": buttonIcon,
         "arrow_icon": buttonArrowIcon,
+        "action": buttonAction,
+        "action_data": buttonActionData,
       }
     };
   } catch (e) {
@@ -226,12 +237,45 @@ List<Widget> _buildDetails(List<dynamic> details) {
 }
 
 Widget _buildButton(Map<String, dynamic> buttonData) {
+  final String action = buttonData['action'] ?? '';
+  final String actionData = buttonData['action_data'] ?? '';
+
   return Material(
     color: Colors.transparent,
     child: InkWell(
       onTap: () {
         print('Button "${buttonData['text']}" clicked!');
-        // TODO: Xử lý sự kiện khi bấm nút ở đây
+
+        final String action = buttonData['action'] ?? '';
+        final String actionData = buttonData['action_data'] ?? '';
+
+        if (action.isNotEmpty) {
+          if (action == 'action.request.multiaction') {
+            try {
+              final Map<String, dynamic> decodedData = jsonDecode(actionData);
+              final List<dynamic>? actionList = decodedData['actionLists'];
+
+              if (actionList != null) {
+                for (var subActionMap in actionList) {
+                  final String subActionType = subActionMap['action'] ?? '';
+                  final dynamic subActionData = subActionMap['data'];
+
+                  print('Executing sub-action: $subActionType');
+                  switch (subActionType) {
+                    case 'action.query.show':
+                      break;
+
+                    case 'action.query.hide.v2':
+                      break;
+
+                    default:
+                      print('Unknown sub-action type: $subActionType');
+                  }
+                }
+              }
+            } catch (e) {}
+          }
+        }
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),

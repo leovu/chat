@@ -200,5 +200,7 @@
   "collapse": "Thu gọn",
   "expand": "Xem thêm",
   "view_detail": "Xem chi tiết",
-  "load_more_failed": "Tải thêm thất bại! Nhấn để thử lại."
+  "load_more_failed": "Tải thêm thất bại! Nhấn để thử lại.",
+  "oa_template_message": "Tin nhắn OA Template",
+  "content_not_displayed": "Nội dung không thể hiển thị"
 }

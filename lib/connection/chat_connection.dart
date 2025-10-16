@@ -421,7 +421,7 @@ class ChatConnection {
 
     final targetIndex = index != -1 ? index : listMessage.length;
 
-    final messageJson = responseData.data?['data']?['message'];
+    final messageJson = responseData.data['data']?['message'];
     if (messageJson == null) return null;
 
     final valueResponse = c.Messages.fromJson(messageJson);
@@ -435,9 +435,9 @@ class ChatConnection {
             text: (oldMessage as types.TextMessage).text,
             repliedMessage: oldMessage.repliedMessage,
             status:
-                (responseData.data?['error'] == 0) ? null : types.Status.error,
-            metadata: responseData.data?['message'] != null
-                ? {'error_message': responseData.data!['message']}
+                (responseData.data['error'] == 0) ? null : types.Status.error,
+            metadata: responseData.data['message'] != null
+                ? {'error_message': responseData.data['message']}
                 : null,
           ))
         : listMessage[targetIndex] = types.TextMessage(
@@ -447,9 +447,9 @@ class ChatConnection {
             text: (oldMessage as types.TextMessage).text,
             repliedMessage: oldMessage.repliedMessage,
             status:
-                (responseData.data?['error'] == 0) ? null : types.Status.error,
-            metadata: responseData.data?['message'] != null
-                ? {'error_message': responseData.data!['message']}
+                (responseData.data['error'] == 0) ? null : types.Status.error,
+            metadata: responseData.data['message'] != null
+                ? {'error_message': responseData.data['message']}
                 : null,
           );
 
@@ -457,7 +457,7 @@ class ChatConnection {
     data?.room?.messages?.insert(0, valueResponse);
 
     // Xử lý quota
-    final quota = responseData.data?['data']?['quota'];
+    final quota = responseData.data['data']?['quota'];
     if (quota != null) {
       final type = quota['type'];
       if (type == 'OA Tier') {

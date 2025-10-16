@@ -1,6 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:chat/chat_ui/widgets/custom_message_generic.dart';
 import 'package:chat/chat_ui/widgets/message.dart';
-import 'package:chat/chat_ui/widgets/template_card.dart';
+import 'package:chat/chat_ui/widgets/custom_message_template_card.dart';
 import 'package:chat/common/theme.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
@@ -309,80 +310,16 @@ class RepliedMessage extends StatelessWidget {
         final metadata = repliedMessage!.metadata;
         final elements = metadata?['elements'];
 
-        _imageUri = elements[0]['image_url'].toString();
-
         if (elements != null && elements.isNotEmpty) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-            child: _closable
-                ? Container(
-                    child: Row(
-                      children: [
-                        InkWell(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: Image.network(
-                              elements[0]['image_url'].toString(),
-                              width: 40,
-                              height: 40,
-                              fit: BoxFit.contain,
-                              errorBuilder: (_, __, ___) =>
-                                  const SizedBox.shrink(),
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 6),
-                            child: Text(
-                              (elements[0]['title'] ?? '').toString(),
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.normal, fontSize: 14),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                : SizedBox(
-                    width: MediaQuery.sizeOf(context).width * 0.6,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        InkWell(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: Image.network(
-                              elements[0]['image_url'].toString(),
-                              width: double.infinity,
-                              fit: BoxFit.contain,
-                              errorBuilder: (_, __, ___) =>
-                                  const SizedBox.shrink(),
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                (elements[0]['title'] ?? '').toString(),
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 16),
-                              ),
-                              if ((elements[0]['subtitle'] as String?)
-                                      ?.isNotEmpty ??
-                                  false) ...[
-                                const SizedBox(height: 8),
-                                Text(elements[0]['subtitle'].toString()),
-                              ],
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+          final element = elements[0];
+          _imageUri = element['image_url']?.toString();
+
+          return GenericElementCardReply(
+            imageUrl: element['image_url']?.toString(),
+            title: element['title']?.toString() ?? '',
+            subtitle: element['subtitle']?.toString(),
+            closable: _closable,
+            width: MediaQuery.sizeOf(context).width,
           );
         }
       }
@@ -390,11 +327,8 @@ class RepliedMessage extends StatelessWidget {
     }
 
     Widget _buildOaTemplateWidget() {
-      return Icon(
-        Icons.file_copy,
-        size: 40,
-        color: AppColors.bluePrimary,
-      );
+      return Text(
+          AppLocalizations.text(LangKey.oa_template_message));
     }
 
     Widget _buildTemplateWidget() {
@@ -527,9 +461,7 @@ class RepliedMessage extends StatelessWidget {
         ),
       );
     }
-
     // ---------- End helpers ----------
-
     return InkWell(
       onTap: () {
         if ((_imageUri != null || _isFile) &&

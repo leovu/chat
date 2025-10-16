@@ -206,32 +206,34 @@ class Message extends StatelessWidget {
     bool currentUserIsAuthor,
     bool enlargeEmojis,
   ) {
+    Color color =
+        !currentUserIsAuthor || message.type == types.MessageType.image
+            ? InheritedChatTheme.of(context).theme.secondaryColor
+            : InheritedChatTheme.of(context).theme.primaryColor;
     return bubbleBuilder != null
         ? bubbleBuilder!(
-            _messageBuilder(),
+            _messageBuilder(color),
             message: message,
             nextMessageInGroup: roundBorder,
           )
         : enlargeEmojis && hideBackgroundOnEmojiMessages
-            ? _messageBuilder()
+            ? _messageBuilder(color)
             : Container(
-                // padding: EdgeInsets.symmetric(horizontal: 4),
                 key: key,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12), //borderRadius,
-                  color: !currentUserIsAuthor ||
-                          message.type == types.MessageType.image
-                      ? InheritedChatTheme.of(context).theme.secondaryColor
-                      : InheritedChatTheme.of(context).theme.primaryColor,
-                ),
+                    borderRadius: BorderRadius.circular(12),
+                    color: !currentUserIsAuthor ||
+                            message.type == types.MessageType.image
+                        ? InheritedChatTheme.of(context).theme.secondaryColor
+                        : InheritedChatTheme.of(context).theme.primaryColor),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12), // borderRadius,
-                  child: _messageBuilder(),
+                  borderRadius: BorderRadius.circular(12),
+                  child: _messageBuilder(color),
                 ),
               );
   }
 
-  Widget _messageBuilder() {
+  Widget _messageBuilder(Color color) {
     switch (message.type) {
       case types.MessageType.custom:
         final customMessage = message as types.CustomMessage;
@@ -254,7 +256,8 @@ class Message extends StatelessWidget {
             ? imageMessageBuilder!(imageMessage as types.ImageMessage,
                 messageWidth: messageWidth)
             // : Text(message.toJson().toString());
-            : ImageMessage(
+            : 
+            ImageMessage(
                 message: imageMessage as types.ImageMessage,
                 messageWidth: messageWidth,
                 showUserNameForRepliedMessage: true,
@@ -271,6 +274,7 @@ class Message extends StatelessWidget {
                 showName: showName,
               )
             : TextMessage(
+                contentColor: color,
                 emojiEnlargementBehavior: emojiEnlargementBehavior,
                 hideBackgroundOnEmojiMessages: hideBackgroundOnEmojiMessages,
                 message: textMessage,

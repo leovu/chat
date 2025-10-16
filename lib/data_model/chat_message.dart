@@ -944,6 +944,20 @@ class Messages {
         }
         break;
 
+      case 'video':
+        data['type'] = 'custom';
+        metadata['custom_type'] = 'video';
+        data['content'] = content;
+        if (messageObject != null) {
+          metadata['title'] = messageObject!['title'];
+          metadata['description'] = messageObject!['description'];
+          metadata['href'] = messageObject!['href'];
+          metadata['thumb'] = messageObject!['thumb'];
+          metadata['action'] = messageObject!['action'];
+          metadata['params'] = messageObject!['params'];
+        }
+        break;
+
       default:
         data['type'] = 'text';
         data['text'] = content;
@@ -1155,7 +1169,7 @@ class Messages {
           }).toList();
           break;
 
-        case 'template': 
+        case 'template':
           repliedJson['type'] = 'custom';
           repliedJson['text'] =
               replies!.messageObject?['title'] as String? ?? 'Message Template';
@@ -1165,6 +1179,19 @@ class Messages {
             'template_description': replies!.messageObject?['description'],
             'template_url': replies!.messageObject?['url'],
             'template_image': replies!.messageObject?['image'],
+          };
+          break;
+
+        case 'video':
+          repliedJson['type'] = 'custom';
+          repliedJson['metadata'] = {
+            'custom_type': 'video',
+            'title': replies!.messageObject?['title'],
+            'description': replies!.messageObject?['description'],
+            'href': replies!.messageObject?['href'],
+            'thumb': replies!.messageObject?['thumb'],
+            'action': replies!.messageObject?['action'],
+            'params': replies!.messageObject?['params'],
           };
           break;
 

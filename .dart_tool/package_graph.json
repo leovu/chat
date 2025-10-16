@@ -48,6 +48,7 @@
         "swipeable_tile",
         "url_launcher",
         "uuid",
+        "video_player",
         "visibility_detector"
       ],
       "devDependencies": [
@@ -70,6 +71,18 @@
         "stream_channel",
         "test_api",
         "vector_math"
+      ]
+    },
+    {
+      "name": "video_player",
+      "version": "2.10.0",
+      "dependencies": [
+        "flutter",
+        "html",
+        "video_player_android",
+        "video_player_avfoundation",
+        "video_player_platform_interface",
+        "video_player_web"
       ]
     },
     {
@@ -316,11 +329,11 @@
     },
     {
       "name": "socket_io_client",
-      "version": "3.1.2",
+      "version": "1.0.2",
       "dependencies": [
+        "js",
         "logging",
-        "socket_io_common",
-        "web"
+        "socket_io_common"
       ]
     },
     {
@@ -536,6 +549,40 @@
         "stream_channel",
         "string_scanner",
         "term_glyph"
+      ]
+    },
+    {
+      "name": "video_player_web",
+      "version": "2.4.0",
+      "dependencies": [
+        "flutter",
+        "flutter_web_plugins",
+        "video_player_platform_interface",
+        "web"
+      ]
+    },
+    {
+      "name": "video_player_platform_interface",
+      "version": "6.5.0",
+      "dependencies": [
+        "flutter",
+        "plugin_platform_interface"
+      ]
+    },
+    {
+      "name": "video_player_avfoundation",
+      "version": "2.8.4",
+      "dependencies": [
+        "flutter",
+        "video_player_platform_interface"
+      ]
+    },
+    {
+      "name": "video_player_android",
+      "version": "2.8.16",
+      "dependencies": [
+        "flutter",
+        "video_player_platform_interface"
       ]
     },
     {
@@ -927,16 +974,23 @@
       ]
     },
     {
-      "name": "socket_io_common",
-      "version": "3.1.1",
-      "dependencies": [
-        "logging"
-      ]
-    },
-    {
       "name": "logging",
       "version": "1.3.0",
       "dependencies": []
+    },
+    {
+      "name": "js",
+      "version": "0.6.7",
+      "dependencies": [
+        "meta"
+      ]
+    },
+    {
+      "name": "socket_io_common",
+      "version": "1.0.1",
+      "dependencies": [
+        "logging"
+      ]
     },
     {
       "name": "macos_ui",
@@ -1106,6 +1160,17 @@
       ]
     },
     {
+      "name": "leak_tracker",
+      "version": "11.0.2",
+      "dependencies": [
+        "clock",
+        "collection",
+        "meta",
+        "path",
+        "vm_service"
+      ]
+    },
+    {
       "name": "term_glyph",
       "version": "1.2.2",
       "dependencies": []
@@ -1251,6 +1316,11 @@
       ]
     },
     {
+      "name": "vm_service",
+      "version": "15.0.0",
+      "dependencies": []
+    },
+    {
       "name": "platform",
       "version": "3.1.6",
       "dependencies": []
@@ -1303,22 +1373,6 @@
         "sqflite_common",
         "sqflite_platform_interface"
       ]
-    },
-    {
-      "name": "leak_tracker",
-      "version": "11.0.2",
-      "dependencies": [
-        "clock",
-        "collection",
-        "meta",
-        "path",
-        "vm_service"
-      ]
-    },
-    {
-      "name": "vm_service",
-      "version": "15.0.0",
-      "dependencies": []
     }
   ],
   "configVersion": 1

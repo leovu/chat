@@ -206,4 +206,6 @@ class LangKey {
   static const String expand = "expand";
   static const String load_more_failed = "load_more_failed";
   static const String retry = "retry";
+  static const String oa_template_message = "oa_template_message";
+  static const String content_not_displayed = "content_not_displayed";
 }

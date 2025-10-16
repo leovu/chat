@@ -15,22 +15,25 @@ import 'inherited_user.dart';
 /// A class that represents text message widget with optional link preview
 class TextMessage extends StatelessWidget {
   /// Creates a text message widget from a [types.TextMessage] class
-  const TextMessage({
-    Key? key,
-    required this.emojiEnlargementBehavior,
-    required this.hideBackgroundOnEmojiMessages,
-    required this.message,
-    this.onPreviewDataFetched,
-    required this.usePreviewData,
-    required this.showName,
-    required this.searchController,
-    required this.showUserNameForRepliedMessage,
-    required this.onMessageTap,
-    required this.people,
-  }) : super(key: key);
+  const TextMessage(
+      {Key? key,
+      required this.emojiEnlargementBehavior,
+      required this.hideBackgroundOnEmojiMessages,
+      required this.message,
+      this.onPreviewDataFetched,
+      required this.usePreviewData,
+      required this.showName,
+      required this.searchController,
+      required this.showUserNameForRepliedMessage,
+      required this.onMessageTap,
+      required this.people,
+      this.contentColor})
+      : super(key: key);
 
   /// See [Message.emojiEnlargementBehavior]
   final EmojiEnlargementBehavior emojiEnlargementBehavior;
+
+  final Color? contentColor;
 
   /// See [Message.hideBackgroundOnEmojiMessages]
   final bool hideBackgroundOnEmojiMessages;
@@ -95,7 +98,7 @@ class TextMessage extends StatelessWidget {
 
     return LinkPreview(
       enableAnimation: true,
-      header: showName ? name : null,
+      header: showName ? name : '',
       headerStyle: InheritedChatTheme.of(context)
           .theme
           .userNameTextStyle
@@ -135,14 +138,14 @@ class TextMessage extends StatelessWidget {
       children: [
         if (message.repliedMessage != null)
           // Text(message.repliedMessage?.runtimeType.toString() ?? ''),
-        RepliedMessage(
-          messageAuthorId: message.author.id,
-          repliedMessage: message.repliedMessage,
-          showUserNames: showUserNameForRepliedMessage,
-          onMessageTap: onMessageTap,
-          people: people,
-        ),
-        if (showName)
+          RepliedMessage(
+            messageAuthorId: message.author.id,
+            repliedMessage: message.repliedMessage,
+            showUserNames: showUserNameForRepliedMessage,
+            onMessageTap: onMessageTap,
+            people: people,
+          ),
+        if (showName && name != '')
           Padding(
             padding: const EdgeInsets.only(bottom: 6),
             child: Text(
@@ -269,11 +272,11 @@ class TextMessage extends StatelessWidget {
 
     return Container(
       margin: EdgeInsets.symmetric(
-        horizontal: _enlargeEmojis && hideBackgroundOnEmojiMessages
-            ? 4
-            : 8,//_theme.messageInsetsHorizontal,
-        vertical: 8//_theme.messageInsetsVertical,
-      ),
+          horizontal: _enlargeEmojis && hideBackgroundOnEmojiMessages
+              ? 4
+              : 8, //_theme.messageInsetsHorizontal,
+          vertical: 8 //_theme.messageInsetsVertical,
+          ),
       child: _textWidgetBuilder(_user, context, _enlargeEmojis),
     );
   }

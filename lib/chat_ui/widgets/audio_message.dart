@@ -97,72 +97,74 @@ class _AudioMessageState extends State<AudioMessage> {
             data.currentPosition.inMilliseconds.toDouble();
         final hasDuration = _canCalculateDuration && maxMilliseconds > 0;
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Text(
-                '${widget.message.author.firstName ?? ''} ${widget.message.author.lastName ?? ''}',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: theme.userNameTextStyle.copyWith(color: color),
+        return Container(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Text(
+                  '${widget.message.author.firstName ?? ''} ${widget.message.author.lastName ?? ''}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.userNameTextStyle.copyWith(color: color),
+                ),
               ),
-            ),
-            Row(
-              children: [
-                IconButton(
-                  icon: Icon(
-                    data.isPlaying
-                        ? Icons.pause_circle_filled
-                        : Icons.play_circle_filled,
-                    size: 30,
+              Row(
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      data.isPlaying
+                          ? Icons.pause_circle_filled
+                          : Icons.play_circle_filled,
+                      size: 30,
+                    ),
+                    onPressed: data.isPlaying ? _pauseAudio : _playAudio,
+                    color: color,
                   ),
-                  onPressed: data.isPlaying ? _pauseAudio : _playAudio,
-                  color: color,
-                ),
-                Expanded(
-                  child: hasDuration
-                      ? Slider(
-                          value:
-                              currentMilliseconds.clamp(0.0, maxMilliseconds),
-                          min: 0.0,
-                          max: maxMilliseconds,
-                          onChanged: (value) async {
-                            final position =
-                                Duration(milliseconds: value.toInt());
-                            await _audioPlayer.seek(position);
-                          },
-                          activeColor: color,
-                          inactiveColor: color.withOpacity(0.3),
-                        )
-                      : Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          child: SizedBox(
-                            height: 24,
-                            width: 40,
-                            child: data.isPlaying
-                                ? const WaveAnimation()
-                                : const SizedBox.shrink(),
+                  Expanded(
+                    child: hasDuration
+                        ? Slider(
+                            value:
+                                currentMilliseconds.clamp(0.0, maxMilliseconds),
+                            min: 0.0,
+                            max: maxMilliseconds,
+                            onChanged: (value) async {
+                              final position =
+                                  Duration(milliseconds: value.toInt());
+                              await _audioPlayer.seek(position);
+                            },
+                            activeColor: color,
+                            inactiveColor: color.withOpacity(0.3),
+                          )
+                        : Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            child: SizedBox(
+                              height: 24,
+                              width: 40,
+                              child: data.isPlaying
+                                  ? const WaveAnimation()
+                                  : const SizedBox.shrink(),
+                            ),
                           ),
-                        ),
-                ),
-                hasDuration
-                    ? Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: Text(
-                          _formatDuration(data.currentPosition) +
-                              (hasDuration
-                                  ? ' / ${_formatDuration(data.totalDuration)}'
-                                  : ''),
-                          style: theme.userNameTextStyle.copyWith(
-                              color: color, fontWeight: FontWeight.w500),
-                        ),
-                      )
-                    : SizedBox(),
-              ],
-            ),
-          ],
+                  ),
+                  hasDuration
+                      ? Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: Text(
+                            _formatDuration(data.currentPosition) +
+                                (hasDuration
+                                    ? ' / ${_formatDuration(data.totalDuration)}'
+                                    : ''),
+                            style: theme.userNameTextStyle.copyWith(
+                                color: color, fontWeight: FontWeight.w500),
+                          ),
+                        )
+                      : SizedBox(),
+                ],
+              ),
+            ],
+          ),
         );
       },
     );

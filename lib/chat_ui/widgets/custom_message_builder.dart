@@ -1,14 +1,14 @@
 import 'dart:convert';
-import 'package:chat/chat_ui/widgets/template_card.dart';
-import 'package:chat/common/chat_format.dart';
-import 'package:chat/common/theme.dart';
-import 'package:chat/common/widges/widget.dart';
+import 'package:chat/chat_ui/widgets/custom_message_file.dart';
+import 'package:chat/chat_ui/widgets/custom_message_generic.dart';
+import 'package:chat/chat_ui/widgets/custom_message_oa_list.dart';
+import 'package:chat/chat_ui/widgets/custom_message_template_card.dart';
+import 'package:chat/chat_ui/widgets/custom_message_template_video.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:chat/presentation/utils/parse_html.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-import 'package:flutter_html/flutter_html.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 Widget customMessageBuilder(types.CustomMessage message,
@@ -39,13 +39,15 @@ Widget customMessageBuilder(types.CustomMessage message,
 
     case 'zp_list':
       return buildZpListWidget(message, messageWidth);
-    // return Text('return buildZpListWidget(message, messageWidth);');
 
     case 'link':
       return buildLinkWidget(message, messageWidth);
 
-    case 'template': 
+    case 'template':
       return buildTemplateWidget(message, messageWidth);
+
+    case 'video':
+      return buildCustomMessageWidget(message, messageWidth);
 
     default:
       return const SizedBox.shrink();
@@ -126,67 +128,16 @@ Widget buildGenericTemplateWidget(
   final buttons =
       (rawButtons is List) ? rawButtons.whereType<Map>().toList() : <Map>[];
 
-  final img = element['image_url'] as String?;
-  final hasImage = (img != null && img.isNotEmpty);
+  final imageUrl = element['image_url'] as String?;
+  final title = (element['title'] ?? '').toString();
+  final subtitle = (element['subtitle'] ?? '').toString();
 
-  return Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-    child: SizedBox(
-      width: messageWidth * 0.8,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (hasImage)
-            InkWell(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12), // giá trị bo góc
-                child: Image.network(
-                  img,
-                  width: double.infinity,
-                  fit: BoxFit.contain,
-                  errorBuilder: (_, __, ___) => const SizedBox.shrink(),
-                ),
-              ),
-            ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  (element['title'] ?? '').toString(),
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-                if ((element['subtitle'] as String?)?.isNotEmpty ?? false) ...[
-                  const SizedBox(height: 8),
-                  Text(element['subtitle'].toString()),
-                ],
-                const SizedBox(height: 12),
-                ...buttons.map((button) {
-                  final title = (button['title'] ?? 'Button').toString();
-                  // final payload = button['payload'];
-                  final url = button['url'];
-                  return SizedBox(
-                    width: double.infinity,
-                    child: InkWell(
-                      onTap: () async {
-                        await launchUrl(Uri.parse(url),
-                            mode: LaunchMode.externalApplication);
-                      },
-                      child: CustomButton(
-                        backgroundColor: AppColors.blueColor,
-                        text: title,
-                      ),
-                    ),
-                  );
-                }),
-              ],
-            ),
-          ),
-        ],
-      ),
-    ),
+  return GenericTemplateWidget(
+    width: messageWidth.toDouble(),
+    imageUrl: imageUrl,
+    title: title,
+    subtitle: subtitle,
+    buttons: buttons,
   );
 }
 
@@ -195,105 +146,28 @@ Widget buildOaListWidget(types.CustomMessage message, int messageWidth) {
   final payload = message.metadata?['data'] as Map<String, dynamic>?;
   if (payload == null) return const SizedBox.shrink();
 
-  final Uri? url = Uri.tryParse(payload['url'] ?? '');
-  final imgUrl = payload['thumbnail'] as String?;
   final title = payload['title'] ?? LangKey.view_detail;
   final description = payload['description'] ?? '';
+  final imgUrl = payload['thumbnail'] as String?;
+  final linkUrl = payload['url'] as String?;
 
-  return Padding(
-    padding: const EdgeInsets.all(12),
-    child: InkWell(
-      onTap: url == null
-          ? null
-          : () async {
-              await launchUrl(url, mode: LaunchMode.externalApplication);
-            },
-      child: Container(
-        width: messageWidth.toDouble() * 0.8,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (imgUrl != null && imgUrl.isNotEmpty)
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.network(
-                  imgUrl,
-                  width: double.infinity,
-                  height: 150,
-                  fit: BoxFit.cover,
-                ),
-              ),
-            const SizedBox(height: 8),
-            Text(
-              title,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
-            if (description.isNotEmpty) ...[
-              const SizedBox(height: 4),
-              Text(
-                description,
-              ),
-            ],
-          ],
-        ),
-      ),
-    ),
+  return OaListCard(
+    width: messageWidth.toDouble(),
+    title: title,
+    description: description,
+    imageUrl: imgUrl,
+    linkUrl: linkUrl,
   );
 }
 
 /// WIDGET CON: Hiển thị file
 Widget buildFileWidget(types.FileMessage fileMessage,
     {required int messageWidth}) {
-  return Padding(
-    padding: const EdgeInsets.only(right: 8.0),
-    child: Container(
-      width: double.tryParse(messageWidth.toString()),
-      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
-      child: Row(
-        children: [
-          Icon(
-            Icons.insert_drive_file,
-            size: 30,
-            color: Colors.blueAccent,
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  fileMessage.name,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-                Text(
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  '${(fileMessage.size / 1024).toStringAsFixed(2)} KB',
-                  style: TextStyle(
-                    color: Colors.black.withValues(alpha: 0.6),
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          IconButton(
-            icon: Icon(Icons.download),
-            onPressed: () {
-              print('Download file from ${fileMessage.uri}');
-            },
-          ),
-        ],
-      ),
-    ),
+  return FileMessageCard(
+    fileName: fileMessage.name,
+    fileSize: int.tryParse(fileMessage.size.toString()) ?? 1,
+    fileUrl: fileMessage.uri,
+    width: messageWidth.toDouble(),
   );
 }
 
@@ -325,9 +199,9 @@ Widget buildZpListWidget(types.CustomMessage message, int messageWidth) {
 
   Future<void> _openUrl(String url) async {
     final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
+    try {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
-    }
+    } catch (_) {}
   }
 
   return InkWell(
@@ -392,7 +266,6 @@ Widget buildLinkWidget(types.CustomMessage message, int messageWidth) {
     for (final match in links) {
       final start = match.start;
       final end = match.end;
-      // Thêm phần text trước link
       if (start > lastIndex) {
         spans.add(TextSpan(text: text.substring(lastIndex, start)));
       }
@@ -417,7 +290,6 @@ Widget buildLinkWidget(types.CustomMessage message, int messageWidth) {
       );
       lastIndex = end;
     }
-    // Phần còn lại sau link cuối
     if (lastIndex < text.length) {
       spans.add(TextSpan(text: text.substring(lastIndex)));
     }
@@ -428,7 +300,7 @@ Widget buildLinkWidget(types.CustomMessage message, int messageWidth) {
     decoration: BoxDecoration(),
     child: RichText(
       text: TextSpan(
-        style: const TextStyle(color: Colors.black, fontSize: 14),
+        style: const TextStyle(color: Colors.black, fontSize: 15),
         children: spans,
       ),
     ),
@@ -447,6 +319,24 @@ Widget buildTemplateWidget(types.CustomMessage message, int messageWidth) {
     description: description,
     imageUrl: imageUrl,
     linkUrl: url,
+  );
+}
+
+/// WIDGET CON: Hiển thị video
+Widget buildCustomMessageWidget(types.CustomMessage message, int messageWidth) {
+  final metadata = message.metadata ?? {};
+
+  final title = metadata['title'] ?? '';
+  final description = metadata['description'] ?? '';
+  final thumbUrl = metadata['thumb'] ?? '';
+  final videoUrl = metadata['href'] ?? '';
+
+  return VideoMessageWidget(
+    title: title,
+    // description: description,
+    thumbUrl: thumbUrl,
+    videoUrl: videoUrl,
+    // messageWidth: double.tryParse(messageWidth.toString()),
   );
 }
 
