@@ -136,27 +136,6 @@ class _MyAppState extends State<MyApp> {
                     return;
                   }
 
-                  // await Chat.open(
-                  //     // phoneNumber: '0708983437',
-                  //     // phoneNumber: '+8490688627',
-                  //     context,
-                  //     _userNameController.value.text,
-                  //     _passwordController.value.text,
-                  //     'assets/icon-app.png',
-                  //     const Locale(LangKey.langVi, 'VI'),
-                  //     domain: 'https://chathub.epoints.vn/',
-                  //     // domain: 'https://chat.epoints.vn/',E:\WAO\EP\chatHub\lib\chat_ui\widgets\input.dart
-                  //     brandCode: 'sale',
-                  //     isChatHub: true,
-                  //     // token:
-                  //     //     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ZmNjMjM1ZDAwYzZjMDAxMjVlZmViNSIsInNpZCI6ImFkbWluQHBpb2FwcHMudm4iLCJlbWFpbCI6InlvdXJfZW1haWxAZXhhbXBsZS5jb20iLCJsZXZlbCI6InN0YW5kYXJkIiwiZmlyc3ROYW1lIjoiSm9obiIsImxhc3ROYW1lIjoiRG9lIiwidXNlcm5hbWUiOiJhZG1pbkBwaW9hcHBzLnZuIiwiYnJhbmQiOiJzYWxlIiwiaWF0IjoxNzQ2NjA2NTc3LCJleHAiOjE3NTE3OTA1Nzd9.uCwGYgHPImV6PYhRQ5EBiUBppV9vNzvBsekHcuiJu-k");
-                  //     // //
-                  //     token:
-                  //         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyZmQwMjA0ZDcwMzNlMjRkYTc5YzYwNiIsInVpZCI6MSwic2lkIjoiYWRtaW4iLCJlbWFpbCI6InZ1QHBpb2FwcHMudm4iLCJsZXZlbCI6InJvb3QiLCJmaXJzdE5hbWUiOiJBZG1pbiIsImxhc3ROYW1lIjoiVXNlciIsInVzZXJuYW1lIjoiYWRtaW4iLCJicmFuZF9jb2RlIjoic2FsZSIsImlhdCI6MTc1NjE5NzY0MSwiZXhwIjoxNzYxMzgxNjQxfQ.G9JDudw09AuBnJQHGfdFbX59l6LBaz44XlUPAFLKEaM",
-                  //     // roomId: '632a88f7dd01b42c37330585'
-                  //     );
-
-                  //MATHEW TEST
                   await Chat.open(
                     // phoneNumber: '0708983437',
                     // phoneNumber: '+8490688627',
@@ -165,13 +144,31 @@ class _MyAppState extends State<MyApp> {
                     _passwordController.value.text,
                     'assets/icon-app.png',
                     const Locale(LangKey.langVi, 'VI'),
-                    domain: 'https://chat.dev.matthewsliquor.com.au/',
-                    brandCode: 'matthewsliquor',
-                    isChatHub: false,
+                    domain: 'https://chathub.epoints.vn/',
+                    // domain: 'https://chat.epoints.vn/',E:\WAO\EP\chatHub\lib\chat_ui\widgets\input.dart
+                    brandCode: 'sale',
+                    isChatHub: true,
                     token:
-                        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyN2JkMDc5NDhhNTUxMDUzZWFkMGFiNyIsInNpZCI6ImFkbWluQG1hdHRoZXdzbGlxdW9yLmNvbSIsImVtYWlsIjoidnVAcGlvYXBwcy52biIsImxldmVsIjoicm9vdCIsImZpcnN0TmFtZSI6IkFkbWluIiwibGFzdE5hbWUiOiJVc2VyIiwidXNlcm5hbWUiOiJhZG1pbkBtYXR0aGV3c2xpcXVvci5jb20iLCJicmFuZCI6Im1hdHRoZXdzbGlxdW9yIiwiaWF0IjoxNzYwNDAzOTQ5LCJleHAiOjE3NjU1ODc5NDl9.aR8aMgqe4KamfXYLJbMGjmHhmPyyq9-OHlEBQbBtwQw",
+                        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyZmQwMjA0ZDcwMzNlMjRkYTc5YzYwNiIsInVpZCI6MSwic2lkIjoiYWRtaW4iLCJlbWFpbCI6InZ1QHBpb2FwcHMudm4iLCJsZXZlbCI6InJvb3QiLCJmaXJzdE5hbWUiOiJBZG1pbiIsImxhc3ROYW1lIjoiVXNlciIsInVzZXJuYW1lIjoiYWRtaW4iLCJicmFuZF9jb2RlIjoic2FsZSIsImlhdCI6MTc1NjE5NzY0MSwiZXhwIjoxNzYxMzgxNjQxfQ.G9JDudw09AuBnJQHGfdFbX59l6LBaz44XlUPAFLKEaM",
                     // roomId: '632a88f7dd01b42c37330585'
                   );
+
+                  //MATHEW TEST
+                  // await Chat.open(
+                  //   // phoneNumber: '0708983437',
+                  //   // phoneNumber: '+8490688627',
+                  //   context,
+                  //   _userNameController.value.text,
+                  //   _passwordController.value.text,
+                  //   'assets/icon-app.png',
+                  //   const Locale(LangKey.langVi, 'VI'),
+                  //   domain: 'https://chat.dev.matthewsliquor.com.au/',
+                  //   brandCode: 'matthewsliquor',
+                  //   isChatHub: false,
+                  //   token:
+                  //       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyN2JkMDc5NDhhNTUxMDUzZWFkMGFiNyIsInNpZCI6ImFkbWluQG1hdHRoZXdzbGlxdW9yLmNvbSIsImVtYWlsIjoidnVAcGlvYXBwcy52biIsImxldmVsIjoicm9vdCIsImZpcnN0TmFtZSI6IkFkbWluIiwibGFzdE5hbWUiOiJVc2VyIiwidXNlcm5hbWUiOiJhZG1pbkBtYXR0aGV3c2xpcXVvci5jb20iLCJicmFuZCI6Im1hdHRoZXdzbGlxdW9yIiwiaWF0IjoxNzYwNDAzOTQ5LCJleHAiOjE3NjU1ODc5NDl9.aR8aMgqe4KamfXYLJbMGjmHhmPyyq9-OHlEBQbBtwQw",
+                  //   // roomId: '632a88f7dd01b42c37330585'
+                  // );
 
                   // Chat.open(context,_userNameController.value.text, _passwordController.value.text, 'assets/icon-app.png',const Locale(LangKey.langVi, 'VN'), domain: _domainController.value.text,brandCode: 'qc',isChatHub: true,
                   //     token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyZmQwMjA0ZDcwMzNlMjRkYTc5YzYwNiIsInVpZCI6MSwic2lkIjoiYWRtaW4iLCJlbWFpbCI6InZ1QHBpb2FwcHMudm4iLCJsZXZlbCI6InJvb3QiLCJmaXJzdE5hbWUiOiJBZG1pbiIsImxhc3ROYW1lIjoiVXNlciIsInVzZXJuYW1lIjoiYWRtaW4iLCJicmFuZF9jb2RlIjoic2FsZSIsImlhdCI6MTc0NDYxOTY3NSwiZXhwIjoxNzQ5ODAzNjc1fQ.A1gbHYmAxSWieWvEJ4uScRRC_zEhJSKRrtA7MzlkPV4");
@@ -219,3 +216,8 @@ class _MyAppState extends State<MyApp> {
     );
   }
 }
+
+//66b9e2b23b3722001365cb66 (generic)
+//632a88f7dd01b42c37330585 ("oa_template")
+//6790715251835800113664ea (oa_list)
+//683670f719fbc9001203bfae (zp_list)
