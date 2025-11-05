@@ -68,7 +68,7 @@ class ChatConnection {
   static int? notiChatHubZalo;
   static int? notiChatHubZaloPersonal;
   static Function? openChatGPT;
-  static String? uid;
+  static int? uid;
   static String? creatorIdGroup;
   static String? ownerId;
 
