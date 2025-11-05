@@ -68,7 +68,7 @@ class ChatConnection {
   static int? notiChatHubZalo;
   static int? notiChatHubZaloPersonal;
   static Function? openChatGPT;
-  static int? uid;
+  static String? uid;
   static String? creatorIdGroup;
   static String? ownerId;
 
@@ -88,7 +88,7 @@ class ChatConnection {
       if (user!.id == "null") {
         user!.id = payload["id"];
       }
-      ChatConnection.uid = payload["uid"];
+      ChatConnection.uid = payload["uid"].toString();
       user!.firstName = payload['firstName'] ?? '';
       user!.lastName = payload['lastName'] ?? '';
       streamSocket.connectAndListen(streamSocket, user!);
