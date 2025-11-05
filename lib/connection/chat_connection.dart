@@ -258,7 +258,6 @@ class ChatConnection {
 
   static Future<c.ChatMessage?> joinRoom(String id,
       {bool refresh = false}) async {
-    // String version = ChatConnection.isChatHub ? '/v3' : '';// Lỗi chat 404
     try {
       String url =
           ChatConnection.isChatHub ? 'api/v3/join-room' : 'api/room/join';
