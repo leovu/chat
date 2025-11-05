@@ -35,7 +35,7 @@ class Tag {
 
 class Data {
   bool? status;
-  int? sId;
+  String? sId;
   String? name;
   String? color;
   String? createdAt;

@@ -262,50 +262,50 @@ class Room {
 }
 
 class Channel {
-  final String id;
-  final int active;
-  final int autoCreateLead;
-  final String avatar;
-  // final String cover;
-  // final String createdAt;
-  // final int enableBackgroundIcon;
-  final int enableBot;
-  final int enableGreeting;
-  final int enableVoiceAi;
-  final int isLostConnection;
-  final List<int> managers;
-  final String nameApp;
-  // final List<dynamic> quickQuestion;
-  final int showFormLivechat;
-  final String socialChanelId;
-  final String source;
-  final bool status;
-  final int subscribed;
-  // final List<dynamic> zpCookie;
-  final int v;
+  final String? id;
+  final int? active;
+  final int? autoCreateLead;
+  final String? avatar;
+  final String? cover;
+  final String? createdAt;
+  final int? enableBackgroundIcon;
+  final int? enableBot;
+  final int? enableGreeting;
+  final int? enableVoiceAi;
+  final int? isLostConnection;
+  final List<int>? managers;
+  final String? nameApp;
+  final List<dynamic>? quickQuestion;
+  final int? showFormLivechat;
+  final String? socialChanelId;
+  final String? source;
+  final bool? status;
+  final int? subscribed;
+  final List<dynamic>? zpCookie;
+  final int? v;
 
   Channel({
-    required this.id,
-    required this.active,
-    required this.autoCreateLead,
-    required this.avatar,
-    // required this.cover,
-    // required this.createdAt,
-    // required this.enableBackgroundIcon,
-    required this.enableBot,
-    required this.enableGreeting,
-    required this.enableVoiceAi,
-    required this.isLostConnection,
-    required this.managers,
-    required this.nameApp,
-    // required this.quickQuestion,
-    required this.showFormLivechat,
-    required this.socialChanelId,
-    required this.source,
-    required this.status,
-    required this.subscribed,
-    // required this.zpCookie,
-    required this.v,
+    this.id,
+    this.active,
+    this.autoCreateLead,
+    this.avatar,
+    this.cover,
+    this.createdAt,
+    this.enableBackgroundIcon,
+    this.enableBot,
+    this.enableGreeting,
+    this.enableVoiceAi,
+    this.isLostConnection,
+    this.managers,
+    this.nameApp,
+    this.quickQuestion,
+    this.showFormLivechat,
+    this.socialChanelId,
+    this.source,
+    this.status,
+    this.subscribed,
+    this.zpCookie,
+    this.v,
   });
 
   factory Channel.fromJson(Map<String, dynamic> json) {
@@ -314,16 +314,17 @@ class Channel {
       active: json['active'],
       autoCreateLead: json['auto_create_lead'],
       avatar: json['avatar'] ?? '',
-      // cover: json['cover'],
-      // createdAt: json['createdAt'],
-      // enableBackgroundIcon: json['enable_background_icon'],
+      cover: json['cover'],
+      createdAt: json['createdAt'],
+      enableBackgroundIcon: json['enable_background_icon'],
       enableBot: json['enable_bot'],
+
       enableGreeting: json['enable_greeting'],
       enableVoiceAi: json['enable_voice_ai'],
       isLostConnection: json['is_lost_connection'],
-      managers: List<int>.from(json['managers']),
+      // managers: List<int>.from(json['managers']),
       nameApp: json['nameApp'],
-      // quickQuestion: List<dynamic>.from(json['quick_question']),
+      // quickQuestion: List<dynamic>.from(json['quick_question']??[]),
       showFormLivechat: json['show_form_livechat'],
       socialChanelId: json['socialChanelId'],
       source: json['source'],

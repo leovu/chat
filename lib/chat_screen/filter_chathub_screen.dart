@@ -14,7 +14,7 @@ import '../presentation/utils/formatter.dart';
 class FilterChathubScreen extends StatefulWidget {
   final String? status;
   final String? channel;
-  final List<int?>? arrLabel;
+  final List<String?>? arrLabel;
   final link_status;
   final String? startDay;
   final String? endDay;
@@ -41,7 +41,7 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
   String? status;
   String? channel;
   String? link_status;
-  List<int?> arrLabel = [];
+  List<String?> arrLabel = [];
   Tag? tag;
   List<String> arrStatus = ['not_seen', 'seen', 'replied'];
 

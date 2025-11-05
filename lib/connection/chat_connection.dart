@@ -68,7 +68,7 @@ class ChatConnection {
   static int? notiChatHubZalo;
   static int? notiChatHubZaloPersonal;
   static Function? openChatGPT;
-  static int? uid;
+  static String? uid;
   static String? creatorIdGroup;
   static String? ownerId;
 
@@ -150,7 +150,7 @@ class ChatConnection {
     String? source,
     String? channelId,
     String? status,
-    List<int?>? tagIds,
+    List<String?>? tagIds,
     int page = 1,
     r.Room? roomData,
     String? link_status,
@@ -258,7 +258,7 @@ class ChatConnection {
 
   static Future<c.ChatMessage?> joinRoom(String id,
       {bool refresh = false}) async {
-    // String version = ChatConnection.isChatHub ? '/v3' : '';
+    // String version = ChatConnection.isChatHub ? '/v3' : '';// Lỗi chat 404
     try {
       String url =
           ChatConnection.isChatHub ? 'api/v3/join-room' : 'api/room/join';
@@ -275,6 +275,7 @@ class ChatConnection {
     }
     return null;
   }
+
 
   static Future<bool> autoUpdateChatSeenWhenJoinRoom(String id) async {
     ResponseData responseData =
@@ -743,13 +744,13 @@ class ChatConnection {
   }
 
   static Future<Map<String, dynamic>> removeTag(
-      int tagId, String userId) async {
+      String tagId, String userId) async {
     ResponseData responseData = await connection
         .post('api/tags/remove', {'tag_id': tagId, 'user_id': userId});
     return responseData.data;
   }
 
-  static Future<bool> updateTag(List<int> tagIds, String userId) async {
+  static Future<bool> updateTag(List<String> tagIds, String userId) async {
     ResponseData responseData = await connection
         .post('api/tags/user-add', {'tag_ids': tagIds, 'user_id': userId});
     return responseData.isSuccess;
