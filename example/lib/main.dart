@@ -144,12 +144,12 @@ class _MyAppState extends State<MyApp> {
                     _passwordController.value.text,
                     'assets/icon-app.png',
                     const Locale(LangKey.langVi, 'VI'),
-                    domain: 'https://chathub.epoints.vn/',
+                    domain: 'https://chathub.matthewsliquor.com.au/',
                     // domain: 'https://chat.epoints.vn/',E:\WAO\EP\chatHub\lib\chat_ui\widgets\input.dart
-                    brandCode: 'sale',
+                    brandCode: 'matthewsliquor',
                     isChatHub: true,
                     token:
-                        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyZmQwMjA0ZDcwMzNlMjRkYTc5YzYwNiIsInVpZCI6MSwic2lkIjoiYWRtaW4iLCJlbWFpbCI6InZ1QHBpb2FwcHMudm4iLCJsZXZlbCI6InJvb3QiLCJmaXJzdE5hbWUiOiJBZG1pbiIsImxhc3ROYW1lIjoiVXNlciIsInVzZXJuYW1lIjoiYWRtaW4iLCJicmFuZF9jb2RlIjoic2FsZSIsImlhdCI6MTc1NjE5NzY0MSwiZXhwIjoxNzYxMzgxNjQxfQ.G9JDudw09AuBnJQHGfdFbX59l6LBaz44XlUPAFLKEaM",
+                        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyN2JkMDc5NDhhNTUxMDUzZWFkMGFiNyIsInVpZCI6IiIsInNpZCI6ImFkbWluIiwiZW1haWwiOiJhZG1pbkBtYXR0aGV3c2xpcXVvci5jb20iLCJsZXZlbCI6InJvb3QiLCJmaXJzdE5hbWUiOiJBZG1pbiIsImxhc3ROYW1lIjoiIiwidXNlcm5hbWUiOiJhZG1pbiIsImJyYW5kX2NvZGUiOiJtYXR0aGV3c2xpcXVvciIsImlhdCI6MTc2MjMxMTMyNCwiZXhwIjoxNzY3NDk1MzI0fQ.As-COT9rYsy5C1wybOiU3fIfdRZ7AiwbSodQ4jP5sWE",
                     // roomId: '632a88f7dd01b42c37330585'
                   );
 

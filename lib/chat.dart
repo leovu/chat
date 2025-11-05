@@ -142,7 +142,7 @@ class Chat {
         return response.message;
       } else {
         ChatMessage? chat = await ChatConnection.joinRoom(
-          response.data!.room_id!,
+          response.data?.room_id??'',
         );
         if (chat?.room != null) {
           await Navigator.of(context, rootNavigator: true).push(
@@ -165,7 +165,7 @@ class Chat {
     String? roomId,
   }) async {
     try {
-      ChatMessage? chat = await ChatConnection.joinRoom(roomId!);
+      ChatMessage? chat = await ChatConnection.joinRoom(roomId??'');
       if (chat?.room != null) {
         await Navigator.of(context, rootNavigator: true).push(
           MaterialPageRoute(
