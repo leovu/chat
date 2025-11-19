@@ -159,14 +159,14 @@ class _ImageMessageState extends State<ImageMessage> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  height: 64,
+                  height: 100,
                   margin: EdgeInsetsDirectional.fromSTEB(
                     InheritedChatTheme.of(context).theme.messageInsetsVertical,
                     InheritedChatTheme.of(context).theme.messageInsetsVertical,
                     16,
                     InheritedChatTheme.of(context).theme.messageInsetsVertical,
                   ),
-                  width: 64,
+                  width: 100,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(15),
                     child: Image(
@@ -242,7 +242,6 @@ class _ImageMessageState extends State<ImageMessage> {
               padding: EdgeInsets.all(widget.content != '' ? 8 : 0),
               child: Container(
                 color: Colors.transparent,
-                constraints: const BoxConstraints(maxHeight: 150),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,

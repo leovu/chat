@@ -1189,7 +1189,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       onCameraPressed: _handleCameraSelection,
       onSendPressed: _handleSendPressed,
       user: _user,
-      
+
       isSearchChat: _isSearchMessage,
       scrollPhysics: const ClampingScrollPhysics(),
       itemPositionsListener: itemPositionsListener,
@@ -1592,24 +1592,31 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       if (!widget.data.isGroup!) {
         final owner = extractOwner(widget.data);
         final isOwnerPictureEmpty = owner?.picture?.isEmpty ?? true;
-
+        String image = '';
+        data?.room?.people?.forEach(
+          (element) {
+            if (element.picture?.shield != null)
+              image =
+                  '${HTTPConnection.domain}api/images/${element.picture?.shieldedID}/256/${ChatConnection.brandCode}';
+          },
+        );
         return isOwnerPictureEmpty
             ? CircleAvatar(
                 radius: radius,
                 child: Text(
-                  owner?.getAvatarName() ?? '',
+                  owner?.picture??'',
                   style: const TextStyle(color: Colors.white),
                 ),
               )
             : CircleAvatar(
                 radius: radius,
                 backgroundImage: CachedNetworkImageProvider(
-                  '${HTTPConnection.domain}api/images/${widget.data.room_avatar?.shieldedID}/256/${ChatConnection.brandCode ?? ''}',
-                  headers: {'brand-code': ChatConnection.brandCode!},
+                  image,
                 ),
                 backgroundColor: Colors.transparent,
               );
       } else {
+
         if (widget.data.room_avatar == null) {
           final avatar = data?.room?.owner?.avatar;
 
