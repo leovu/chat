@@ -136,20 +136,24 @@ class _MyAppState extends State<MyApp> {
                     return;
                   }
 
+                  //MATHEW TEST
                   await Chat.open(
                     // phoneNumber: '0708983437',
                     // phoneNumber: '+8490688627',
                     context,
-                    _userNameController.value.text,
-                    _passwordController.value.text,
+                    // _userNameController.value.text,
+                    // _passwordController.value.text,
+                    'admin@matthewsliquor.com',
+                    '123456',
                     'assets/icon-app.png',
                     const Locale(LangKey.langVi, 'VI'),
                     domain: 'https://chathub.matthewsliquor.com.au/',
+                    // domain: 'https://chat.matthewsliquor.com.au/',
                     // domain: 'https://chat.epoints.vn/',E:\WAO\EP\chatHub\lib\chat_ui\widgets\input.dart
                     brandCode: 'matthewsliquor',
                     isChatHub: true,
                     token:
-                        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyN2JkMDc5NDhhNTUxMDUzZWFkMGFiNyIsInVpZCI6IiIsInNpZCI6ImFkbWluIiwiZW1haWwiOiJhZG1pbkBtYXR0aGV3c2xpcXVvci5jb20iLCJsZXZlbCI6InJvb3QiLCJmaXJzdE5hbWUiOiJBZG1pbiIsImxhc3ROYW1lIjoiIiwidXNlcm5hbWUiOiJhZG1pbiIsImJyYW5kX2NvZGUiOiJtYXR0aGV3c2xpcXVvciIsImlhdCI6MTc2MjMxMTMyNCwiZXhwIjoxNzY3NDk1MzI0fQ.As-COT9rYsy5C1wybOiU3fIfdRZ7AiwbSodQ4jP5sWE",
+                        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyN2JkMDc5NDhhNTUxMDUzZWFkMGFiNyIsInVpZCI6MjA3LCJzaWQiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AbWF0dGhld3NsaXF1b3IuY29tIiwibGV2ZWwiOiJyb290IiwiZmlyc3ROYW1lIjoiQWRtaW4iLCJsYXN0TmFtZSI6IiIsInVzZXJuYW1lIjoiYWRtaW4iLCJicmFuZF9jb2RlIjoibWF0dGhld3NsaXF1b3IiLCJpYXQiOjE3NjM1Mjg3NzQsImV4cCI6MTc2ODcxMjc3NH0.QSAgHEopoatCLABnOJoIYWto3_sgpngtmxKjJQWPYQA",
                     // roomId: '632a88f7dd01b42c37330585'
                   );
 
