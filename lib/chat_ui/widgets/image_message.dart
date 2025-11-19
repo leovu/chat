@@ -2,6 +2,8 @@ import 'package:chat/chat_ui/widgets/replied_message.dart';
 import 'package:chat/data_model/room.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import '../../connection/chat_connection.dart';
+import '../../connection/http_connection.dart';
 import '../conditional/conditional.dart';
 import '../util.dart';
 import 'inherited_chat_theme.dart';
@@ -52,8 +54,39 @@ class _ImageMessageState extends State<ImageMessage> {
   @override
   void initState() {
     super.initState();
-    _image = Conditional().getProvider(widget.message.uri);
+    try {
+      _image = Conditional().getProvider(widget.message.uri);
+
+      final testStream = _image?.resolve(const ImageConfiguration());
+      testStream?.addListener(
+        ImageStreamListener(
+          (info, _) {},
+          onError: (error, stack) {
+            final shieldedID = extractShieldedID(widget.message.uri);
+            final fallbackUrl =
+                "${HTTPConnection.domain}api/images/$shieldedID/512/${ChatConnection.brandCode}";
+
+            setState(() {
+              _image = NetworkImage(fallbackUrl);
+            });
+          },
+        ),
+      );
+    } catch (e) {
+      final shieldedID = extractShieldedID(widget.message.uri);
+      final fallbackUrl =
+          "${HTTPConnection.domain}api/images/$shieldedID/512/${ChatConnection.brandCode}";
+
+      _image = NetworkImage(fallbackUrl);
+    }
+
     _size = Size(widget.message.width ?? 0, widget.message.height ?? 0);
+  }
+
+  String extractShieldedID(String uri) {
+    final file = uri.split('/').last;
+    final id = file.split('.').first;
+    return id;
   }
 
   @override
@@ -233,12 +266,12 @@ class _ImageMessageState extends State<ImageMessage> {
                       _repliedMessageBuilder(_user),
                     Flexible(
                       child: Image(
-                        // width: _size.width/2,
                         fit: BoxFit.cover,
                         image: _image!,
                       ),
                     ),
-                    if (widget.content != '') ...[
+                    if (widget.content != '' &&
+                        isReadableText(widget.content!)) ...[
                       Text(widget.content ?? ''),
                       SizedBox(
                         height: 8,
@@ -252,5 +285,17 @@ class _ImageMessageState extends State<ImageMessage> {
         ),
       );
     }
+  }
+
+  bool isReadableText(String text) {
+    if (text.trim().isEmpty) return false;
+
+    if (RegExp(r'^[a-zA-Z0-9]{30,}$').hasMatch(text)) {
+      return false;
+    }
+    final letters = RegExp(r'[a-zA-ZÀ-ỹ ]').allMatches(text).length;
+    final ratio = letters / text.length;
+
+    return ratio > 0.4;
   }
 }

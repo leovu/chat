@@ -1189,6 +1189,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       onCameraPressed: _handleCameraSelection,
       onSendPressed: _handleSendPressed,
       user: _user,
+      
       isSearchChat: _isSearchMessage,
       scrollPhysics: const ClampingScrollPhysics(),
       itemPositionsListener: itemPositionsListener,

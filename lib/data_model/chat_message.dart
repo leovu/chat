@@ -810,7 +810,7 @@ class Messages {
 
       case 'image':
         data['type'] = 'image';
-        data['size'] = image?.size ?? 0; // Lấy size từ object image nếu có
+        data['size'] = image?.size ?? 0;
         data['name'] = image?.name ?? 'image.jpg';
         data['uri'] = photos?.original ??
             photos?.fullsize ??

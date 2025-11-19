@@ -3,12 +3,14 @@ import 'package:chat/chat_ui/widgets/custom_message_generic.dart';
 import 'package:chat/chat_ui/widgets/message.dart';
 import 'package:chat/chat_ui/widgets/custom_message_template_card.dart';
 import 'package:chat/common/theme.dart';
+import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:chat/chat_ui/widgets/inherited_user.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../connection/http_connection.dart';
 import 'inherited_chat_theme.dart';
 import '../../data_model/room.dart' as r;
 
@@ -56,7 +58,7 @@ class RepliedMessage extends StatelessWidget {
 
     types.CustomMessage _customMessage;
 
-    final bool _closable = onCancelReplyPressed != null;
+    final bool _closable = true; //onCancelReplyPressed != null;
     final bool _isCurrentUser =
         messageAuthorId == InheritedUser.of(context).user.id;
     final _theme = InheritedChatTheme.of(context).theme;
@@ -103,9 +105,24 @@ class RepliedMessage extends StatelessWidget {
       // _text = checkTag(_text, people);
     }
 
-    // ---------- Helpers ----------
+    String _buildFallbackImageUri(String original) {
+      final uri = Uri.parse(original);
+      final domain = "${HTTPConnection.domain}";
+
+      final lastSegment =
+          uri.pathSegments.isNotEmpty ? uri.pathSegments.last : "";
+      final shieldedId = lastSegment.replaceAll('.jpg', '');
+
+      final size = uri.pathSegments.length > 1
+          ? uri.pathSegments[uri.pathSegments.length - 2]
+          : "512";
+
+      return "${domain}api/images/$shieldedId/$size/${ChatConnection.brandCode}";
+    }
 
     Widget _buildImageWidget() {
+      final fallbackUri = _buildFallbackImageUri(_imageUri!);
+
       return Container(
         width: 44,
         height: 44,
@@ -115,6 +132,12 @@ class RepliedMessage extends StatelessWidget {
           child: Image.network(
             _imageUri!,
             fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return Image.network(
+                fallbackUri,
+                fit: BoxFit.cover,
+              );
+            },
           ),
         ),
       );
@@ -155,7 +178,7 @@ class RepliedMessage extends StatelessWidget {
         height: 44,
         child: Center(
           child: Icon(
-            Icons.play_circle, // hoặc Icons.play_arrow
+            Icons.play_circle,
             size: 16,
             color: AppColors.bluePrimary,
           ),
@@ -164,10 +187,9 @@ class RepliedMessage extends StatelessWidget {
     }
 
     Widget _buildStickerWidget() {
-      // Kiểm tra xem repliedMessage có metadata và custom_type không
       if (repliedMessage?.metadata != null) {
         final metadata = repliedMessage?.metadata;
-        final stickerUrl = metadata?['url']; // Lấy sticker từ metadata
+        final stickerUrl = metadata?['url'];
         if (stickerUrl != null) {
           return GestureDetector(
             onTap: () {
@@ -327,8 +349,7 @@ class RepliedMessage extends StatelessWidget {
     }
 
     Widget _buildOaTemplateWidget() {
-      return Text(
-          AppLocalizations.text(LangKey.oa_template_message));
+      return Text(AppLocalizations.text(LangKey.oa_template_message));
     }
 
     Widget _buildTemplateWidget() {
@@ -354,6 +375,42 @@ class RepliedMessage extends StatelessWidget {
             );
     }
 
+    Widget _buildLinkWidget(Map<String, dynamic> metadata) {
+      final url = metadata['url'] as String?;
+      final text = metadata['text'] as String? ?? 'Link';
+
+      if (url == null) return const SizedBox.shrink();
+
+      return GestureDetector(
+        onTap: () async {
+          final uri = Uri.tryParse(url);
+          if (uri != null) {
+            await launchUrl(uri, mode: LaunchMode.externalApplication);
+          }
+        },
+        child: Container(
+          height: 44,
+          alignment: Alignment.center,
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          decoration: BoxDecoration(
+            // color: Colors.blue.shade100,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(
+            text,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 12,
+              color: Colors.blueAccent,
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.start,
+          ),
+        ),
+      );
+    }
+
     Widget _buildCustom() {
       if (repliedMessage?.metadata == null) {
         return const SizedBox.shrink();
@@ -363,17 +420,18 @@ class RepliedMessage extends StatelessWidget {
 
       switch (metadata?['custom_type']) {
         case 'sticker':
-          return _buildStickerWidget(); // Hiển thị sticker nếu custom_type là 'sticker'
+          return _buildStickerWidget();
         case 'products':
-          return _buildProductsWidget(); // Hiển thị danh sách sản phẩm nếu custom_type là 'products'
+          return _buildProductsWidget();
         case 'generic':
-          return _buildGenericWidget(); // Hiển thị generic nếu custom_type là 'generic'
+          return _buildGenericWidget();
         case 'oa_template':
-          return _buildOaTemplateWidget(); // Hiển thị OA template nếu custom_type là 'oa_template'
+          return _buildOaTemplateWidget();
         case 'zp_list':
           return _buildZpListWidget(
-              messageWidth: MediaQuery.sizeOf(context).width *
-                  0.4); // Hiển thị ZP list nếu custom_type là 'zp_list'
+              messageWidth: MediaQuery.sizeOf(context).width * 0.4);
+        case 'link':
+          return _buildLinkWidget(metadata ?? {});
         case 'template':
           return _buildTemplateWidget();
 
@@ -461,7 +519,7 @@ class RepliedMessage extends StatelessWidget {
         ),
       );
     }
-    // ---------- End helpers ----------
+
     return InkWell(
       onTap: () {
         if ((_imageUri != null || _isFile) &&
@@ -505,7 +563,7 @@ class RepliedMessage extends StatelessWidget {
                         isCurrentUser: _isCurrentUser,
                         text: _text,
                         repliedMessage: repliedMessage,
-                        showUserNames: showUserNames,
+                        showUserNames: true,
                       ),
                     ],
                   ),

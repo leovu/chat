@@ -1,9 +1,11 @@
 import 'dart:io';
-import 'package:chat/chat_ui/conditional/conditional.dart';
+import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/download.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view_gallery.dart';
+
+import '../../connection/http_connection.dart' show HTTPConnection;
 
 class PhotoScreen extends StatefulWidget {
   final String imageViewed;
@@ -22,10 +24,20 @@ class _PhotoScreenState extends State<PhotoScreen> {
       child: Stack(
         children: [
           PhotoViewGallery.builder(
-            builder: (BuildContext context, int index) =>
-                PhotoViewGalleryPageOptions(
-                  imageProvider: Conditional().getProvider(widget.imageViewed),
-                ),
+            builder: (BuildContext context, int index) {
+              final imageProvider = NetworkImage(widget.imageViewed);
+
+              return PhotoViewGalleryPageOptions(
+                imageProvider: imageProvider,
+                errorBuilder: (context, error, stackTrace) {
+                  final fallbackUrl = buildFallbackImageUrl(widget.imageViewed);
+                  return Image.network(
+                    fallbackUrl,
+                    fit: BoxFit.contain,
+                  );
+                },
+              );
+            },
             itemCount: 1,
             loadingBuilder: (context, event) =>
                 _imageGalleryLoadingBuilder(context, event),
@@ -49,8 +61,13 @@ class _PhotoScreenState extends State<PhotoScreen> {
               color: Colors.white,
               tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
               onPressed: () async {
+                String linkDowload = ChatConnection.isChatHub
+                    ? widget.imageViewed
+                    : buildFallbackImageUrl(widget.imageViewed);
                 showLoading();
-                await download(context,widget.imageViewed,'${DateTime.now().toUtc().millisecond}.jpeg',isSaveGallery: true);
+                await download(context, linkDowload,
+                    '${DateTime.now().toUtc().millisecond}.jpeg',
+                    isSaveGallery: true);
                 Navigator.of(context).pop();
               },
             ),
@@ -58,6 +75,21 @@ class _PhotoScreenState extends State<PhotoScreen> {
         ],
       ),
     );
+  }
+
+  String buildFallbackImageUrl(String? original, {String size = "512"}) {
+    if (original == null) return "";
+
+    final uri = Uri.tryParse(original);
+    String shieldedId = "";
+
+    if (uri != null && uri.pathSegments.isNotEmpty) {
+      shieldedId = uri.pathSegments.last.replaceAll('.jpg', '');
+    } else {
+      shieldedId = original;
+    }
+
+    return "${HTTPConnection.domain}api/images/$shieldedId/$size/${ChatConnection.brandCode}";
   }
 
   Future showLoading() async {
@@ -70,7 +102,9 @@ class _PhotoScreenState extends State<PhotoScreen> {
             backgroundColor: Colors.transparent,
             children: <Widget>[
               Center(
-                child: Platform.isAndroid ? const CircularProgressIndicator() : const CupertinoActivityIndicator(),
+                child: Platform.isAndroid
+                    ? const CircularProgressIndicator()
+                    : const CupertinoActivityIndicator(),
               )
             ],
           );
@@ -86,9 +120,9 @@ class _PhotoScreenState extends State<PhotoScreen> {
   }
 
   Widget _imageGalleryLoadingBuilder(
-      BuildContext context,
-      ImageChunkEvent? event,
-      ) {
+    BuildContext context,
+    ImageChunkEvent? event,
+  ) {
     return Center(
       child: SizedBox(
         width: 20,
