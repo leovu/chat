@@ -147,14 +147,13 @@ class _MyAppState extends State<MyApp> {
                     '123456',
                     'assets/icon-app.png',
                     const Locale(LangKey.langVi, 'VI'),
-                    domain: 'https://chathub.matthewsliquor.com.au/',
-                    // domain: 'https://chat.matthewsliquor.com.au/',
-                    // domain: 'https://chat.epoints.vn/',E:\WAO\EP\chatHub\lib\chat_ui\widgets\input.dart
+                    // domain: 'https://chathub.matthewsliquor.com.au/',
+                    domain: 'https://chat.matthewsliquor.com.au/',
                     brandCode: 'matthewsliquor',
-                    isChatHub: true,
+                    isChatHub: false,
                     token:
-                        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyN2JkMDc5NDhhNTUxMDUzZWFkMGFiNyIsInVpZCI6MjA3LCJzaWQiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AbWF0dGhld3NsaXF1b3IuY29tIiwibGV2ZWwiOiJyb290IiwiZmlyc3ROYW1lIjoiQWRtaW4iLCJsYXN0TmFtZSI6IiIsInVzZXJuYW1lIjoiYWRtaW4iLCJicmFuZF9jb2RlIjoibWF0dGhld3NsaXF1b3IiLCJpYXQiOjE3NjM1Mjg3NzQsImV4cCI6MTc2ODcxMjc3NH0.QSAgHEopoatCLABnOJoIYWto3_sgpngtmxKjJQWPYQA",
-                    // "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyN2JkMDc5NDhhNTUxMDUzZWFkMGFiNyIsInNpZCI6ImFkbWluQG1hdHRoZXdzbGlxdW9yLmNvbSIsImVtYWlsIjoidnVAcGlvYXBwcy52biIsImxldmVsIjoicm9vdCIsImZpcnN0TmFtZSI6IkFkbWluIiwibGFzdE5hbWUiOiJVc2VyIiwidXNlcm5hbWUiOiJhZG1pbkBtYXR0aGV3c2xpcXVvci5jb20iLCJicmFuZCI6Im1hdHRoZXdzbGlxdW9yIiwiaWF0IjoxNzYzNTQwMDY3LCJleHAiOjE3Njg3MjQwNjd9.kK4TZpui9HsAWK-thxq_BaGiz6GITieNzsGa-PYd2sE"
+                        // "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyN2JkMDc5NDhhNTUxMDUzZWFkMGFiNyIsInVpZCI6MjA3LCJzaWQiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AbWF0dGhld3NsaXF1b3IuY29tIiwibGV2ZWwiOiJyb290IiwiZmlyc3ROYW1lIjoiQWRtaW4iLCJsYXN0TmFtZSI6IiIsInVzZXJuYW1lIjoiYWRtaW4iLCJicmFuZF9jb2RlIjoibWF0dGhld3NsaXF1b3IiLCJpYXQiOjE3NjU3ODA1NDcsImV4cCI6MTc3MDk2NDU0N30.2EwB6zLJly3GKqSLb15ptLxDW0T4tFbOPJEr4ceytzA",
+                    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyN2JkMDc5NDhhNTUxMDUzZWFkMGFiNyIsInNpZCI6ImFkbWluQG1hdHRoZXdzbGlxdW9yLmNvbSIsImVtYWlsIjoidnVAcGlvYXBwcy52biIsImxldmVsIjoicm9vdCIsImZpcnN0TmFtZSI6IkFkbWluIiwibGFzdE5hbWUiOiJVc2VyIiwidXNlcm5hbWUiOiJhZG1pbkBtYXR0aGV3c2xpcXVvci5jb20iLCJicmFuZCI6Im1hdHRoZXdzbGlxdW9yIiwiaWF0IjoxNzY1NzgyNzIzLCJleHAiOjE3NzA5NjY3MjN9.ICgzPCJ1U5XO9Y_kGSmwfgdDgd_cyG_KZ60tm5nhB-k"
                     // roomId: '632a88f7dd01b42c37330585'
                   );
 
