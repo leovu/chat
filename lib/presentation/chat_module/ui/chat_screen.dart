@@ -86,6 +86,32 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   bool? isBlock = false;
   Owner? groupOwner1;
 
+  /// Xin quyền truy cập storage/media phù hợp với phiên bản Android
+  Future<bool> _requestStoragePermission() async {
+    if (Platform.isAndroid) {
+      // Android 13+ (API 33+) sử dụng quyền mới
+      final photos = await Permission.photos.status;
+      final videos = await Permission.videos.status;
+
+      if (photos.isGranted || videos.isGranted) {
+        return true;
+      }
+
+      // Thử xin quyền photos và videos cho Android 13+
+      final photosResult = await Permission.photos.request();
+      final videosResult = await Permission.videos.request();
+
+      if (photosResult.isGranted || videosResult.isGranted) {
+        return true;
+      }
+
+      // Fallback cho Android 12 trở xuống
+      final storageStatus = await Permission.storage.request();
+      return storageStatus.isGranted;
+    }
+    return true; // iOS không cần xin quyền storage
+  }
+
   @override
   void initState() {
     super.initState();
@@ -237,7 +263,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   }
 
   void _handleFileSelection() async {
-    bool permission = await Permission.storage.request().isGranted;
+    bool permission = await _requestStoragePermission();
     if (!permission) {
       return;
     }
@@ -312,7 +338,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   }
 
   void _handelVideoSelection() async {
-    bool permission = await Permission.storage.request().isGranted;
+    bool permission = await _requestStoragePermission();
     if (!permission) {
       return;
     }
@@ -356,7 +382,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   }
 
   void _handleImageSelection() async {
-    bool permission = await Permission.storage.request().isGranted;
+    bool permission = await _requestStoragePermission();
     if (!permission) {
       return;
     }
@@ -1841,7 +1867,7 @@ Owner? extractOwner(Rooms data) {
   if (data.people == null || data.people!.isEmpty) return null;
 
   if (data.isGroup == true && data.owner != null) {
-    final matchOwner = data.people!.where((e) => e.sId == data.owner!.sId);
+    final matchOwner = data.people!.where((e) => e.sId == data.owner?.sId);
     if (matchOwner.isNotEmpty) {
       return Owner.fromPeople(matchOwner.first);
     }

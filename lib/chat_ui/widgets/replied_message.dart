@@ -58,7 +58,7 @@ class RepliedMessage extends StatelessWidget {
 
     types.CustomMessage _customMessage;
 
-    final bool _closable = true; //onCancelReplyPressed != null;
+    final bool _closable = isView ?? false; //onCancelReplyPressed != null;
     final bool _isCurrentUser =
         messageAuthorId == InheritedUser.of(context).user.id;
     final _theme = InheritedChatTheme.of(context).theme;
@@ -123,24 +123,43 @@ class RepliedMessage extends StatelessWidget {
     Widget _buildImageWidget() {
       final fallbackUri = _buildFallbackImageUri(_imageUri!);
 
-      return Container(
-        width: 44,
-        height: 44,
-        margin: _theme.repliedMessageImageMargin,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: Image.network(
-            _imageUri!,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              return Image.network(
-                fallbackUri,
-                fit: BoxFit.cover,
-              );
-            },
+      if (isView == true)
+        return Container(
+          margin: _theme.repliedMessageImageMargin,
+          color: Colors.transparent,
+          width: 100,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.network(
+              _imageUri!,
+              fit: BoxFit.contain,
+              errorBuilder: (context, error, stackTrace) {
+                return Image.network(
+                  fallbackUri,
+                  fit: BoxFit.contain,
+                );
+              },
+            ),
           ),
-        ),
-      );
+        );
+      else
+        return Container(
+          margin: _theme.repliedMessageImageMargin,
+          color: Colors.transparent,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.network(
+              _imageUri!,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Image.network(
+                  fallbackUri,
+                  fit: BoxFit.cover,
+                );
+              },
+            ),
+          ),
+        );
     }
 
     Widget _buildFileWidget() {
@@ -558,13 +577,13 @@ class RepliedMessage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildPreview(),
-                      _buildReplyInfoSection(
-                        closable: _closable,
-                        isCurrentUser: _isCurrentUser,
-                        text: _text,
-                        repliedMessage: repliedMessage,
-                        showUserNames: true,
-                      ),
+                      // _buildReplyInfoSection(
+                      //   closable: _closable,
+                      //   isCurrentUser: _isCurrentUser,
+                      //   text: _text,
+                      //   repliedMessage: repliedMessage,
+                      //   showUserNames: true,
+                      // ),
                     ],
                   ),
                 ),

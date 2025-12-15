@@ -15,15 +15,34 @@ import 'dart:io' as io;
 
 import 'package:saver_gallery/saver_gallery.dart';
 
+Future<bool> _requestStoragePermission() async {
+  if (Platform.isAndroid) {
+    // Android 13+ (API 33+) sử dụng quyền mới
+    final photos = await Permission.photos.status;
+    final videos = await Permission.videos.status;
+
+    if (photos.isGranted || videos.isGranted) {
+      return true;
+    }
+
+    // Thử xin quyền photos và videos cho Android 13+
+    final photosResult = await Permission.photos.request();
+    final videosResult = await Permission.videos.request();
+
+    if (photosResult.isGranted || videosResult.isGranted) {
+      return true;
+    }
+
+    // Fallback cho Android 12 trở xuống
+    final storageStatus = await Permission.storage.request();
+    return storageStatus.isGranted;
+  }
+  return true; // iOS không cần xin quyền storage
+}
+
 Future<String?> download(BuildContext context,String url,String filename, {bool isSaveGallery = false}) async {
   try {
-    bool granted = false;
-    if (Platform.isAndroid) {
-      granted = await Permission.storage.request().isGranted;
-    }
-    else {
-      granted = true;
-    }
+    bool granted = await _requestStoragePermission();
     if(!granted) {
       return null;
     }

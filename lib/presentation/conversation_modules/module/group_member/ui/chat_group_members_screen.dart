@@ -3,6 +3,7 @@ import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/chat_screen/add_member_group_screen.dart';
 import 'package:chat/chat_ui/widgets/widget_divider.dart';
+import 'package:chat/common/theme.dart';
 import 'package:chat/data_model/chat_message.dart';
 import 'package:chat/data_model/response/group_member_response_model.dart';
 import 'package:chat/presentation/chat_module/ui/chat_screen.dart';
@@ -116,8 +117,7 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
     return AppBar(
       backgroundColor: Colors.white,
       iconTheme: const IconThemeData(color: Colors.black),
-      title: 
-       AutoSizeText(
+      title: AutoSizeText(
         '${AppLocalizations.text(LangKey.members)} ($lengthPeople)',
         style: const TextStyle(
           color: Colors.black,
@@ -386,15 +386,24 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     data?.picture == null
-                        ? CircleAvatar(
-                            radius: 25.0,
-                            backgroundImage: CachedNetworkImageProvider(
-                                '${HTTPConnection.domain}api/images/${data?.picture!.shieldedID}/256/${ChatConnection.brandCode!}',
-                                headers: {
-                                  'brand-code': ChatConnection.brandCode!
-                                }),
-                            backgroundColor: Colors.transparent,
-                          )
+                        ? data?.picture?.shieldedID != null
+                            ? CircleAvatar(
+                                radius: 25.0,
+                                backgroundImage: CachedNetworkImageProvider(
+                                    '${HTTPConnection.domain}api/images/${data?.picture?.shieldedID}/256/${ChatConnection.brandCode}',
+                                    headers: {
+                                      'brand-code': ChatConnection.brandCode!
+                                    }),
+                                backgroundColor: Colors.transparent,
+                              )
+                            : CircleAvatar(
+                                backgroundColor: AppColors.bluePrimary,
+                                child: Text(
+                                    '${data?.firstName} ${data?.lastName}',
+                                    style: const TextStyle(color: Colors.white),
+                                    maxLines: 1,
+                                    textScaler: TextScaler.linear(1.75)),
+                              )
                         : CircleAvatar(
                             radius: 25.0,
                             backgroundImage: CachedNetworkImageProvider(

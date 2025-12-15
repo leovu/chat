@@ -5,6 +5,7 @@ import 'package:chat/connection/http_connection.dart';
 import 'package:chat/data_model/room.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
+import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import 'package:mime/mime.dart';
 
@@ -101,6 +102,9 @@ class Room {
       this.duration = 0});
 
   Room.fromJson(Map<String, dynamic> json) {
+    if (kDebugMode) {
+      print('_____________Room.fromJson input: $json');
+    }
     source = json['source'];
     roomAvatar = json['room_avatar'];
     roomName = json['room_name'];
@@ -231,6 +235,9 @@ class Room {
           json['channel'] != null ? Channel.fromJson(json['channel']) : null;
     } catch (_) {
       channel = Channel.fromJson(json['channel']);
+    }
+    if (kDebugMode) {
+      print('_____________Room.fromJson output: ${toJson()}');
     }
   }
 
@@ -642,6 +649,9 @@ class Messages {
   });
 
   factory Messages.fromJson(Map<String, dynamic> json) {
+    if (kDebugMode) {
+      print('_____________Messages.fromJson input: $json');
+    }
     final message = Messages(
       sId: json['_id'] as String?,
       room: json['room'] as String?,
@@ -715,6 +725,9 @@ class Messages {
     if (message.content == 'Message recalled') {
       message.content = AppLocalizations.text(LangKey.messageRecalled);
       message.edit = 0;
+    }
+    if (kDebugMode) {
+      print('_____________Messages.fromJson output: ${message.toJson()}');
     }
     return message;
   }
@@ -819,6 +832,8 @@ class Messages {
                 ? '${HTTPConnection.domain}api/images/$content/${ChatConnection.brandCode}'
                 : null);
         metadata['content'] = content;
+        metadata['type'] = 'image';
+        metadata['image'] = image?.toJson();
         break;
 
       case 'image_url':

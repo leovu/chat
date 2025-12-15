@@ -168,7 +168,7 @@ class _ImageMessageState extends State<ImageMessage> {
                   ),
                   width: 100,
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(15),
+                    borderRadius: BorderRadius.circular(8),
                     child: Image(
                       fit: BoxFit.cover,
                       image: _image!,
@@ -264,11 +264,13 @@ class _ImageMessageState extends State<ImageMessage> {
                     if (widget.message.repliedMessage != null)
                       _repliedMessageBuilder(_user),
                     Flexible(
+                        child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
                       child: Image(
                         fit: BoxFit.cover,
                         image: _image!,
                       ),
-                    ),
+                    )),
                     if (widget.content != '' &&
                         isReadableText(widget.content!)) ...[
                       Text(widget.content ?? ''),

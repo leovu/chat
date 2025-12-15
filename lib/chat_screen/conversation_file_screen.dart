@@ -75,36 +75,40 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
             Container(
               color: Colors.white,
               child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _buildSearchChip(AppLocalizations.text(LangKey.search),
-                        const Icon(Icons.search, color: Colors.black), () {
-                      _showBottomDialog();
-                    }),
-                    _buildSearchChip(AppLocalizations.text(LangKey.bySender),
-                        const Icon(Icons.people, color: Colors.black), () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => BySenderResultScreen(
-                                roomData: widget.roomData,
-                                chatMessage: widget.chatMessage,
-                                tabbarIndex: _activeTabIndex,
-                              )));
-                    }),
-                    _buildSearchChip(AppLocalizations.text(LangKey.byTimes),
-                        const Icon(Icons.timer, color: Colors.black), () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => ByTimeResultScreen(
-                                roomData: widget.roomData,
-                                chatMessage: widget.chatMessage,
-                                tabbarIndex: _activeTabIndex,
-                              )));
-                    }),
-                  ],
-                ),
-              ),
+                  padding: const EdgeInsets.all(8.0),
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    physics: const BouncingScrollPhysics(),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      spacing: 8,
+                      children: [
+                        _buildSearchChip(AppLocalizations.text(LangKey.search),
+                            const Icon(Icons.search, color: Colors.black), () {
+                          _showBottomDialog();
+                        }),
+                        _buildSearchChip(
+                            AppLocalizations.text(LangKey.bySender),
+                            const Icon(Icons.people, color: Colors.black), () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => BySenderResultScreen(
+                                    roomData: widget.roomData,
+                                    chatMessage: widget.chatMessage,
+                                    tabbarIndex: _activeTabIndex,
+                                  )));
+                        }),
+                        _buildSearchChip(AppLocalizations.text(LangKey.byTimes),
+                            const Icon(Icons.timer, color: Colors.black), () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => ByTimeResultScreen(
+                                    roomData: widget.roomData,
+                                    chatMessage: widget.chatMessage,
+                                    tabbarIndex: _activeTabIndex,
+                                  )));
+                        }),
+                      ],
+                    ),
+                  )),
             ),
             // : CustomSearchTextField(_searchNode, _searchController, "Tìm ảnh, bộ sưu tạp, files, links"),
             Container(
@@ -127,7 +131,6 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                 ],
                 controller: _tabController,
                 isScrollable: true,
-
                 indicatorSize: TabBarIndicatorSize.tab,
                 indicatorColor: Colors.black),
             Expanded(

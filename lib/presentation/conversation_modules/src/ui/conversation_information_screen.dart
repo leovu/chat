@@ -679,20 +679,20 @@ class _ConversationInformationScreenState
           }),
 
           /// NOTE
-          _section(
-              const Icon(
-                Icons.note_add,
-                color: Color(0xff5686E1),
-                size: 35,
-              ),
-              AppLocalizations.text(LangKey.create_note), () async {
-            await Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => CreateNoteScreen(
-                      roomData: widget.roomData,
-                      chatMessage: widget.chatMessage,
-                    )));
-            _bloc.getNotes(widget.roomData.sId!);
-          }),
+          // _section(
+          //     const Icon(
+          //       Icons.note_add,
+          //       color: Color(0xff5686E1),
+          //       size: 35,
+          //     ),
+          //     AppLocalizations.text(LangKey.create_note), () async {
+          //   await Navigator.of(context).push(MaterialPageRoute(
+          //       builder: (context) => CreateNoteScreen(
+          //             roomData: widget.roomData,
+          //             chatMessage: widget.chatMessage,
+          //           )));
+          //   _bloc.getNotes(widget.roomData.sId!);
+          // }),
           ListNoteComponent(_bloc, () => _bloc.getNotes(widget.roomData.sId!),
               widget.roomData),
           if (widget.roomData.isGroup!)
@@ -946,64 +946,80 @@ class _ConversationInformationScreenState
   }
 
   Widget _buildAppropriateAvatar() {
-    final isGroup = widget.chatMessage?.room?.isGroup ?? false;
+    final room = widget.chatMessage?.room;
+    final roomData = widget.roomData;
+    final owner = extractOwner(roomData);
+
+    final isGroup = room?.isGroup ?? false;
     final isChatHub = ChatConnection.isChatHub;
-    final owner = extractOwner(widget.roomData);
-    final brandCode = ChatConnection.brandCode!;
+
     final domain = HTTPConnection.domain;
-    if (checkCustomerTypeChatHub(widget.roomData.owner!) !=
-        null) if (widget.chatMessage?.room?.owner?.avatar != null) {
+    final brandCode = ChatConnection.brandCode!;
+
+    /// ===== 1. SPECIAL: ChatHub + customer type + owner avatar =====
+    final customerType = checkCustomerTypeChatHub(roomData.owner ?? Owner());
+
+    if (customerType != null && room?.owner?.avatar != null) {
       return _buildAvatar(
-        '${widget.chatMessage?.room?.owner?.firstName} ${widget.chatMessage?.room?.owner?.lastName}',
-        widget.roomData.getAvatarGroupName(),
-        widget.chatMessage?.room?.owner?.avatar,
+        '${room?.owner?.firstName} ${room?.owner?.lastName}',
+        roomData.getAvatarGroupName(),
+        room?.owner?.avatar,
       );
     }
 
+    /// ===== Common fallback data =====
     final avatarName =
-        customerAccount?.data?.getAvatarName() ?? owner?.getAvatarName() ?? "";
-    final displayName = isChatHub
-        ? customerAccount?.data?.getName() ??
-            widget.roomData.owner?.getName() ??
-            ""
-        : (!isGroup
-            ? widget.roomData.title ?? ""
-            : widget.chatMessage?.room?.title ?? "");
+        customerAccount?.data?.getAvatarName() ?? owner?.getAvatarName() ?? '';
 
+    final displayName = isChatHub
+        ? customerAccount?.data?.getName() ?? roomData.owner?.getName() ?? ''
+        : (isGroup
+            ? roomData.title
+            : '${roomData.people?.where(
+                      (element) => element.level == 'standard',
+                    ).first.firstName} ${roomData.people?.where(
+                      (element) => element.level == 'standard',
+                    ).first.lastName}' ??
+                '');
+
+    /// ===== 2. CHAT HUB =====
     if (isChatHub) {
+      /// Group chat
       if (isGroup) {
-        final avatarUrl = widget.chatMessage?.room?.roomAvatar ??
-            '$domain/api/images/${widget.roomData.room_avatar?.shieldedID}/256/$brandCode';
+        final avatarUrl = room?.roomAvatar ??
+            '${domain}api/images/${roomData.room_avatar?.shieldedID}/256/$brandCode';
 
         return _buildAvatar(
-          widget.chatMessage?.room?.roomName ?? '',
-          widget.roomData.getAvatarGroupName(),
+          room?.roomName ?? '',
+          roomData.getAvatarGroupName(),
           avatarUrl,
         );
-      } else {
-        final avatarUrlWithCustomer = widget.roomData.owner?.avatar ??
-            (widget.roomData.shieldedID?.isNotEmpty == true
-                ? '$domain/api/images/${widget.roomData.shieldedID}/256/$brandCode'
-                : null);
-
-        return _buildAvatar(
-          '${widget.roomData.owner?.firstName} ${widget.roomData.owner?.lastName}',
-          widget.roomData.owner?.getAvatarName() ?? "",
-          avatarUrlWithCustomer,
-        );
       }
-    } else {
-      final fallbackAvatarUrl = widget.roomData.avatar ??
-          (owner?.picture?.isNotEmpty == true
-              ? '$domain/api/images/${owner!.picture}/256/$brandCode'
+
+      /// Private chat
+      final avatarUrl = roomData.owner?.avatar ??
+          (roomData.shieldedID?.isNotEmpty == true
+              ? '${domain}api/images/${roomData.shieldedID}/256/$brandCode'
               : null);
 
       return _buildAvatar(
-        displayName,
-        avatarName,
-        fallbackAvatarUrl,
+        '${roomData.owner?.firstName} ${roomData.owner?.lastName}',
+        roomData.owner?.getAvatarName() ?? '',
+        avatarUrl,
       );
     }
+
+    /// ===== 3. NON CHAT HUB =====
+    final avatarUrl = roomData.avatar ??
+        (owner?.picture?.isNotEmpty == true
+            ? '${domain}api/images/${owner!.picture}/256/$brandCode'
+            : null);
+
+    return _buildAvatar(
+      displayName ?? '',
+      avatarName,
+      avatarUrl,
+    );
   }
 
   Widget actionChatHubView() {
