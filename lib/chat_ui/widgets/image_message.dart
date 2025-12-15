@@ -272,7 +272,7 @@ class _ImageMessageState extends State<ImageMessage> {
                       ),
                     )),
                     if (widget.content != '' &&
-                        isReadableText(widget.content!)) ...[
+                        isReadableText(widget.content ?? '')) ...[
                       Text(widget.content ?? ''),
                       SizedBox(
                         height: 8,

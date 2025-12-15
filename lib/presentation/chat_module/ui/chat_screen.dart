@@ -58,8 +58,7 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   List<types.Message> _messages = [];
-  final _user = types.User(
-      id: ChatConnection.checkUserTokenResponseModel?.user!.sId ?? '');
+  late final types.User _user;
   c.ChatMessage? data;
   bool _isSearchMessage = false;
   final _focusSearch = FocusNode();
@@ -116,6 +115,14 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   void initState() {
     super.initState();
     _bloc = ChatBloc();
+
+    // Khởi tạo _user với đầy đủ thông tin để hiển thị tên khi gửi tin nhắn
+    final currentUser = ChatConnection.checkUserTokenResponseModel?.user;
+    _user = types.User(
+      id: currentUser?.sId ?? '',
+      firstName: currentUser?.firstName ?? '',
+      lastName: currentUser?.lastName ?? '',
+    );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ChatConnection.chatScreenNotificationHandler = _notificationHandler;
@@ -193,9 +200,10 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
             data?.room,
             ChatConnection.checkUserTokenResponseModel?.user?.sId ?? '',
             reppliedMessageId: repliedMessageId);
-      } else {
-        _loadMessages();
       }
+      // Đã xóa _loadMessages() vì nó ghi đè _messages trước khi file/image upload xong
+      // Các loại tin nhắn file/image được xử lý upload riêng trong các hàm:
+      // _handleFileSelection, _handleImageSelection, _handleCameraSelection, etc.
     }
 
     if (mounted) {
@@ -1149,6 +1157,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       ],
     );
   }
+
 
   Widget _messageListWidget() {
     if (isInitScreen) {
