@@ -86,29 +86,12 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   Owner? groupOwner1;
 
   /// Xin quyền truy cập storage/media phù hợp với phiên bản Android
+  /// Lưu ý: file_picker và image_picker sử dụng system picker nên không cần
+  /// request permission riêng trên Android 10+ (API 29+)
   Future<bool> _requestStoragePermission() async {
-    if (Platform.isAndroid) {
-      // Android 13+ (API 33+) sử dụng quyền mới
-      final photos = await Permission.photos.status;
-      final videos = await Permission.videos.status;
-
-      if (photos.isGranted || videos.isGranted) {
-        return true;
-      }
-
-      // Thử xin quyền photos và videos cho Android 13+
-      final photosResult = await Permission.photos.request();
-      final videosResult = await Permission.videos.request();
-
-      if (photosResult.isGranted || videosResult.isGranted) {
-        return true;
-      }
-
-      // Fallback cho Android 12 trở xuống
-      final storageStatus = await Permission.storage.request();
-      return storageStatus.isGranted;
-    }
-    return true; // iOS không cần xin quyền storage
+    // file_picker và image_picker sử dụng system picker của Android
+    // không cần xin permission vì system picker tự xử lý
+    return true;
   }
 
   @override

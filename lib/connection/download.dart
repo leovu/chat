@@ -15,37 +15,33 @@ import 'dart:io' as io;
 
 import 'package:saver_gallery/saver_gallery.dart';
 
-Future<bool> _requestStoragePermission() async {
-  if (Platform.isAndroid) {
-    // Android 13+ (API 33+) sử dụng quyền mới
-    final photos = await Permission.photos.status;
-    final videos = await Permission.videos.status;
-
-    if (photos.isGranted || videos.isGranted) {
+/// Request permission để lưu vào gallery
+/// - Android: Không cần permission, SaverGallery sử dụng MediaStore API
+/// - iOS: Cần permission Photos để lưu vào thư viện ảnh
+Future<bool> _requestGalleryPermission() async {
+  if (Platform.isIOS) {
+    // iOS cần permission để lưu vào Photos
+    final status = await Permission.photos.status;
+    if (status.isGranted || status.isLimited) {
       return true;
     }
-
-    // Thử xin quyền photos và videos cho Android 13+
-    final photosResult = await Permission.photos.request();
-    final videosResult = await Permission.videos.request();
-
-    if (photosResult.isGranted || videosResult.isGranted) {
-      return true;
-    }
-
-    // Fallback cho Android 12 trở xuống
-    final storageStatus = await Permission.storage.request();
-    return storageStatus.isGranted;
+    final result = await Permission.photos.request();
+    return result.isGranted || result.isLimited;
   }
-  return true; // iOS không cần xin quyền storage
+  // Android: SaverGallery sử dụng MediaStore, không cần permission
+  return true;
 }
 
 Future<String?> download(BuildContext context,String url,String filename, {bool isSaveGallery = false}) async {
   try {
-    bool granted = await _requestStoragePermission();
-    if(!granted) {
-      return null;
+    // Chỉ cần permission khi lưu vào gallery trên iOS
+    if (isSaveGallery) {
+      bool granted = await _requestGalleryPermission();
+      if(!granted) {
+        return null;
+      }
     }
+
     Directory? directory;
     if (Platform.isIOS) {
       directory = await getApplicationDocumentsDirectory();

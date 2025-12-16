@@ -25,7 +25,12 @@ class _PhotoScreenState extends State<PhotoScreen> {
         children: [
           PhotoViewGallery.builder(
             builder: (BuildContext context, int index) {
-              final imageProvider = NetworkImage(widget.imageViewed);
+              ImageProvider imageProvider;
+              if (widget.imageViewed.startsWith('http') || widget.imageViewed.startsWith('https')) {
+                imageProvider = NetworkImage(widget.imageViewed);
+              } else {
+                imageProvider = FileImage(File(widget.imageViewed));
+              }
 
               return PhotoViewGalleryPageOptions(
                 imageProvider: imageProvider,
@@ -64,6 +69,10 @@ class _PhotoScreenState extends State<PhotoScreen> {
                 String linkDowload = ChatConnection.isChatHub
                     ? widget.imageViewed
                     : buildFallbackImageUrl(widget.imageViewed);
+                // If it's a local file path, skip download as it's already local
+                if (!linkDowload.startsWith('http') && !linkDowload.startsWith('https')) {
+                  return;
+                }
                 showLoading();
                 await download(context, linkDowload,
                     '${DateTime.now().toUtc().millisecond}.jpeg',
