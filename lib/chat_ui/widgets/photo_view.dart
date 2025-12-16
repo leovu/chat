@@ -16,6 +16,11 @@ class PhotoScreen extends StatefulWidget {
 }
 
 class _PhotoScreenState extends State<PhotoScreen> {
+  /// Kiểm tra xem imageViewed là URL hay local file path
+  bool get _isNetworkImage =>
+      widget.imageViewed.startsWith('http://') ||
+      widget.imageViewed.startsWith('https://');
+
   Widget _imageGalleryBuilder() {
     return Dismissible(
       key: const Key('photo_view_gallery'),
@@ -26,7 +31,7 @@ class _PhotoScreenState extends State<PhotoScreen> {
           PhotoViewGallery.builder(
             builder: (BuildContext context, int index) {
               ImageProvider imageProvider;
-              if (widget.imageViewed.startsWith('http') || widget.imageViewed.startsWith('https')) {
+              if (_isNetworkImage) {
                 imageProvider = NetworkImage(widget.imageViewed);
               } else {
                 imageProvider = FileImage(File(widget.imageViewed));
@@ -35,11 +40,19 @@ class _PhotoScreenState extends State<PhotoScreen> {
               return PhotoViewGalleryPageOptions(
                 imageProvider: imageProvider,
                 errorBuilder: (context, error, stackTrace) {
-                  final fallbackUrl = buildFallbackImageUrl(widget.imageViewed);
-                  return Image.network(
-                    fallbackUrl,
-                    fit: BoxFit.contain,
-                  );
+                  // Chỉ thử fallback URL nếu là network image
+                  // Local file không cần fallback network
+                  if (_isNetworkImage) {
+                    final fallbackUrl = buildFallbackImageUrl(widget.imageViewed);
+                    return Image.network(
+                      fallbackUrl,
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) {
+                        return _buildErrorWidget();
+                      },
+                    );
+                  }
+                  return _buildErrorWidget();
                 },
               );
             },
@@ -66,17 +79,22 @@ class _PhotoScreenState extends State<PhotoScreen> {
               color: Colors.white,
               tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
               onPressed: () async {
-                String linkDowload = ChatConnection.isChatHub
-                    ? widget.imageViewed
-                    : buildFallbackImageUrl(widget.imageViewed);
-                // If it's a local file path, skip download as it's already local
-                if (!linkDowload.startsWith('http') && !linkDowload.startsWith('https')) {
-                  return;
-                }
                 showLoading();
-                await download(context, linkDowload,
-                    '${DateTime.now().toUtc().millisecond}.jpeg',
-                    isSaveGallery: true);
+
+                if (_isNetworkImage) {
+                  // Network image: tải về và lưu vào gallery
+                  String linkDownload = ChatConnection.isChatHub
+                      ? widget.imageViewed
+                      : buildFallbackImageUrl(widget.imageViewed);
+                  await download(context, linkDownload,
+                      '${DateTime.now().toUtc().millisecond}.jpeg',
+                      isSaveGallery: true);
+                } else {
+                  // Local file: lưu trực tiếp vào gallery
+                  saveGallery(widget.imageViewed,
+                      '${DateTime.now().toUtc().millisecond}.jpeg');
+                }
+
                 Navigator.of(context).pop();
               },
             ),
@@ -141,6 +159,27 @@ class _PhotoScreenState extends State<PhotoScreen> {
               ? 0
               : event.cumulativeBytesLoaded / event.expectedTotalBytes!,
         ),
+      ),
+    );
+  }
+
+  /// Widget hiển thị khi không load được ảnh
+  Widget _buildErrorWidget() {
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.broken_image_outlined,
+            color: Colors.white54,
+            size: 64,
+          ),
+          SizedBox(height: 16),
+          Text(
+            'Không thể tải ảnh',
+            style: TextStyle(color: Colors.white54),
+          ),
+        ],
       ),
     );
   }
