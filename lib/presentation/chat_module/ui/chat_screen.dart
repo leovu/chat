@@ -928,53 +928,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                   onPressed: () {
                     itemScrollController.jumpTo(index: 0);
                   },
-                  child: !widget.data.isGroup!
-                      ? (widget.data.room_avatar!.shieldedID != null &&
-                              widget.data.room_avatar!.shieldedID != '')
-                          ? CircleAvatar(
-                              radius: 18.0,
-                              backgroundImage: CachedNetworkImageProvider(
-                                  '${HTTPConnection.domain}api/images/${widget.data.shieldedID}/256/${ChatConnection.brandCode!}',
-                                  headers: {
-                                    'brand-code': ChatConnection.brandCode!
-                                  }),
-                              backgroundColor: Colors.transparent,
-                            )
-                          : data!.room!.owner!.avatar != null
-                              ? CircleAvatar(
-                                  radius: 18.0,
-                                  backgroundImage: CachedNetworkImageProvider(
-                                      data!.room!.owner!.avatar!,
-                                      headers: {
-                                        'brand-code': ChatConnection.brandCode!
-                                      }),
-                                  backgroundColor: Colors.transparent,
-                                )
-                              : CircleAvatar(
-                                  radius: 18.0,
-                                  child: Text(
-                                    widget.data.owner!.getAvatarName(),
-                                    style: const TextStyle(color: Colors.white),
-                                  ),
-                                )
-                      : (widget.data.room_avatar!.shieldedID == null &&
-                              widget.data.room_avatar!.shieldedID == '')
-                          ? CircleAvatar(
-                              radius: 18.0,
-                              child: Text(
-                                widget.data.getAvatarGroupName(),
-                                style: const TextStyle(color: Colors.white),
-                              ),
-                            )
-                          : CircleAvatar(
-                              radius: 18.0,
-                              backgroundImage: CachedNetworkImageProvider(
-                                  '${HTTPConnection.domain}api/images/${widget.data.room_avatar!.shieldedID}/256/${ChatConnection.brandCode!}',
-                                  headers: {
-                                    'brand-code': ChatConnection.brandCode!
-                                  }),
-                              backgroundColor: Colors.transparent,
-                            ),
+                  child: buildAvatar(width: 18.0),
                   mini: true,
                   foregroundColor: Colors.transparent,
                   backgroundColor: Colors.transparent,
@@ -1592,83 +1546,78 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         leadingWidth: 0);
   }
 
+  /// Build avatar widget - đồng bộ với room_list_screen.dart
   CircleAvatar buildAvatar({double? width}) {
     double radius = width ?? 25.0;
 
-    if (data?.room?.owner?.avatar != null) {
-      return CircleAvatar(
-        radius: radius,
-        backgroundImage: CachedNetworkImageProvider(
-          data?.room?.owner?.avatar ?? '',
-          headers: {'brand-code': ChatConnection.brandCode!},
-        ),
-        backgroundColor: Colors.transparent,
-      );
-    }
-
     if (!ChatConnection.isChatHub) {
+      // Logic cho non-ChatHub (giống roomWidget trong room_list_screen.dart)
       if (!widget.data.isGroup!) {
+        // Không phải group: sử dụng people.picture
         final owner = extractOwner(widget.data);
-        final isOwnerPictureEmpty = owner?.picture?.isEmpty ?? true;
-        String image = '';
-        data?.room?.people?.forEach(
-          (element) {
-            if (element.picture?.shield != null)
-              image =
-                  '${HTTPConnection.domain}api/images/${element.picture?.shieldedID}/256/${ChatConnection.brandCode}';
-          },
-        );
-        return isOwnerPictureEmpty
+        final isPictureEmpty = owner?.picture == null || owner?.picture == "";
+
+        return isPictureEmpty
             ? CircleAvatar(
                 radius: radius,
                 child: Text(
-                  owner?.picture??'',
+                  owner?.getAvatarName() ?? '',
                   style: const TextStyle(color: Colors.white),
                 ),
               )
             : CircleAvatar(
                 radius: radius,
                 backgroundImage: CachedNetworkImageProvider(
-                  image,
+                  '${HTTPConnection.domain}api/images/${owner!.picture}/256/${ChatConnection.brandCode!}',
+                  headers: {'brand-code': ChatConnection.brandCode!},
                 ),
                 backgroundColor: Colors.transparent,
               );
       } else {
-
-        if (widget.data.room_avatar == null) {
-          final avatar = data?.room?.owner?.avatar;
-
-          return avatar != null
-              ? CircleAvatar(
-                  radius: 18.0,
-                  backgroundImage: CachedNetworkImageProvider(
-                    avatar,
-                    headers: {'brand-code': ChatConnection.brandCode!},
-                  ),
-                  backgroundColor: Colors.transparent,
-                )
-              : CircleAvatar(
-                  radius: 18.0,
-                  child: Text(
-                    widget.data.owner?.getAvatarName() ?? '',
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                );
-        } else {
-          return CircleAvatar(
-            radius: radius,
-            backgroundImage: CachedNetworkImageProvider(
-              '${HTTPConnection.domain}api/images/${widget.data.room_avatar!.shieldedID}/256/${ChatConnection.brandCode!}',
-              headers: {'brand-code': ChatConnection.brandCode!},
-            ),
-            backgroundColor: Colors.transparent,
-          );
-        }
+        // Group: sử dụng room_avatar.shieldedID
+        return widget.data.room_avatar == null
+            ? CircleAvatar(
+                radius: radius,
+                child: Text(
+                  widget.data.getAvatarGroupName(),
+                  style: const TextStyle(color: Colors.white),
+                ),
+              )
+            : CircleAvatar(
+                radius: radius,
+                backgroundImage: CachedNetworkImageProvider(
+                  '${HTTPConnection.domain}api/images/${widget.data.room_avatar!.shieldedID}/256/${ChatConnection.brandCode!}',
+                  headers: {'brand-code': ChatConnection.brandCode!},
+                ),
+                backgroundColor: Colors.transparent,
+              );
       }
     } else {
-      if (data?.room?.isGroup == false) {
-        final avatar = data?.room?.owner?.avatar;
-        if (avatar == null) {
+      // Logic cho ChatHub (giống roomChatHubWidget trong room_list_screen.dart)
+      if (widget.data.isGroup == false) {
+        // Không phải group
+        if (widget.data.owner?.picture == null) {
+          // Nếu không có picture, kiểm tra avatar
+          if (widget.data.owner?.avatar != null) {
+            return CircleAvatar(
+              radius: radius,
+              backgroundImage: CachedNetworkImageProvider(
+                '${widget.data.owner?.avatar}',
+                headers: {'brand-code': ChatConnection.brandCode!},
+              ),
+              backgroundColor: Colors.transparent,
+            );
+          } else {
+            return CircleAvatar(
+              radius: radius,
+              child: Text(
+                widget.data.owner?.getAvatarName() ?? '',
+                style: const TextStyle(color: Colors.white),
+              ),
+            );
+          }
+        } else {
+          // Có picture, kiểm tra shieldedID
           final sid = widget.data.shieldedID;
           return (sid != null && sid != '')
               ? CircleAvatar(
@@ -1686,18 +1635,10 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                     style: const TextStyle(color: Colors.white),
                   ),
                 );
-        } else {
-          return CircleAvatar(
-            radius: radius,
-            backgroundImage: CachedNetworkImageProvider(
-              avatar,
-              // headers: {'brand-code': ChatConnection.brandCode!},
-            ),
-            backgroundColor: Colors.transparent,
-          );
         }
       } else {
-        return data?.room?.roomAvatar == null
+        // Group: sử dụng avatar hoặc text
+        return widget.data.avatar == null
             ? CircleAvatar(
                 radius: radius,
                 child: Text(
@@ -1708,7 +1649,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
             : CircleAvatar(
                 radius: radius,
                 backgroundImage: CachedNetworkImageProvider(
-                  data?.room?.roomAvatar ?? '',
+                  widget.data.avatar!,
                   headers: {'brand-code': ChatConnection.brandCode!},
                 ),
                 backgroundColor: Colors.transparent,

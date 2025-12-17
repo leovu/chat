@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:chat/chat_screen/media_screen.dart';
 import 'package:chat/chat_ui/widgets/photo_view.dart';
 import 'package:chat/connection/chat_connection.dart';
+import 'package:chat/connection/http_connection.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:dio/dio.dart';
@@ -14,9 +15,6 @@ import 'dart:io' as io;
 
 import 'package:saver_gallery/saver_gallery.dart';
 
-/// Request permission để lưu vào gallery
-/// - Android: Không cần permission, SaverGallery sử dụng MediaStore API
-/// - iOS: Cần permission Photos để lưu vào thư viện ảnh
 Future<bool> _requestGalleryPermission() async {
   if (Platform.isIOS) {
     // iOS cần permission để lưu vào Photos
@@ -31,14 +29,30 @@ Future<bool> _requestGalleryPermission() async {
   return true;
 }
 
+/// Helper function to ensure URL has a host
+String _ensureFullUrl(String? url) {
+  if (url == null || url.isEmpty) return '';
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+  return '${HTTPConnection.domain}$url';
+}
+
 Future<String?> download(BuildContext context, String url, String filename,
     {bool isSaveGallery = false}) async {
   try {
+    // Ensure URL has full domain (fix for relative paths like data/xxx/xxx.jpg)
+    final fullUrl = _ensureFullUrl(url);
+    if (fullUrl.isEmpty) {
+      _showErrorSnackBar('Invalid URL');
+      return null;
+    }
+
     // Chỉ cần permission khi lưu vào gallery trên iOS
     if (isSaveGallery) {
       bool granted = await _requestGalleryPermission();
       if (!granted) {
-        _showErrorSnackBar('Không có quyền truy cập thư viện ảnh');
+        _showErrorSnackBar('Photo library access is not granted');
         return null;
       }
     }
@@ -51,7 +65,7 @@ Future<String?> download(BuildContext context, String url, String filename,
     }
 
     if (directory == null) {
-      _showErrorSnackBar('Không thể truy cập thư mục lưu trữ');
+      _showErrorSnackBar('Unable to access storage directory');
       return null;
     }
 
@@ -69,7 +83,7 @@ Future<String?> download(BuildContext context, String url, String filename,
 
     // Tải file về
     await Dio().download(
-      url,
+      fullUrl,
       urlPath,
       options: Options(
         headers: {
@@ -81,7 +95,7 @@ Future<String?> download(BuildContext context, String url, String filename,
 
     // Kiểm tra file đã tải thành công chưa
     if (!await io.File(urlPath).exists()) {
-      _showErrorSnackBar('Tải file thất bại');
+      _showErrorSnackBar('File download failed');
       return null;
     }
 
@@ -94,40 +108,84 @@ Future<String?> download(BuildContext context, String url, String filename,
     // Không trả về content URI từ FlutterFileDialog vì không thể dùng để mở file
     return urlPath;
   } catch (e) {
-    _showErrorSnackBar('Lỗi tải file: ${e.toString()}');
+    _showErrorSnackBar('File download error: ${e.toString()}');
+    print('Error: ${e.toString()}');
     return null;
   }
 }
 
-/// Hiển thị thông báo lỗi
 void _showErrorSnackBar(String message) {
   try {
-    ScaffoldMessenger.of(ChatConnection.buildContext).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        duration: const Duration(seconds: 2),
-        backgroundColor: Colors.red,
-      ),
-    );
+    final context = ChatConnection.buildContext;
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          duration: const Duration(seconds: 2),
+          content: Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 14,
+            ),
+            decoration: BoxDecoration(
+              color: Colors.red.shade600,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.15),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(
+                  Icons.error_outline,
+                  color: Colors.white,
+                  size: 22,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    message,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      height: 1.4,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
   } catch (_) {}
 }
 
 void saveGallery(String? path, String filename) {
   if (path == null || path.isEmpty) {
-    _showErrorSnackBar('Đường dẫn file không hợp lệ');
+    _showErrorSnackBar('Invalid file path');
     return;
   }
 
   // Kiểm tra nếu là content URI (không thể đọc trực tiếp)
   if (path.startsWith('/document/') || path.startsWith('content://')) {
-    _showErrorSnackBar('Không thể lưu file từ đường dẫn này');
+    _showErrorSnackBar('Cannot save file from this path');
     return;
   }
 
   // Kiểm tra file tồn tại
   final file = io.File(path);
   if (!file.existsSync()) {
-    _showErrorSnackBar('File không tồn tại');
+    _showErrorSnackBar('File does not exist');
     return;
   }
 
@@ -140,10 +198,10 @@ void saveGallery(String? path, String filename) {
       ).then((result) {
         _showSaveResult(result);
       }).catchError((e) {
-        _showErrorSnackBar('Lỗi lưu ảnh: ${e.toString()}');
+        _showErrorSnackBar('Failed to save image: ${e.toString()}');
       });
     } catch (e) {
-      _showErrorSnackBar('Không thể đọc file ảnh');
+      _showErrorSnackBar('Unable to read image file');
     }
   } else if (isVideo(path) || isVideo(filename)) {
     SaverGallery.saveFile(
@@ -153,11 +211,11 @@ void saveGallery(String? path, String filename) {
     ).then((result) {
       _showSaveResult(result);
     }).catchError((e) {
-      _showErrorSnackBar('Lỗi lưu video: ${e.toString()}');
+      _showErrorSnackBar('Failed to save video: ${e.toString()}');
     });
   } else {
     // File khác (audio, document, etc.) - thông báo đã tải về cache
-    _showSuccessSnackBar('Đã tải file về thiết bị');
+    _showSuccessSnackBar('File has been downloaded to the device');
   }
 }
 
@@ -189,37 +247,36 @@ void _showSuccessSnackBar(String message) {
 bool isImage(String path) {
   final mimeType = lookupMimeType(path) ?? '';
   bool result = mimeType.startsWith('image/') || path == 'image/';
-  if(path.contains('jfif')) {
+  if (path.contains('jfif')) {
     result = true;
   }
   return result;
 }
+
 bool isAudio(String path) {
   final mimeType = lookupMimeType(path) ?? '';
   return mimeType.startsWith('audio/');
 }
+
 bool isVideo(String path) {
   final mimeType = lookupMimeType(path) ?? '';
   return mimeType.startsWith('video/');
 }
 
-void openFile(String? result,BuildContext context,String fileName) async {
-  if(result != null) {
+void openFile(String? result, BuildContext context, String fileName) async {
+  if (result != null) {
     final mimeType = fileName.split('.').last.toLowerCase();
-    if(isAudio(mimeType)) {
+    if (isAudio(mimeType)) {
       Navigator.of(context).push(MaterialPageRoute(builder: (ctx) {
-        return MediaScreen(filePath: result,title: fileName);
+        return MediaScreen(filePath: result, title: fileName);
       }));
-    }
-    else if(isVideo(mimeType)) {
+    } else if (isVideo(mimeType)) {
       await OpenFilex.open(result);
-    }
-    else if(isImage(mimeType)) {
+    } else if (isImage(mimeType)) {
       Navigator.of(context).push(MaterialPageRoute(builder: (ctx) {
         return PhotoScreen(imageViewed: result);
       }));
-    }
-    else {
+    } else {
       await OpenFilex.open(result);
     }
   }
@@ -227,7 +284,9 @@ void openFile(String? result,BuildContext context,String fileName) async {
 }
 
 void openImage(BuildContext context, String url) {
+  // Ensure URL has full domain (fix for relative paths like data/xxx/xxx.jpg)
+  final fullUrl = _ensureFullUrl(url);
   Navigator.of(context).push(MaterialPageRoute(builder: (ctx) {
-    return PhotoScreen(imageViewed: url);
+    return PhotoScreen(imageViewed: fullUrl);
   }));
 }

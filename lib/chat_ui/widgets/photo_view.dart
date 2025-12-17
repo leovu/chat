@@ -83,16 +83,14 @@ class _PhotoScreenState extends State<PhotoScreen> {
 
                 if (_isNetworkImage) {
                   // Network image: tải về và lưu vào gallery
-                  String linkDownload = ChatConnection.isChatHub
-                      ? widget.imageViewed
-                      : buildFallbackImageUrl(widget.imageViewed);
-                  await download(context, linkDownload,
-                      '${DateTime.now().toUtc().millisecond}.jpeg',
+                  // Sử dụng URL trực tiếp (đã được xử lý đầy đủ domain trong download.dart)
+                  await download(context, widget.imageViewed,
+                      '${DateTime.now().millisecondsSinceEpoch}.jpeg',
                       isSaveGallery: true);
                 } else {
                   // Local file: lưu trực tiếp vào gallery
                   saveGallery(widget.imageViewed,
-                      '${DateTime.now().toUtc().millisecond}.jpeg');
+                      '${DateTime.now().millisecondsSinceEpoch}.jpeg');
                 }
 
                 Navigator.of(context).pop();

@@ -697,18 +697,21 @@ class Messages {
       final imageUrl = message.content ?? '';
 
       if (imageUrl.isNotEmpty) {
+        // Ensure URL has full domain (fix for relative paths like data/xxx/xxx.jpg)
+        final fullImageUrl = ensureFullUrl(imageUrl);
+
         // Gắn giá trị image và photos dựa trên content
         message.image = ImageInfo(
           name: imageUrl.split('/').last,
-          location: imageUrl,
+          location: fullImageUrl,
           size: 0,
           shieldedID: imageUrl.split('/').last,
         );
 
         message.photos = Photos(
-          original: imageUrl,
-          fullsize: imageUrl,
-          thumbnail: imageUrl,
+          original: fullImageUrl,
+          fullsize: fullImageUrl,
+          thumbnail: fullImageUrl,
         );
       }
     }
@@ -840,10 +843,12 @@ class Messages {
         data['type'] = 'custom';
         data['name'] = image?.name ?? 'external_image.jpg';
         data['size'] = image?.size ?? 0;
-        data['uri'] = image?.location ?? photos?.original ?? content;
+        // Ensure URL has full domain (fix for relative paths like data/xxx/xxx.jpg)
+        final imageUrlUri = image?.location ?? photos?.original ?? content;
+        data['uri'] = ensureFullUrl(imageUrlUri);
         metadata['custom_type'] = 'image_url';
         metadata['source'] = 'external';
-        metadata['content'] = content;
+        metadata['content'] = ensureFullUrl(content);
         break;
 
       case 'link':
@@ -1026,13 +1031,15 @@ class Messages {
           repliedJson['type'] = 'image';
           repliedJson['name'] = replies!.image?.name ?? 'external_image.jpg';
           repliedJson['size'] = replies!.image?.size ?? 0;
-          repliedJson['uri'] = replies!.image?.location ??
+          // Ensure URL has full domain (fix for relative paths like data/xxx/xxx.jpg)
+          final repliedImageUrl = replies!.image?.location ??
               replies!.photos?.original ??
               replies!.content;
+          repliedJson['uri'] = ensureFullUrl(repliedImageUrl);
           repliedJson['metadata'] = {
             'custom_type': 'image_url',
             'source': 'external',
-            'content': replies!.content,
+            'content': ensureFullUrl(replies!.content),
           };
           break;
 
@@ -1857,4 +1864,18 @@ class ImageInfo {
         'size': size,
         'shieldedID': shieldedID
       };
+}
+
+/// Helper function to ensure URL has a host
+/// If URL is relative (doesn't start with http:// or https://), prepend the domain
+String ensureFullUrl(String? url) {
+  if (url == null || url.isEmpty) return '';
+
+  // If already a full URL, return as is
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+
+  // If it's a relative path, prepend the domain
+  return '${HTTPConnection.domain}$url';
 }
