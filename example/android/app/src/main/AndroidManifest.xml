@@ -1,10 +1,22 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Network permission -->
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Camera permission - Chỉ cho chụp ảnh trực tiếp -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+
+    <!--
+        KHÔNG CẦN READ_MEDIA_IMAGES, READ_MEDIA_VIDEO vì:
+        - image_picker v1.1.2 tự động dùng Photo Picker API (Android 13+)
+        - file_picker v9.1.0 tự động dùng Storage Access Framework (SAF)
+        - saver_gallery v4.0.1 dùng MediaStore API
+        Các plugin này hoạt động mà KHÔNG CẦN permissions trong manifest!
+    -->
 
    <application
         android:label="chat_example"
         android:usesCleartextTraffic="true"
-        android:requestLegacyExternalStorage="true"
         android:networkSecurityConfig="@xml/network_security_config"
         android:icon="@mipmap/ic_launcher">
         <activity
