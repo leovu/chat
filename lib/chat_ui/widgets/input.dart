@@ -516,7 +516,8 @@ class _InputState extends State<Input> {
                       ),
                       bottomActionBarConfig: BottomActionBarConfig(
                         backgroundColor: Colors.white,
-                        enabled: false, // Disable bottom action bar (search bar)
+                        enabled:
+                            false, // Disable bottom action bar (search bar)
                       ),
                     ),
                   )
@@ -885,8 +886,13 @@ class _InputState extends State<Input> {
                                               child: AttachmentButton(
                                                 onPressed:
                                                     _showAttachmentOptions,
-                                                image:
-                                                    'assets/icon-chat-add.png',
+                                                // image:
+                                                //     'assets/icon-chat-add.png',
+                                                icon: Icon(
+                                                    Icons
+                                                        .add_circle_outline_outlined,
+                                                    color: Colors.grey[700],
+                                                    size: 25),
                                               ),
                                             ),
                                             _buildTextField(),
@@ -1260,10 +1266,11 @@ class _InputState extends State<Input> {
       );
     } else {
       return Padding(
-          padding: const EdgeInsets.only(bottom: 4, right: 4),
+          padding: const EdgeInsets.only(bottom: 4, right: 8),
           child: AttachmentButton(
             onPressed: widget.onCameraPressed,
-            image: 'assets/icon-camera.png',
+            icon: Icon(Icons.camera_alt_outlined,
+                color: Colors.grey[700], size: 25),
           )
           // SizedBox(
           //   width: 35.0,
