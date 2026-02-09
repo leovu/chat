@@ -172,7 +172,7 @@ class Message extends StatelessWidget {
     final initials = getUserInitials(message.author);
     return showAvatar
         ? Container(
-            margin: const EdgeInsets.only(right: 8),
+            margin: const EdgeInsets.only(right: 6),
             child: GestureDetector(
               onTap: () => onAvatarTap?.call(message.author),
               child: CircleAvatar(
@@ -185,19 +185,20 @@ class Message extends StatelessWidget {
                     ? NetworkImage(message.author.imageUrl!,
                         headers: {'brand-code': ChatConnection.brandCode!})
                     : null,
-                radius: 16,
+                radius: 12,
                 child: !hasImage
                     ? Text(
                         initials,
                         style: InheritedChatTheme.of(context)
                             .theme
-                            .userAvatarTextStyle,
+                            .userAvatarTextStyle
+                            .copyWith(fontSize: 10),
                       )
                     : null,
               ),
             ),
           )
-        : const SizedBox(width: 40);
+        : const SizedBox(width: 30);
   }
 
   Widget _bubbleBuilder(
@@ -255,9 +256,9 @@ class Message extends StatelessWidget {
         return imageMessageBuilder != null
             ? imageMessageBuilder!(imageMessage as types.ImageMessage,
                 messageWidth: messageWidth)
-            // : Text(message.toJson().toString());
-            : 
-            ImageMessage(
+
+            // Text(message.toJson().toString());
+            : ImageMessage(
                 message: imageMessage as types.ImageMessage,
                 messageWidth: messageWidth,
                 showUserNameForRepliedMessage: true,
@@ -471,21 +472,28 @@ class Message extends StatelessWidget {
             margin: EdgeInsetsDirectional.only(
               bottom: 4,
               end: kIsWeb ? 0 : _query.padding.right,
-              start: 20 + (kIsWeb ? 0 : _query.padding.left),
+              start: 12 + (kIsWeb ? 0 : _query.padding.left),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (!_currentUserIsAuthor && showUserAvatars) ...[
-                  circleAvatar != null
-                      ? Padding(
-                          padding: const EdgeInsets.only(right: 5.0, top: 5.0),
-                          child: circleAvatar,
-                        )
-                      : Padding(
-                          padding: const EdgeInsets.only(top: 5.0),
-                          child: _avatarBuilder(context),
+                  // Show avatar only for the first message in a group
+                  // roundBorder = isFirstInGroup = true means first message in group
+                  // So we show avatar when roundBorder = true
+                  roundBorder
+                      ? (circleAvatar != null
+                          ? Padding(
+                              padding: const EdgeInsets.only(right: 5.0, top: 5.0),
+                              child: circleAvatar,
+                            )
+                          : Padding(
+                              padding: const EdgeInsets.only(top: 5.0),
+                              child: _avatarBuilder(context),
+                            ))
+                      : const SizedBox(
+                          width: 30.0, // Avatar placeholder width to maintain alignment
                         ),
                 ],
                 if (message.remoteId != null &&
@@ -507,8 +515,28 @@ class Message extends StatelessWidget {
                     maxWidth: messageWidth.toDouble(),
                   ),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
+                    crossAxisAlignment: _currentUserIsAuthor
+                        ? CrossAxisAlignment.end
+                        : CrossAxisAlignment.start,
                     children: [
+                      // Show sender name for the first message in a group
+                      // roundBorder = isFirstInGroup = true means first message
+                      if (!_currentUserIsAuthor && roundBorder && showUserAvatars)
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            bottom: 4.0,
+                            left: 12.0,
+                            right: 12.0,
+                          ),
+                          child: Text(
+                            '${message.author.firstName ?? ''} ${message.author.lastName ?? ''}'.trim(),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade600,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
                       GestureDetector(
                         onDoubleTap: () =>
                             onMessageDoubleTap?.call(context, message),
@@ -566,6 +594,23 @@ class Message extends StatelessWidget {
                         Icons.edit_outlined,
                         color: Colors.black,
                         size: 15.0,
+                      ),
+                    ),
+                  ),
+                // Reply button for messages from others
+                if (!_currentUserIsAuthor)
+                  GestureDetector(
+                    onTap: () {
+                      onMessageReply(context, message);
+                      focusSearch();
+                    },
+                    child: Container(
+                      height: 30.0,
+                      padding: const EdgeInsets.only(left: 8.0, top: 20.0),
+                      child: const Icon(
+                        Icons.reply_rounded,
+                        color: Colors.blue,
+                        size: 18.0,
                       ),
                     ),
                   ),

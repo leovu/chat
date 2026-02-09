@@ -137,7 +137,7 @@ class TextMessage extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (message.repliedMessage != null)
-          // Text(message.repliedMessage?.runtimeType.toString() ?? ''),
+          // Text(message.repliedMessage.toString()),
           RepliedMessage(
             messageAuthorId: message.author.id,
             repliedMessage: message.repliedMessage,

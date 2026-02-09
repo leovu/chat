@@ -85,12 +85,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   bool? isBlock = false;
   Owner? groupOwner1;
 
-  /// Xin quyền truy cập storage/media phù hợp với phiên bản Android
-  /// Lưu ý: file_picker và image_picker sử dụng system picker nên không cần
-  /// request permission riêng trên Android 10+ (API 29+)
   Future<bool> _requestStoragePermission() async {
-    // file_picker và image_picker sử dụng system picker của Android
-    // không cần xin permission vì system picker tự xử lý
     return true;
   }
 
@@ -766,6 +761,123 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     });
   }
 
+  // Custom image message builder using CachedNetworkImage
+  Widget _buildImageMessageWidget(types.ImageMessage message, {required int messageWidth}) {
+    // Helper function to ensure URL has a host
+    String ensureFullUrl(String? url) {
+      if (url == null || url.isEmpty) return '';
+      if (url.startsWith('http://') || url.startsWith('https://')) {
+        return url;
+      }
+      return '${HTTPConnection.domain}$url';
+    }
+
+    final imageUrl = ensureFullUrl(message.uri);
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(12),
+      child: CachedNetworkImage(
+        imageUrl: imageUrl,
+        width: messageWidth.toDouble() * 0.7,
+        fit: BoxFit.cover,
+        placeholder: (context, url) => Container(
+          width: messageWidth.toDouble() * 0.7,
+          height: 100,
+          child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+        ),
+        errorWidget: (_, __, ___) => Container(
+          width: messageWidth.toDouble() * 0.7,
+          height: 100,
+          child: const Icon(Icons.broken_image, size: 100, color: Colors.grey),
+        ),
+      ),
+    );
+  }
+
+  // Handler for sending multiple images from preview
+  void _handleImageMessageSend(List<XFile> images) async {
+    for (var image in images) {
+      pickedImageFromMulti(image);
+    }
+  }
+
+  // Handler for sending video from preview
+  void _handleVideoMessageSend(XFile video) async {
+    var size = await video.length();
+    String id = const Uuid().v4();
+    final message = types.FileMessage(
+      author: _user,
+      createdAt: DateTime.now().millisecondsSinceEpoch,
+      id: id,
+      mimeType: lookupMimeType(video.path),
+      name: video.name,
+      size: size,
+      uri: video.path,
+      showStatus: true,
+      status: Status.sending,
+    );
+    File file = File(video.path);
+    _addMessage(message, id);
+    if (mounted) {
+      setState(() {});
+    }
+    ChatConnection.uploadFile(context, data, _messages, id, file, data?.room,
+            ChatConnection.checkUserTokenResponseModel?.user?.sId ?? '')
+        .then((r) {
+      if (r == 'limit') {
+        try {
+          int index = _messages
+              .indexOf(_messages.firstWhere((element) => element.id == id));
+          _messages.removeAt(index);
+        } catch (_) {}
+      }
+      if (mounted) {
+        setState(() {});
+      }
+    });
+  }
+
+  // Handler for sending file from preview
+  void _handleFileMessageSend(PlatformFile platformFile) async {
+    String id = const Uuid().v4();
+    final message = types.FileMessage(
+      author: _user,
+      createdAt: DateTime.now().millisecondsSinceEpoch,
+      id: id,
+      mimeType: lookupMimeType(platformFile.path!),
+      name: platformFile.name,
+      size: platformFile.size,
+      uri: platformFile.path!,
+      showStatus: true,
+      status: Status.sending,
+    );
+    File file = File(platformFile.path!);
+    _addMessage(message, id);
+    if (mounted) {
+      setState(() {});
+    }
+    ChatConnection.uploadFile(
+            context,
+            data,
+            _messages,
+            id,
+            file,
+            data?.room,
+            ChatConnection.checkUserTokenResponseModel?.user?.sId ?? '')
+        .then((r) {
+      if (r == 'limit') {
+        try {
+          int index = _messages
+              .indexOf(_messages.firstWhere((element) => element.id == id));
+          _messages.removeAt(index);
+        } catch (_) {}
+      }
+      if (mounted) {
+        setState(() {});
+      }
+    });
+  }
+
   _loadMessages() async {
     ChatConnection.roomId = widget.data.sId!;
     data = await ChatConnection.joinRoom(widget.data.sId!);
@@ -1128,6 +1240,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       },
       onAvatarTap: (p0) {},
       avatar: buildAvatar(width: 15),
+      imageMessageBuilder: _buildImageMessageWidget,
       //  (types.User user) async {
       //Lỗi chưa xác định, xử lí phần chathub
       // if (user.id != ChatConnection.user!.id && data!.room!.isGroup!) {
@@ -1160,6 +1273,9 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       onPreviewDataFetched: _handlePreviewDataFetched,
       onCameraPressed: _handleCameraSelection,
       onSendPressed: _handleSendPressed,
+      onImageMessageSend: _handleImageMessageSend,
+      onVideoMessageSend: _handleVideoMessageSend,
+      onFileMessageSend: _handleFileMessageSend,
       user: _user,
 
       isSearchChat: _isSearchMessage,

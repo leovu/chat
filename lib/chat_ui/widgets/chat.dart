@@ -26,6 +26,8 @@ import 'package:intl/intl.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:swipeable_tile/swipeable_tile.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:file_picker/file_picker.dart';
 import 'chat_list.dart';
 import 'inherited_chat_theme.dart';
 import 'inherited_user.dart';
@@ -106,7 +108,10 @@ class Chat extends StatefulWidget {
     this.note,
     this.canSend = true,
     required this.roomData,
-    this.avatar
+    this.avatar,
+    this.onImageMessageSend,
+    this.onVideoMessageSend,
+    this.onFileMessageSend,
   }) : super(key: key);
 
   /// See [Message.bubbleBuilder]
@@ -283,6 +288,11 @@ class Chat extends StatefulWidget {
 
   final void Function(File sticker) onStickerPressed;
 
+  /// Callbacks for sending media messages
+  final void Function(List<XFile> images)? onImageMessageSend;
+  final void Function(XFile video)? onVideoMessageSend;
+  final void Function(PlatformFile file)? onFileMessageSend;
+
   /// See [Message.textMessageBuilder]
   final Widget Function(
     types.TextMessage, {
@@ -323,6 +333,11 @@ class _ChatState extends State<Chat> {
   types.Message? _repliedMessage;
   late Function({types.TextMessage? editContent}) requestFocusTextField;
 
+  // File preview states
+  List<XFile> _selectedImages = [];
+  XFile? _selectedVideo;
+  PlatformFile? _selectedFile;
+
   void reply(types.Message? message) {
     setState(() {
       _repliedMessage = message?.copyWith();
@@ -331,6 +346,52 @@ class _ChatState extends State<Chat> {
 
   void edit(types.Message? message, c.Messages? value) {
     requestFocusTextField(editContent: (message as types.TextMessage));
+  }
+
+  // File selection handlers
+  void _handleImageSelection(List<XFile> images) {
+    setState(() {
+      _selectedImages.addAll(images);
+    });
+  }
+
+  void _handleVideoSelection(XFile video) {
+    setState(() {
+      _selectedVideo = video;
+    });
+  }
+
+  void _handleFileSelection(PlatformFile file) {
+    setState(() {
+      _selectedFile = file;
+    });
+  }
+
+  // File removal handlers
+  void _removeImage(int index) {
+    setState(() {
+      _selectedImages.removeAt(index);
+    });
+  }
+
+  void _removeVideo() {
+    setState(() {
+      _selectedVideo = null;
+    });
+  }
+
+  void _removeFile() {
+    setState(() {
+      _selectedFile = null;
+    });
+  }
+
+  void _clearAllFiles() {
+    setState(() {
+      _selectedImages.clear();
+      _selectedVideo = null;
+      _selectedFile = null;
+    });
   }
 
   @override
@@ -433,8 +494,8 @@ class _ChatState extends State<Chat> {
       final message = map['message']! as types.Message;
       final _messageWidth =
           widget.showUserAvatars && message.author.id != widget.user.id
-              ? min(constraints.maxWidth * 0.72, 440).floor()
-              : min(constraints.maxWidth * 0.78, 440).floor();
+              ? min(constraints.maxWidth * 0.6, 440).floor()
+              : min(constraints.maxWidth * 0.6, 440).floor();
       final metadata = message.metadata;
       List<c.Author?>? seenPeople;
       if (metadata != null) {
@@ -520,8 +581,25 @@ class _ChatState extends State<Chat> {
     setState(() {
       _repliedMessage = null;
     });
-    widget.onSendPressed(message,
-        repliedMessage: repliedMessage, isEdit: isEdit);
+
+    if (message.text.trim().isNotEmpty) {
+      widget.onSendPressed(message,
+          repliedMessage: repliedMessage, isEdit: isEdit);
+    }
+
+    if (_selectedImages.isNotEmpty && widget.onImageMessageSend != null) {
+      widget.onImageMessageSend!(_selectedImages);
+    }
+
+    if (_selectedVideo != null && widget.onVideoMessageSend != null) {
+      widget.onVideoMessageSend!(_selectedVideo!);
+    }
+
+    if (_selectedFile != null && widget.onFileMessageSend != null) {
+      widget.onFileMessageSend!(_selectedFile!);
+    }
+
+    _clearAllFiles();
   }
 
   void _onStickerPressed(File sticker) {
@@ -596,8 +674,13 @@ class _ChatState extends State<Chat> {
                           ),
                         ),
                       !widget.isSearchChat
-                          ? widget.customBottomWidget ??
-                              checkSourceAvailableChat()
+                          ? Column(
+                              children: [
+                                _buildFilePreview(),
+                                widget.customBottomWidget ??
+                                    checkSourceAvailableChat(),
+                              ],
+                            )
                           : Container(),
                     ],
                   ),
@@ -606,6 +689,277 @@ class _ChatState extends State<Chat> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  // Build file preview widget
+  Widget _buildFilePreview() {
+    if (_selectedImages.isEmpty && _selectedVideo == null && _selectedFile == null) {
+      return const SizedBox.shrink();
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
+        border: Border(
+          top: BorderSide(color: Colors.grey[300]!, width: 1),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Text(
+                'Selected Files',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
+              ),
+              const Spacer(),
+              TextButton(
+                onPressed: _clearAllFiles,
+                style: TextButton.styleFrom(
+                  padding: EdgeInsets.zero,
+                  minimumSize: const Size(50, 30),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                child: const Text(
+                  'Clear All',
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                // Images preview
+                ..._selectedImages.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final image = entry.value;
+                  return Container(
+                    margin: const EdgeInsets.only(right: 8),
+                    child: Stack(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.file(
+                            File(image.path),
+                            width: 80,
+                            height: 80,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        Positioned(
+                          top: 4,
+                          right: 4,
+                          child: GestureDetector(
+                            onTap: () => _removeImage(index),
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: const BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.close,
+                                color: Colors.white,
+                                size: 16,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+
+                // Video preview
+                if (_selectedVideo != null)
+                  Container(
+                    margin: const EdgeInsets.only(right: 8),
+                    child: Stack(
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            // Show video preview dialog
+                            showDialog(
+                              context: context,
+                              builder: (context) => Dialog(
+                                backgroundColor: Colors.black,
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    // Video player would go here
+                                    // For now, show file info
+                                    Container(
+                                      padding: const EdgeInsets.all(16),
+                                      child: Column(
+                                        children: [
+                                          const Icon(
+                                            Icons.play_circle_outline,
+                                            color: Colors.white,
+                                            size: 64,
+                                          ),
+                                          const SizedBox(height: 16),
+                                          Text(
+                                            _selectedVideo!.name,
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 14,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                          const SizedBox(height: 8),
+                                          Text(
+                                            'Video ready to send',
+                                            style: TextStyle(
+                                              color: Colors.grey[400],
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(context),
+                                      child: const Text(
+                                        'Close',
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            width: 80,
+                            height: 80,
+                            decoration: BoxDecoration(
+                              color: Colors.black87,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.videocam,
+                                  color: Colors.white,
+                                  size: 32,
+                                ),
+                                SizedBox(height: 4),
+                                Text(
+                                  'Video',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 10,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          top: 4,
+                          right: 4,
+                          child: GestureDetector(
+                            onTap: _removeVideo,
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: const BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.close,
+                                color: Colors.white,
+                                size: 16,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                // File preview
+                if (_selectedFile != null)
+                  Container(
+                    margin: const EdgeInsets.only(right: 8),
+                    child: Stack(
+                      children: [
+                        Container(
+                          width: 80,
+                          height: 80,
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF9C27B0).withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: const Color(0xFF9C27B0),
+                              width: 1,
+                            ),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(
+                                Icons.insert_drive_file,
+                                color: Color(0xFF9C27B0),
+                                size: 32,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                _selectedFile!.name.length > 10
+                                    ? '${_selectedFile!.name.substring(0, 10)}...'
+                                    : _selectedFile!.name,
+                                style: const TextStyle(
+                                  fontSize: 9,
+                                  color: Color(0xFF9C27B0),
+                                ),
+                                textAlign: TextAlign.center,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
+                        Positioned(
+                          top: 4,
+                          right: 4,
+                          child: GestureDetector(
+                            onTap: _removeFile,
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: const BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.close,
+                                color: Colors.white,
+                                size: 16,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -674,6 +1028,10 @@ class _ChatState extends State<Chat> {
       onCancelReplyPressed: _onCancelReplyPressed,
       onSendPressed: _onSendPressed,
       onStickerPressed: _onStickerPressed,
+      onFileSelected: _handleFileSelection,
+      onVideoSelected: _handleVideoSelection,
+      onImageSelected: _handleImageSelection,
+      hasSelectedFiles: _selectedImages.isNotEmpty || _selectedVideo != null || _selectedFile != null,
       inputBuilder: (BuildContext context,
           void Function({types.TextMessage? editContent}) method) {
         requestFocusTextField = method;

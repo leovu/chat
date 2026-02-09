@@ -183,7 +183,7 @@ class ChatConnection {
     }
     ;
     String url =
-        ChatConnection.isChatHub ? 'api/v3/list-rooms' : 'api/rooms/list';
+        ChatConnection.isChatHub ? 'api/v2/rooms/list' : 'api/rooms/list';
     ResponseData responseData = await connection.post(url, json);
     if (responseData.isSuccess) {
       r.Room room = r.Room.fromJson(responseData.data);

@@ -1043,6 +1043,14 @@ class Messages {
           };
           break;
 
+        case 'file':
+          repliedJson['type'] = 'file';
+          repliedJson['name'] = replies!.file?.name ?? 'File';
+          repliedJson['size'] = replies!.file?.size ?? 0;
+          repliedJson['uri'] = replies!.file?.location ?? '';
+          repliedJson['mimeType'] = lookupMimeType(replies?.file?.name ?? '--');
+          break;
+
         case 'file_url':
           repliedJson['type'] = 'file';
           if (replies!.messageObject != null) {

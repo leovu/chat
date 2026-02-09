@@ -136,7 +136,17 @@ class _MyAppState extends State<MyApp> {
                     return;
                   }
 
-                  //MATHEW TEST
+                  //MATHEW TEST CHAT
+                  // await Chat.open(context, 'trind', '123456',
+                  //     'assets/icon-app.png', const Locale(LangKey.langVi, 'VI'),
+                  //     domain: 'https://chat.matthewsliquor.com.au/',
+                  //     brandCode: 'matthewsliquor',
+                  //     isChatHub: false,
+                  //     token:
+                  //         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZDI3MTQxMjI5Njg1MjI0MDFiOGIwOCIsInNpZCI6InRyaW5kIiwiZW1haWwiOiJ0cmluZEBwaW9hcHBzLnZuIiwibGV2ZWwiOiJzdGFuZGFyZCIsImZpcnN0TmFtZSI6IlRyaSBOZ3V5ZW4gV0FPIiwibGFzdE5hbWUiOiJURVNUIiwidXNlcm5hbWUiOiJ0cmluZCIsImJyYW5kIjoibWF0dGhld3NsaXF1b3IiLCJpYXQiOjE3NzA2MjM2ODYsImV4cCI6MTc3NTgwNzY4Nn0.paqcQkzpbSQbbxjsUudBkSC7LoMCAgMDz-0ZLFcP21E"
+                  //     // roomId: '632a88f7dd01b42c37330585'
+                  //     );
+//MATHEW TEST CHAT HUB
                   await Chat.open(
                       // phoneNumber: '0708983437',
                       // phoneNumber: '+8490688627',
@@ -152,8 +162,7 @@ class _MyAppState extends State<MyApp> {
                       brandCode: 'matthewsliquor',
                       isChatHub: true,
                       token:
-                          // "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyN2JkMDc5NDhhNTUxMDUzZWFkMGFiNyIsInVpZCI6MjA3LCJzaWQiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AbWF0dGhld3NsaXF1b3IuY29tIiwibGV2ZWwiOiJyb290IiwiZmlyc3ROYW1lIjoiQWRtaW4iLCJsYXN0TmFtZSI6IiIsInVzZXJuYW1lIjoiYWRtaW4iLCJicmFuZF9jb2RlIjoibWF0dGhld3NsaXF1b3IiLCJpYXQiOjE3NjU3ODA1NDcsImV4cCI6MTc3MDk2NDU0N30.2EwB6zLJly3GKqSLb15ptLxDW0T4tFbOPJEr4ceytzA",
-                          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyN2JkMDc5NDhhNTUxMDUzZWFkMGFiNyIsInVpZCI6MjA3LCJzaWQiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AbWF0dGhld3NsaXF1b3IuY29tIiwibGV2ZWwiOiJyb290IiwiZmlyc3ROYW1lIjoiQWRtaW4iLCJsYXN0TmFtZSI6IiIsInVzZXJuYW1lIjoiYWRtaW4iLCJicmFuZF9jb2RlIjoibWF0dGhld3NsaXF1b3IiLCJpYXQiOjE3NjU5NDE5MjIsImV4cCI6MTc3MTEyNTkyMn0.a6jiCAVXfB6uH0AcqtWe4QtPBuhVe1kldvKldBQyvlU"
+                          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyN2JkMDc5NDhhNTUxMDUzZWFkMGFiNyIsInVpZCI6MjA3LCJzaWQiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AbWF0dGhld3NsaXF1b3IuY29tIiwibGV2ZWwiOiJyb290IiwiZmlyc3ROYW1lIjoiQWRtaW4iLCJsYXN0TmFtZSI6IiIsInVzZXJuYW1lIjoiYWRtaW4iLCJicmFuZF9jb2RlIjoibWF0dGhld3NsaXF1b3IiLCJpYXQiOjE3NzA2MjYyOTgsImV4cCI6MTc3NTgxMDI5OH0.m7rqrMZGl0hs-uOpRWpeCVeC_U_qJXsPCqsHdHscfPs"
                       // roomId: '632a88f7dd01b42c37330585'
                       );
 
