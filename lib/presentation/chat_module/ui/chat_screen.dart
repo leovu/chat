@@ -85,6 +85,10 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   bool? isBlock = false;
   Owner? groupOwner1;
 
+  // Image grouping
+  Map<String, List<types.ImageMessage>> _imageGroups = {};
+  Set<String> _hiddenImageIds = {};
+
   Future<bool> _requestStoragePermission() async {
     return true;
   }
@@ -143,6 +147,47 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     setState(() {});
   }
 
+  void _groupConsecutiveImages() {
+    _imageGroups.clear();
+    _hiddenImageIds.clear();
+
+    for (int i = 0; i < _messages.length; i++) {
+      if (_messages[i] is types.ImageMessage) {
+        final currentMsg = _messages[i] as types.ImageMessage;
+
+        // Skip if already part of a group
+        if (_hiddenImageIds.contains(currentMsg.id)) continue;
+
+        List<types.ImageMessage> group = [currentMsg];
+
+        // Look ahead for consecutive images from same author within 10 seconds
+        int j = i + 1;
+        while (j < _messages.length) {
+          if (_messages[j] is types.ImageMessage) {
+            final nextMsg = _messages[j] as types.ImageMessage;
+
+            // Check if same author and within 3 seconds
+            if (nextMsg.author.id == currentMsg.author.id &&
+                (currentMsg.createdAt! - nextMsg.createdAt!).abs() <= 1000) {
+              group.add(nextMsg);
+              _hiddenImageIds.add(nextMsg.id);
+              j++;
+            } else {
+              break;
+            }
+          } else {
+            break;
+          }
+        }
+
+        // Store group if more than 1 image
+        if (group.length > 1) {
+          _imageGroups[currentMsg.id] = group;
+        }
+      }
+    }
+  }
+
   void _addMessage(types.Message message, String id,
       {String? text,
       String? repliedMessageId,
@@ -185,6 +230,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     }
 
     if (mounted) {
+      _groupConsecutiveImages();
       setState(() {});
     }
   }
@@ -397,13 +443,16 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       showStatus: true,
       status: Status.sending,
     );
+    print('📸 [pickedImageFromMulti] Created message - ID: $id, URI: ${result.path}');
     _addMessage(message, id);
     if (mounted) {
       setState(() {});
     }
+    print('📤 [pickedImageFromMulti] Starting upload for ID: $id');
     ChatConnection.uploadImage(context, data, _messages, id, result, data?.room,
             ChatConnection.checkUserTokenResponseModel?.user?.sId ?? '')
         .then((r) {
+      print('📥 [pickedImageFromMulti] Upload completed - Result: $r');
       if (r == 'limit') {
         try {
           int index = _messages
@@ -412,6 +461,21 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         } catch (_) {}
       }
       if (mounted) {
+        print('🔄 [pickedImageFromMulti] Regrouping images and calling setState');
+        print('📊 [pickedImageFromMulti] Total messages: ${_messages.length}');
+
+        // Log the updated message
+        try {
+          final updatedMsg = _messages.firstWhere((m) => m.id == r);
+          if (updatedMsg is types.ImageMessage) {
+            print('✅ [pickedImageFromMulti] Found updated message with new ID: $r');
+            print('🔗 [pickedImageFromMulti] New URI: ${updatedMsg.uri}');
+          }
+        } catch (e) {
+          print('⚠️ [pickedImageFromMulti] Could not find updated message: $e');
+        }
+
+        _groupConsecutiveImages();
         setState(() {});
       }
     });
@@ -756,6 +820,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         } catch (_) {}
       }
       if (mounted) {
+        _groupConsecutiveImages();
         setState(() {});
       }
     });
@@ -763,33 +828,183 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
 
   // Custom image message builder using CachedNetworkImage
   Widget _buildImageMessageWidget(types.ImageMessage message, {required int messageWidth}) {
-    // Helper function to ensure URL has a host
-    String ensureFullUrl(String? url) {
-      if (url == null || url.isEmpty) return '';
-      if (url.startsWith('http://') || url.startsWith('https://')) {
-        return url;
-      }
-      return '${HTTPConnection.domain}$url';
+    print('🖼️ [_buildImageMessageWidget] Called for message ID: ${message.id}');
+    print('🔗 [_buildImageMessageWidget] URI: ${message.uri}');
+    print('📊 [_buildImageMessageWidget] Status: ${message.status}');
+
+    // Check if this message should be hidden (part of a group but not the first)
+    if (_hiddenImageIds.contains(message.id)) {
+      print('👻 [_buildImageMessageWidget] Message is hidden (part of group)');
+      return const SizedBox.shrink();
     }
 
-    final imageUrl = ensureFullUrl(message.uri);
+    // Check if this message has grouped images
+    final groupedImages = _imageGroups[message.id];
+    if (groupedImages != null && groupedImages.length > 1) {
+      print('📸 [_buildImageMessageWidget] Building grouped images (${groupedImages.length} images)');
+      return _buildGroupedImages(groupedImages, messageWidth);
+    }
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(12),
-      child: CachedNetworkImage(
-        imageUrl: imageUrl,
-        width: messageWidth.toDouble() * 0.7,
-        fit: BoxFit.cover,
-        placeholder: (context, url) => Container(
+    // Display single image
+    print('🖼️ [_buildImageMessageWidget] Building single image');
+    return _buildSingleImage(message, messageWidth);
+  }
+
+  Widget _buildSingleImage(types.ImageMessage message, int messageWidth) {
+    final isLocalFile = !message.uri.startsWith('http://') && !message.uri.startsWith('https://');
+    print('📁 [_buildSingleImage] Is local file: $isLocalFile');
+    print('🔗 [_buildSingleImage] URI: ${message.uri}');
+
+    Widget imageWidget;
+    if (isLocalFile) {
+      print('✅ [_buildSingleImage] Building local file image');
+      imageWidget = ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Image.file(
+          File(message.uri),
           width: messageWidth.toDouble() * 0.7,
-          height: 100,
-          child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => Container(
+            width: messageWidth.toDouble() * 0.7,
+            height: 100,
+            child: const Icon(Icons.broken_image, size: 100, color: Colors.grey),
+          ),
         ),
-        errorWidget: (_, __, ___) => Container(
+      );
+    } else {
+      String ensureFullUrl(String? url) {
+        if (url == null || url.isEmpty) return '';
+        if (url.startsWith('http://') || url.startsWith('https://')) {
+          return url;
+        }
+        return '${HTTPConnection.domain}$url';
+      }
+
+      final imageUrl = ensureFullUrl(message.uri);
+      print('🌐 [_buildSingleImage] Building network image');
+      print('🔗 [_buildSingleImage] Full URL: $imageUrl');
+      print('🔑 [_buildSingleImage] Brand code: ${ChatConnection.brandCode}');
+
+      imageWidget = ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: CachedNetworkImage(
+          imageUrl: imageUrl,
           width: messageWidth.toDouble() * 0.7,
-          height: 100,
-          child: const Icon(Icons.broken_image, size: 100, color: Colors.grey),
+          fit: BoxFit.cover,
+          httpHeaders: ChatConnection.brandCode != null
+              ? {'brand-code': ChatConnection.brandCode!}
+              : null,
+          placeholder: (context, url) {
+            print('⏳ [CachedNetworkImage] Loading: $url');
+            return Container(
+              width: messageWidth.toDouble() * 0.7,
+              height: 100,
+              child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+            );
+          },
+          errorWidget: (context, url, error) {
+            print('❌ [CachedNetworkImage] Error loading image');
+            print('🔗 [CachedNetworkImage] URL: $url');
+            print('⚠️ [CachedNetworkImage] Error: $error');
+            return Container(
+              width: messageWidth.toDouble() * 0.7,
+              height: 100,
+              child: const Icon(Icons.broken_image, size: 100, color: Colors.grey),
+            );
+          },
         ),
+      );
+    }
+
+    return GestureDetector(
+      onTap: () {
+        openImage(context, message.uri);
+      },
+      child: imageWidget,
+    );
+  }
+
+  Widget _buildGroupedImages(List<types.ImageMessage> images, int messageWidth) {
+    final maxWidth = messageWidth.toDouble() * 0.7;
+    final spacing = 4.0;
+
+    // Calculate image size based on count
+    double imageSize;
+    if (images.length == 1) {
+      imageSize = maxWidth;
+    } else if (images.length == 2) {
+      imageSize = (maxWidth - spacing) / 2;
+    } else {
+      imageSize = (maxWidth - spacing * 2) / 3;
+    }
+
+    // Collect all image URLs for the gallery
+    final imageUrls = images.map((img) => img.uri).toList();
+
+    return Container(
+      constraints: BoxConstraints(maxWidth: maxWidth),
+      child: Wrap(
+        spacing: spacing,
+        runSpacing: spacing,
+        children: images.asMap().entries.map((entry) {
+          final index = entry.key;
+          final img = entry.value;
+          final isLocalFile = !img.uri.startsWith('http://') && !img.uri.startsWith('https://');
+
+          Widget imageWidget;
+          if (isLocalFile) {
+            imageWidget = Image.file(
+              File(img.uri),
+              width: imageSize,
+              height: imageSize,
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => Container(
+                width: imageSize,
+                height: imageSize,
+                child: const Icon(Icons.broken_image, color: Colors.grey),
+              ),
+            );
+          } else {
+            String ensureFullUrl(String? url) {
+              if (url == null || url.isEmpty) return '';
+              if (url.startsWith('http://') || url.startsWith('https://')) {
+                return url;
+              }
+              return '${HTTPConnection.domain}$url';
+            }
+
+            final imageUrl = ensureFullUrl(img.uri);
+            imageWidget = CachedNetworkImage(
+              imageUrl: imageUrl,
+              width: imageSize,
+              height: imageSize,
+              fit: BoxFit.cover,
+              httpHeaders: ChatConnection.brandCode != null
+                  ? {'brand-code': ChatConnection.brandCode!}
+                  : null,
+              placeholder: (context, url) => Container(
+                width: imageSize,
+                height: imageSize,
+                child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+              ),
+              errorWidget: (_, __, ___) => Container(
+                width: imageSize,
+                height: imageSize,
+                child: const Icon(Icons.broken_image, color: Colors.grey),
+              ),
+            );
+          }
+
+          return GestureDetector(
+            onTap: () {
+              openImages(context, imageUrls, initialIndex: index);
+            },
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: imageWidget,
+            ),
+          );
+        }).toList(),
       ),
     );
   }
@@ -902,6 +1117,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         }
 
         _messages = values;
+        _groupConsecutiveImages();
       }
     }
 
@@ -935,6 +1151,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
           if (mounted) {
             setState(() {
               _messages = values;
+              _groupConsecutiveImages();
             });
           }
         }

@@ -137,34 +137,52 @@ class _MyAppState extends State<MyApp> {
                   }
 
                   //MATHEW TEST CHAT
-                  // await Chat.open(context, 'trind', '123456',
-                  //     'assets/icon-app.png', const Locale(LangKey.langVi, 'VI'),
-                  //     domain: 'https://chat.matthewsliquor.com.au/',
-                  //     brandCode: 'matthewsliquor',
-                  //     isChatHub: false,
+                  // await Chat.open(
+                  //     context,
+                  //     'admin@pioapps.vn',
+                  //     'Waosupport@2025',
+                  //     'assets/icon-app.png',
+                  //     const Locale(LangKey.langVi, 'VI'),
+                  //     domain: 'https://chathub.epoints.vn/',
+                  //     brandCode: 'sale',
+                  //     isChatHub: true,
                   //     token:
-                  //         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZDI3MTQxMjI5Njg1MjI0MDFiOGIwOCIsInNpZCI6InRyaW5kIiwiZW1haWwiOiJ0cmluZEBwaW9hcHBzLnZuIiwibGV2ZWwiOiJzdGFuZGFyZCIsImZpcnN0TmFtZSI6IlRyaSBOZ3V5ZW4gV0FPIiwibGFzdE5hbWUiOiJURVNUIiwidXNlcm5hbWUiOiJ0cmluZCIsImJyYW5kIjoibWF0dGhld3NsaXF1b3IiLCJpYXQiOjE3NzA2MjM2ODYsImV4cCI6MTc3NTgwNzY4Nn0.paqcQkzpbSQbbxjsUudBkSC7LoMCAgMDz-0ZLFcP21E"
+                  //         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyZmQwMjA0ZDcwMzNlMjRkYTc5YzYwNiIsInVpZCI6MSwic2lkIjoiYWRtaW4iLCJlbWFpbCI6InZ1QHBpb2FwcHMudm4iLCJsZXZlbCI6InJvb3QiLCJmaXJzdE5hbWUiOiJBZG1pbiIsImxhc3ROYW1lIjoiVXNlciIsInVzZXJuYW1lIjoiYWRtaW4iLCJicmFuZF9jb2RlIjoic2FsZSIsImlhdCI6MTc3MDY5NzAzMiwiZXhwIjoxNzc1ODgxMDMyfQ.D609LMdUBB4EBTYAL-Ys7vEH7jaBcE2QzV-TnXC2khk"
                   //     // roomId: '632a88f7dd01b42c37330585'
                   //     );
-//MATHEW TEST CHAT HUB
-                  await Chat.open(
-                      // phoneNumber: '0708983437',
-                      // phoneNumber: '+8490688627',
+
+                      await Chat.open(
                       context,
-                      // _userNameController.value.text,
-                      // _passwordController.value.text,
-                      'admin@matthewsliquor.com',
-                      '123456',
+                      'admin@pioapps.vn',
+                      'Waosupport@2025',
                       'assets/icon-app.png',
                       const Locale(LangKey.langVi, 'VI'),
-                      domain: 'https://chathub.matthewsliquor.com.au/',
-                      // domain: 'https://chat.matthewsliquor.com.au/',
-                      brandCode: 'matthewsliquor',
-                      isChatHub: true,
+                      domain: 'https://chat.epoints.vn/',
+                      brandCode: 'sale',
+                      isChatHub: false,
                       token:
-                          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyN2JkMDc5NDhhNTUxMDUzZWFkMGFiNyIsInVpZCI6MjA3LCJzaWQiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AbWF0dGhld3NsaXF1b3IuY29tIiwibGV2ZWwiOiJyb290IiwiZmlyc3ROYW1lIjoiQWRtaW4iLCJsYXN0TmFtZSI6IiIsInVzZXJuYW1lIjoiYWRtaW4iLCJicmFuZF9jb2RlIjoibWF0dGhld3NsaXF1b3IiLCJpYXQiOjE3NzA2MjYyOTgsImV4cCI6MTc3NTgxMDI5OH0.m7rqrMZGl0hs-uOpRWpeCVeC_U_qJXsPCqsHdHscfPs"
+                          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ZmNjMjM1ZDAwYzZjMDAxMjVlZmViNSIsInNpZCI6ImFkbWluQHBpb2FwcHMudm4iLCJlbWFpbCI6ImFkbWluQHBpb2FwcHMudm4iLCJsZXZlbCI6InN0YW5kYXJkIiwiZmlyc3ROYW1lIjoiQWRtaW4iLCJsYXN0TmFtZSI6IiIsInVzZXJuYW1lIjoiYWRtaW5AcGlvYXBwcy52biIsImJyYW5kIjoic2FsZSIsImlhdCI6MTc3MDcwMDU2OSwiZXhwIjoxNzc1ODg0NTY5fQ.-RovzbKBs1buI2MaXZBosn_gRuw0LeryjUWxmVPhcAU"
                       // roomId: '632a88f7dd01b42c37330585'
                       );
+                  //MATHEW TEST CHAT HUB
+                  // await Chat.open(
+                  //     // phoneNumber: '0708983437',
+                  //     // phoneNumber: '+8490688627',
+                  //     context,
+                  //     // _userNameController.value.text,
+                  //     // _passwordController.value.text,
+                  //     'admin@matthewsliquor.com',
+                  //     '123456',
+                  //     'assets/icon-app.png',
+                  //     const Locale(LangKey.langVi, 'VI'),
+                  //     domain: 'https://chathub.matthewsliquor.com.au/',
+                  //     // domain: 'https://chat.matthewsliquor.com.au/',
+                  //     brandCode: 'matthewsliquor',
+                  //     isChatHub: true,
+                  //     token:
+                  //         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyN2JkMDc5NDhhNTUxMDUzZWFkMGFiNyIsInVpZCI6MjA3LCJzaWQiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AbWF0dGhld3NsaXF1b3IuY29tIiwibGV2ZWwiOiJyb290IiwiZmlyc3ROYW1lIjoiQWRtaW4iLCJsYXN0TmFtZSI6IiIsInVzZXJuYW1lIjoiYWRtaW4iLCJicmFuZF9jb2RlIjoibWF0dGhld3NsaXF1b3IiLCJpYXQiOjE3NzA2MjYyOTgsImV4cCI6MTc3NTgxMDI5OH0.m7rqrMZGl0hs-uOpRWpeCVeC_U_qJXsPCqsHdHscfPs"
+                  //     // roomId: '632a88f7dd01b42c37330585'
+                  //     );
 
                   //MATHEW TEST
                   // await Chat.open(

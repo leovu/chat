@@ -290,3 +290,15 @@ void openImage(BuildContext context, String url) {
     return PhotoScreen(imageViewed: fullUrl);
   }));
 }
+
+void openImages(BuildContext context, List<String> urls, {int initialIndex = 0}) {
+  // Ensure all URLs have full domain
+  final fullUrls = urls.map((url) => _ensureFullUrl(url)).toList();
+  Navigator.of(context).push(MaterialPageRoute(builder: (ctx) {
+    return PhotoScreen(
+      imageViewed: fullUrls[initialIndex],
+      imageUrls: fullUrls,
+      initialIndex: initialIndex,
+    );
+  }));
+}

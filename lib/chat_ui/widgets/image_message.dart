@@ -90,6 +90,23 @@ class _ImageMessageState extends State<ImageMessage> {
   }
 
   @override
+  void didUpdateWidget(ImageMessage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.message.uri != widget.message.uri) {
+      try {
+        _image = Conditional().getProvider(widget.message.uri);
+        _size = Size(widget.message.width ?? 0, widget.message.height ?? 0);
+        if (mounted) {
+          setState(() {});
+        }
+      } catch (e) {
+        // Error handling
+      }
+    }
+  }
+
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (_size.isEmpty) {

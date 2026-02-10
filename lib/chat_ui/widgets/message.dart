@@ -213,12 +213,12 @@ class Message extends StatelessWidget {
             : InheritedChatTheme.of(context).theme.primaryColor;
     return bubbleBuilder != null
         ? bubbleBuilder!(
-            _messageBuilder(color),
+            _messageBuilder(color, currentUserIsAuthor),
             message: message,
             nextMessageInGroup: roundBorder,
           )
         : enlargeEmojis && hideBackgroundOnEmojiMessages
-            ? _messageBuilder(color)
+            ? _messageBuilder(color, currentUserIsAuthor)
             : Container(
                 key: key,
                 decoration: BoxDecoration(
@@ -229,12 +229,12 @@ class Message extends StatelessWidget {
                         : InheritedChatTheme.of(context).theme.primaryColor),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
-                  child: _messageBuilder(color),
+                  child: _messageBuilder(color, currentUserIsAuthor),
                 ),
               );
   }
 
-  Widget _messageBuilder(Color color) {
+  Widget _messageBuilder(Color color, bool currentUserIsAuthor) {
     switch (message.type) {
       case types.MessageType.custom:
         final customMessage = message as types.CustomMessage;
@@ -280,7 +280,9 @@ class Message extends StatelessWidget {
                 hideBackgroundOnEmojiMessages: hideBackgroundOnEmojiMessages,
                 message: textMessage,
                 onPreviewDataFetched: onPreviewDataFetched,
-                showName: ChatConnection.isChatHub ? true : showName,
+                showName: currentUserIsAuthor
+                    ? (ChatConnection.isChatHub ? true : showName)
+                    : false,
                 usePreviewData: usePreviewData,
                 searchController: searchController,
                 showUserNameForRepliedMessage: true,
@@ -294,7 +296,7 @@ class Message extends StatelessWidget {
         // );
         return AudioMessage(
           message: voiceMessage,
-          showName: showName,
+          showName: currentUserIsAuthor ? showName : false,
           showUserNameForRepliedMessage: true,
           onMessageTap: onMessageTap,
           people: people,
@@ -475,25 +477,23 @@ class Message extends StatelessWidget {
               start: 12 + (kIsWeb ? 0 : _query.padding.left),
             ),
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (!_currentUserIsAuthor && showUserAvatars) ...[
-                  // Show avatar only for the first message in a group
-                  // roundBorder = isFirstInGroup = true means first message in group
-                  // So we show avatar when roundBorder = true
                   roundBorder
                       ? (circleAvatar != null
                           ? Padding(
-                              padding: const EdgeInsets.only(right: 5.0, top: 5.0),
+                              padding:
+                                  const EdgeInsets.only(right: 5.0),
                               child: circleAvatar,
                             )
                           : Padding(
-                              padding: const EdgeInsets.only(top: 5.0),
+                              padding: const EdgeInsets.only(right: 6.0),
                               child: _avatarBuilder(context),
                             ))
                       : const SizedBox(
-                          width: 30.0, // Avatar placeholder width to maintain alignment
+                          width: 25.0,
                         ),
                 ],
                 if (message.remoteId != null &&
@@ -519,9 +519,9 @@ class Message extends StatelessWidget {
                         ? CrossAxisAlignment.end
                         : CrossAxisAlignment.start,
                     children: [
-                      // Show sender name for the first message in a group
-                      // roundBorder = isFirstInGroup = true means first message
-                      if (!_currentUserIsAuthor && roundBorder && showUserAvatars)
+                      if (!_currentUserIsAuthor &&
+                          roundBorder &&
+                          showUserAvatars)
                         Padding(
                           padding: const EdgeInsets.only(
                             bottom: 4.0,
@@ -529,7 +529,8 @@ class Message extends StatelessWidget {
                             right: 12.0,
                           ),
                           child: Text(
-                            '${message.author.firstName ?? ''} ${message.author.lastName ?? ''}'.trim(),
+                            '${message.author.firstName ?? ''} ${message.author.lastName ?? ''}'
+                                .trim(),
                             style: TextStyle(
                               fontSize: 12,
                               color: Colors.grey.shade600,
@@ -597,7 +598,6 @@ class Message extends StatelessWidget {
                       ),
                     ),
                   ),
-                // Reply button for messages from others
                 if (!_currentUserIsAuthor)
                   GestureDetector(
                     onTap: () {
@@ -605,11 +605,11 @@ class Message extends StatelessWidget {
                       focusSearch();
                     },
                     child: Container(
-                      height: 30.0,
-                      padding: const EdgeInsets.only(left: 8.0, top: 20.0),
-                      child: const Icon(
+                      padding: const EdgeInsets.only(left: 4.0),
+                      alignment: Alignment.center,
+                      child: Icon(
                         Icons.reply_rounded,
-                        color: Colors.blue,
+                        color: Colors.grey[100],
                         size: 18.0,
                       ),
                     ),

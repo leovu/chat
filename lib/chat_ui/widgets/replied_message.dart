@@ -127,11 +127,11 @@ class RepliedMessage extends StatelessWidget {
         return Container(
           margin: _theme.repliedMessageImageMargin,
           decoration: BoxDecoration(
-              color: Colors.transparent,
-              // border: BoxBorder.fromLTRB(
-              //   left: BorderSide(color: Colors.amber, width: 3),
-              // )
-              ),
+            color: Colors.transparent,
+            // border: BoxBorder.fromLTRB(
+            //   left: BorderSide(color: Colors.amber, width: 3),
+            // )
+          ),
           height: 80,
           child: Padding(
             padding: const EdgeInsets.only(left: 4.0),
@@ -154,11 +154,11 @@ class RepliedMessage extends StatelessWidget {
         return Container(
           height: 80,
           decoration: BoxDecoration(
-              color: Colors.transparent,
-              // border: BoxBorder.fromLTRB(
-              //   left: BorderSide(color: Colors.amber, width: 3),
-              // )
-              ),
+            color: Colors.transparent,
+            // border: BoxBorder.fromLTRB(
+            //   left: BorderSide(color: Colors.amber, width: 3),
+            // )
+          ),
           margin: _theme.repliedMessageImageMargin,
           child: Padding(
             padding: const EdgeInsets.only(left: 4.0),
@@ -868,9 +868,9 @@ class RepliedMessage extends StatelessWidget {
           width: MediaQuery.of(context).size.width,
           padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
           decoration: BoxDecoration(
-            borderRadius:
-                const BorderRadius.vertical(top: Radius.circular(10.0)),
-            color: _closable ? Colors.grey.shade50 : Colors.transparent,
+            borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(10.0), bottom: Radius.circular(10.0)),
+            color:Colors.grey.shade50,// _closable ? Colors.grey.shade50 : Colors.grey[50],
           ),
           child: Row(
             children: [

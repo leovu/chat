@@ -172,10 +172,8 @@ class ChatConnection {
 
     json['limit'] = 15;
     if (tagIds != null && tagIds.isNotEmpty) {
-      final parsedTagIds = tagIds
-          .where((e) => e != null) 
-          .map((e) => e!) 
-          .toList();
+      final parsedTagIds =
+          tagIds.where((e) => e != null).map((e) => e!).toList();
 
       if (parsedTagIds.isNotEmpty) {
         json['tag_ids'] = parsedTagIds;
@@ -183,7 +181,7 @@ class ChatConnection {
     }
     ;
     String url =
-        ChatConnection.isChatHub ? 'api/v2/rooms/list' : 'api/rooms/list';
+        ChatConnection.isChatHub ? 'api/v3/list-rooms' : 'api/rooms/list';
     ResponseData responseData = await connection.post(url, json);
     if (responseData.isSuccess) {
       r.Room room = r.Room.fromJson(responseData.data);
@@ -258,6 +256,7 @@ class ChatConnection {
 
   static Future<c.ChatMessage?> joinRoom(String id,
       {bool refresh = false}) async {
+    // String version = ChatConnection.isChatHub ? '/v3' : '';
     try {
       String url =
           ChatConnection.isChatHub ? 'api/v3/join-room' : 'api/room/join';
@@ -274,7 +273,6 @@ class ChatConnection {
     }
     return null;
   }
-
 
   static Future<bool> autoUpdateChatSeenWhenJoinRoom(String id) async {
     ResponseData responseData =
@@ -569,18 +567,35 @@ class ChatConnection {
         c.Messages valueResponse = c.Messages.fromJson(ChatConnection.isChatHub
             ? responseData.data['data']['message']
             : responseData.data['message']);
-        // types.Status s = valueResponse.sId==null ? types.Status.error : types.Status.sent;
+        types.Status s = valueResponse.sId==null ? types.Status.error : types.Status.sent;
+        final oldMessage = listMessage[index] as types.ImageMessage;
+
+        // Use image location from response (S3 URL) if available, otherwise construct URL
+        String newUri;
+        if (valueResponse.image?.location != null && valueResponse.image!.location!.isNotEmpty) {
+          newUri = valueResponse.image!.location!;
+          print('📸 [uploadImage] Using S3 URL from response: $newUri');
+        } else if (valueResponse.content != null && valueResponse.content!.isNotEmpty) {
+          newUri = '${HTTPConnection.domain}api/images/${valueResponse.content}/${ChatConnection.brandCode}';
+          print('📸 [uploadImage] Constructed URL from content: $newUri');
+        } else {
+          print('❌ [uploadImage] No valid URI found in response!');
+          newUri = oldMessage.uri; // Fallback to old URI
+        }
+
         listMessage[index] = types.ImageMessage(
-            author: listMessage[index].author,
-            createdAt: listMessage[index].createdAt,
+            author: oldMessage.author,
+            createdAt: oldMessage.createdAt,
             id: valueResponse.sId!,
-            height: (listMessage[index] as types.ImageMessage).height,
-            name: (listMessage[index] as types.ImageMessage).name,
-            size: (listMessage[index] as types.ImageMessage).size,
-            uri:
-                '${HTTPConnection.domain}api/images/${valueResponse.content}/${ChatConnection.brandCode}',
-            width: (listMessage[index] as types.ImageMessage).width,
-            repliedMessage: listMessage[index].repliedMessage);
+            height: oldMessage.height,
+            name: oldMessage.name,
+            size: oldMessage.size,
+            uri: newUri,
+            width: oldMessage.width,
+            showStatus: true,
+            status: s,
+            metadata: oldMessage.metadata,
+            repliedMessage: oldMessage.repliedMessage);
         data?.room?.messages?.insert(0, valueResponse);
         return valueResponse.sId!;
       }

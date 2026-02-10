@@ -622,9 +622,9 @@ class _RoomListScreenState extends State<RoomListScreen>
           onTap: () async {
             if (ChatConnection.isChatHub) {
               ChatbotService()
-                  .setRoomId(roomListVisible?.rooms?[position].sId??'');
+                  .setRoomId(roomListVisible?.rooms?[position].sId ?? '');
               ChatbotService()
-                  .setStatus(roomListVisible?.rooms?[position].enable_bot??0);
+                  .setStatus(roomListVisible?.rooms?[position].enable_bot ?? 0);
             }
             final groupOwner = extractOwner(roomListVisible!.rooms![position]);
             await Navigator.of(context, rootNavigator: true).push(
