@@ -14,7 +14,6 @@ import 'package:chat/localization/check_tag.dart';
 import 'package:chat/presentation/chat_module/bloc/chat_bloc.dart';
 import 'package:rich_text_controller/rich_text_controller.dart';
 import 'package:chat/chat_ui/widgets/inherited_replied_message.dart';
-import 'package:chat/chat_ui/widgets/remove_edit_button.dart';
 import 'package:chat/chat_ui/widgets/replied_message.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
@@ -27,6 +26,8 @@ import 'chat.dart';
 import 'inherited_chat_theme.dart';
 import 'send_button.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:image_picker/image_picker.dart';
 
 class NewLineIntent extends Intent {
   const NewLineIntent();
@@ -62,7 +63,11 @@ class Input extends StatefulWidget {
       required this.onStickerPressed,
       required this.onMessageTap,
       required this.isVisible,
-      required this.roomData})
+      required this.roomData,
+      this.onImageSelected,
+      this.onVideoSelected,
+      this.onFileSelected,
+      this.hasSelectedFiles = false})
       : super(key: key);
 
   final Rooms roomData;
@@ -84,6 +89,14 @@ class Input extends StatefulWidget {
 
   final bool isGroup;
   final List<People>? people;
+
+  /// Callbacks for file/image/video selection
+  final void Function(List<XFile>)? onImageSelected;
+  final void Function(XFile)? onVideoSelected;
+  final void Function(PlatformFile)? onFileSelected;
+
+  /// Whether there are files selected for preview
+  final bool hasSelectedFiles;
 
   /// Whether attachment is uploading. Will replace attachment button with a
   /// [CircularProgressIndicator]. Since we don't have libraries for
@@ -121,6 +134,7 @@ class _InputState extends State<Input> {
   final _inputFocusNode = FocusNode();
   bool _sendButtonVisible = false;
   bool _emojiShowing = false;
+  bool _attachmentShowing = false;
   bool _isEdit = false;
   late RichTextController _textController;
   types.TextMessage? editContent;
@@ -164,11 +178,25 @@ class _InputState extends State<Input> {
 
     _idTagList = [];
     if (widget.sendButtonVisibilityMode == SendButtonVisibilityMode.editing) {
-      _sendButtonVisible = _textController.text.trim() != '';
+      _sendButtonVisible =
+          _textController.text.trim() != '' || widget.hasSelectedFiles;
       _textController.addListener(_handleTextControllerChange);
     } else {
       _sendButtonVisible = true;
     }
+
+    // Add focus listener to close emoji/attachment when keyboard opens
+    _inputFocusNode.addListener(() {
+      if (_inputFocusNode.hasFocus) {
+        // Keyboard is opening, close emoji and attachment pickers
+        if (_emojiShowing || _attachmentShowing) {
+          setState(() {
+            _emojiShowing = false;
+            _attachmentShowing = false;
+          });
+        }
+      }
+    });
   }
 
   void _deleteImage() {
@@ -187,6 +215,20 @@ class _InputState extends State<Input> {
       }
       if (value.containsKey('tag_list')) {
         _idTagList = List<String>.from(value['tag_list']);
+      }
+    }
+  }
+
+  @override
+  void didUpdateWidget(Input oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Update send button visibility when hasSelectedFiles changes
+    if (oldWidget.hasSelectedFiles != widget.hasSelectedFiles) {
+      if (widget.sendButtonVisibilityMode == SendButtonVisibilityMode.editing) {
+        setState(() {
+          _sendButtonVisible =
+              _textController.text.trim() != '' || widget.hasSelectedFiles;
+        });
       }
     }
   }
@@ -244,7 +286,8 @@ class _InputState extends State<Input> {
       }
       _idTagList = [];
     }
-    if (trimmedText != '') {
+    // Allow sending if there's text OR selected files
+    if (trimmedText != '' || widget.hasSelectedFiles) {
       final _partialText = types.PartialText(text: trimmedText);
       widget.onSendPressed(_partialText,
           repliedMessage: InheritedRepliedMessage.of(context).repliedMessage,
@@ -259,7 +302,8 @@ class _InputState extends State<Input> {
 
   void _handleTextControllerChange() {
     setState(() {
-      _sendButtonVisible = _textController.text.trim() != '';
+      _sendButtonVisible =
+          _textController.text.trim() != '' || widget.hasSelectedFiles;
       if (!_sendButtonVisible) {
         _idTagList = [];
       }
@@ -334,6 +378,381 @@ class _InputState extends State<Input> {
   }
 
   int emojiIndex = 0;
+
+  Widget _buildEmojiStickerPicker() {
+    return Container(
+      height: 300,
+      decoration: BoxDecoration(
+        // color: Colors.grey[50],
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      child: Column(
+        children: [
+          // Tabs với giao diện đẹp hơn
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              // borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                // Emoji Tab
+                Expanded(
+                  child: InkWell(
+                    onTap: () => setState(() => emojiIndex = 0),
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        gradient: emojiIndex == 0
+                            ? const LinearGradient(
+                                colors: [Color(0xFF42A5F5), Color(0xFF1E88E5)],
+                              )
+                            : null,
+                        color: emojiIndex == 0 ? null : Colors.transparent,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.emoji_emotions,
+                            size: 18,
+                            color: emojiIndex == 0
+                                ? Colors.white
+                                : Colors.grey[600],
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            'Emoji',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: emojiIndex == 0
+                                  ? Colors.white
+                                  : Colors.grey[700],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                // Sticker Tab
+                Expanded(
+                  child: InkWell(
+                    onTap: () => setState(() => emojiIndex = 1),
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        gradient: emojiIndex == 1
+                            ? const LinearGradient(
+                                colors: [Color(0xFFFF7043), Color(0xFFF4511E)],
+                              )
+                            : null,
+                        color: emojiIndex == 1 ? null : Colors.transparent,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.sticky_note_2,
+                            size: 18,
+                            color: emojiIndex == 1
+                                ? Colors.white
+                                : Colors.grey[600],
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            'Sticker',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: emojiIndex == 1
+                                  ? Colors.white
+                                  : Colors.grey[700],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Content
+          Expanded(
+            child: emojiIndex == 0
+                ? EmojiPicker(
+                    onEmojiSelected: (Category? category, Emoji? emoji) {
+                      _onEmojiSelected(emoji);
+                    },
+                    onBackspacePressed: _onBackspacePressed,
+                    config: Config(
+                      emojiViewConfig: EmojiViewConfig(
+                        backgroundColor: Colors.grey[50]!,
+                        columns: 7,
+                        emojiSizeMax: 28,
+                      ),
+                      categoryViewConfig: CategoryViewConfig(
+                        backgroundColor: Colors.white,
+                        iconColorSelected: const Color(0xFF1E88E5),
+                        indicatorColor: const Color(0xFF1E88E5),
+                      ),
+                      searchViewConfig: SearchViewConfig(
+                        backgroundColor: Colors.transparent,
+                        buttonIconColor: Colors.transparent,
+                      ),
+                      bottomActionBarConfig: BottomActionBarConfig(
+                        backgroundColor: Colors.white,
+                        enabled:
+                            false, // Disable bottom action bar (search bar)
+                      ),
+                    ),
+                  )
+                : Column(
+                    children: [
+                      // Sticker categories với style đẹp hơn
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
+                        child: Row(
+                          children: [
+                            stickerSelection("assets/icon-cat.png", 1),
+                            const SizedBox(width: 12),
+                            stickerSelection("assets/icon-rabbit.png", 2),
+                            const SizedBox(width: 12),
+                            stickerSelection("assets/icon-panda.png", 3),
+                          ],
+                        ),
+                      ),
+                      // Sticker grid
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: GridView(
+                            scrollDirection: Axis.vertical,
+                            gridDelegate:
+                                const SliverGridDelegateWithMaxCrossAxisExtent(
+                              maxCrossAxisExtent: 120,
+                              childAspectRatio: 1,
+                              crossAxisSpacing: 8,
+                              mainAxisSpacing: 8,
+                            ),
+                            children: stickers(),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Toggle attachment picker
+  void _showAttachmentOptions() {
+    setState(() {
+      _attachmentShowing = !_attachmentShowing;
+      if (_attachmentShowing) {
+        // Unfocus textfield when opening attachment picker
+        _inputFocusNode.unfocus();
+        _emojiShowing = false;
+      }
+    });
+  }
+
+  Widget _buildAttachmentPicker() {
+    return Container(
+      height: 150,
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          _buildAttachmentItem(
+            icon: Icons.photo_library,
+            label: 'Gallery',
+            color: const Color(0xFF4CAF50),
+            onTap: () {
+              _handleImageSelection();
+            },
+          ),
+          _buildAttachmentItem(
+            icon: Icons.insert_drive_file,
+            label: 'Document',
+            color: const Color(0xFF9C27B0),
+            onTap: () {
+              _handleFileSelection();
+            },
+          ),
+          _buildAttachmentItem(
+            icon: Icons.videocam,
+            label: 'Video',
+            color: const Color(0xFFE91E63),
+            onTap: () {
+              _handelVideoSelection();
+            },
+          ),
+          _buildAttachmentItem(
+            icon: Icons.emoji_emotions,
+            label: 'Emoji',
+            color: const Color(0xFFFFB300),
+            onTap: () {
+              // Unfocus keyboard when opening emoji picker
+              _inputFocusNode.unfocus();
+              setState(() {
+                _attachmentShowing = false;
+                _emojiShowing = true;
+                emojiIndex = 0;
+              });
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Build single attachment item
+  Widget _buildAttachmentItem({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        width: 80,
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 55,
+              height: 55,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.15),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                size: 30,
+                color: color,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 12,
+                color: Colors.black87,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Widget cho text field input
+  Widget _buildTextField() {
+    return Expanded(
+      child: TextField(
+        controller: _textController,
+        cursorColor: InheritedChatTheme.of(context).theme.inputTextCursorColor,
+        decoration: InheritedChatTheme.of(context)
+            .theme
+            .inputTextDecoration
+            .copyWith(
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 4,
+                vertical: 4,
+              ),
+              hintStyle:
+                  InheritedChatTheme.of(context).theme.inputTextStyle.copyWith(
+                        color: Colors.black.withValues(alpha: 0.2),
+                      ),
+              hintText: AppLocalizations.text(LangKey.writeAMessage),
+            ),
+        focusNode: _inputFocusNode,
+        keyboardType: TextInputType.multiline,
+        maxLines: 5,
+        minLines: 1,
+        onChanged: (value) {
+          onChanged(value);
+        },
+        onTap: widget.onTextFieldTap,
+        style: InheritedChatTheme.of(context).theme.inputTextStyle.copyWith(
+              color: Colors.black,
+            ),
+        textCapitalization: TextCapitalization.sentences,
+      ),
+    );
+  }
+
+  Widget _buildActionButtons() {
+    return Align(
+      alignment: Alignment.center,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          if (widget.onAttachmentPressed != null &&
+              widget.onCameraPressed != null)
+            Visibility(
+              visible: !_sendButtonVisible,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                child: _leftWidgetBuilder(),
+              ),
+            ),
+          // Visibility(
+          //   visible: _isEdit,
+          //   child: Padding(
+          //     padding: const EdgeInsets.only(left: 10.0, bottom: 4),
+          //     child: RemoveEditButton(
+          //       onPressed: () {
+          //         _isEdit = false;
+          //         _textController.text = '';
+          //         if (!_isEdit) {
+          //           editContent = null;
+          //         }
+          //       },
+          //     ),
+          //   ),
+          // ),
+          Visibility(
+            visible: _sendButtonVisible,
+            child: Padding(
+              padding: EdgeInsets.only(
+                right: 16.0,
+                left: 8.0,
+                bottom: 8,
+              ),
+              child: SendButton(
+                onPressed: _handleSendPressed,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _inputBuilder() {
     final _query = MediaQuery.of(context);
     final _safeAreaInsets = kIsWeb
@@ -348,300 +767,106 @@ class _InputState extends State<Input> {
     return widget.canSend
         ? Focus(
             autofocus: true,
-            child: Padding(
-              padding: InheritedChatTheme.of(context).theme.inputMargin,
-              child: Material(
-                borderRadius:
-                    InheritedChatTheme.of(context).theme.inputBorderRadius,
-                color: Colors.white,
-                child: Container(
-                  decoration: InheritedChatTheme.of(context)
-                      .theme
-                      .inputContainerDecoration,
-                  child: Column(
-                    children: [
-                      Visibility(
-                          visible: _taggingSuggestList != null,
-                          child: _taggingSuggestList != null
-                              ? Wrap(
-                                  children: _arrayTaggingSuggestionList(
-                                      _taggingSuggestList!.length ==
-                                              widget.people!.length - 1 &&
-                                          widget.isGroup),
-                                )
-                              : Container()),
-                      if (InheritedRepliedMessage.of(context).repliedMessage !=
-                          null)
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
-                          child: RepliedMessage(
-                            isView: true,
-                            onCancelReplyPressed: widget.onCancelReplyPressed,
-                            repliedMessage: InheritedRepliedMessage.of(context)
-                                .repliedMessage,
-                            showUserNames: true,
-                            onMessageTap: widget.onMessageTap,
-                            people: widget.people,
-                          ),
+            child: Material(
+              borderRadius:
+                  InheritedChatTheme.of(context).theme.inputBorderRadius,
+              color: Colors.white,
+              child: Container(
+                margin: EdgeInsets.only(
+                  bottom: AppSizes.maxPadding * 2,
+                  left: AppSizes.maxPadding,
+                  right: AppSizes.maxPadding,
+                ),
+                padding: EdgeInsets.only(bottom: AppSizes.maxPadding, top: 8),
+                decoration: InheritedChatTheme.of(context)
+                    .theme
+                    .inputContainerDecoration,
+                child: Column(
+                  children: [
+                    Visibility(
+                        visible: _taggingSuggestList != null,
+                        child: _taggingSuggestList != null
+                            ? Wrap(
+                                children: _arrayTaggingSuggestionList(
+                                    _taggingSuggestList!.length ==
+                                            widget.people!.length - 1 &&
+                                        widget.isGroup),
+                              )
+                            : Container()),
+                    if (InheritedRepliedMessage.of(context).repliedMessage !=
+                        null)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
+                        child: RepliedMessage(
+                          isView: true,
+                          onCancelReplyPressed: widget.onCancelReplyPressed,
+                          repliedMessage: InheritedRepliedMessage.of(context)
+                              .repliedMessage,
+                          showUserNames: true,
+                          onMessageTap: widget.onMessageTap,
+                          people: widget.people,
                         ),
-                      Container(
-                        padding: const EdgeInsets.fromLTRB(8, 0, 8, 8)
-                            .add(_safeAreaInsets),
-                        child: Column(
-                          children: [
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Expanded(
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                        border: Border.all(
-                                            color: const Color(0xFFBCC5D7),
-                                            width: 1.0),
-                                        borderRadius: const BorderRadius.all(
-                                            Radius.circular(10.0))),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(3.0),
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Visibility(
-                                            visible: _imageData != '',
-                                            child: Stack(
-                                              children: [
-                                                SizedBox(
-                                                  width: MediaQuery.of(context)
-                                                          .size
-                                                          .width /
-                                                      3,
-                                                  child: ClipRRect(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            8.0),
-                                                    child: Image.memory(
-                                                      Uint8List.fromList(
-                                                          _imageData.codeUnits),
-                                                    ),
-                                                  ),
-                                                ),
-                                                Positioned(
-                                                  top: 5.0,
-                                                  right: 5.0,
-                                                  child: GestureDetector(
-                                                    onTap: _deleteImage,
-                                                    child: Container(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              4.0),
-                                                      decoration:
-                                                          const BoxDecoration(
-                                                        shape: BoxShape.circle,
-                                                        color: Colors.red,
-                                                      ),
-                                                      child: const Icon(
-                                                        Icons.close,
-                                                        color: Colors.white,
-                                                        size: 16.0,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.end,
+                      ),
+                    Container(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 0, 16)
+                          .add(_safeAreaInsets),
+                      child: Column(
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Expanded(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                      border: Border.all(
+                                          color: const Color(0xFFBCC5D7),
+                                          width: 1.0),
+                                      borderRadius: const BorderRadius.all(
+                                          Radius.circular(10.0))),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(3.0),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Visibility(
+                                          visible: _imageData != '',
+                                          child: Stack(
                                             children: [
-                                              Padding(
-                                                padding: const EdgeInsets.only(
-                                                    right: 3.0),
-                                                child: SizedBox(
-                                                  height: 35.0,
-                                                  width: 35.0,
-                                                  child: InkWell(
-                                                      onTap: () {
-                                                        setState(() {
-                                                          _emojiShowing =
-                                                              !_emojiShowing;
-                                                          emojiIndex = 0;
-                                                          if (_emojiShowing) {
-                                                            _inputFocusNode
-                                                                .requestFocus();
-                                                          }
-                                                        });
-                                                      },
-                                                      child: Image.asset(
-                                                        'assets/icon-emoji.png',
-                                                        package: 'chat',
-                                                      )),
+                                              SizedBox(
+                                                width: MediaQuery.of(context)
+                                                        .size
+                                                        .width /
+                                                    3,
+                                                child: ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          8.0),
+                                                  child: Image.memory(
+                                                    Uint8List.fromList(
+                                                        _imageData.codeUnits),
+                                                  ),
                                                 ),
                                               ),
-                                              Expanded(
-                                                  child: Padding(
-                                                padding: const EdgeInsets.only(
-                                                    bottom: 6.0),
-                                                child: TextField(
-                                                  controller: _textController,
-                                                  cursorColor:
-                                                      InheritedChatTheme.of(
-                                                              context)
-                                                          .theme
-                                                          .inputTextCursorColor,
-                                                  decoration:
-                                                      InheritedChatTheme.of(
-                                                              context)
-                                                          .theme
-                                                          .inputTextDecoration
-                                                          .copyWith(
-                                                            hintStyle:
-                                                                InheritedChatTheme.of(
-                                                                        context)
-                                                                    .theme
-                                                                    .inputTextStyle
-                                                                    .copyWith(
-                                                                      color: Colors
-                                                                          .black
-                                                                          .withValues(
-                                                                              alpha: 0.2),
-                                                                    ),
-                                                            hintText:
-                                                                AppLocalizations
-                                                                    .text(LangKey
-                                                                        .writeAMessage),
-                                                          ),
-                                                  focusNode: _inputFocusNode,
-                                                  keyboardType:
-                                                      TextInputType.multiline,
-                                                  maxLines: 5,
-                                                  minLines: 1,
-                                                  onChanged: (value) {
-                                                    onChanged(value);
-                                                  },
-                                                  onTap: widget.onTextFieldTap,
-                                                  style: InheritedChatTheme.of(
-                                                          context)
-                                                      .theme
-                                                      .inputTextStyle
-                                                      .copyWith(
-                                                        color: Colors.black,
-                                                      ),
-                                                  textCapitalization:
-                                                      TextCapitalization
-                                                          .sentences,
-                                                  // contentInsertionConfiguration: ContentInsertionConfiguration(
-                                                  //     onContentInserted: _handleContentInsertion,
-                                                  // ),
-                                                ),
-                                              ))
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                if (widget.onAttachmentPressed != null &&
-                                    widget.onCameraPressed != null)
-                                  Visibility(
-                                    visible: !_sendButtonVisible,
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(
-                                          left: 10.0, bottom: 5.0),
-                                      child: _leftWidgetBuilder(),
-                                    ),
-                                  ),
-                                Visibility(
-                                  visible: _isEdit,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(bottom: 5.0),
-                                    child: RemoveEditButton(
-                                      onPressed: () {
-                                        _isEdit = false;
-                                        _textController.text = '';
-                                        if (!_isEdit) {
-                                          editContent = null;
-                                        }
-                                      },
-                                    ),
-                                  ),
-                                ),
-                                Visibility(
-                                  visible: _sendButtonVisible,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(bottom: 5.0),
-                                    child: SendButton(
-                                      onPressed: _handleSendPressed,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Visibility(
-                                visible: _emojiShowing,
-                                child: SizedBox(
-                                  height: 250,
-                                  child: Column(
-                                    children: [
-                                      SizedBox(
-                                        height: 30,
-                                        width: double.infinity,
-                                        child: SingleChildScrollView(
-                                          scrollDirection: Axis.horizontal,
-                                          padding:
-                                              const EdgeInsets.only(right: 8),
-                                          child: Row(
-                                            children: [
-                                              Padding(
-                                                padding: const EdgeInsets.only(
-                                                    right: 10.0),
-                                                child: InkWell(
-                                                  onTap: () => setState(
-                                                      () => emojiIndex = 0),
+                                              Positioned(
+                                                top: 5.0,
+                                                right: 5.0,
+                                                child: GestureDetector(
+                                                  onTap: _deleteImage,
                                                   child: Container(
-                                                    padding: EdgeInsets.all(4),
-                                                    decoration: BoxDecoration(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              8),
-                                                      color: emojiIndex == 0
-                                                          ? Colors.blue
-                                                          : const Color(
-                                                              0xFFE5E5E5),
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            4.0),
+                                                    decoration:
+                                                        const BoxDecoration(
+                                                      shape: BoxShape.circle,
+                                                      color: Colors.red,
                                                     ),
-                                                    child: Text(
-                                                      'Emotion Icon',
-                                                      style: TextStyle(
-                                                        color: emojiIndex == 0
-                                                            ? Colors.white
-                                                            : Colors.black,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                              InkWell(
-                                                onTap: () => setState(
-                                                    () => emojiIndex = 1),
-                                                child: Container(
-                                                  padding: EdgeInsets.all(4),
-                                                  decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            8),
-                                                    color: emojiIndex == 1
-                                                        ? Colors.blue
-                                                        : const Color(
-                                                            0xFFE5E5E5),
-                                                  ),
-                                                  child: Text(
-                                                    'Sticker',
-                                                    style: TextStyle(
-                                                      color: emojiIndex == 1
-                                                          ? Colors.white
-                                                          : Colors.black,
+                                                    child: const Icon(
+                                                      Icons.close,
+                                                      color: Colors.white,
+                                                      size: 16.0,
                                                     ),
                                                   ),
                                                 ),
@@ -649,76 +874,50 @@ class _InputState extends State<Input> {
                                             ],
                                           ),
                                         ),
-                                      ),
-                                      Expanded(
-                                        child: emojiIndex == 0
-                                            ? EmojiPicker(
-                                                onEmojiSelected:
-                                                    (Category? category,
-                                                        Emoji? emoji) {
-                                                  _onEmojiSelected(emoji);
-                                                },
-                                                onBackspacePressed:
-                                                    _onBackspacePressed,
-                                                config: Config())
-                                            : Column(
-                                                children: [
-                                                  Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                            top: 5.0),
-                                                    child: SizedBox(
-                                                      height: 20.0,
-                                                      child: Row(
-                                                        children: [
-                                                          stickerSelection(
-                                                              "assets/icon-cat.png",
-                                                              1),
-                                                          stickerSelection(
-                                                              "assets/icon-rabbit.png",
-                                                              2),
-                                                          stickerSelection(
-                                                              "assets/icon-panda.png",
-                                                              3),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  SizedBox(
-                                                    width: MediaQuery.sizeOf(
-                                                            context)
-                                                        .width,
-                                                    height: 180,
-                                                    // height: MediaQuery.sizeOf(
-                                                    //         context)
-                                                    //     .width,
-                                                    child: GridView(
-                                                      scrollDirection:
-                                                          Axis.vertical,
-                                                      gridDelegate:
-                                                          const SliverGridDelegateWithMaxCrossAxisExtent(
-                                                              maxCrossAxisExtent:
-                                                                  160,
-                                                              childAspectRatio:
-                                                                  2.25 / 2,
-                                                              crossAxisSpacing:
-                                                                  5,
-                                                              mainAxisSpacing:
-                                                                  5),
-                                                      children: stickers(),
-                                                    ),
-                                                  ),
-                                                ],
+                                        Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            // _buildEmojiButton(),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 4.0),
+                                              child: AttachmentButton(
+                                                onPressed:
+                                                    _showAttachmentOptions,
+                                                // image:
+                                                //     'assets/icon-chat-add.png',
+                                                icon: Icon(
+                                                    Icons
+                                                        .add_circle_outline_outlined,
+                                                    color: Colors.grey[700],
+                                                    size: 25),
                                               ),
-                                      )
-                                    ],
+                                            ),
+                                            _buildTextField(),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                )),
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
+                                ),
+                              ),
+                              _buildActionButtons(),
+                            ],
+                          ),
+                          Visibility(
+                            visible: _attachmentShowing,
+                            child: _buildAttachmentPicker(),
+                          ),
+                          Visibility(
+                            visible: _emojiShowing,
+                            child: _buildEmojiStickerPicker(),
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
                 ),
               ),
             ),
@@ -860,18 +1059,35 @@ class _InputState extends State<Input> {
   }
 
   Widget stickerSelection(String icon, int index) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 8.0),
-      child: InkWell(
+    bool isSelected = emojiIndex == index;
+    return InkWell(
+      onTap: () {
+        setState(() {
+          emojiIndex = index;
+        });
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        width: 44,
+        height: 44,
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? const Color(0xFFF4511E).withValues(alpha: 0.15)
+              : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected
+                ? const Color(0xFFF4511E)
+                : Colors.grey.withValues(alpha: 0.2),
+            width: 2,
+          ),
+        ),
         child: ImageIcon(
           AssetImage(icon, package: 'chat'),
-          color: emojiIndex == index ? Colors.blue : Colors.grey.shade400,
+          color: isSelected ? const Color(0xFFF4511E) : Colors.grey.shade400,
+          size: 24,
         ),
-        onTap: () {
-          setState(() {
-            emojiIndex = index;
-          });
-        },
       ),
     );
   }
@@ -1037,12 +1253,12 @@ class _InputState extends State<Input> {
   Widget _leftWidgetBuilder() {
     if (widget.isAttachmentUploading == true) {
       return Container(
-        height: 24,
+        height: 25,
         margin: const EdgeInsets.only(right: 16),
-        width: 24,
+        width: 25,
         child: const CircularProgressIndicator(
           backgroundColor: Colors.transparent,
-          strokeWidth: 1.5,
+          strokeWidth: 2.0,
           valueColor: AlwaysStoppedAnimation<Color>(
             Colors.black,
           ),
@@ -1050,28 +1266,34 @@ class _InputState extends State<Input> {
       );
     } else {
       return Padding(
-        padding: const EdgeInsets.only(bottom: 5.0),
-        child: SizedBox(
-          width: 50.0,
-          child: Row(
-            children: [
-              Expanded(
-                  child: AttachmentButton(
-                onPressed: widget.onCameraPressed,
-                image: 'assets/icon-camera.png',
-              )),
-              Container(
-                width: 10.0,
-              ),
-              Expanded(
-                  child: AttachmentButton(
-                onPressed: widget.onAttachmentPressed,
-                image: 'assets/icon-chat-add.png',
-              ))
-            ],
-          ),
-        ),
-      );
+          padding: const EdgeInsets.only(bottom: 4, right: 8),
+          child: AttachmentButton(
+            onPressed: widget.onCameraPressed,
+            icon: Icon(Icons.camera_alt_outlined,
+                color: Colors.grey[700], size: 25),
+          )
+          // SizedBox(
+          //   width: 35.0,
+          //   height: 25.0,
+          //   child: Row(
+          //     children: [
+          //       Expanded(
+          //           child: AttachmentButton(
+          //         onPressed: widget.onCameraPressed,
+          //         image: 'assets/icon-camera.png',
+          //       )),
+          //       // Container(
+          //       //   width: 10.0,
+          //       // ),
+          //       // Expanded(
+          //       //     child: AttachmentButton(
+          //       //   onPressed: widget.onAttachmentPressed,
+          //       //   image: 'assets/icon-chat-add.png',
+          //       // ))
+          //     ],
+          //   ),
+          // ),
+          );
     }
   }
 
@@ -1137,6 +1359,75 @@ class _InputState extends State<Input> {
       setState(() {
         _emojiShowing = false;
       });
+    }
+  }
+
+  Future<bool> _requestStoragePermission() async {
+    return true;
+  }
+
+  void _handleImageSelection() async {
+    bool permission = await _requestStoragePermission();
+    if (!permission) {
+      return;
+    }
+    final listResult = await ImagePicker()
+        .pickMultiImage(imageQuality: 70, maxWidth: 1440, maxHeight: 1440);
+    if (listResult.isNotEmpty) {
+      widget.onImageSelected?.call(listResult);
+      setState(() {
+        _attachmentShowing = false;
+      });
+    }
+  }
+
+  void _handelVideoSelection() async {
+    bool permission = await _requestStoragePermission();
+    if (!permission) {
+      return;
+    }
+    final result = await ImagePicker().pickVideo(
+      source: ImageSource.gallery,
+    );
+    if (result != null) {
+      widget.onVideoSelected?.call(result);
+      setState(() {
+        _attachmentShowing = false;
+      });
+    }
+  }
+
+  void _handleFileSelection() async {
+    bool permission = await _requestStoragePermission();
+    if (!permission) {
+      return;
+    }
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+          type: FileType.any, allowCompression: false, withData: false);
+      if (result != null && result.files.single.path != null) {
+        widget.onFileSelected?.call(result.files.single);
+        setState(() {
+          _attachmentShowing = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text(AppLocalizations.text(LangKey.warning)),
+            content: Text(AppLocalizations.text(LangKey.accept)),
+            actions: [
+              ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text(AppLocalizations.text(LangKey.accept)))
+            ],
+          ),
+        );
+      }
     }
   }
 }

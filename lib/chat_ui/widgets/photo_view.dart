@@ -1,9 +1,11 @@
 import 'dart:io';
-import 'package:chat/chat_ui/conditional/conditional.dart';
+import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/download.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view_gallery.dart';
+
+import '../../connection/http_connection.dart' show HTTPConnection;
 
 class PhotoScreen extends StatefulWidget {
   final String imageViewed;
@@ -14,6 +16,11 @@ class PhotoScreen extends StatefulWidget {
 }
 
 class _PhotoScreenState extends State<PhotoScreen> {
+  /// Kiểm tra xem imageViewed là URL hay local file path
+  bool get _isNetworkImage =>
+      widget.imageViewed.startsWith('http://') ||
+      widget.imageViewed.startsWith('https://');
+
   Widget _imageGalleryBuilder() {
     return Dismissible(
       key: const Key('photo_view_gallery'),
@@ -22,10 +29,33 @@ class _PhotoScreenState extends State<PhotoScreen> {
       child: Stack(
         children: [
           PhotoViewGallery.builder(
-            builder: (BuildContext context, int index) =>
-                PhotoViewGalleryPageOptions(
-                  imageProvider: Conditional().getProvider(widget.imageViewed),
-                ),
+            builder: (BuildContext context, int index) {
+              ImageProvider imageProvider;
+              if (_isNetworkImage) {
+                imageProvider = NetworkImage(widget.imageViewed);
+              } else {
+                imageProvider = FileImage(File(widget.imageViewed));
+              }
+
+              return PhotoViewGalleryPageOptions(
+                imageProvider: imageProvider,
+                errorBuilder: (context, error, stackTrace) {
+                  // Chỉ thử fallback URL nếu là network image
+                  // Local file không cần fallback network
+                  if (_isNetworkImage) {
+                    final fallbackUrl = buildFallbackImageUrl(widget.imageViewed);
+                    return Image.network(
+                      fallbackUrl,
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) {
+                        return _buildErrorWidget();
+                      },
+                    );
+                  }
+                  return _buildErrorWidget();
+                },
+              );
+            },
             itemCount: 1,
             loadingBuilder: (context, event) =>
                 _imageGalleryLoadingBuilder(context, event),
@@ -50,7 +80,19 @@ class _PhotoScreenState extends State<PhotoScreen> {
               tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
               onPressed: () async {
                 showLoading();
-                await download(context,widget.imageViewed,'${DateTime.now().toUtc().millisecond}.jpeg',isSaveGallery: true);
+
+                if (_isNetworkImage) {
+                  // Network image: tải về và lưu vào gallery
+                  // Sử dụng URL trực tiếp (đã được xử lý đầy đủ domain trong download.dart)
+                  await download(context, widget.imageViewed,
+                      '${DateTime.now().millisecondsSinceEpoch}.jpeg',
+                      isSaveGallery: true);
+                } else {
+                  // Local file: lưu trực tiếp vào gallery
+                  saveGallery(widget.imageViewed,
+                      '${DateTime.now().millisecondsSinceEpoch}.jpeg');
+                }
+
                 Navigator.of(context).pop();
               },
             ),
@@ -58,6 +100,21 @@ class _PhotoScreenState extends State<PhotoScreen> {
         ],
       ),
     );
+  }
+
+  String buildFallbackImageUrl(String? original, {String size = "512"}) {
+    if (original == null) return "";
+
+    final uri = Uri.tryParse(original);
+    String shieldedId = "";
+
+    if (uri != null && uri.pathSegments.isNotEmpty) {
+      shieldedId = uri.pathSegments.last.replaceAll('.jpg', '');
+    } else {
+      shieldedId = original;
+    }
+
+    return "${HTTPConnection.domain}api/images/$shieldedId/$size/${ChatConnection.brandCode}";
   }
 
   Future showLoading() async {
@@ -70,7 +127,9 @@ class _PhotoScreenState extends State<PhotoScreen> {
             backgroundColor: Colors.transparent,
             children: <Widget>[
               Center(
-                child: Platform.isAndroid ? const CircularProgressIndicator() : const CupertinoActivityIndicator(),
+                child: Platform.isAndroid
+                    ? const CircularProgressIndicator()
+                    : const CupertinoActivityIndicator(),
               )
             ],
           );
@@ -86,9 +145,9 @@ class _PhotoScreenState extends State<PhotoScreen> {
   }
 
   Widget _imageGalleryLoadingBuilder(
-      BuildContext context,
-      ImageChunkEvent? event,
-      ) {
+    BuildContext context,
+    ImageChunkEvent? event,
+  ) {
     return Center(
       child: SizedBox(
         width: 20,
@@ -98,6 +157,27 @@ class _PhotoScreenState extends State<PhotoScreen> {
               ? 0
               : event.cumulativeBytesLoaded / event.expectedTotalBytes!,
         ),
+      ),
+    );
+  }
+
+  /// Widget hiển thị khi không load được ảnh
+  Widget _buildErrorWidget() {
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.broken_image_outlined,
+            color: Colors.white54,
+            size: 64,
+          ),
+          SizedBox(height: 16),
+          Text(
+            'Không thể tải ảnh',
+            style: TextStyle(color: Colors.white54),
+          ),
+        ],
       ),
     );
   }

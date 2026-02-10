@@ -1,6 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Network permission -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <!-- Chỉ cần cho Android 9 trở xuống khi lưu file -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
 
     <!-- Camera permission - Chỉ cho chụp ảnh trực tiếp -->
     <uses-permission android:name="android.permission.CAMERA" />

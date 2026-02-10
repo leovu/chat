@@ -62,7 +62,7 @@ class _RoomListScreenState extends State<RoomListScreen>
   final _controllerSearch = TextEditingController();
   String? channel;
   String? status;
-  List<int?>? tagIds;
+  List<String?>? tagIds;
 
   Room? roomListVisible;
   Room? roomListData;
@@ -622,9 +622,9 @@ class _RoomListScreenState extends State<RoomListScreen>
           onTap: () async {
             if (ChatConnection.isChatHub) {
               ChatbotService()
-                  .setRoomId(roomListVisible!.rooms![position].sId!);
+                  .setRoomId(roomListVisible?.rooms?[position].sId??'');
               ChatbotService()
-                  .setStatus(roomListVisible!.rooms![position].enable_bot!);
+                  .setStatus(roomListVisible?.rooms?[position].enable_bot??0);
             }
             final groupOwner = extractOwner(roomListVisible!.rooms![position]);
             await Navigator.of(context, rootNavigator: true).push(

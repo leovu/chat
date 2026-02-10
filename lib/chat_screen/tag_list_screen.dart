@@ -229,7 +229,7 @@ class _State extends State<TagListScreen> {
                                               Map<String, dynamic> result =
                                                   await ChatConnection
                                                       .removeTag(
-                                                          e.sId ?? 0,
+                                                          e.sId ?? '',
                                                           widget.data.sId ??
                                                               '');
                                               Navigator.of(context).pop();
@@ -270,11 +270,11 @@ class _State extends State<TagListScreen> {
                       child: MaterialButton(
                         color: const Color(0xFF5686E1),
                         onPressed: () async {
-                          List<int> arr = [];
+                          List<String> arr = [];
                           if (tagByUser?.data != null) {
                             for (var e in tagByUser!.data!) {
                               if (e.isActive) {
-                                arr.add(e.sId ?? 0);
+                                arr.add(e.sId ?? '0');
                               }
                             }
                           }

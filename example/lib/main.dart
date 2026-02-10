@@ -136,22 +136,35 @@ class _MyAppState extends State<MyApp> {
                     return;
                   }
 
+                  //MATHEW TEST CHAT
+                  // await Chat.open(context, 'trind', '123456',
+                  //     'assets/icon-app.png', const Locale(LangKey.langVi, 'VI'),
+                  //     domain: 'https://chat.matthewsliquor.com.au/',
+                  //     brandCode: 'matthewsliquor',
+                  //     isChatHub: false,
+                  //     token:
+                  //         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZDI3MTQxMjI5Njg1MjI0MDFiOGIwOCIsInNpZCI6InRyaW5kIiwiZW1haWwiOiJ0cmluZEBwaW9hcHBzLnZuIiwibGV2ZWwiOiJzdGFuZGFyZCIsImZpcnN0TmFtZSI6IlRyaSBOZ3V5ZW4gV0FPIiwibGFzdE5hbWUiOiJURVNUIiwidXNlcm5hbWUiOiJ0cmluZCIsImJyYW5kIjoibWF0dGhld3NsaXF1b3IiLCJpYXQiOjE3NzA2MjM2ODYsImV4cCI6MTc3NTgwNzY4Nn0.paqcQkzpbSQbbxjsUudBkSC7LoMCAgMDz-0ZLFcP21E"
+                  //     // roomId: '632a88f7dd01b42c37330585'
+                  //     );
+//MATHEW TEST CHAT HUB
                   await Chat.open(
-                    // phoneNumber: '0708983437',
-                    // phoneNumber: '+8490688627',
-                    context,
-                    _userNameController.value.text,
-                    _passwordController.value.text,
-                    'assets/icon-app.png',
-                    const Locale(LangKey.langVi, 'VI'),
-                    domain: 'https://chathub.matthewsliquor.com.au/',
-                    // domain: 'https://chat.epoints.vn/',E:\WAO\EP\chatHub\lib\chat_ui\widgets\input.dart
-                    brandCode: 'matthewsliquor',
-                    isChatHub: true,
-                    token:
-                        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyN2JkMDc5NDhhNTUxMDUzZWFkMGFiNyIsInVpZCI6IiIsInNpZCI6ImFkbWluIiwiZW1haWwiOiJhZG1pbkBtYXR0aGV3c2xpcXVvci5jb20iLCJsZXZlbCI6InJvb3QiLCJmaXJzdE5hbWUiOiJBZG1pbiIsImxhc3ROYW1lIjoiIiwidXNlcm5hbWUiOiJhZG1pbiIsImJyYW5kX2NvZGUiOiJtYXR0aGV3c2xpcXVvciIsImlhdCI6MTc2MjMxMTMyNCwiZXhwIjoxNzY3NDk1MzI0fQ.As-COT9rYsy5C1wybOiU3fIfdRZ7AiwbSodQ4jP5sWE",
-                    // roomId: '632a88f7dd01b42c37330585'
-                  );
+                      // phoneNumber: '0708983437',
+                      // phoneNumber: '+8490688627',
+                      context,
+                      // _userNameController.value.text,
+                      // _passwordController.value.text,
+                      'admin@matthewsliquor.com',
+                      '123456',
+                      'assets/icon-app.png',
+                      const Locale(LangKey.langVi, 'VI'),
+                      domain: 'https://chathub.matthewsliquor.com.au/',
+                      // domain: 'https://chat.matthewsliquor.com.au/',
+                      brandCode: 'matthewsliquor',
+                      isChatHub: true,
+                      token:
+                          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyN2JkMDc5NDhhNTUxMDUzZWFkMGFiNyIsInVpZCI6MjA3LCJzaWQiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AbWF0dGhld3NsaXF1b3IuY29tIiwibGV2ZWwiOiJyb290IiwiZmlyc3ROYW1lIjoiQWRtaW4iLCJsYXN0TmFtZSI6IiIsInVzZXJuYW1lIjoiYWRtaW4iLCJicmFuZF9jb2RlIjoibWF0dGhld3NsaXF1b3IiLCJpYXQiOjE3NzA2MjYyOTgsImV4cCI6MTc3NTgxMDI5OH0.m7rqrMZGl0hs-uOpRWpeCVeC_U_qJXsPCqsHdHscfPs"
+                      // roomId: '632a88f7dd01b42c37330585'
+                      );
 
                   //MATHEW TEST
                   // await Chat.open(

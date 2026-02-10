@@ -5,6 +5,7 @@ import 'package:chat/connection/http_connection.dart';
 import 'package:chat/data_model/room.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
+import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import 'package:mime/mime.dart';
 
@@ -101,6 +102,9 @@ class Room {
       this.duration = 0});
 
   Room.fromJson(Map<String, dynamic> json) {
+    if (kDebugMode) {
+      print('_____________Room.fromJson input: $json');
+    }
     source = json['source'];
     roomAvatar = json['room_avatar'];
     roomName = json['room_name'];
@@ -232,6 +236,9 @@ class Room {
     } catch (_) {
       channel = Channel.fromJson(json['channel']);
     }
+    if (kDebugMode) {
+      print('_____________Room.fromJson output: ${toJson()}');
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -262,50 +269,50 @@ class Room {
 }
 
 class Channel {
-  final String id;
-  final int active;
-  final int autoCreateLead;
-  final String avatar;
-  // final String cover;
-  // final String createdAt;
-  // final int enableBackgroundIcon;
-  final int enableBot;
-  final int enableGreeting;
-  final int enableVoiceAi;
-  final int isLostConnection;
-  final List<int> managers;
-  final String nameApp;
-  // final List<dynamic> quickQuestion;
-  final int showFormLivechat;
-  final String socialChanelId;
-  final String source;
-  final bool status;
-  final int subscribed;
-  // final List<dynamic> zpCookie;
-  final int v;
+  final String? id;
+  final int? active;
+  final int? autoCreateLead;
+  final String? avatar;
+  final String? cover;
+  final String? createdAt;
+  final int? enableBackgroundIcon;
+  final int? enableBot;
+  final int? enableGreeting;
+  final int? enableVoiceAi;
+  final int? isLostConnection;
+  final List<int>? managers;
+  final String? nameApp;
+  final List<dynamic>? quickQuestion;
+  final int? showFormLivechat;
+  final String? socialChanelId;
+  final String? source;
+  final bool? status;
+  final int? subscribed;
+  final List<dynamic>? zpCookie;
+  final int? v;
 
   Channel({
-    required this.id,
-    required this.active,
-    required this.autoCreateLead,
-    required this.avatar,
-    // required this.cover,
-    // required this.createdAt,
-    // required this.enableBackgroundIcon,
-    required this.enableBot,
-    required this.enableGreeting,
-    required this.enableVoiceAi,
-    required this.isLostConnection,
-    required this.managers,
-    required this.nameApp,
-    // required this.quickQuestion,
-    required this.showFormLivechat,
-    required this.socialChanelId,
-    required this.source,
-    required this.status,
-    required this.subscribed,
-    // required this.zpCookie,
-    required this.v,
+    this.id,
+    this.active,
+    this.autoCreateLead,
+    this.avatar,
+    this.cover,
+    this.createdAt,
+    this.enableBackgroundIcon,
+    this.enableBot,
+    this.enableGreeting,
+    this.enableVoiceAi,
+    this.isLostConnection,
+    this.managers,
+    this.nameApp,
+    this.quickQuestion,
+    this.showFormLivechat,
+    this.socialChanelId,
+    this.source,
+    this.status,
+    this.subscribed,
+    this.zpCookie,
+    this.v,
   });
 
   factory Channel.fromJson(Map<String, dynamic> json) {
@@ -314,16 +321,17 @@ class Channel {
       active: json['active'],
       autoCreateLead: json['auto_create_lead'],
       avatar: json['avatar'] ?? '',
-      // cover: json['cover'],
-      // createdAt: json['createdAt'],
-      // enableBackgroundIcon: json['enable_background_icon'],
+      cover: json['cover'],
+      createdAt: json['createdAt'],
+      enableBackgroundIcon: json['enable_background_icon'],
       enableBot: json['enable_bot'],
+
       enableGreeting: json['enable_greeting'],
       enableVoiceAi: json['enable_voice_ai'],
       isLostConnection: json['is_lost_connection'],
-      managers: List<int>.from(json['managers']),
+      // managers: List<int>.from(json['managers']),
       nameApp: json['nameApp'],
-      // quickQuestion: List<dynamic>.from(json['quick_question']),
+      // quickQuestion: List<dynamic>.from(json['quick_question']??[]),
       showFormLivechat: json['show_form_livechat'],
       socialChanelId: json['socialChanelId'],
       source: json['source'],
@@ -641,6 +649,9 @@ class Messages {
   });
 
   factory Messages.fromJson(Map<String, dynamic> json) {
+    if (kDebugMode) {
+      print('_____________Messages.fromJson input: $json');
+    }
     final message = Messages(
       sId: json['_id'] as String?,
       room: json['room'] as String?,
@@ -686,18 +697,21 @@ class Messages {
       final imageUrl = message.content ?? '';
 
       if (imageUrl.isNotEmpty) {
+        // Ensure URL has full domain (fix for relative paths like data/xxx/xxx.jpg)
+        final fullImageUrl = ensureFullUrl(imageUrl);
+
         // Gắn giá trị image và photos dựa trên content
         message.image = ImageInfo(
           name: imageUrl.split('/').last,
-          location: imageUrl,
+          location: fullImageUrl,
           size: 0,
           shieldedID: imageUrl.split('/').last,
         );
 
         message.photos = Photos(
-          original: imageUrl,
-          fullsize: imageUrl,
-          thumbnail: imageUrl,
+          original: fullImageUrl,
+          fullsize: fullImageUrl,
+          thumbnail: fullImageUrl,
         );
       }
     }
@@ -714,6 +728,9 @@ class Messages {
     if (message.content == 'Message recalled') {
       message.content = AppLocalizations.text(LangKey.messageRecalled);
       message.edit = 0;
+    }
+    if (kDebugMode) {
+      print('_____________Messages.fromJson output: ${message.toJson()}');
     }
     return message;
   }
@@ -809,7 +826,7 @@ class Messages {
 
       case 'image':
         data['type'] = 'image';
-        data['size'] = image?.size ?? 0; // Lấy size từ object image nếu có
+        data['size'] = image?.size ?? 0;
         data['name'] = image?.name ?? 'image.jpg';
         data['uri'] = photos?.original ??
             photos?.fullsize ??
@@ -818,16 +835,20 @@ class Messages {
                 ? '${HTTPConnection.domain}api/images/$content/${ChatConnection.brandCode}'
                 : null);
         metadata['content'] = content;
+        metadata['type'] = 'image';
+        metadata['image'] = image?.toJson();
         break;
 
       case 'image_url':
         data['type'] = 'custom';
         data['name'] = image?.name ?? 'external_image.jpg';
         data['size'] = image?.size ?? 0;
-        data['uri'] = image?.location ?? photos?.original ?? content;
+        // Ensure URL has full domain (fix for relative paths like data/xxx/xxx.jpg)
+        final imageUrlUri = image?.location ?? photos?.original ?? content;
+        data['uri'] = ensureFullUrl(imageUrlUri);
         metadata['custom_type'] = 'image_url';
         metadata['source'] = 'external';
-        metadata['content'] = content;
+        metadata['content'] = ensureFullUrl(content);
         break;
 
       case 'link':
@@ -1010,14 +1031,24 @@ class Messages {
           repliedJson['type'] = 'image';
           repliedJson['name'] = replies!.image?.name ?? 'external_image.jpg';
           repliedJson['size'] = replies!.image?.size ?? 0;
-          repliedJson['uri'] = replies!.image?.location ??
+          // Ensure URL has full domain (fix for relative paths like data/xxx/xxx.jpg)
+          final repliedImageUrl = replies!.image?.location ??
               replies!.photos?.original ??
               replies!.content;
+          repliedJson['uri'] = ensureFullUrl(repliedImageUrl);
           repliedJson['metadata'] = {
             'custom_type': 'image_url',
             'source': 'external',
-            'content': replies!.content,
+            'content': ensureFullUrl(replies!.content),
           };
+          break;
+
+        case 'file':
+          repliedJson['type'] = 'file';
+          repliedJson['name'] = replies!.file?.name ?? 'File';
+          repliedJson['size'] = replies!.file?.size ?? 0;
+          repliedJson['uri'] = replies!.file?.location ?? '';
+          repliedJson['mimeType'] = lookupMimeType(replies?.file?.name ?? '--');
           break;
 
         case 'file_url':
@@ -1841,4 +1872,18 @@ class ImageInfo {
         'size': size,
         'shieldedID': shieldedID
       };
+}
+
+/// Helper function to ensure URL has a host
+/// If URL is relative (doesn't start with http:// or https://), prepend the domain
+String ensureFullUrl(String? url) {
+  if (url == null || url.isEmpty) return '';
+
+  // If already a full URL, return as is
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+
+  // If it's a relative path, prepend the domain
+  return '${HTTPConnection.domain}$url';
 }

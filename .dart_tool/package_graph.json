@@ -111,7 +111,7 @@
     },
     {
       "name": "image_picker_android",
-      "version": "0.8.12+23",
+      "version": "0.8.12+22",
       "dependencies": [
         "flutter",
         "flutter_plugin_android_lifecycle",
@@ -153,7 +153,7 @@
     },
     {
       "name": "flex_color_picker",
-      "version": "3.7.1",
+      "version": "3.7.0",
       "dependencies": [
         "flex_seed_scheme",
         "flutter"
@@ -161,7 +161,7 @@
     },
     {
       "name": "shared_preferences",
-      "version": "2.5.3",
+      "version": "2.5.2",
       "dependencies": [
         "flutter",
         "shared_preferences_android",
@@ -298,7 +298,7 @@
     },
     {
       "name": "overlay_support",
-      "version": "2.1.0",
+      "version": "2.0.1",
       "dependencies": [
         "async",
         "flutter"
@@ -338,7 +338,7 @@
     },
     {
       "name": "adaptive_dialog",
-      "version": "2.4.1",
+      "version": "2.4.0",
       "dependencies": [
         "animations",
         "collection",
@@ -408,7 +408,7 @@
     },
     {
       "name": "file_picker",
-      "version": "9.2.3",
+      "version": "9.1.0",
       "dependencies": [
         "cross_file",
         "ffi",

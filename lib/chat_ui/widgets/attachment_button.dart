@@ -8,13 +8,14 @@ class AttachmentButton extends StatelessWidget {
   const AttachmentButton({
     Key? key,
     this.onPressed,
-    required this.image,
-
+    this.icon,
+    this.image,
   }) : super(key: key);
 
   /// Callback for attachment button tap event
   final void Function()? onPressed;
-  final String image;
+  final String? image;
+  final Icon? icon;
 
   @override
   Widget build(BuildContext context) {
@@ -25,12 +26,14 @@ class AttachmentButton extends StatelessWidget {
         icon: InheritedChatTheme.of(context).theme.attachmentButtonIcon != null
             ? InheritedChatTheme.of(context).theme.attachmentButtonIcon!
             : Padding(
-              padding: EdgeInsets.all(image == 'assets/icon-chat-add.png' ? 1.5 : 0.0),
-              child: Image.asset(
-                  image,
-                  package: 'chat',
-                ),
-            ),
+                padding: EdgeInsets.all(
+                    image == 'assets/icon-chat-add.png' ? 1.5 : 0.0),
+                child: icon ??
+                    Image.asset(
+                      image!,
+                      package: 'chat',
+                    ),
+              ),
         onPressed: onPressed,
         padding: EdgeInsets.zero,
         tooltip:

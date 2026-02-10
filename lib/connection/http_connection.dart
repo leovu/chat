@@ -33,16 +33,16 @@ class HTTPConnection {
     );
     var streamResponse = await request.send();
     var response = await http.Response.fromStream(streamResponse);
-    if (kDebugMode) {
-      print(
-          '****************************** Upload ******************************');
-      print(uri);
-      print(request.headers);
-      print(response.statusCode);
-      print(response.body);
-      print(
-          '****************************** Upload ******************************');
-    }
+    // if (kDebugMode) {
+    //   print(
+    //       '****************************** Upload ******************************');
+    //   print(uri);
+    //   print(request.headers);
+    //   print(response.statusCode);
+    //   print(response.body);
+    //   print(
+    //       '****************************** Upload ******************************');
+    // }
     if (response.statusCode == 200) {
       ResponseData data = ResponseData();
       data.isSuccess = true;

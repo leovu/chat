@@ -2,6 +2,8 @@ import 'package:chat/chat_ui/widgets/replied_message.dart';
 import 'package:chat/data_model/room.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import '../../connection/chat_connection.dart';
+import '../../connection/http_connection.dart';
 import '../conditional/conditional.dart';
 import '../util.dart';
 import 'inherited_chat_theme.dart';
@@ -52,8 +54,39 @@ class _ImageMessageState extends State<ImageMessage> {
   @override
   void initState() {
     super.initState();
-    _image = Conditional().getProvider(widget.message.uri);
+    try {
+      _image = Conditional().getProvider(widget.message.uri);
+
+      final testStream = _image?.resolve(const ImageConfiguration());
+      testStream?.addListener(
+        ImageStreamListener(
+          (info, _) {},
+          onError: (error, stack) {
+            final shieldedID = extractShieldedID(widget.message.uri);
+            final fallbackUrl =
+                "${HTTPConnection.domain}api/images/$shieldedID/512/${ChatConnection.brandCode}";
+
+            setState(() {
+              _image = NetworkImage(fallbackUrl);
+            });
+          },
+        ),
+      );
+    } catch (e) {
+      final shieldedID = extractShieldedID(widget.message.uri);
+      final fallbackUrl =
+          "${HTTPConnection.domain}api/images/$shieldedID/512/${ChatConnection.brandCode}";
+
+      _image = NetworkImage(fallbackUrl);
+    }
+
     _size = Size(widget.message.width ?? 0, widget.message.height ?? 0);
+  }
+
+  String extractShieldedID(String uri) {
+    final file = uri.split('/').last;
+    final id = file.split('.').first;
+    return id;
   }
 
   @override
@@ -126,16 +159,16 @@ class _ImageMessageState extends State<ImageMessage> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  height: 64,
+                  height: 100,
                   margin: EdgeInsetsDirectional.fromSTEB(
                     InheritedChatTheme.of(context).theme.messageInsetsVertical,
                     InheritedChatTheme.of(context).theme.messageInsetsVertical,
                     16,
                     InheritedChatTheme.of(context).theme.messageInsetsVertical,
                   ),
-                  width: 64,
+                  width: 100,
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(15),
+                    borderRadius: BorderRadius.circular(8),
                     child: Image(
                       fit: BoxFit.cover,
                       image: _image!,
@@ -209,7 +242,6 @@ class _ImageMessageState extends State<ImageMessage> {
               padding: EdgeInsets.all(widget.content != '' ? 8 : 0),
               child: Container(
                 color: Colors.transparent,
-                constraints: const BoxConstraints(maxHeight: 150),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
@@ -232,13 +264,15 @@ class _ImageMessageState extends State<ImageMessage> {
                     if (widget.message.repliedMessage != null)
                       _repliedMessageBuilder(_user),
                     Flexible(
+                        child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
                       child: Image(
-                        // width: _size.width/2,
                         fit: BoxFit.cover,
                         image: _image!,
                       ),
-                    ),
-                    if (widget.content != '') ...[
+                    )),
+                    if (widget.content != '' &&
+                        isReadableText(widget.content ?? '')) ...[
                       Text(widget.content ?? ''),
                       SizedBox(
                         height: 8,
@@ -252,5 +286,17 @@ class _ImageMessageState extends State<ImageMessage> {
         ),
       );
     }
+  }
+
+  bool isReadableText(String text) {
+    if (text.trim().isEmpty) return false;
+
+    if (RegExp(r'^[a-zA-Z0-9]{30,}$').hasMatch(text)) {
+      return false;
+    }
+    final letters = RegExp(r'[a-zA-ZÀ-ỹ ]').allMatches(text).length;
+    final ratio = letters / text.length;
+
+    return ratio > 0.4;
   }
 }

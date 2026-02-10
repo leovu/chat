@@ -58,8 +58,7 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   List<types.Message> _messages = [];
-  final _user = types.User(
-      id: ChatConnection.checkUserTokenResponseModel?.user!.sId ?? '');
+  late final types.User _user;
   c.ChatMessage? data;
   bool _isSearchMessage = false;
   final _focusSearch = FocusNode();
@@ -86,10 +85,22 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   bool? isBlock = false;
   Owner? groupOwner1;
 
+  Future<bool> _requestStoragePermission() async {
+    return true;
+  }
+
   @override
   void initState() {
     super.initState();
     _bloc = ChatBloc();
+
+    // Khởi tạo _user với đầy đủ thông tin để hiển thị tên khi gửi tin nhắn
+    final currentUser = ChatConnection.checkUserTokenResponseModel?.user;
+    _user = types.User(
+      id: currentUser?.sId ?? '',
+      firstName: currentUser?.firstName ?? '',
+      lastName: currentUser?.lastName ?? '',
+    );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ChatConnection.chatScreenNotificationHandler = _notificationHandler;
@@ -167,9 +178,10 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
             data?.room,
             ChatConnection.checkUserTokenResponseModel?.user?.sId ?? '',
             reppliedMessageId: repliedMessageId);
-      } else {
-        _loadMessages();
       }
+      // Đã xóa _loadMessages() vì nó ghi đè _messages trước khi file/image upload xong
+      // Các loại tin nhắn file/image được xử lý upload riêng trong các hàm:
+      // _handleFileSelection, _handleImageSelection, _handleCameraSelection, etc.
     }
 
     if (mounted) {
@@ -237,7 +249,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   }
 
   void _handleFileSelection() async {
-    bool permission = await Permission.storage.request().isGranted;
+    bool permission = await _requestStoragePermission();
     if (!permission) {
       return;
     }
@@ -312,7 +324,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   }
 
   void _handelVideoSelection() async {
-    bool permission = await Permission.storage.request().isGranted;
+    bool permission = await _requestStoragePermission();
     if (!permission) {
       return;
     }
@@ -356,7 +368,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   }
 
   void _handleImageSelection() async {
-    bool permission = await Permission.storage.request().isGranted;
+    bool permission = await _requestStoragePermission();
     if (!permission) {
       return;
     }
@@ -749,6 +761,123 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     });
   }
 
+  // Custom image message builder using CachedNetworkImage
+  Widget _buildImageMessageWidget(types.ImageMessage message, {required int messageWidth}) {
+    // Helper function to ensure URL has a host
+    String ensureFullUrl(String? url) {
+      if (url == null || url.isEmpty) return '';
+      if (url.startsWith('http://') || url.startsWith('https://')) {
+        return url;
+      }
+      return '${HTTPConnection.domain}$url';
+    }
+
+    final imageUrl = ensureFullUrl(message.uri);
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(12),
+      child: CachedNetworkImage(
+        imageUrl: imageUrl,
+        width: messageWidth.toDouble() * 0.7,
+        fit: BoxFit.cover,
+        placeholder: (context, url) => Container(
+          width: messageWidth.toDouble() * 0.7,
+          height: 100,
+          child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+        ),
+        errorWidget: (_, __, ___) => Container(
+          width: messageWidth.toDouble() * 0.7,
+          height: 100,
+          child: const Icon(Icons.broken_image, size: 100, color: Colors.grey),
+        ),
+      ),
+    );
+  }
+
+  // Handler for sending multiple images from preview
+  void _handleImageMessageSend(List<XFile> images) async {
+    for (var image in images) {
+      pickedImageFromMulti(image);
+    }
+  }
+
+  // Handler for sending video from preview
+  void _handleVideoMessageSend(XFile video) async {
+    var size = await video.length();
+    String id = const Uuid().v4();
+    final message = types.FileMessage(
+      author: _user,
+      createdAt: DateTime.now().millisecondsSinceEpoch,
+      id: id,
+      mimeType: lookupMimeType(video.path),
+      name: video.name,
+      size: size,
+      uri: video.path,
+      showStatus: true,
+      status: Status.sending,
+    );
+    File file = File(video.path);
+    _addMessage(message, id);
+    if (mounted) {
+      setState(() {});
+    }
+    ChatConnection.uploadFile(context, data, _messages, id, file, data?.room,
+            ChatConnection.checkUserTokenResponseModel?.user?.sId ?? '')
+        .then((r) {
+      if (r == 'limit') {
+        try {
+          int index = _messages
+              .indexOf(_messages.firstWhere((element) => element.id == id));
+          _messages.removeAt(index);
+        } catch (_) {}
+      }
+      if (mounted) {
+        setState(() {});
+      }
+    });
+  }
+
+  // Handler for sending file from preview
+  void _handleFileMessageSend(PlatformFile platformFile) async {
+    String id = const Uuid().v4();
+    final message = types.FileMessage(
+      author: _user,
+      createdAt: DateTime.now().millisecondsSinceEpoch,
+      id: id,
+      mimeType: lookupMimeType(platformFile.path!),
+      name: platformFile.name,
+      size: platformFile.size,
+      uri: platformFile.path!,
+      showStatus: true,
+      status: Status.sending,
+    );
+    File file = File(platformFile.path!);
+    _addMessage(message, id);
+    if (mounted) {
+      setState(() {});
+    }
+    ChatConnection.uploadFile(
+            context,
+            data,
+            _messages,
+            id,
+            file,
+            data?.room,
+            ChatConnection.checkUserTokenResponseModel?.user?.sId ?? '')
+        .then((r) {
+      if (r == 'limit') {
+        try {
+          int index = _messages
+              .indexOf(_messages.firstWhere((element) => element.id == id));
+          _messages.removeAt(index);
+        } catch (_) {}
+      }
+      if (mounted) {
+        setState(() {});
+      }
+    });
+  }
+
   _loadMessages() async {
     ChatConnection.roomId = widget.data.sId!;
     data = await ChatConnection.joinRoom(widget.data.sId!);
@@ -911,53 +1040,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                   onPressed: () {
                     itemScrollController.jumpTo(index: 0);
                   },
-                  child: !widget.data.isGroup!
-                      ? (widget.data.room_avatar!.shieldedID != null &&
-                              widget.data.room_avatar!.shieldedID != '')
-                          ? CircleAvatar(
-                              radius: 18.0,
-                              backgroundImage: CachedNetworkImageProvider(
-                                  '${HTTPConnection.domain}api/images/${widget.data.shieldedID}/256/${ChatConnection.brandCode!}',
-                                  headers: {
-                                    'brand-code': ChatConnection.brandCode!
-                                  }),
-                              backgroundColor: Colors.transparent,
-                            )
-                          : data!.room!.owner!.avatar != null
-                              ? CircleAvatar(
-                                  radius: 18.0,
-                                  backgroundImage: CachedNetworkImageProvider(
-                                      data!.room!.owner!.avatar!,
-                                      headers: {
-                                        'brand-code': ChatConnection.brandCode!
-                                      }),
-                                  backgroundColor: Colors.transparent,
-                                )
-                              : CircleAvatar(
-                                  radius: 18.0,
-                                  child: Text(
-                                    widget.data.owner!.getAvatarName(),
-                                    style: const TextStyle(color: Colors.white),
-                                  ),
-                                )
-                      : (widget.data.room_avatar!.shieldedID == null &&
-                              widget.data.room_avatar!.shieldedID == '')
-                          ? CircleAvatar(
-                              radius: 18.0,
-                              child: Text(
-                                widget.data.getAvatarGroupName(),
-                                style: const TextStyle(color: Colors.white),
-                              ),
-                            )
-                          : CircleAvatar(
-                              radius: 18.0,
-                              backgroundImage: CachedNetworkImageProvider(
-                                  '${HTTPConnection.domain}api/images/${widget.data.room_avatar!.shieldedID}/256/${ChatConnection.brandCode!}',
-                                  headers: {
-                                    'brand-code': ChatConnection.brandCode!
-                                  }),
-                              backgroundColor: Colors.transparent,
-                            ),
+                  child: buildAvatar(width: 18.0),
                   mini: true,
                   foregroundColor: Colors.transparent,
                   backgroundColor: Colors.transparent,
@@ -1124,6 +1207,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     );
   }
 
+
   Widget _messageListWidget() {
     if (isInitScreen) {
       return Center(
@@ -1156,6 +1240,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       },
       onAvatarTap: (p0) {},
       avatar: buildAvatar(width: 15),
+      imageMessageBuilder: _buildImageMessageWidget,
       //  (types.User user) async {
       //Lỗi chưa xác định, xử lí phần chathub
       // if (user.id != ChatConnection.user!.id && data!.room!.isGroup!) {
@@ -1188,7 +1273,11 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       onPreviewDataFetched: _handlePreviewDataFetched,
       onCameraPressed: _handleCameraSelection,
       onSendPressed: _handleSendPressed,
+      onImageMessageSend: _handleImageMessageSend,
+      onVideoMessageSend: _handleVideoMessageSend,
+      onFileMessageSend: _handleFileMessageSend,
       user: _user,
+
       isSearchChat: _isSearchMessage,
       scrollPhysics: const ClampingScrollPhysics(),
       itemPositionsListener: itemPositionsListener,
@@ -1573,26 +1662,18 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         leadingWidth: 0);
   }
 
+  /// Build avatar widget - đồng bộ với room_list_screen.dart
   CircleAvatar buildAvatar({double? width}) {
     double radius = width ?? 25.0;
 
-    if (data?.room?.owner?.avatar != null) {
-      return CircleAvatar(
-        radius: radius,
-        backgroundImage: CachedNetworkImageProvider(
-          data?.room?.owner?.avatar ?? '',
-          headers: {'brand-code': ChatConnection.brandCode!},
-        ),
-        backgroundColor: Colors.transparent,
-      );
-    }
-
     if (!ChatConnection.isChatHub) {
+      // Logic cho non-ChatHub (giống roomWidget trong room_list_screen.dart)
       if (!widget.data.isGroup!) {
+        // Không phải group: sử dụng people.picture
         final owner = extractOwner(widget.data);
-        final isOwnerPictureEmpty = owner?.picture?.isEmpty ?? true;
+        final isPictureEmpty = owner?.picture == null || owner?.picture == "";
 
-        return isOwnerPictureEmpty
+        return isPictureEmpty
             ? CircleAvatar(
                 radius: radius,
                 child: Text(
@@ -1603,46 +1684,56 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
             : CircleAvatar(
                 radius: radius,
                 backgroundImage: CachedNetworkImageProvider(
-                  '${HTTPConnection.domain}api/images/${widget.data.room_avatar?.shieldedID}/256/${ChatConnection.brandCode ?? ''}',
+                  '${HTTPConnection.domain}api/images/${owner!.picture}/256/${ChatConnection.brandCode!}',
                   headers: {'brand-code': ChatConnection.brandCode!},
                 ),
                 backgroundColor: Colors.transparent,
               );
       } else {
-        if (widget.data.room_avatar == null) {
-          final avatar = data?.room?.owner?.avatar;
-
-          return avatar != null
-              ? CircleAvatar(
-                  radius: 18.0,
-                  backgroundImage: CachedNetworkImageProvider(
-                    avatar,
-                    headers: {'brand-code': ChatConnection.brandCode!},
-                  ),
-                  backgroundColor: Colors.transparent,
-                )
-              : CircleAvatar(
-                  radius: 18.0,
-                  child: Text(
-                    widget.data.owner?.getAvatarName() ?? '',
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                );
-        } else {
-          return CircleAvatar(
-            radius: radius,
-            backgroundImage: CachedNetworkImageProvider(
-              '${HTTPConnection.domain}api/images/${widget.data.room_avatar!.shieldedID}/256/${ChatConnection.brandCode!}',
-              headers: {'brand-code': ChatConnection.brandCode!},
-            ),
-            backgroundColor: Colors.transparent,
-          );
-        }
+        // Group: sử dụng room_avatar.shieldedID
+        return widget.data.room_avatar == null
+            ? CircleAvatar(
+                radius: radius,
+                child: Text(
+                  widget.data.getAvatarGroupName(),
+                  style: const TextStyle(color: Colors.white),
+                ),
+              )
+            : CircleAvatar(
+                radius: radius,
+                backgroundImage: CachedNetworkImageProvider(
+                  '${HTTPConnection.domain}api/images/${widget.data.room_avatar!.shieldedID}/256/${ChatConnection.brandCode!}',
+                  headers: {'brand-code': ChatConnection.brandCode!},
+                ),
+                backgroundColor: Colors.transparent,
+              );
       }
     } else {
-      if (data?.room?.isGroup == false) {
-        final avatar = data?.room?.owner?.avatar;
-        if (avatar == null) {
+      // Logic cho ChatHub (giống roomChatHubWidget trong room_list_screen.dart)
+      if (widget.data.isGroup == false) {
+        // Không phải group
+        if (widget.data.owner?.picture == null) {
+          // Nếu không có picture, kiểm tra avatar
+          if (widget.data.owner?.avatar != null) {
+            return CircleAvatar(
+              radius: radius,
+              backgroundImage: CachedNetworkImageProvider(
+                '${widget.data.owner?.avatar}',
+                headers: {'brand-code': ChatConnection.brandCode!},
+              ),
+              backgroundColor: Colors.transparent,
+            );
+          } else {
+            return CircleAvatar(
+              radius: radius,
+              child: Text(
+                widget.data.owner?.getAvatarName() ?? '',
+                style: const TextStyle(color: Colors.white),
+              ),
+            );
+          }
+        } else {
+          // Có picture, kiểm tra shieldedID
           final sid = widget.data.shieldedID;
           return (sid != null && sid != '')
               ? CircleAvatar(
@@ -1660,18 +1751,10 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                     style: const TextStyle(color: Colors.white),
                   ),
                 );
-        } else {
-          return CircleAvatar(
-            radius: radius,
-            backgroundImage: CachedNetworkImageProvider(
-              avatar,
-              // headers: {'brand-code': ChatConnection.brandCode!},
-            ),
-            backgroundColor: Colors.transparent,
-          );
         }
       } else {
-        return data?.room?.roomAvatar == null
+        // Group: sử dụng avatar hoặc text
+        return widget.data.avatar == null
             ? CircleAvatar(
                 radius: radius,
                 child: Text(
@@ -1682,7 +1765,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
             : CircleAvatar(
                 radius: radius,
                 backgroundImage: CachedNetworkImageProvider(
-                  data?.room?.roomAvatar ?? '',
+                  widget.data.avatar!,
                   headers: {'brand-code': ChatConnection.brandCode!},
                 ),
                 backgroundColor: Colors.transparent,
@@ -1833,7 +1916,7 @@ Owner? extractOwner(Rooms data) {
   if (data.people == null || data.people!.isEmpty) return null;
 
   if (data.isGroup == true && data.owner != null) {
-    final matchOwner = data.people!.where((e) => e.sId == data.owner!.sId);
+    final matchOwner = data.people!.where((e) => e.sId == data.owner?.sId);
     if (matchOwner.isNotEmpty) {
       return Owner.fromPeople(matchOwner.first);
     }

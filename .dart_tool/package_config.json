@@ -3,7 +3,7 @@
   "packages": [
     {
       "name": "adaptive_dialog",
-      "rootUri": "file:///C:/Users/minhq/AppData/Local/Pub/Cache/hosted/pub.dev/adaptive_dialog-2.4.1",
+      "rootUri": "file:///C:/Users/minhq/AppData/Local/Pub/Cache/hosted/pub.dev/adaptive_dialog-2.4.0",
       "packageUri": "lib/",
       "languageVersion": "3.6"
     },
@@ -201,7 +201,7 @@
     },
     {
       "name": "file_picker",
-      "rootUri": "file:///C:/Users/minhq/AppData/Local/Pub/Cache/hosted/pub.dev/file_picker-9.2.3",
+      "rootUri": "file:///C:/Users/minhq/AppData/Local/Pub/Cache/hosted/pub.dev/file_picker-9.1.0",
       "packageUri": "lib/",
       "languageVersion": "3.4"
     },
@@ -237,7 +237,7 @@
     },
     {
       "name": "flex_color_picker",
-      "rootUri": "file:///C:/Users/minhq/AppData/Local/Pub/Cache/hosted/pub.dev/flex_color_picker-3.7.1",
+      "rootUri": "file:///C:/Users/minhq/AppData/Local/Pub/Cache/hosted/pub.dev/flex_color_picker-3.7.0",
       "packageUri": "lib/",
       "languageVersion": "3.0"
     },
@@ -351,7 +351,7 @@
     },
     {
       "name": "image_picker_android",
-      "rootUri": "file:///C:/Users/minhq/AppData/Local/Pub/Cache/hosted/pub.dev/image_picker_android-0.8.12+23",
+      "rootUri": "file:///C:/Users/minhq/AppData/Local/Pub/Cache/hosted/pub.dev/image_picker_android-0.8.12+22",
       "packageUri": "lib/",
       "languageVersion": "3.6"
     },
@@ -513,7 +513,7 @@
     },
     {
       "name": "overlay_support",
-      "rootUri": "file:///C:/Users/minhq/AppData/Local/Pub/Cache/hosted/pub.dev/overlay_support-2.1.0",
+      "rootUri": "file:///C:/Users/minhq/AppData/Local/Pub/Cache/hosted/pub.dev/overlay_support-2.0.1",
       "packageUri": "lib/",
       "languageVersion": "2.14"
     },
@@ -645,7 +645,7 @@
     },
     {
       "name": "shared_preferences",
-      "rootUri": "file:///C:/Users/minhq/AppData/Local/Pub/Cache/hosted/pub.dev/shared_preferences-2.5.3",
+      "rootUri": "file:///C:/Users/minhq/AppData/Local/Pub/Cache/hosted/pub.dev/shared_preferences-2.5.2",
       "packageUri": "lib/",
       "languageVersion": "3.5"
     },

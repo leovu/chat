@@ -1,15 +1,26 @@
 import 'dart:convert';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/chat_ui/widgets/custom_message_file.dart';
 import 'package:chat/chat_ui/widgets/custom_message_generic.dart';
 import 'package:chat/chat_ui/widgets/custom_message_oa_list.dart';
 import 'package:chat/chat_ui/widgets/custom_message_template_card.dart';
 import 'package:chat/chat_ui/widgets/custom_message_template_video.dart';
+import 'package:chat/connection/http_connection.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:chat/presentation/utils/parse_html.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:url_launcher/url_launcher.dart';
+
+/// Helper function to ensure URL has a host
+String _ensureFullUrl(String? url) {
+  if (url == null || url.isEmpty) return '';
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+  return '${HTTPConnection.domain}$url';
+}
 
 Widget customMessageBuilder(types.CustomMessage message,
     {required int messageWidth}) {
@@ -230,19 +241,27 @@ Widget buildZpListWidget(types.CustomMessage message, int messageWidth) {
 
 /// WIDGET CON: Hiển thị hình ảnh
 Widget buildImageUrlWidget(types.CustomMessage message, int messageWidth) {
-  final imageUrl = message.metadata?['content'] as String? ??
+  final rawImageUrl = message.metadata?['content'] as String? ??
       message.metadata?['url'] as String? ??
       '';
 
-  if (imageUrl.isEmpty) return const SizedBox.shrink();
+  if (rawImageUrl.isEmpty) return const SizedBox.shrink();
+
+  // Ensure URL has full domain (fix for relative paths like data/xxx/xxx.jpg)
+  final imageUrl = _ensureFullUrl(rawImageUrl);
 
   return ClipRRect(
     borderRadius: BorderRadius.circular(12),
-    child: Image.network(
-      imageUrl,
+    child: CachedNetworkImage(
+      imageUrl: imageUrl,
       width: messageWidth.toDouble() * 0.7,
       fit: BoxFit.cover,
-      errorBuilder: (_, __, ___) => Container(
+      placeholder: (context, url) => Container(
+        width: messageWidth.toDouble() * 0.7,
+        height: 100,
+        child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+      ),
+      errorWidget: (_, __, ___) => Container(
         width: messageWidth.toDouble() * 0.7,
         height: 100,
         child: const Icon(Icons.broken_image, size: 100, color: Colors.grey),

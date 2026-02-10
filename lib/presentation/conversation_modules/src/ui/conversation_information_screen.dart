@@ -679,20 +679,20 @@ class _ConversationInformationScreenState
           }),
 
           /// NOTE
-          _section(
-              const Icon(
-                Icons.note_add,
-                color: Color(0xff5686E1),
-                size: 35,
-              ),
-              AppLocalizations.text(LangKey.create_note), () async {
-            await Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => CreateNoteScreen(
-                      roomData: widget.roomData,
-                      chatMessage: widget.chatMessage,
-                    )));
-            _bloc.getNotes(widget.roomData.sId!);
-          }),
+          // _section(
+          //     const Icon(
+          //       Icons.note_add,
+          //       color: Color(0xff5686E1),
+          //       size: 35,
+          //     ),
+          //     AppLocalizations.text(LangKey.create_note), () async {
+          //   await Navigator.of(context).push(MaterialPageRoute(
+          //       builder: (context) => CreateNoteScreen(
+          //             roomData: widget.roomData,
+          //             chatMessage: widget.chatMessage,
+          //           )));
+          //   _bloc.getNotes(widget.roomData.sId!);
+          // }),
           ListNoteComponent(_bloc, () => _bloc.getNotes(widget.roomData.sId!),
               widget.roomData),
           if (widget.roomData.isGroup!)
@@ -945,65 +945,74 @@ class _ConversationInformationScreenState
     );
   }
 
+  /// Build avatar widget - đồng bộ với room_list_screen.dart
   Widget _buildAppropriateAvatar() {
-    final isGroup = widget.chatMessage?.room?.isGroup ?? false;
+    final roomData = widget.roomData;
+    final owner = extractOwner(roomData);
+
+    final isGroup = roomData.isGroup ?? false;
     final isChatHub = ChatConnection.isChatHub;
-    final owner = extractOwner(widget.roomData);
-    final brandCode = ChatConnection.brandCode!;
+
     final domain = HTTPConnection.domain;
-    if (checkCustomerTypeChatHub(widget.roomData.owner!) !=
-        null) if (widget.chatMessage?.room?.owner?.avatar != null) {
-      return _buildAvatar(
-        '${widget.chatMessage?.room?.owner?.firstName} ${widget.chatMessage?.room?.owner?.lastName}',
-        widget.roomData.getAvatarGroupName(),
-        widget.chatMessage?.room?.owner?.avatar,
-      );
-    }
+    final brandCode = ChatConnection.brandCode!;
 
-    final avatarName =
-        customerAccount?.data?.getAvatarName() ?? owner?.getAvatarName() ?? "";
-    final displayName = isChatHub
-        ? customerAccount?.data?.getName() ??
-            widget.roomData.owner?.getName() ??
-            ""
-        : (!isGroup
-            ? widget.roomData.title ?? ""
-            : widget.chatMessage?.room?.title ?? "");
+    String? avatarUrl;
+    String avatarName = '';
+    String displayName = '';
 
-    if (isChatHub) {
-      if (isGroup) {
-        final avatarUrl = widget.chatMessage?.room?.roomAvatar ??
-            '$domain/api/images/${widget.roomData.room_avatar?.shieldedID}/256/$brandCode';
+    if (!isChatHub) {
+      // ===== NON CHAT HUB (giống roomWidget trong room_list_screen.dart) =====
+      if (!isGroup) {
+        // Private chat: sử dụng people.picture
+        final isPictureEmpty = owner?.picture == null || owner?.picture == "";
+        avatarName = owner?.getAvatarName() ?? '';
+        displayName =
+            '${owner?.firstName ?? 'Unknown'} ${owner?.lastName ?? 'User'}';
 
-        return _buildAvatar(
-          widget.chatMessage?.room?.roomName ?? '',
-          widget.roomData.getAvatarGroupName(),
-          avatarUrl,
-        );
+        avatarUrl = isPictureEmpty
+            ? null
+            : '${domain}api/images/${owner!.picture}/256/$brandCode';
       } else {
-        final avatarUrlWithCustomer = widget.roomData.owner?.avatar ??
-            (widget.roomData.shieldedID?.isNotEmpty == true
-                ? '$domain/api/images/${widget.roomData.shieldedID}/256/$brandCode'
-                : null);
+        // Group: sử dụng room_avatar.shieldedID
+        avatarName = roomData.getAvatarGroupName();
+        displayName = roomData.title ??
+            '${owner?.firstName ?? ''} ${owner?.lastName ?? ''}';
 
-        return _buildAvatar(
-          '${widget.roomData.owner?.firstName} ${widget.roomData.owner?.lastName}',
-          widget.roomData.owner?.getAvatarName() ?? "",
-          avatarUrlWithCustomer,
-        );
+        avatarUrl = roomData.room_avatar?.shieldedID != null
+            ? '${domain}api/images/${roomData.room_avatar!.shieldedID}/256/$brandCode'
+            : null;
       }
     } else {
-      final fallbackAvatarUrl = widget.roomData.avatar ??
-          (owner?.picture?.isNotEmpty == true
-              ? '$domain/api/images/${owner!.picture}/256/$brandCode'
-              : null);
+      // ===== CHAT HUB (giống roomChatHubWidget trong room_list_screen.dart) =====
+      if (!isGroup) {
+        // Private chat
+        displayName =
+            '${roomData.owner?.firstName ?? ''} ${roomData.owner?.lastName ?? ''}';
+        avatarName = roomData.owner?.getAvatarName() ?? '';
 
-      return _buildAvatar(
-        displayName,
-        avatarName,
-        fallbackAvatarUrl,
-      );
+        if (roomData.owner?.picture == null) {
+          // Nếu không có picture, sử dụng avatar
+          avatarUrl = roomData.owner?.avatar;
+        } else {
+          // Có picture, sử dụng shieldedID
+          final sid = roomData.shieldedID;
+          avatarUrl = (sid != null && sid.isNotEmpty)
+              ? '${domain}api/images/$sid/256/$brandCode'
+              : null;
+        }
+      } else {
+        // Group
+        avatarName = roomData.getAvatarGroupName();
+        displayName = roomData.room_name ??
+            roomData.title ??
+            'Group ${roomData.owner?.firstName ?? ''} ${roomData.owner?.lastName ?? ''}';
+
+        // Sử dụng avatar nếu có
+        avatarUrl = roomData.avatar;
+      }
     }
+
+    return _buildAvatar(displayName, avatarName, avatarUrl);
   }
 
   Widget actionChatHubView() {

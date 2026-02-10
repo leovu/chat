@@ -3,12 +3,14 @@ import 'package:chat/chat_ui/widgets/custom_message_generic.dart';
 import 'package:chat/chat_ui/widgets/message.dart';
 import 'package:chat/chat_ui/widgets/custom_message_template_card.dart';
 import 'package:chat/common/theme.dart';
+import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:chat/chat_ui/widgets/inherited_user.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../connection/http_connection.dart';
 import 'inherited_chat_theme.dart';
 import '../../data_model/room.dart' as r;
 
@@ -56,7 +58,7 @@ class RepliedMessage extends StatelessWidget {
 
     types.CustomMessage _customMessage;
 
-    final bool _closable = onCancelReplyPressed != null;
+    final bool _closable = isView ?? false; //onCancelReplyPressed != null;
     final bool _isCurrentUser =
         messageAuthorId == InheritedUser.of(context).user.id;
     final _theme = InheritedChatTheme.of(context).theme;
@@ -74,12 +76,12 @@ class RepliedMessage extends StatelessWidget {
       switch (repliedMessage!.type) {
         case types.MessageType.file:
           final fileMessage = repliedMessage as types.FileMessage;
-          _text = fileMessage.name;
+          // _text = fileMessage.name;
           _isFile = true;
           break;
         case types.MessageType.image:
           final imageMessage = repliedMessage as types.ImageMessage;
-          _text = AppLocalizations.text(LangKey.photo);
+          // _text =  AppLocalizations.text(LangKey.photo);
           _imageUri = imageMessage.uri;
           break;
         case types.MessageType.text:
@@ -103,34 +105,150 @@ class RepliedMessage extends StatelessWidget {
       // _text = checkTag(_text, people);
     }
 
-    // ---------- Helpers ----------
+    String _buildFallbackImageUri(String original) {
+      final uri = Uri.parse(original);
+      final domain = "${HTTPConnection.domain}";
+
+      final lastSegment =
+          uri.pathSegments.isNotEmpty ? uri.pathSegments.last : "";
+      final shieldedId = lastSegment.replaceAll('.jpg', '');
+
+      final size = uri.pathSegments.length > 1
+          ? uri.pathSegments[uri.pathSegments.length - 2]
+          : "512";
+
+      return "${domain}api/images/$shieldedId/$size/${ChatConnection.brandCode}";
+    }
 
     Widget _buildImageWidget() {
-      return Container(
-        width: 44,
-        height: 44,
-        margin: _theme.repliedMessageImageMargin,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: Image.network(
-            _imageUri!,
-            fit: BoxFit.cover,
+      final fallbackUri = _buildFallbackImageUri(_imageUri!);
+
+      if (isView == true)
+        return Container(
+          margin: _theme.repliedMessageImageMargin,
+          decoration: BoxDecoration(
+              color: Colors.transparent,
+              // border: BoxBorder.fromLTRB(
+              //   left: BorderSide(color: Colors.amber, width: 3),
+              // )
+              ),
+          height: 80,
+          child: Padding(
+            padding: const EdgeInsets.only(left: 4.0),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.network(
+                _imageUri!,
+                fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) {
+                  return Image.network(
+                    fallbackUri,
+                    fit: BoxFit.contain,
+                  );
+                },
+              ),
+            ),
           ),
-        ),
-      );
+        );
+      else
+        return Container(
+          height: 80,
+          decoration: BoxDecoration(
+              color: Colors.transparent,
+              // border: BoxBorder.fromLTRB(
+              //   left: BorderSide(color: Colors.amber, width: 3),
+              // )
+              ),
+          margin: _theme.repliedMessageImageMargin,
+          child: Padding(
+            padding: const EdgeInsets.only(left: 4.0),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.network(
+                _imageUri!,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Image.network(
+                    fallbackUri,
+                    fit: BoxFit.cover,
+                  );
+                },
+              ),
+            ),
+          ),
+        );
     }
 
     Widget _buildFileWidget() {
+      // Get file info from repliedMessage
+      String fileName = _text;
+      String fileSize = '';
+
+      if (repliedMessage is types.FileMessage) {
+        final fileMessage = repliedMessage as types.FileMessage;
+        fileName = fileMessage.name;
+
+        // Format file size
+        if (fileMessage.size != null && fileMessage.size > 0) {
+          final sizeInBytes = fileMessage.size;
+          if (sizeInBytes < 1024) {
+            fileSize = '${sizeInBytes} B';
+          } else if (sizeInBytes < 1024 * 1024) {
+            fileSize = '${(sizeInBytes / 1024).toStringAsFixed(1)} KB';
+          } else {
+            fileSize = '${(sizeInBytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+          }
+        }
+      }
+
       return Padding(
         padding: const EdgeInsets.only(right: 8.0),
-        child: Container(
-          width: 44,
-          height: 44,
-          child: Icon(
-            Icons.insert_drive_file,
-            size: 30,
-            color: Colors.blueAccent,
-          ),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: Colors.blue.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                Icons.insert_drive_file,
+                size: 24,
+                color: Colors.blueAccent,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    fileName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  if (fileSize.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 2),
+                      child: Text(
+                        fileSize,
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ],
         ),
       );
     }
@@ -155,7 +273,7 @@ class RepliedMessage extends StatelessWidget {
         height: 44,
         child: Center(
           child: Icon(
-            Icons.play_circle, // hoặc Icons.play_arrow
+            Icons.play_circle,
             size: 16,
             color: AppColors.bluePrimary,
           ),
@@ -164,10 +282,9 @@ class RepliedMessage extends StatelessWidget {
     }
 
     Widget _buildStickerWidget() {
-      // Kiểm tra xem repliedMessage có metadata và custom_type không
       if (repliedMessage?.metadata != null) {
         final metadata = repliedMessage?.metadata;
-        final stickerUrl = metadata?['url']; // Lấy sticker từ metadata
+        final stickerUrl = metadata?['url'];
         if (stickerUrl != null) {
           return GestureDetector(
             onTap: () {
@@ -327,8 +444,7 @@ class RepliedMessage extends StatelessWidget {
     }
 
     Widget _buildOaTemplateWidget() {
-      return Text(
-          AppLocalizations.text(LangKey.oa_template_message));
+      return Text(AppLocalizations.text(LangKey.oa_template_message));
     }
 
     Widget _buildTemplateWidget() {
@@ -354,6 +470,42 @@ class RepliedMessage extends StatelessWidget {
             );
     }
 
+    Widget _buildLinkWidget(Map<String, dynamic> metadata) {
+      final url = metadata['url'] as String?;
+      final text = metadata['text'] as String? ?? 'Link';
+
+      if (url == null) return const SizedBox.shrink();
+
+      return GestureDetector(
+        onTap: () async {
+          final uri = Uri.tryParse(url);
+          if (uri != null) {
+            await launchUrl(uri, mode: LaunchMode.externalApplication);
+          }
+        },
+        child: Container(
+          height: 44,
+          alignment: Alignment.center,
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          decoration: BoxDecoration(
+            // color: Colors.blue.shade100,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(
+            text,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 12,
+              color: Colors.blueAccent,
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.start,
+          ),
+        ),
+      );
+    }
+
     Widget _buildCustom() {
       if (repliedMessage?.metadata == null) {
         return const SizedBox.shrink();
@@ -363,17 +515,18 @@ class RepliedMessage extends StatelessWidget {
 
       switch (metadata?['custom_type']) {
         case 'sticker':
-          return _buildStickerWidget(); // Hiển thị sticker nếu custom_type là 'sticker'
+          return _buildStickerWidget();
         case 'products':
-          return _buildProductsWidget(); // Hiển thị danh sách sản phẩm nếu custom_type là 'products'
+          return _buildProductsWidget();
         case 'generic':
-          return _buildGenericWidget(); // Hiển thị generic nếu custom_type là 'generic'
+          return _buildGenericWidget();
         case 'oa_template':
-          return _buildOaTemplateWidget(); // Hiển thị OA template nếu custom_type là 'oa_template'
+          return _buildOaTemplateWidget();
         case 'zp_list':
           return _buildZpListWidget(
-              messageWidth: MediaQuery.sizeOf(context).width *
-                  0.4); // Hiển thị ZP list nếu custom_type là 'zp_list'
+              messageWidth: MediaQuery.sizeOf(context).width * 0.4);
+        case 'link':
+          return _buildLinkWidget(metadata ?? {});
         case 'template':
           return _buildTemplateWidget();
 
@@ -399,6 +552,174 @@ class RepliedMessage extends StatelessWidget {
       }
     }
 
+    Widget _buildDialogContent() {
+      final replyType = _getReplyType();
+
+      switch (replyType) {
+        case ReplyType.image:
+          // Show full image in dialog
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (_imageUri != null)
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(
+                    _imageUri!,
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        height: 200,
+                        alignment: Alignment.center,
+                        child: const Icon(
+                          Icons.broken_image,
+                          size: 50,
+                          color: Colors.grey,
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              const SizedBox(height: 12),
+              Text(
+                AppLocalizations.text(LangKey.photo),
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey.shade700,
+                ),
+              ),
+            ],
+          );
+
+        case ReplyType.file:
+          // Show file details
+          String fileName = _text;
+          String fileSize = '';
+
+          if (repliedMessage is types.FileMessage) {
+            final fileMessage = repliedMessage as types.FileMessage;
+            fileName = fileMessage.name;
+
+            if (fileMessage.size != null && fileMessage.size > 0) {
+              final sizeInBytes = fileMessage.size;
+              if (sizeInBytes < 1024) {
+                fileSize = '${sizeInBytes} B';
+              } else if (sizeInBytes < 1024 * 1024) {
+                fileSize = '${(sizeInBytes / 1024).toStringAsFixed(1)} KB';
+              } else {
+                fileSize =
+                    '${(sizeInBytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+              }
+            }
+          }
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.blue.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.insert_drive_file,
+                      size: 48,
+                      color: Colors.blueAccent,
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            fileName,
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          if (fileSize.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 4),
+                              child: Text(
+                                fileSize,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+
+        case ReplyType.audio:
+          return Column(
+            children: [
+              Icon(
+                Icons.audiotrack,
+                size: 60,
+                color: Colors.blue.shade400,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Audio Message',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey.shade700,
+                ),
+              ),
+            ],
+          );
+
+        case ReplyType.video:
+          return Column(
+            children: [
+              Icon(
+                Icons.play_circle_outline,
+                size: 60,
+                color: Colors.red.shade400,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Video Message',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey.shade700,
+                ),
+              ),
+            ],
+          );
+
+        case ReplyType.custom:
+          // Show custom message content
+          return _buildCustom();
+
+        case ReplyType.none:
+        default:
+          // Show text message
+          return SelectableText(
+            _text,
+            style: const TextStyle(
+              fontSize: 15,
+              color: Colors.black87,
+              height: 1.5,
+            ),
+          );
+      }
+    }
+
     Widget _buildReplyInfoSection({
       required bool closable,
       required bool isCurrentUser,
@@ -413,16 +734,32 @@ class RepliedMessage extends StatelessWidget {
           children: [
             if (repliedMessage?.author.firstName != null && showUserNames)
               AutoSizeText(
-                maxLines: 2,
+                maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 closable
                     ? '${AppLocalizations.text(LangKey.replying)} ${repliedMessage?.author.firstName ?? ''} ${repliedMessage?.author.lastName ?? ''}'
-                    : text,
+                    : '${repliedMessage?.author.firstName ?? ''} ${repliedMessage?.author.lastName ?? ''}',
                 style: const TextStyle(
                   color: Colors.black,
                   fontSize: 14,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w600,
                   height: 1.5,
+                ),
+              ),
+            // Show preview text for all message types
+            if (text.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: AutoSizeText(
+                  text,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: Colors.grey.shade700,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w400,
+                    height: 1.4,
+                  ),
                 ),
               ),
             if (!closable)
@@ -442,26 +779,29 @@ class RepliedMessage extends StatelessWidget {
       required EdgeInsets margin,
       required VoidCallback? onCancel,
     }) {
-      return Container(
-        margin: margin,
-        decoration: BoxDecoration(
-          color: Colors.grey.shade400,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        height: 20,
-        width: 20,
-        child: IconButton(
-          icon: const Icon(
-            Icons.close,
-            color: Colors.white,
-            size: 15.0,
+      return Padding(
+        padding: const EdgeInsets.only(right: 8),
+        child: Container(
+          margin: margin,
+          decoration: BoxDecoration(
+            color: Colors.grey.shade400,
+            borderRadius: BorderRadius.circular(12),
           ),
-          onPressed: () => onCancel?.call(),
-          padding: EdgeInsets.zero,
+          height: 20,
+          width: 20,
+          child: IconButton(
+            icon: const Icon(
+              Icons.close,
+              color: Colors.white,
+              size: 15.0,
+            ),
+            onPressed: () => onCancel?.call(),
+            padding: EdgeInsets.zero,
+          ),
         ),
       );
     }
-    // ---------- End helpers ----------
+
     return InkWell(
       onTap: () {
         if ((_imageUri != null || _isFile) &&
@@ -474,7 +814,52 @@ class RepliedMessage extends StatelessWidget {
           showDialog(
             context: context,
             builder: (context) => AlertDialog(
-              content: Text(_text),
+              contentPadding: EdgeInsets.zero,
+              content: Container(
+                constraints: BoxConstraints(
+                  maxWidth: MediaQuery.of(context).size.width * 0.8,
+                  maxHeight: MediaQuery.of(context).size.height * 0.6,
+                ),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Header with sender name
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.shade50,
+                          borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(4),
+                          ),
+                        ),
+                        child: Text(
+                          '${repliedMessage?.author.firstName ?? ''} ${repliedMessage?.author.lastName ?? ''}'
+                              .trim(),
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ),
+                      // Content based on message type
+                      Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: _buildDialogContent(),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Close'),
+                ),
+              ],
             ),
           );
         }
@@ -491,9 +876,12 @@ class RepliedMessage extends StatelessWidget {
             children: [
               Expanded(
                 child: Container(
-                  padding: EdgeInsets.only(left: 4, right: 4, top: 4),
+                  padding: EdgeInsets.only(left: 8, right: 4, top: 4),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
+                    border: BoxBorder.fromLTRB(
+                      left: BorderSide(color: Colors.amber, width: 3),
+                    ),
                   ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -505,7 +893,7 @@ class RepliedMessage extends StatelessWidget {
                         isCurrentUser: _isCurrentUser,
                         text: _text,
                         repliedMessage: repliedMessage,
-                        showUserNames: showUserNames,
+                        showUserNames: true,
                       ),
                     ],
                   ),
