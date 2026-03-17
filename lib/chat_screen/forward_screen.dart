@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/chat_ui/util.dart';
@@ -99,8 +98,7 @@ class ForwardScreenState extends State<ForwardScreen> {
                   fontSize: 16),
             ),
             leading: InkWell(
-              child: Icon(
-                  Platform.isIOS ? Icons.arrow_back_ios : Icons.arrow_back,
+              child: Icon(Icons.arrow_back_ios,
                   color: Colors.black),
               onTap: () => Navigator.of(context).pop(_isSentCurrentChatRoom),
             ),

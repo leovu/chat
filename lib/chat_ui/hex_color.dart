@@ -13,7 +13,7 @@ extension HexColor on Color {
       buffer.write('FF'); 
     } else if (hexString.length == 8) {
     } else {
-      print('⚠️ Hex string invalid length: $hexString');
+      // print('⚠️ Hex string invalid length: $hexString');
       return const Color(0xFFFFFFFF);
     }
 
@@ -22,7 +22,7 @@ extension HexColor on Color {
     try {
       return Color(int.parse(buffer.toString(), radix: 16));
     } catch (e) {
-      print('❌ Error parsing color: $e');
+      // print('❌ Error parsing color: $e');
       return const Color(0xFFFFFFFF); 
     }
   }

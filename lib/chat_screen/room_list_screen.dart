@@ -266,10 +266,7 @@ class _RoomListScreenState extends State<RoomListScreen>
                             },
                             child: SizedBox(
                                 width: 30.0,
-                                child: Icon(
-                                    Platform.isIOS
-                                        ? Icons.arrow_back_ios
-                                        : Icons.arrow_back,
+                                child: Icon(Icons.arrow_back_ios,
                                     color: Colors.black)),
                           ),
                         ],
@@ -1097,252 +1094,271 @@ class _RoomListScreenState extends State<RoomListScreen>
     );
   }
 
+  static const Map<String, String> _sourceIconMap = {
+    'zalo': 'assets/icon-zalo.png',
+    'zalo_personal': 'assets/icon_zalo_personal.png',
+    'client': 'assets/icon_chat_client.png',
+    'facebook': 'assets/icon-facebook.png',
+    'whatsapp': 'assets/icon_whatsapp.png',
+  };
+
+  Widget _buildSingleAvatar(Rooms data) {
+    const double radius = 25.0;
+    final owner = data.owner;
+
+    if (data.people?.first.avatar?.isNotEmpty == true)
+      return CircleAvatar(
+        radius: radius,
+        backgroundImage: CachedNetworkImageProvider(
+          '${data.people?.first.avatar}',
+        ),
+        backgroundColor: Colors.transparent,
+      );
+
+    if (owner?.picture == null || owner?.picture == '') {
+      if (owner?.avatar != null && owner?.avatar != '') {
+        return CircleAvatar(
+          radius: radius,
+          backgroundImage: CachedNetworkImageProvider(
+            '${owner?.avatar}',
+            headers: {'brand-code': ChatConnection.brandCode!},
+          ),
+          backgroundColor: Colors.transparent,
+        );
+      }
+      return CircleAvatar(
+        radius: radius,
+        child: Text(
+            getAvatarName(
+                '${owner?.firstName ?? ''}', '${owner?.lastName ?? ''}'),
+            style: const TextStyle(color: Colors.white)),
+      );
+    }
+
+    if ((data.shieldedID != null && data.shieldedID != '') &&
+        data.shieldedID!.isNotEmpty) {
+      return CircleAvatar(
+        radius: radius,
+        backgroundColor: Colors.transparent,
+        child: ClipOval(
+          child: Image(
+            image: CachedNetworkImageProvider(
+              '${HTTPConnection.domain}api/images/${data.shieldedID}/256/${ChatConnection.brandCode!}',
+              headers: {'brand-code': ChatConnection.brandCode!},
+            ),
+            fit: BoxFit.cover,
+            width: radius * 2,
+            height: radius * 2,
+            errorBuilder: (context, error, stackTrace) {
+              return CircleAvatar(
+                radius: radius,
+                child: Text(
+                    getAvatarName('${data.people?.first.firstName ?? ''}',
+                        '${data.people?.first.lastName ?? ''}'),
+                    style: const TextStyle(color: Colors.white)),
+              );
+            },
+          ),
+        ),
+      );
+    }
+
+    return CircleAvatar(
+      radius: radius,
+      child: Text(
+        getAvatarName('${owner?.firstName ?? ''}', '${owner?.lastName ?? ''}'),
+        style: const TextStyle(color: Colors.white),
+      ),
+    );
+  }
+
+  Widget _buildGroupAvatar(Rooms data) {
+    // if (data.room_name?.isNotEmpty == true) {
+    //   return CircleAvatar(
+    //     radius: 25.0,
+    //     child: Text(  '123',//getAvatarGroupName(data.room_name),
+    //         style: const TextStyle(color: Colors.white)),
+    //   );
+    // }
+    // else if (data.title?.isNotEmpty == true) {
+    //   return CircleAvatar(
+    //     radius: 25.0,
+    //     child: Text(getAvatarGroupName(data.title?.split(' ').toString()),
+    //         style: const TextStyle(color: Colors.white)),
+    //   );
+    // }
+    return GroupAvatar(
+      img1: data.people?[0].avatar ?? '',
+      img2: data.people?[1].avatar ?? '',
+      img3: data.people?[2].avatar ?? '',
+      size: 50,
+    );
+  }
+
+  Widget? _buildSourceBadge(String? source) {
+    final iconPath = _sourceIconMap[source];
+    if (iconPath == null) return null;
+    return Positioned(
+      right: -7.0,
+      bottom: -2.0,
+      child: Padding(
+        padding: const EdgeInsets.only(right: 6.0),
+        child:
+            Image.asset(iconPath, package: 'chat', width: 20.0, height: 20.0),
+      ),
+    );
+  }
+
+  Widget _buildNameRow(Rooms data) {
+    final customerType = checkCustomerTypeChatHub(data.owner!);
+    final hasUnread =
+        findUnread(data.messagesReceived, data.messageUnSeen) != '0';
+
+    final roomName = !data.isGroup!
+        ? '${data.owner?.firstName} ${data.owner?.lastName}'
+        : data.room_name ??
+            data.title ??
+            'Group ${data.owner!.firstName} ${data.owner!.lastName}';
+
+    return Row(
+      children: [
+        if (customerType != null)
+          Padding(
+            padding: const EdgeInsets.only(right: 6.0),
+            child: Image.asset(
+              customerType == 'customer'
+                  ? 'assets/icon-crown.png'
+                  : 'assets/icon-star.png',
+              package: 'chat',
+              width: 15.0,
+              height: 15.0,
+            ),
+          ),
+        Expanded(
+          child: Text(
+            roomName,
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+            style: TextStyle(
+                fontWeight: hasUnread ? FontWeight.bold : FontWeight.normal),
+          ),
+        ),
+        AutoSizeText(
+          data.lastMessage?.lastMessageDate() ?? data.createdDate(),
+          style: const TextStyle(fontSize: 11, color: Colors.grey),
+        ),
+      ],
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Bottom row: draft/last message preview + unread badge + blocked icon.
+  // ---------------------------------------------------------------------------
+  Widget _buildPreviewRow(Rooms data, String author) {
+    final unread = findUnread(data.messagesReceived, data.messageUnSeen);
+    return Row(
+      children: [
+        Expanded(
+          child: FutureBuilder<String>(
+            future: draftMessage(
+                data.sId!, '$author${checkTag(_checkContent(data), null)}'),
+            builder: (context, snapshot) {
+              return ChatRoomWidget(content: snapshot.data ?? '');
+            },
+          ),
+        ),
+        if (unread != '0')
+          CircleAvatar(
+            radius: 18.0,
+            child: Text(unread,
+                style: const TextStyle(color: Colors.white, fontSize: 12)),
+          ),
+        if (data.owner?.isBlocked == true)
+          const Icon(Icons.block, color: Colors.red),
+      ],
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Channel name badge (only shown in ChatHub mode).
+  // ---------------------------------------------------------------------------
+  Widget _buildChannelBadge(Rooms data) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 5.0),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Container(
+          decoration: BoxDecoration(
+            color: colorAppName[data.channel?.nameApp ?? ''],
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
+          child: AutoSizeText(
+            data.channel?.nameApp ?? '',
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: Colors.white),
+            textScaleFactor: 0.85,
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Main entry point — composes all the pieces above.
+  // ---------------------------------------------------------------------------
   Widget roomChatHubWidget(Rooms data, String author, bool isLast) {
+    final sourceBadge = _buildSourceBadge(data.source);
+
     return Column(
       children: [
         SizedBox(
-          child: SizedBox(
-            height: ChatConnection.isChatHub ? 80.0 : 50.0,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Stack(
-                    children: [
-                      data.isGroup == false
-                          ? data.owner?.picture == null
-                              ? data.owner?.avatar != null
-                                  ? CircleAvatar(
-                                      radius: 25.0,
-                                      backgroundImage:
-                                          CachedNetworkImageProvider(
-                                              '${data.owner?.avatar}',
-                                              headers: {
-                                            'brand-code':
-                                                ChatConnection.brandCode!
-                                          }),
-                                      backgroundColor: Colors.transparent,
-                                    )
-                                  : CircleAvatar(
-                                      radius: 25.0,
-                                      child: Text(
-                                        data.owner!.getAvatarName(),
-                                        style: const TextStyle(
-                                            color: Colors.white),
-                                      ),
-                                    )
-                              : (data.shieldedID != null &&
-                                      data.shieldedID != '')
-                                  ? CircleAvatar(
-                                      radius: 25.0,
-                                      backgroundImage: CachedNetworkImageProvider(
-                                          '${HTTPConnection.domain}api/images/${data.shieldedID}/256/${ChatConnection.brandCode!}',
-                                          headers: {
-                                            'brand-code':
-                                                ChatConnection.brandCode!
-                                          }),
-                                      backgroundColor: Colors.transparent,
-                                    )
-                                  : CircleAvatar(
-                                      radius: 25.0,
-                                      child: Text(
-                                        // widget.data.owner!.avatar!,
-                                        data.owner!.getAvatarName(),
-                                        style: const TextStyle(
-                                            color: Colors.white),
-                                      ),
-                                    )
-                          : data.avatar == null
-                              ? CircleAvatar(
-                                  radius: 25.0,
-                                  child: Text(
-                                    data.getAvatarGroupName(),
-                                    style: const TextStyle(color: Colors.white),
-                                  ),
-                                )
-                              : GroupAvatar(
-                                  img1: data.people?[0].avatar ?? '',
-                                  img2: data.people?[1].avatar ?? '',
-                                  img3: data.people?[2].avatar ?? '',
-                                  size: 50,
-                                ),
-                      // CircleAvatar(
-                      //     radius: 25.0,
-                      //     backgroundImage: CachedNetworkImageProvider(
-                      //         data.avatar!,
-                      //         headers: {
-                      //           'brand-code': ChatConnection.brandCode!
-                      //         }),
-                      //     backgroundColor: Colors.transparent,
-                      //   ),
-                      if (data.source != null)
-                        Positioned(
-                            right: -7.0,
-                            bottom: -2.0,
-                            child: Padding(
-                              padding: const EdgeInsets.only(right: 6.0),
-                              child: Container(
-                                child: Image.asset(
-                                  data.source == 'zalo'
-                                      ? 'assets/icon-zalo.png'
-                                      : data.source == 'client'
-                                          ? 'assets/icon_chat_client.png'
-                                          : data.source == 'facebook'
-                                              ? 'assets/icon-facebook.png'
-                                              : 'assets/icon_zalo_personal.png',
-                                  package: 'chat',
-                                  width: 20.0,
-                                  height: 20.0,
-                                ),
-                              ),
-                            )),
-                    ],
-                  ),
-                  Expanded(
-                      child: Container(
+          height: ChatConnection.isChatHub ? 80.0 : 50.0,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // ── Avatar + platform badge ──────────────────────────────────
+                Stack(
+                  children: [
+                    data.isGroup == false
+                        ? _buildSingleAvatar(data)
+                        : _buildGroupAvatar(data),
+                    if (sourceBadge != null) sourceBadge,
+                  ],
+                ),
+
+                // ── Room info ────────────────────────────────────────────────
+                Expanded(
+                  child: Padding(
                     padding: const EdgeInsets.only(
                         top: 5.0, bottom: 5.0, left: 10.0),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                            child: Row(
-                          children: [
-                            if (checkCustomerTypeChatHub(data.owner!) != null)
-                              Padding(
-                                padding: const EdgeInsets.only(right: 6.0),
-                                child: Image.asset(
-                                  checkCustomerTypeChatHub(data.owner!) ==
-                                          'customer'
-                                      ? 'assets/icon-crown.png'
-                                      : 'assets/icon-star.png',
-                                  package: 'chat',
-                                  width: 15.0,
-                                  height: 15.0,
-                                ),
-                              ),
-                            Expanded(
-                              child: Text(
-                                !data.isGroup!
-                                    ? '${data.owner?.firstName} ${data.owner?.lastName}'
-                                    : data.room_name != null
-                                        ? data.room_name!
-                                        : data.title ??
-                                            'Group ${data.owner!.firstName} ${data.owner!.lastName}',
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                                style: TextStyle(
-                                    fontWeight: findUnread(
-                                                data.messagesReceived,
-                                                data.messageUnSeen) !=
-                                            '0'
-                                        ? FontWeight.bold
-                                        : FontWeight.normal),
-                              ),
-                            ),
-                            AutoSizeText(
-                              data.lastMessage?.lastMessageDate() ??
-                                  data.createdDate(),
-                              style: const TextStyle(
-                                  fontSize: 11, color: Colors.grey),
-                            ),
-                          ],
-                        )),
-                        Container(
-                          height: 5.0,
-                        ),
-                        Expanded(
-                            child: Row(
-                          children: [
-                            Expanded(
-                                child: FutureBuilder<String>(
-                              future: draftMessage(
-                                  data.sId!,
-                                  '$author'
-                                  '${checkTag(_checkContent(data), null)}'),
-                              builder: (BuildContext context,
-                                  AsyncSnapshot<String> snapshot) {
-                                if (snapshot.hasData) {
-                                  final text = snapshot.data;
-                                  return ChatRoomWidget(content: text ?? "");
-                                }
-                                return Container();
-                              },
-                            )),
-                            if (findUnread(data.messagesReceived,
-                                    data.messageUnSeen) !=
-                                '0')
-                              CircleAvatar(
-                                radius: 18.0,
-                                child: Text(
-                                  findUnread(data.messagesReceived,
-                                      data.messageUnSeen),
-                                  style: const TextStyle(
-                                      color: Colors.white, fontSize: 12),
-                                ),
-                              ),
-                            data.owner!.isBlocked == true
-                                ? Icon(
-                                    Icons.block,
-                                    color: Colors.red,
-                                  )
-                                : Container(),
-                          ],
-                        )),
+                        Expanded(child: _buildNameRow(data)),
+                        const SizedBox(height: 5.0),
+                        Expanded(child: _buildPreviewRow(data, author)),
                         if (data.channel != null && ChatConnection.isChatHub)
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.only(top: 5.0),
-                              child: Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Container(
-                                      decoration: BoxDecoration(
-                                          color: colorAppName[
-                                              data.channel?.nameApp ?? ''],
-                                          borderRadius:
-                                              BorderRadius.circular(10.0)),
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(
-                                            left: 8.0,
-                                            right: 8.0,
-                                            top: 6.0,
-                                            bottom: 6.0),
-                                        child: AutoSizeText(
-                                          data.channel?.nameApp ?? '',
-                                          textAlign: TextAlign.center,
-                                          style: const TextStyle(
-                                              color: Colors.white),
-                                          textScaleFactor: 0.85,
-                                        ),
-                                      ))),
-                            ),
-                            flex: 2,
-                          ),
+                          Expanded(flex: 2, child: _buildChannelBadge(data)),
                       ],
                     ),
-                  )),
-                ],
-              ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
-        !isLast
-            ? Container(
-                height: 5.0,
-              )
-            : Container(),
-        !isLast
-            ? Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                child: Container(
-                  height: 1.0,
-                  color: Colors.grey.shade300,
-                ),
-              )
-            : Container(),
+        if (!isLast) ...[
+          const SizedBox(height: 5.0),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            child: Container(height: 1.0, color: Colors.grey.shade300),
+          ),
+        ],
       ],
     );
   }

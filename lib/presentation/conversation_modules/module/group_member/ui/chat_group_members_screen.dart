@@ -19,12 +19,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../../data_model/response/group_info_response.dart';
+import '../../../../../data_model/response/whatsapp_contact_response_model.dart';
 import '../../../../utils/dialog.dart';
 
 class ChatGroupMembersScreen extends StatefulWidget {
   // final r.Rooms roomData;
   final ChatMessage chatMessage;
-  const ChatGroupMembersScreen({Key? key, required this.chatMessage})
+  final String? channelSocialId;
+  const ChatGroupMembersScreen(
+      {Key? key, required this.chatMessage, this.channelSocialId})
       : super(key: key);
   @override
   _ChatGroupMembersScreenState createState() => _ChatGroupMembersScreenState();
@@ -35,10 +38,13 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
   // MemberListData? listMemberZalo;
   MemberListData? listPendingInvite;
   GroupInfoResponseZP? infoMemberZaloPersional;
+  // TODO: Thay thế bằng model chính thức khi API WhatsApp hoàn thiện
+  List<WhatsAppMember> membersWhatsApp = [];
   bool isInitScreen = true;
   late String source = '';
   bool get isZalo => source == 'zalo';
   bool get isZaloPersonal => source == 'zalo_personal';
+  bool get isWhatsApp => source == 'whatsapp';
   List<String> memberId = [];
   late int lengthPeople = 0;
 
@@ -72,6 +78,18 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
     } else if (isZaloPersonal) {
       infoMemberZaloPersional =
           await ChatConnection.getGroupInfo(channelId ?? '', groupId ?? '');
+    } else if (isWhatsApp) {
+      // TODO: Phân tích response thực tế khi API hoàn thiện.
+      // Hiện parse theo WhatsAppContactsResponse.fromJson — điều chỉnh nếu cấu trúc response thay đổi.
+      final phone = widget.channelSocialId ?? '';
+      if (phone.isNotEmpty) {
+        final response = await ChatConnection.getContactWhatsapp(phone);
+        if (response != null && response.isSuccess) {
+          final parsed = WhatsAppContactsResponse.fromJson(response.data);
+          membersWhatsApp = parsed.members ?? [];
+          lengthPeople = membersWhatsApp.length;
+        }
+      }
     }
     isInitScreen = false;
     setState(() {});
@@ -128,7 +146,7 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
       leading: InkWell(
         onTap: () => Navigator.of(context).pop(),
         child: Icon(
-          Platform.isIOS ? Icons.arrow_back_ios : Icons.arrow_back,
+          Icons.arrow_back_ios,
           color: Colors.black,
         ),
       ),
@@ -186,16 +204,46 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
         );
       } else if (isZaloPersonal) {
         final members = infoMemberZaloPersional?.members ?? [];
+        if (members.isNotEmpty) {
+          return ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: members.length,
+            itemBuilder: (context, index) {
+              final memberZP = members[index];
+              if (memberZP.level == 'root') return Container();
+              final isLast = index == members.length - 1;
+              return buildMemberZPItem(context, memberZP, isLast, memberZP.id!,
+                  widget.chatMessage.room!.isGroup!);
+            },
+          );
+        }
+        // Fallback: API không trả về dữ liệu, dùng people từ màn hình trước
+        final fallbackMembers = widget.chatMessage.room?.people ?? [];
         return ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: members.length,
+          itemCount: fallbackMembers.length,
+          itemBuilder: (context, index) => _itemChat(context, index),
+        );
+      } else if (isWhatsApp) {
+        // TODO: Cập nhật lại cách hiển thị khi API WhatsApp hoàn thiện
+        return ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: membersWhatsApp.length,
           itemBuilder: (context, index) {
-            final memberZP = members[index];
-            if (memberZP.level == 'root') return Container();
-            final isLast = index == members.length - 1;
-            return buildMemberZPItem(context, memberZP, isLast, memberZP.id!,
-                widget.chatMessage.room!.isGroup!);
+            final member = membersWhatsApp[index];
+            final isLast = index == membersWhatsApp.length - 1;
+            return buildMemberItem(
+              context: context,
+              id: member.id,
+              avatarUrl: member.avatar,
+              displayName: member.name ?? '',
+              username: member.phone ?? '',
+              isLast: isLast,
+              onTap: () {},
+            );
           },
         );
       }
@@ -335,6 +383,47 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
     );
   }
 
+  Widget _buildPeopleAvatar(r.People? data) {
+    const double radius = 25.0;
+    String? avatarUrl;
+
+    if (ChatConnection.isChatHub) {
+      if (data?.avatar?.isNotEmpty == true) {
+        avatarUrl = data!.avatar;
+      } else if (data?.picture?.shieldedID?.isNotEmpty == true) {
+        avatarUrl =
+            '${HTTPConnection.domain}api/images/${data!.picture!.shieldedID}/256/${ChatConnection.brandCode}';
+      }
+    } else {
+      if (data?.picture?.shieldedID?.isNotEmpty == true) {
+        avatarUrl =
+            '${HTTPConnection.domain}api/images/${data!.picture!.shieldedID}/256/${ChatConnection.brandCode}';
+      }
+    }
+
+    if (avatarUrl != null) {
+      return CircleAvatar(
+        radius: radius,
+        backgroundImage: CachedNetworkImageProvider(
+          avatarUrl,
+          headers: {'brand-code': ChatConnection.brandCode!},
+        ),
+        backgroundColor: Colors.transparent,
+      );
+    }
+
+    return CircleAvatar(
+      radius: radius,
+      backgroundColor: AppColors.bluePrimary,
+      child: Text(
+        data?.getAvatarName() ?? '*',
+        style: const TextStyle(color: Colors.white),
+        maxLines: 1,
+        textScaler: TextScaler.linear(1.0),
+      ),
+    );
+  }
+
   Widget _itemChat(BuildContext context, int index) {
     final data = widget.chatMessage.room?.people![index];
     bool isLast = index == (widget.chatMessage.room?.people?.length ?? 1) - 1;
@@ -342,6 +431,7 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
       padding: const EdgeInsets.symmetric(vertical: 5.0),
       child: Column(
         children: [
+          // Text(data.toString()),
           InkWell(
             onTap: () {
               if (data?.sId != ChatConnection.user!.id) {
@@ -385,34 +475,7 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    data?.picture == null
-                        ? data?.picture?.shieldedID != null
-                            ? CircleAvatar(
-                                radius: 25.0,
-                                backgroundImage: CachedNetworkImageProvider(
-                                    '${HTTPConnection.domain}api/images/${data?.picture?.shieldedID}/256/${ChatConnection.brandCode}',
-                                    headers: {
-                                      'brand-code': ChatConnection.brandCode!
-                                    }),
-                                backgroundColor: Colors.transparent,
-                              )
-                            : CircleAvatar(
-                                backgroundColor: AppColors.bluePrimary,
-                                child: Text(
-                                    '${data?.firstName} ${data?.lastName}',
-                                    style: const TextStyle(color: Colors.white),
-                                    maxLines: 1,
-                                    textScaler: TextScaler.linear(1.75)),
-                              )
-                        : CircleAvatar(
-                            radius: 25.0,
-                            backgroundImage: CachedNetworkImageProvider(
-                                '${HTTPConnection.domain}api/images/${data?.picture!.shieldedID}/256/${ChatConnection.brandCode!}',
-                                headers: {
-                                  'brand-code': ChatConnection.brandCode!
-                                }),
-                            backgroundColor: Colors.transparent,
-                          ),
+                    _buildPeopleAvatar(data),
                     Expanded(
                         child: Container(
                       padding: const EdgeInsets.only(

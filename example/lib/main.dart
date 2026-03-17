@@ -151,17 +151,20 @@ class _MyAppState extends State<MyApp> {
                   //     // roomId: '632a88f7dd01b42c37330585'
                   //     );
 
-                      await Chat.open(
+                  await Chat.open(
                       context,
                       'admin@pioapps.vn',
                       'Waosupport@2025',
                       'assets/icon-app.png',
                       const Locale(LangKey.langVi, 'VI'),
-                      domain: 'https://chat.epoints.vn/',
+                      // domain: 'https://chat.epoints.vn/',
+
+                      domain: 'https://chathub.epoints.vn/',
                       brandCode: 'sale',
-                      isChatHub: false,
-                      token:
-                          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ZmNjMjM1ZDAwYzZjMDAxMjVlZmViNSIsInNpZCI6ImFkbWluQHBpb2FwcHMudm4iLCJlbWFpbCI6ImFkbWluQHBpb2FwcHMudm4iLCJsZXZlbCI6InN0YW5kYXJkIiwiZmlyc3ROYW1lIjoiQWRtaW4iLCJsYXN0TmFtZSI6IiIsInVzZXJuYW1lIjoiYWRtaW5AcGlvYXBwcy52biIsImJyYW5kIjoic2FsZSIsImlhdCI6MTc3MDcwMDU2OSwiZXhwIjoxNzc1ODg0NTY5fQ.-RovzbKBs1buI2MaXZBosn_gRuw0LeryjUWxmVPhcAU"
+                      isChatHub: true,
+                      token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyZmQwMjA0ZDcwMzNlMjRkYTc5YzYwNiIsInVpZCI6MSwic2lkIjoiYWRtaW4iLCJlbWFpbCI6InZ1QHBpb2FwcHMudm4iLCJsZXZlbCI6InJvb3QiLCJmaXJzdE5hbWUiOiJBZG1pbiIsImxhc3ROYW1lIjoiVXNlciIsInVzZXJuYW1lIjoiYWRtaW4iLCJicmFuZF9jb2RlIjoic2FsZSIsImlhdCI6MTc3MzYzNTU0MiwiZXhwIjoxNzc4ODE5NTQyfQ.BEcauIIFw0B13iAnd8S2DAKYdII3dsU2vVDsmp7cubw"
+                      // token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ZmNjMjM1ZDAwYzZjMDAxMjVlZmViNSIsInNpZCI6ImFkbWluQHBpb2FwcHMudm4iLCJlbWFpbCI6ImFkbWluQHBpb2FwcHMudm4iLCJsZXZlbCI6InN0YW5kYXJkIiwiZmlyc3ROYW1lIjoiQWRtaW4iLCJsYXN0TmFtZSI6IiIsInVzZXJuYW1lIjoiYWRtaW5AcGlvYXBwcy52biIsImJyYW5kIjoic2FsZSIsImlhdCI6MTc3MzcxODYxOSwiZXhwIjoxNzc4OTAyNjE5fQ.PlWt4vsnR54OplYTv-pHIbzZCwtoQSakZUKc0JeSOBI'
+                      
                       // roomId: '632a88f7dd01b42c37330585'
                       );
                   //MATHEW TEST CHAT HUB

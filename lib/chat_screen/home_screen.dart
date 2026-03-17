@@ -55,7 +55,6 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
     ChatConnection.dispose(isDispose: true);
   }

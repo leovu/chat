@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:chat/chat_screen/tag_list_screen.dart';
 import 'package:chat/connection/chat_connection.dart';
@@ -25,7 +24,6 @@ class ActionListUserChathubScreen extends StatefulWidget {
 class _State extends State<ActionListUserChathubScreen> {
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return Scaffold(
         appBar: AppBar(
           title: AutoSizeText(
@@ -35,7 +33,7 @@ class _State extends State<ActionListUserChathubScreen> {
           ),
           leading: InkWell(
             child: Icon(
-                Platform.isIOS ? Icons.arrow_back_ios : Icons.arrow_back,
+                Icons.arrow_back_ios,
                 color: Colors.black),
             onTap: () => Navigator.of(context).pop(),
           ),

@@ -60,7 +60,7 @@ class _State extends State<TagListScreen> {
           ),
           leading: InkWell(
             child: Icon(
-                Platform.isIOS ? Icons.arrow_back_ios : Icons.arrow_back,
+                Icons.arrow_back_ios,
                 color: Colors.black),
             onTap: () => Navigator.of(context).pop(),
           ),

@@ -103,7 +103,7 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
       leading: InkWell(
         onTap: () => Navigator.of(context).pop(),
         child: Icon(
-          Platform.isIOS ? Icons.arrow_back_ios : Icons.arrow_back,
+          Icons.arrow_back_ios,
           color: Colors.black,
         ),
       ),

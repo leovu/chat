@@ -67,6 +67,7 @@ class ChatConnection {
   static int? notiChatHubFacebook;
   static int? notiChatHubZalo;
   static int? notiChatHubZaloPersonal;
+  static int? notiChatHubWhatsApp;
   static Function? openChatGPT;
   static String? uid;
   static String? creatorIdGroup;
@@ -210,7 +211,8 @@ class ChatConnection {
       ChatConnection.notiChatHubClient = result.client;
       ChatConnection.notiChatHubFacebook = result.facebook;
       ChatConnection.notiChatHubZalo = result.zalo;
-      ChatConnection.notiChatHubZalo = result.zalo_personal;
+      ChatConnection.notiChatHubZaloPersonal = result.zalo_personal;
+      ChatConnection.notiChatHubWhatsApp = result.whatsapp;
     }
   }
 
@@ -277,7 +279,6 @@ class ChatConnection {
   static Future<bool> autoUpdateChatSeenWhenJoinRoom(String id) async {
     ResponseData responseData =
         await connection.post('api/notification/update-chat', {'id': id});
-    print(id);
     if (responseData.isSuccess) {
       return true;
     }
@@ -567,19 +568,22 @@ class ChatConnection {
         c.Messages valueResponse = c.Messages.fromJson(ChatConnection.isChatHub
             ? responseData.data['data']['message']
             : responseData.data['message']);
-        types.Status s = valueResponse.sId==null ? types.Status.error : types.Status.sent;
+        types.Status s =
+            valueResponse.sId == null ? types.Status.error : types.Status.sent;
         final oldMessage = listMessage[index] as types.ImageMessage;
 
         // Use image location from response (S3 URL) if available, otherwise construct URL
         String newUri;
-        if (valueResponse.image?.location != null && valueResponse.image!.location!.isNotEmpty) {
+        if (valueResponse.image?.location != null &&
+            valueResponse.image!.location!.isNotEmpty) {
           newUri = valueResponse.image!.location!;
           print('📸 [uploadImage] Using S3 URL from response: $newUri');
-        } else if (valueResponse.content != null && valueResponse.content!.isNotEmpty) {
-          newUri = '${HTTPConnection.domain}api/images/${valueResponse.content}/${ChatConnection.brandCode}';
+        } else if (valueResponse.content != null &&
+            valueResponse.content!.isNotEmpty) {
+          newUri =
+              '${HTTPConnection.domain}api/images/${valueResponse.content}/${ChatConnection.brandCode}';
           print('📸 [uploadImage] Constructed URL from content: $newUri');
         } else {
-          print('❌ [uploadImage] No valid URI found in response!');
           newUri = oldMessage.uri; // Fallback to old URI
         }
 
@@ -716,6 +720,16 @@ class ChatConnection {
   static Future<ct.Contacts?> contactsList() async {
     ResponseData responseData =
         await connection.post('api/search', {'limit': 500, 'search': ''});
+    if (responseData.isSuccess) {
+      return ct.Contacts.fromJson(responseData.data);
+    }
+    return null;
+  }
+
+  static Future<ct.Contacts?> contactsSearch(String search,
+      {int limit = 50}) async {
+    ResponseData responseData = await connection
+        .post('api/search', {'limit': limit, 'search': search});
     if (responseData.isSuccess) {
       return ct.Contacts.fromJson(responseData.data);
     }
@@ -1272,6 +1286,21 @@ class ChatConnection {
       'channel_id': chanelId,
       'group_id': groupId,
       'member_user_ids': memeberUserIds
+    };
+    try {
+      final ResponseData response = await connection.post(url, body);
+      return response;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// WHATSAPP
+  //Lấy danh sách thành viên
+  static Future<ResponseData?> getContactWhatsapp(String phone) async {
+    String url = 'api/whatsapp/get-contacts';
+    Map<String, dynamic> body = {
+      'phone': phone,
     };
     try {
       final ResponseData response = await connection.post(url, body);

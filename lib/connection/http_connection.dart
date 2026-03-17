@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:chat/connection/chat_connection.dart';
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+
+import '../localization/app_localizations.dart';
+import '../localization/lang_key.dart';
 
 class HTTPConnection {
   // static String domain = 'https://chat-stag.epoints.vn/';
@@ -83,15 +85,15 @@ class HTTPConnection {
       encoding: encoding,
     );
 
-    if (kDebugMode) {
-      print('\n******** POST ********');
-      print(uri);
-      print(headers);
-      print(jsonBody);
-      print(response.statusCode);
-      print("response.body: ${response.body}");
-      print('******** POST ********\n');
-    }
+    // if (kDebugMode) {
+    //   print('\n******** POST ********');
+    //   print(uri);
+    //   print(headers);
+    //   print(jsonBody);
+    //   print(response.statusCode);
+    //   print("response.body: ${response.body}");
+    //   print('******** POST ********\n');
+    // }
 
     ResponseData data = ResponseData();
     try {
@@ -142,15 +144,15 @@ class HTTPConnection {
     );
 
     // In thông tin khi ở chế độ debug
-    if (kDebugMode) {
-      print('\n******** POST ********');
-      print(uri);
-      print(headers);
-      print(jsonBody);
-      print(response.statusCode);
-      print("response.body: ${response.body}");
-      print('******** POST ********\n');
-    }
+    // if (kDebugMode) {
+    //   print('\n******** POST ********');
+    //   print(uri);
+    //   print(headers);
+    //   print(jsonBody);
+    //   print(response.statusCode);
+    //   print("response.body: ${response.body}");
+    //   print('******** POST ********\n');
+    // }
 
     try {
       // Giải mã JSON từ response.body
@@ -188,14 +190,14 @@ class HTTPConnection {
       headers: headers,
     );
 
-    if (kDebugMode) {
-      print('\n******** GET ********');
-      print(uri);
-      print(headers);
-      print("status: ${response.statusCode}");
-      print("body: ${response.body}");
-      print('******** GET ********\n');
-    }
+    // if (kDebugMode) {
+    //   print('\n******** GET ********');
+    //   print(uri);
+    //   print(headers);
+    //   print("status: ${response.statusCode}");
+    //   print("body: ${response.body}");
+    //   print('******** GET ********\n');
+    // }
 
     ResponseData data = ResponseData();
     try {
@@ -213,7 +215,7 @@ class HTTPConnection {
       }
     } catch (e) {
       data.isSuccess = false;
-      data.message = 'Lỗi khi xử lý phản hồi từ server.';
+      data.message = AppLocalizations.text(LangKey.server_response_error);
     }
 
     return data;

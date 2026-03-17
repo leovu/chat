@@ -33,8 +33,10 @@ import 'package:uuid/uuid.dart';
 
 import '../../../chat_ui/hex_color.dart';
 import '../../../chat_ui/widgets/custom_message_builder.dart';
+import '../../../chat_ui/widgets/custom_room_avatar.dart';
 import '../../../data_model/room.dart';
 import '../../utils/dialog.dart';
+import '../../utils/ultility.dart';
 
 class ChatScreen extends StatefulWidget {
   final Function? callback;
@@ -443,16 +445,13 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       showStatus: true,
       status: Status.sending,
     );
-    print('📸 [pickedImageFromMulti] Created message - ID: $id, URI: ${result.path}');
     _addMessage(message, id);
     if (mounted) {
       setState(() {});
     }
-    print('📤 [pickedImageFromMulti] Starting upload for ID: $id');
     ChatConnection.uploadImage(context, data, _messages, id, result, data?.room,
             ChatConnection.checkUserTokenResponseModel?.user?.sId ?? '')
         .then((r) {
-      print('📥 [pickedImageFromMulti] Upload completed - Result: $r');
       if (r == 'limit') {
         try {
           int index = _messages
@@ -461,15 +460,10 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         } catch (_) {}
       }
       if (mounted) {
-        print('🔄 [pickedImageFromMulti] Regrouping images and calling setState');
-        print('📊 [pickedImageFromMulti] Total messages: ${_messages.length}');
-
         // Log the updated message
         try {
           final updatedMsg = _messages.firstWhere((m) => m.id == r);
           if (updatedMsg is types.ImageMessage) {
-            print('✅ [pickedImageFromMulti] Found updated message with new ID: $r');
-            print('🔗 [pickedImageFromMulti] New URI: ${updatedMsg.uri}');
           }
         } catch (e) {
           print('⚠️ [pickedImageFromMulti] Could not find updated message: $e');
@@ -827,37 +821,30 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   }
 
   // Custom image message builder using CachedNetworkImage
-  Widget _buildImageMessageWidget(types.ImageMessage message, {required int messageWidth}) {
-    print('🖼️ [_buildImageMessageWidget] Called for message ID: ${message.id}');
-    print('🔗 [_buildImageMessageWidget] URI: ${message.uri}');
-    print('📊 [_buildImageMessageWidget] Status: ${message.status}');
+  Widget _buildImageMessageWidget(types.ImageMessage message,
+      {required int messageWidth}) {
 
     // Check if this message should be hidden (part of a group but not the first)
     if (_hiddenImageIds.contains(message.id)) {
-      print('👻 [_buildImageMessageWidget] Message is hidden (part of group)');
       return const SizedBox.shrink();
     }
 
     // Check if this message has grouped images
     final groupedImages = _imageGroups[message.id];
     if (groupedImages != null && groupedImages.length > 1) {
-      print('📸 [_buildImageMessageWidget] Building grouped images (${groupedImages.length} images)');
       return _buildGroupedImages(groupedImages, messageWidth);
     }
 
     // Display single image
-    print('🖼️ [_buildImageMessageWidget] Building single image');
     return _buildSingleImage(message, messageWidth);
   }
 
   Widget _buildSingleImage(types.ImageMessage message, int messageWidth) {
-    final isLocalFile = !message.uri.startsWith('http://') && !message.uri.startsWith('https://');
-    print('📁 [_buildSingleImage] Is local file: $isLocalFile');
-    print('🔗 [_buildSingleImage] URI: ${message.uri}');
+    final isLocalFile = !message.uri.startsWith('http://') &&
+        !message.uri.startsWith('https://');
 
     Widget imageWidget;
     if (isLocalFile) {
-      print('✅ [_buildSingleImage] Building local file image');
       imageWidget = ClipRRect(
         borderRadius: BorderRadius.circular(12),
         child: Image.file(
@@ -867,7 +854,8 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
           errorBuilder: (_, __, ___) => Container(
             width: messageWidth.toDouble() * 0.7,
             height: 100,
-            child: const Icon(Icons.broken_image, size: 100, color: Colors.grey),
+            child:
+                const Icon(Icons.broken_image, size: 100, color: Colors.grey),
           ),
         ),
       );
@@ -881,9 +869,6 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       }
 
       final imageUrl = ensureFullUrl(message.uri);
-      print('🌐 [_buildSingleImage] Building network image');
-      print('🔗 [_buildSingleImage] Full URL: $imageUrl');
-      print('🔑 [_buildSingleImage] Brand code: ${ChatConnection.brandCode}');
 
       imageWidget = ClipRRect(
         borderRadius: BorderRadius.circular(12),
@@ -895,21 +880,19 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
               ? {'brand-code': ChatConnection.brandCode!}
               : null,
           placeholder: (context, url) {
-            print('⏳ [CachedNetworkImage] Loading: $url');
             return Container(
               width: messageWidth.toDouble() * 0.7,
               height: 100,
-              child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+              child: const Center(
+                  child: CircularProgressIndicator(strokeWidth: 2)),
             );
           },
           errorWidget: (context, url, error) {
-            print('❌ [CachedNetworkImage] Error loading image');
-            print('🔗 [CachedNetworkImage] URL: $url');
-            print('⚠️ [CachedNetworkImage] Error: $error');
             return Container(
               width: messageWidth.toDouble() * 0.7,
               height: 100,
-              child: const Icon(Icons.broken_image, size: 100, color: Colors.grey),
+              child:
+                  const Icon(Icons.broken_image, size: 100, color: Colors.grey),
             );
           },
         ),
@@ -924,7 +907,8 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     );
   }
 
-  Widget _buildGroupedImages(List<types.ImageMessage> images, int messageWidth) {
+  Widget _buildGroupedImages(
+      List<types.ImageMessage> images, int messageWidth) {
     final maxWidth = messageWidth.toDouble() * 0.7;
     final spacing = 4.0;
 
@@ -949,7 +933,8 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         children: images.asMap().entries.map((entry) {
           final index = entry.key;
           final img = entry.value;
-          final isLocalFile = !img.uri.startsWith('http://') && !img.uri.startsWith('https://');
+          final isLocalFile =
+              !img.uri.startsWith('http://') && !img.uri.startsWith('https://');
 
           Widget imageWidget;
           if (isLocalFile) {
@@ -985,7 +970,8 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
               placeholder: (context, url) => Container(
                 width: imageSize,
                 height: imageSize,
-                child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                child: const Center(
+                    child: CircularProgressIndicator(strokeWidth: 2)),
               ),
               errorWidget: (_, __, ___) => Container(
                 width: imageSize,
@@ -1071,13 +1057,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     if (mounted) {
       setState(() {});
     }
-    ChatConnection.uploadFile(
-            context,
-            data,
-            _messages,
-            id,
-            file,
-            data?.room,
+    ChatConnection.uploadFile(context, data, _messages, id, file, data?.room,
             ChatConnection.checkUserTokenResponseModel?.user?.sId ?? '')
         .then((r) {
       if (r == 'limit') {
@@ -1424,7 +1404,6 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     );
   }
 
-
   Widget _messageListWidget() {
     if (isInitScreen) {
       return Center(
@@ -1456,7 +1435,9 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         }
       },
       onAvatarTap: (p0) {},
-      avatar: buildAvatar(width: 15),
+      // ChatHub: truyền null để _avatarBuilder dùng message.author.imageUrl riêng từng người.
+      // Non-ChatHub 1-on-1: dùng circleAvatar của phòng (tất cả tin nhắn cùng 1 avatar).
+      avatar: ChatConnection.isChatHub ? null : buildAvatar(width: 15),
       imageMessageBuilder: _buildImageMessageWidget,
       //  (types.User user) async {
       //Lỗi chưa xác định, xử lí phần chathub
@@ -1790,15 +1771,20 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
               Padding(
                 padding: const EdgeInsets.only(left: 8.0),
                 child: InkWell(
-                  child: Icon(
-                      Platform.isIOS ? Icons.arrow_back_ios : Icons.arrow_back,
-                      color: Colors.black),
+                  child: Icon(Icons.arrow_back_ios, color: Colors.black),
                   onTap: () => Navigator.of(context).pop(),
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
-                child: buildAvatar(),
+                child: ChatConnection.isChatHub && widget.data.isGroup == true
+                    ? GroupAvatar(
+                        img1: widget.data.people?[0].avatar ?? '',
+                        img2: widget.data.people?[1].avatar ?? '',
+                        img3: widget.data.people?[2].avatar ?? '',
+                        size: 50,
+                      )
+                    : buildAvatar(),
               ),
               Expanded(
                 child: Padding(
@@ -1894,7 +1880,8 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
             ? CircleAvatar(
                 radius: radius,
                 child: Text(
-                  owner?.getAvatarName() ?? '',
+                  getAvatarName(
+                      '${owner?.firstName ?? ''}', '${owner?.lastName ?? ''}'),
                   style: const TextStyle(color: Colors.white),
                 ),
               )
@@ -1928,10 +1915,21 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     } else {
       // Logic cho ChatHub (giống roomChatHubWidget trong room_list_screen.dart)
       if (widget.data.isGroup == false) {
-        // Không phải group
-        if (widget.data.owner?.picture == null) {
+        // Priority 1: URL trực tiếp từ external platform (Facebook, Zalo, WhatsApp)
+        if (widget.data.people?.first.avatar?.isNotEmpty == true) {
+          return CircleAvatar(
+            radius: radius,
+            backgroundImage: CachedNetworkImageProvider(
+              widget.data.people!.first.avatar!,
+            ),
+            backgroundColor: Colors.transparent,
+          );
+        }
+        // Priority 2, 3, 4: picture → shieldedID → owner.avatar → initials
+        if (widget.data.owner?.picture == null ||
+            widget.data.owner?.picture == "") {
           // Nếu không có picture, kiểm tra avatar
-          if (widget.data.owner?.avatar != null) {
+          if (widget.data.owner?.avatar?.isNotEmpty == true) {
             return CircleAvatar(
               radius: radius,
               backgroundImage: CachedNetworkImageProvider(
@@ -1944,7 +1942,8 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
             return CircleAvatar(
               radius: radius,
               child: Text(
-                widget.data.owner?.getAvatarName() ?? '',
+                getAvatarName('${widget.data.owner?.firstName ?? ''}',
+                    '${widget.data.owner?.lastName ?? ''}'),
                 style: const TextStyle(color: Colors.white),
               ),
             );
@@ -1964,7 +1963,8 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
               : CircleAvatar(
                   radius: radius,
                   child: Text(
-                    widget.data.owner?.getAvatarName() ?? '',
+                    getAvatarName('${widget.data.owner?.firstName ?? ''}',
+                        '${widget.data.owner?.lastName ?? ''}'),
                     style: const TextStyle(color: Colors.white),
                   ),
                 );

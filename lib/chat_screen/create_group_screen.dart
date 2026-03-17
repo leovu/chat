@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/presentation/chat_module/ui/chat_screen.dart';
@@ -25,47 +26,39 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
   final _focusGroupName = FocusNode();
   final _controllerGroupName = TextEditingController();
   Contacts? contactsListVisible;
-  Contacts? contactsListData;
+  // Lưu id các thành viên đã chọn — giữ nguyên khi search thay đổi
+  final Set<String> _selectedIds = {};
   bool isInitScreen = true;
+  bool isSearching = false;
+  Timer? _searchDebounce;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await _getContacts();
+      await _loadContacts('');
       isInitScreen = false;
     });
-
-  }
-  _getContacts() async {
-    contactsListData = await ChatConnection.contactsList();
-    _getContactsVisible();
-    setState(() {});
   }
 
-  _getContactsVisible() {
-    String val = _controllerSearch.value.text.toLowerCase().removeAccents();
-    if(val!= '') {
-      contactsListVisible!.users = contactsListVisible!.users!.where((element) {
-        try {
-          if(
-          ('${element.firstName} ${element.lastName}'.toLowerCase().removeAccents()).contains(val)) {
-            return true;
-          }
-          return false;
-        }catch(e){
-          return false;
-        }
-      }).toList();
-    }
-    else {
-      contactsListVisible = Contacts();
-      contactsListVisible?.limit = contactsListData?.limit;
-      contactsListVisible?.search = contactsListData?.search;
-      try{
-        contactsListVisible?.users = <r.People>[...contactsListData!.users!.toList()];
-      }catch(_) {}
-    }
+  @override
+  void dispose() {
+    _searchDebounce?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _loadContacts(String keyword) async {
+    final result = await ChatConnection.contactsSearch(keyword, limit: 50);
+    setState(() {
+      contactsListVisible = result;
+    });
+  }
+
+  void _onSearchChanged(String value) {
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(const Duration(milliseconds: 350), () {
+      _loadContacts(value.trim());
+    });
   }
   @override
   Widget build(BuildContext context) {
@@ -95,7 +88,7 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
                             },
                             child: SizedBox(
                                 width:30.0,
-                                child: Icon(Platform.isIOS ? Icons.arrow_back_ios : Icons.arrow_back, color: Colors.black)),
+                                child: Icon(Icons.arrow_back_ios, color: Colors.black)),
                           ),
                         ],
                       ),
@@ -152,11 +145,7 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
                         Expanded(child: TextField(
                           focusNode: _focusSearch,
                           controller: _controllerSearch,
-                          onChanged: (_) {
-                            setState(() {
-                              _getContactsVisible();
-                            });
-                          },
+                          onChanged: _onSearchChanged,
                           decoration: InputDecoration.collapsed(
                             hintText: AppLocalizations.text(LangKey.search),
                           ),
@@ -173,10 +162,11 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
                                 ),
                               ),
                             ),
-                            onTap: (){
+                            onTap: () {
+                              _searchDebounce?.cancel();
                               _controllerSearch.text = '';
                               FocusManager.instance.primaryFocus?.unfocus();
-                              _getContactsVisible();
+                              _loadContacts('');
                             },
                           ),
                         )
@@ -194,20 +184,20 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
                   itemCount: contactsListVisible!.users?.length ?? 0,
                   itemBuilder: (BuildContext context, int position) {
                     return InkWell(
-                        onTap: () async {
+                        onTap: () {
                           setState(() {
-                            if(contactsListVisible!.users![position].isSelected != null) {
-                              contactsListVisible!.users![position].isSelected = !contactsListVisible!.users![position].isSelected!;
-                            }
-                            else {
-                              contactsListVisible!.users![position].isSelected = true;
+                            final id = contactsListVisible!.users![position].sId ?? '';
+                            if (_selectedIds.contains(id)) {
+                              _selectedIds.remove(id);
+                            } else {
+                              _selectedIds.add(id);
                             }
                           });
                         },
                         child: _contacts(contactsListVisible!.users![position], position == contactsListVisible!.users!.length-1));
                   }) : Container(),
             ),
-            contactsListVisible != null && isSelectedMember(contactsListVisible?.users) ? Padding(
+            contactsListVisible != null && _selectedIds.isNotEmpty ? Padding(
               padding: const EdgeInsets.only(bottom: 15.0),
               child: SizedBox(
                 height: 49.0,
@@ -215,14 +205,7 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
                 child: MaterialButton(
                   color: const Color(0xFF5686E1),
                   onPressed: () async {
-                    List<String> people = [];
-                    try{
-                      contactsListData?.users?.forEach((element) {
-                        if(element.isSelected != null && element.isSelected == true) {
-                          people.add(element.sId!);
-                        }
-                      });
-                    }catch(_){}
+                    List<String> people = _selectedIds.toList();
                     if(people.isEmpty) {
                       showDialog(
                         context: context,
@@ -279,14 +262,6 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
       ),
     ));
   }
-  bool isSelectedMember(List<People>? data) {
-    try {
-      data?.firstWhere((element) => element.isSelected == true);
-      return true;
-    }catch(_){
-      return false;
-    }
-  }
   Widget _contacts(People data, bool isLast) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0),
@@ -328,8 +303,9 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
                     SizedBox(
                       height: 30.0,
                       width: 30.0,
-                      child: data.isSelected != null && data.isSelected! ? const Icon(Icons.radio_button_checked,size: 25.0,color: Color(0xff0021F5))
-                          : const Icon(Icons.radio_button_off,size: 25.0,color: Color(0xff0021F5)),
+                      child: _selectedIds.contains(data.sId)
+                          ? const Icon(Icons.radio_button_checked, size: 25.0, color: Color(0xff0021F5))
+                          : const Icon(Icons.radio_button_off, size: 25.0, color: Color(0xff0021F5)),
                     )
                   ],
                 ),

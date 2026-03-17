@@ -60,7 +60,7 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
               color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
         ),
         leading: InkWell(
-          child: Icon(Platform.isIOS ? Icons.arrow_back_ios : Icons.arrow_back,
+          child: Icon(Icons.arrow_back_ios,
               color: Colors.black),
           onTap: () => Navigator.of(context).pop(),
         ),

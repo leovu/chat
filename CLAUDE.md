@@ -95,3 +95,111 @@ Supports English and Vietnamese. Language files are in `assets/chat_en.json` and
 ## Add-on Module System
 
 The ChatConnection class integrates optional CRM modules (products, orders, appointments, deals, tasks, customers) through the `addOnModules` property for extending functionality.
+
+
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project Overview
+
+WASUCO is a Flutter mobile application for water billing management (Nha Be Water Supply Company). The app handles debt collection, water cutoff/reopen management, meter reading, customer data, invoices, and reporting.
+
+## Build Commands
+
+```bash
+# Interactive build tool (selects environment and build action)
+dart build_app.dart
+
+# Generate localization keys (after modifying .arb files)
+flutter pub run intl_utils:generate
+
+# Generate asset keys (or use Alt+G in Android Studio)
+# Build => Generate Flutter Assets
+
+# Standard Flutter commands
+flutter pub get
+flutter run --release
+flutter build apk --release --no-tree-shake-icons
+flutter build appbundle --release --no-tree-shake-icons
+flutter build ios --no-tree-shake-icons
+```
+
+## Architecture
+
+### Layer Structure
+- `lib/common/` - Shared utilities, theme, config, globals, localization
+- `lib/data/` - Data layer (models, network, local storage)
+- `lib/domain/` - Business logic (Repository, Interaction)
+- `lib/presentation/` - UI layer (screens, blocs, widgets)
+- `lib/sqlite/` - Local SQLite database helpers for offline meter reading
+
+### BaseView/BaseBloc Pattern
+All screens extend `BaseView` and their state extends `BaseBloc<T>`. This pattern provides lifecycle hooks:
+```dart
+class MyScreen extends BaseView {
+  final MyBloc _bloc = MyBloc();
+  @override MyBloc createState() => _bloc;
+  @override Widget build(BuildContext context) { ... }
+}
+
+class MyBloc extends BaseBloc<MyScreen> {
+  void onInit() { }    // Called in initState
+  void onReady() { }   // Called after first frame
+  void onResumed() { } // Called when app resumes
+  void onDispose() { } // Called on dispose
+}
+```
+
+### Network Layer
+- `Repository` (`lib/domain/repository.dart`) - Static methods for all API calls
+- `Interaction` (`lib/domain/interaction/`) - HTTP wrapper extending `HttpConnection`, handles auth token refresh (401)
+- `API` (`lib/data/network/api/`) - API endpoint definitions
+- Response wrapper: `ResponseModel` with `success`, `data`, `errorMessage`, `errorCode`
+
+### State Management
+Uses `rxdart` BehaviorSubject with custom extensions:
+```dart
+// Set value and optionally trigger callback
+behaviorSubject.set(newValue, function: () => doSomething());
+// Access stream for StreamBuilder
+behaviorSubject.output
+```
+
+### Module Structure
+Screens organized as modules under `presentation/modules/`:
+```
+main_module/
+  modules/
+    home_module/
+      modules/
+        debt_module/src/bloc/ + ui/
+        close_module/src/bloc/ + ui/
+        open_module/src/bloc/ + ui/
+        meter_reading/modules/...
+```
+
+### Widget Library
+`lib/presentation/widgets/widget.dart` is a library file that exports all custom widgets via `part` directives. Custom widgets include: CustomText, CustomButton, CustomScaffold, CustomTextField, CustomBottomSheet, CustomDialog, etc.
+
+## Key Conventions
+
+- Use `CustomText` instead of `Text` widget
+- Access screen dimensions via context extensions: `context.width`, `context.height`, `context.padding`
+- Localization: `LangKey.current.keyName` (Vietnamese is main locale)
+- Assets: `Assets.keyName` (auto-generated)
+- Global state stored in `Globals` class (prefs, config, models, bloc)
+- Theme constants in `AppColors`, `AppSizes`, `AppTextStyle`, `AppFormat`
+- Safe parsing via extension: `value.toInt`, `value.toDouble`, `value.toBool`, `value.toSafeString`
+
+## Configuration
+
+Environment config stored in `assets/json/config.json`. The `build_app.dart` script handles environment selection (DEV/STAG/PRODUCT_TEST/PRODUCT) and updates the config before building.
+
+## Key Files Reference
+
+- `lib/common/globals.dart` - Global state container (prefs, config, user model, permissions)
+- `lib/common/theme.dart` - AppColors, AppSizes, AppTextStyle definitions
+- `lib/common/utilities.dart` - Helper methods (navigation, pickers, API helpers, location, bluetooth)
+- `lib/common/constant.dart` - App constants, enums, predefined lists (meter reading codes, etc.)
+- `lib/presentation/base/base_view.dart` - BaseView/BaseBloc classes, context extensions

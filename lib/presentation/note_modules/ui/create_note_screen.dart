@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:chat/common/custom_navigator.dart';
 import 'package:chat/common/theme.dart';
@@ -56,7 +55,7 @@ class _ConversationFileScreenState extends State<CreateNoteScreen>
               color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
         ),
         leading: InkWell(
-          child: Icon(Platform.isIOS ? Icons.arrow_back_ios : Icons.arrow_back,
+          child: Icon(Icons.arrow_back_ios,
               color: Colors.black),
           onTap: () => Navigator.of(context).pop(),
         ),
@@ -77,7 +76,7 @@ class _ConversationFileScreenState extends State<CreateNoteScreen>
               child: TextField(
                 controller: _noteController,
                 focusNode: _noteNode,
-                maxLines: 8, //or null
+                maxLines: 8,
                 decoration: InputDecoration.collapsed(
                     hintText: AppLocalizations.text(LangKey.input_note_hint)),
               ),

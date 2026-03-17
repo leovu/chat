@@ -208,4 +208,5 @@ class LangKey {
   static const String retry = "retry";
   static const String oa_template_message = "oa_template_message";
   static const String content_not_displayed = "content_not_displayed";
+  static const String server_response_error = "server_response_error";
 }

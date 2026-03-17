@@ -154,6 +154,7 @@ class NotificationCount {
   int? facebook;
   int? zalo;
   int? zalo_personal;
+  int? whatsapp;
 
   NotificationCount({this.total, this.facebook, this.zalo});
 
@@ -163,6 +164,7 @@ class NotificationCount {
     facebook = json['facebook'];
     zalo = json['zalo'];
     zalo_personal = json['zalo_personal'];
+    whatsapp = json['whatsapp'];
   }
 
   Map<String, dynamic> toJson() {
@@ -172,6 +174,7 @@ class NotificationCount {
     data['facebook'] = facebook;
     data['zalo'] = zalo;
     data['zalo_personal'] = zalo_personal;
+    data['whatsapp'] = whatsapp;
     return data;
   }
 }

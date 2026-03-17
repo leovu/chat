@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:chat/chat_screen/home_screen.dart';
 import 'package:chat/chat_screen/room_list_screen.dart';
@@ -32,6 +30,7 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen>
   late void Function() filterZalo;
   late TabController _tabController;
   late void Function() filterZaloPersonal;
+  late void Function() filterWhatsApp;
 
   int _activeTabIndex = 0;
   Function? reloadAll;
@@ -39,11 +38,12 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen>
   Function? reloadFacebook;
   Function? reloadZalo;
   Function? reloadZaloPersonal;
+  Function? reloadWhatsApp;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(vsync: this, length: 5);
+    _tabController = TabController(vsync: this, length: 6);
     _tabController.addListener(_setActiveTabIndex);
     ChatConnection.refreshRoom = refresh;
   }
@@ -84,9 +84,7 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen>
                       child: SizedBox(
                           width: 30.0,
                           child: Icon(
-                              Platform.isIOS
-                                  ? Icons.arrow_back_ios
-                                  : Icons.arrow_back,
+                              Icons.arrow_back_ios,
                               color: Colors.black)),
                     ),
                     Expanded(
@@ -104,6 +102,8 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen>
                           filterZalo.call();
                         } else if (_activeTabIndex == 4) {
                           filterZaloPersonal.call();
+                        } else if (_activeTabIndex == 5) {
+                          filterWhatsApp.call();
                         }
                       },
                       child: const SizedBox(
@@ -299,6 +299,40 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen>
                           ],
                         )),
                       ),
+                      //Whatsapp
+                      SizedBox(
+                        width: 90,
+                        child: Tab(
+                            icon: Row(
+                          children: [
+                            Image.asset(
+                              'assets/icon_whatsapp.png',
+                              package: 'chat',
+                              width: 20.0,
+                              height: 20.0,
+                            ),
+                            Expanded(
+                                child: AutoSizeText.rich(
+                                    TextSpan(children: [
+                                      const TextSpan(
+                                          text: '  WhatsApp',
+                                          style:
+                                              TextStyle(color: Colors.black)),
+                                      if ((ChatConnection.notiChatHubWhatsApp ??
+                                              0) >
+                                          0)
+                                        TextSpan(
+                                            text:
+                                                ' (${ChatConnection.notiChatHubWhatsApp})',
+                                            style: const TextStyle(
+                                                color: Colors.red,
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.bold))
+                                    ]),
+                                    maxLines: 1))
+                          ],
+                        )),
+                      ),
                     ],
                   ),
                 ),
@@ -312,6 +346,7 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen>
                     ),
                   Expanded(
                       child: TabBarView(controller: _tabController, children: [
+                    ///Chathub all
                     RoomListScreen(
                       builder: (BuildContext context, void Function() method) {
                         reloadAll = method;
@@ -322,6 +357,8 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen>
                       },
                       refreshTabNoti: refreshTabNoti,
                     ),
+
+                    /// Chathub live chat
                     RoomListScreen(
                       builder: (BuildContext context, void Function() method) {
                         reloadClient = method;
@@ -333,6 +370,8 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen>
                       },
                       refreshTabNoti: refreshTabNoti,
                     ),
+
+                    ///Chathub facebook
                     RoomListScreen(
                       builder: (BuildContext context, void Function() method) {
                         reloadFacebook = method;
@@ -344,6 +383,8 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen>
                       },
                       refreshTabNoti: refreshTabNoti,
                     ),
+
+                    ///Chathub zalo
                     RoomListScreen(
                       builder: (BuildContext context, void Function() method) {
                         reloadZalo = method;
@@ -365,6 +406,19 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen>
                       source: 'zalo_personal',
                       chatHubBuilder: (void Function() filter) {
                         filterZaloPersonal = filter;
+                      },
+                      refreshTabNoti: refreshTabNoti,
+                    ),
+
+                    ///ChatHub WhatsApp
+                    RoomListScreen(
+                      builder: (BuildContext context, void Function() method) {
+                        reloadWhatsApp = method;
+                      },
+                      openCreateChatRoom: widget.openCreateChatRoom,
+                      source: 'whatsapp',
+                      chatHubBuilder: (void Function() filter) {
+                        filterWhatsApp = filter;
                       },
                       refreshTabNoti: refreshTabNoti,
                     )
@@ -398,6 +452,9 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen>
     }
     if (reloadZaloPersonal != null) {
       reloadZaloPersonal!();
+    }
+    if (reloadWhatsApp != null) {
+      reloadWhatsApp!();
     }
     refreshTabNoti();
   }

@@ -135,7 +135,7 @@ class _InputState extends State<Input> {
   bool _sendButtonVisible = false;
   bool _emojiShowing = false;
   bool _attachmentShowing = false;
-  bool _isEdit = false;
+  // bool _isEdit = false;
   late RichTextController _textController;
   types.TextMessage? editContent;
   List<People>? _taggingSuggestList;
@@ -270,7 +270,7 @@ class _InputState extends State<Input> {
   }
 
   void _handleSendPressed() {
-    _isEdit = false;
+    // _isEdit = false;
     var trimmedText = _textController.text.trim();
     trimmedText = trimmedText.replaceAll(
         '@${AppLocalizations.text(LangKey.all)}', '@all-all@');
@@ -317,7 +317,6 @@ class _InputState extends State<Input> {
         _idTagList.add(e);
       }
     }
-    //TODO: Check cursor to show tag list
     var cursorPos = _textController.selection.base.offset;
     int? index;
     String textBeforeCursor = _textController.text.substring(0, cursorPos);
@@ -330,13 +329,11 @@ class _InputState extends State<Input> {
       }
     }
     if (index != null) {
-      //TODO: Null string
       if (_textController.text == '') {
         setState(() {
           _taggingSuggestList = null;
         });
       } else {
-        //TODO: Has Tag
         String tagString;
         try {
           tagString =
@@ -1309,7 +1306,7 @@ class _InputState extends State<Input> {
           }
         }
       }
-      _isEdit = true;
+      // _isEdit = true;
     }
     _inputFocusNode.requestFocus();
   }

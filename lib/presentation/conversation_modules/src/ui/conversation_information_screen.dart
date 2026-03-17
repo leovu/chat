@@ -1,7 +1,9 @@
 import 'dart:io';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/chat_screen/action_list_user_chathub_screen.dart';
+import 'package:chat/chat_ui/widgets/custom_room_avatar.dart';
 import 'package:chat/chat_ui/hex_color.dart';
 import 'package:chat/common/constant.dart';
 import 'package:chat/common/theme.dart';
@@ -398,8 +400,6 @@ class _ConversationInformationScreenState
 
   @override
   Widget build(BuildContext context) {
-    // String url =
-    //     '${HTTPConnection.domain}api/images/${widget.roomData.room_avatar?.shieldedID ?? widget.roomData.shieldedID ?? widget.roomData.owner?.picture}/256';
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: Colors.white,
@@ -410,7 +410,7 @@ class _ConversationInformationScreenState
               color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
         ),
         leading: InkWell(
-          child: Icon(Platform.isIOS ? Icons.arrow_back_ios : Icons.arrow_back,
+          child: Icon(Icons.arrow_back_ios,
               color: Colors.black),
           onTap: () => Navigator.of(context).pop(),
         ),
@@ -506,7 +506,7 @@ class _ConversationInformationScreenState
             ),
           ),
         Padding(
-            padding: const EdgeInsets.symmetric(vertical: 17.0),
+            padding: const EdgeInsets.symmetric(vertical: 16.0),
             child: Center(
               child: _buildAppropriateAvatar(),
             )),
@@ -714,8 +714,9 @@ class _ConversationInformationScreenState
                 AppLocalizations.text(LangKey.viewMembers), () {
               Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => ChatGroupMembersScreen(
-                      // roomData: widget.roomData,
-                      chatMessage: widget.chatMessage!)));
+                      chatMessage: widget.chatMessage!,
+                      channelSocialId:
+                          widget.roomData.channel?.socialChanelId)));
             }),
           if (widget.roomData.isGroup!)
             Padding(
@@ -965,7 +966,8 @@ class _ConversationInformationScreenState
       if (!isGroup) {
         // Private chat: sử dụng people.picture
         final isPictureEmpty = owner?.picture == null || owner?.picture == "";
-        avatarName = owner?.getAvatarName() ?? '';
+        avatarName = getAvatarName(
+            '${owner?.firstName ?? ''}', '${owner?.lastName ?? ''}');
         displayName =
             '${owner?.firstName ?? 'Unknown'} ${owner?.lastName ?? 'User'}';
 
@@ -988,13 +990,17 @@ class _ConversationInformationScreenState
         // Private chat
         displayName =
             '${roomData.owner?.firstName ?? ''} ${roomData.owner?.lastName ?? ''}';
-        avatarName = roomData.owner?.getAvatarName() ?? '';
+        avatarName = getAvatarName(
+            '${owner?.firstName ?? ''}', '${owner?.lastName ?? ''}');
 
-        if (roomData.owner?.picture == null) {
-          // Nếu không có picture, sử dụng avatar
+        // Priority 1: URL trực tiếp từ external platform (Facebook, Zalo, WhatsApp)
+        if (roomData.people?.first.avatar?.isNotEmpty == true) {
+          avatarUrl = roomData.people!.first.avatar;
+        } else if (roomData.owner?.picture == null) {
+          // Priority 2: owner.avatar
           avatarUrl = roomData.owner?.avatar;
         } else {
-          // Có picture, sử dụng shieldedID
+          // Priority 3: shieldedID
           final sid = roomData.shieldedID;
           avatarUrl = (sid != null && sid.isNotEmpty)
               ? '${domain}api/images/$sid/256/$brandCode'
@@ -1007,8 +1013,14 @@ class _ConversationInformationScreenState
             roomData.title ??
             'Group ${roomData.owner?.firstName ?? ''} ${roomData.owner?.lastName ?? ''}';
 
-        // Sử dụng avatar nếu có
-        avatarUrl = roomData.avatar;
+        // ChatHub group: dùng GroupAvatar từ people[].avatar (giống chat_screen.dart)
+        return GroupAvatarWithName(
+          img1: roomData.people?[0].avatar ?? '',
+          img2: roomData.people?[1].avatar ?? '',
+          img3: roomData.people?[2].avatar ?? '',
+          groupName: displayName,
+          size: 50,
+        );
       }
     }
 
@@ -1104,59 +1116,123 @@ class _ConversationInformationScreenState
                 reloadNotes();
               },
             ),
-            Padding(
-              padding: const EdgeInsets.only(top: 10, bottom: 10),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                        color: HexColor.fromHex('#0067AC'),
-                        borderRadius: const BorderRadius.only(
-                            topRight: Radius.circular(10),
-                            topLeft: Radius.circular(10))),
-                    width: ScreenInfo.width! * 0.95,
-                    height: 35,
-                    child: Center(
-                      child: Text(
-                        AppLocalizations.text(LangKey.note_content),
-                        style: const TextStyle(color: Colors.white),
-                      ),
+            StreamBuilder(
+              stream: bloc.outputNotes,
+              builder: (context, snapshot) {
+                if ((bloc.notesValue.data?.length ?? 0) > 0)
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 10, bottom: 10),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            color: HexColor.fromHex('#0067AC'),
+                            borderRadius: const BorderRadius.only(
+                              topRight: Radius.circular(10),
+                              topLeft: Radius.circular(10),
+                            ),
+                          ),
+                          width: ScreenInfo.width! * 0.95,
+                          height: 35,
+                          child: Center(
+                            child: Text(
+                              AppLocalizations.text(LangKey.note_content),
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: ScreenInfo.width! * 0.95,
+                          child:
+                              // (snapshot.hasData &&
+                              //         bloc.notesValue.data != null)
+                              (bloc.notesValue.data?.length ?? 0) > 0
+                                  ? ListView.builder(
+                                      shrinkWrap: true,
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      itemCount: bloc.notesValue.data!.length,
+                                      itemBuilder: (context, index) {
+                                        final note =
+                                            bloc.notesValue.data![index];
+                                        return _NoteItem(
+                                          note: note,
+                                          bloc: bloc,
+                                          roomData: roomData,
+                                          chatMessage: chatMessage,
+                                          reloadNotes: reloadNotes,
+                                          context: context,
+                                        );
+                                      },
+                                    )
+                                  : Center(
+                                      child: Text(
+                                        AppLocalizations.text(LangKey.no_title),
+                                      ),
+                                    ),
+                        ),
+                      ],
                     ),
-                  ),
-                  SizedBox(
-                    width: ScreenInfo.width! * 0.95,
-                    child: StreamBuilder(
-                      stream: bloc.outputNotes,
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData && bloc.notesValue.data != null) {
-                          return ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: bloc.notesValue.data!.length,
-                            itemBuilder: (context, index) {
-                              final note = bloc.notesValue.data![index];
-                              return _NoteItem(
-                                note: note,
-                                bloc: bloc,
-                                roomData: roomData,
-                                chatMessage: chatMessage,
-                                reloadNotes: reloadNotes,
-                                context: context,
-                              );
-                            },
-                          );
-                        } else {
-                          return Center(
-                              child: Text(
-                                  AppLocalizations.text(LangKey.no_title)));
-                        }
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
+                  );
+                else
+                  return Container();
+              },
+            )
+            // Padding(
+            //   padding: const EdgeInsets.only(top: 10, bottom: 10),
+            //   child: Column(
+            //     mainAxisAlignment: MainAxisAlignment.center,
+            //     children: [
+            //       Container(
+            //         decoration: BoxDecoration(
+            //             color: HexColor.fromHex('#0067AC'),
+            //             borderRadius: const BorderRadius.only(
+            //                 topRight: Radius.circular(10),
+            //                 topLeft: Radius.circular(10))),
+            //         width: ScreenInfo.width! * 0.95,
+            //         height: 35,
+            //         child: Center(
+            //           child: Text(
+            //             AppLocalizations.text(LangKey.note_content),
+            //             style: const TextStyle(color: Colors.white),
+            //           ),
+            //         ),
+            //       ),
+            //       SizedBox(
+            //         width: ScreenInfo.width! * 0.95,
+            //         child: StreamBuilder(
+            //           stream: bloc.outputNotes,
+            //           builder: (context, snapshot) {
+            //             if (snapshot.hasData && bloc.notesValue.data != null) {
+            //               return
+            //                ListView.builder(
+            //                 shrinkWrap: true,
+            //                 physics: const NeverScrollableScrollPhysics(),
+            //                 itemCount: bloc.notesValue.data!.length,
+            //                 itemBuilder: (context, index) {
+            //                   final note = bloc.notesValue.data![index];
+            //                   return _NoteItem(
+            //                     note: note,
+            //                     bloc: bloc,
+            //                     roomData: roomData,
+            //                     chatMessage: chatMessage,
+            //                     reloadNotes: reloadNotes,
+            //                     context: context,
+            //                   );
+            //                 },
+            //               );
+            //             } else {
+            //               return Center(
+            //                   child: Text(
+            //                       AppLocalizations.text(LangKey.no_title)));
+            //             }
+            //           },
+            //         ),
+            //       ),
+            //     ],
+            //   ),
+            // ),
           ],
         ),
       ),
@@ -1180,7 +1256,7 @@ class _ConversationInformationScreenState
             children: [
               Expanded(
                 child: AutoSizeText(
-                  '${calculateTimeDiff(note.updatedAt ?? note.createdAt!)}// ${AppLocalizations.text(LangKey.note_by)} ${note.createdByStaff?.fullName ?? ""}',
+                  '${calculateTimeDiff(note.updatedAt ?? note.createdAt!)} ${AppLocalizations.text(LangKey.note_by)} ${note.createdByStaff?.fullName ?? ""}',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -1585,8 +1661,9 @@ class _ConversationInformationScreenState
                 onTap: () {
                   Navigator.of(context).push(MaterialPageRoute(
                       builder: (context) => ChatGroupMembersScreen(
-                          // roomData: widget.roomData,
-                          chatMessage: widget.chatMessage!)));
+                          chatMessage: widget.chatMessage!,
+                          channelSocialId:
+                              widget.roomData.channel?.socialChanelId)));
                 },
                 iconData: Icons.group,
                 iconColor: const Color(0xff5686E1),
@@ -1940,15 +2017,24 @@ class _ConversationInformationScreenState
             title: widget.roomData.source == facebookConst ? 'Fanpage' : 'OA',
             content: widget.chatMessage?.room?.channel!.nameApp,
           ),
-          CustomRowInformation(
-            title: widget.roomData.source == facebookConst
-                ? 'Link Fanpage'
-                : 'Link OA',
-            content: widget.roomData.source == facebookConst
-                ? '$httpFacebook${widget.roomData.channel!.socialChanelId}'
-                : '$httpOA${widget.roomData.channel!.socialChanelId}',
-            contentStyle: AppTextStyles.style13BlackWeight400
-                .copyWith(color: AppColors.primaryColor),
+          GestureDetector(
+            onTap: () {
+              final link = widget.roomData.source == facebookConst
+                  ? '$httpFacebook${widget.roomData.channel!.socialChanelId}'
+                  : '$httpOA${widget.roomData.channel!.socialChanelId}';
+              final uri = Uri.tryParse(link);
+              if (uri != null) launchUrl(uri, mode: LaunchMode.externalApplication);
+            },
+            child: CustomRowInformation(
+              title: widget.roomData.source == facebookConst
+                  ? 'Link Fanpage'
+                  : 'Link OA',
+              content: widget.roomData.source == facebookConst
+                  ? '$httpFacebook${widget.roomData.channel!.socialChanelId}'
+                  : '$httpOA${widget.roomData.channel!.socialChanelId}',
+              contentStyle: AppTextStyles.style13BlackWeight400
+                  .copyWith(color: AppColors.primaryColor),
+            ),
           ),
           widget.roomData.source == zaloConst
               ? CustomRowInformation(

@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:chat/chat_screen/group_image_item.dart';
 import 'package:chat/localization/app_localizations.dart';
@@ -96,7 +95,7 @@ class _State extends State<BySenderResultScreen>
               color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
         ),
         leading: InkWell(
-          child: Icon(Platform.isIOS ? Icons.arrow_back_ios : Icons.arrow_back,
+          child: Icon(Icons.arrow_back_ios,
               color: Colors.black),
           onTap: () => Navigator.of(context).pop(),
         ),

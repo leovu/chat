@@ -200,6 +200,7 @@
   "expand": "See more",
   "view_detail": "View details",
   "load_more_failed": "Load failed! Tap to retry.",
-   "oa_template_message": "OA Template Message",
-  "content_not_displayed": "Content cannot be displayed"
+  "oa_template_message": "OA Template Message",
+  "content_not_displayed": "Content cannot be displayed",
+  "server_response_error": "Error processing server response."
 }

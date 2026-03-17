@@ -237,14 +237,13 @@ List<Widget> _buildDetails(List<dynamic> details) {
 }
 
 Widget _buildButton(Map<String, dynamic> buttonData) {
-  final String action = buttonData['action'] ?? '';
-  final String actionData = buttonData['action_data'] ?? '';
+  // final String action = buttonData['action'] ?? '';
+  // final String actionData = buttonData['action_data'] ?? '';
 
   return Material(
     color: Colors.transparent,
     child: InkWell(
       onTap: () {
-        print('Button "${buttonData['text']}" clicked!');
 
         final String action = buttonData['action'] ?? '';
         final String actionData = buttonData['action_data'] ?? '';
@@ -258,9 +257,8 @@ Widget _buildButton(Map<String, dynamic> buttonData) {
               if (actionList != null) {
                 for (var subActionMap in actionList) {
                   final String subActionType = subActionMap['action'] ?? '';
-                  final dynamic subActionData = subActionMap['data'];
+                  // final dynamic subActionData = subActionMap['data'];
 
-                  print('Executing sub-action: $subActionType');
                   switch (subActionType) {
                     case 'action.query.show':
                       break;

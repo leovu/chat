@@ -86,9 +86,7 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                                 child: SizedBox(
                                     width: 30.0,
                                     child: Icon(
-                                        Platform.isIOS
-                                            ? Icons.arrow_back_ios
-                                            : Icons.arrow_back,
+                                        Icons.arrow_back_ios,
                                         color: Colors.black)),
                               ),
                             ],

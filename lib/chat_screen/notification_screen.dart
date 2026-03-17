@@ -84,7 +84,7 @@ class _NotificationScreenState extends State<NotificationScreen> with AutomaticK
                       },
                       child: SizedBox(
                           width:30.0,
-                          child: Icon(Platform.isIOS ? Icons.arrow_back_ios : Icons.arrow_back, color: Colors.black)),
+                          child: Icon(Icons.arrow_back_ios, color: Colors.black)),
                     ),
                   ],
                 ),

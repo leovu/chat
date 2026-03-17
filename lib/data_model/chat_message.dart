@@ -102,9 +102,6 @@ class Room {
       this.duration = 0});
 
   Room.fromJson(Map<String, dynamic> json) {
-    if (kDebugMode) {
-      print('_____________Room.fromJson input: $json');
-    }
     source = json['source'];
     roomAvatar = json['room_avatar'];
     roomName = json['room_name'];
@@ -235,9 +232,6 @@ class Room {
           json['channel'] != null ? Channel.fromJson(json['channel']) : null;
     } catch (_) {
       channel = Channel.fromJson(json['channel']);
-    }
-    if (kDebugMode) {
-      print('_____________Room.fromJson output: ${toJson()}');
     }
   }
 
@@ -649,9 +643,6 @@ class Messages {
   });
 
   factory Messages.fromJson(Map<String, dynamic> json) {
-    if (kDebugMode) {
-      print('_____________Messages.fromJson input: $json');
-    }
     final message = Messages(
       sId: json['_id'] as String?,
       room: json['room'] as String?,
@@ -729,9 +720,6 @@ class Messages {
       message.content = AppLocalizations.text(LangKey.messageRecalled);
       message.edit = 0;
     }
-    if (kDebugMode) {
-      print('_____________Messages.fromJson output: ${message.toJson()}');
-    }
     return message;
   }
 
@@ -787,18 +775,33 @@ class Messages {
     }
     if (author != null) {
       if (staff != null && ChatConnection.isChatHub) {
+        // ChatHub — staff message: dùng staffAvatar nếu có
         data['author'] = {
           'firstName': staff!.fullName,
           'id': author!.sId,
+          'imageUrl': staff!.staffAvatar?.isNotEmpty == true
+              ? staff!.staffAvatar
+              : null,
         };
       } else {
+        // ChatHub customer: ưu tiên author.avatar (CDN URL trực tiếp từ platform, luôn load được).
+        // Non-ChatHub: ưu tiên picture.shieldedID (internal upload), fallback sang avatar.
+        final String? imageUrl = ChatConnection.isChatHub
+            ? (author!.avatar?.isNotEmpty == true
+                ? author!.avatar
+                : author!.picture != null
+                    ? '${HTTPConnection.domain}api/images/${author!.picture!.shieldedID}/512/${ChatConnection.brandCode}'
+                    : null)
+            : (author!.picture != null
+                ? '${HTTPConnection.domain}api/images/${author!.picture!.shieldedID}/512/${ChatConnection.brandCode}'
+                : author!.avatar?.isNotEmpty == true
+                    ? author!.avatar
+                    : null);
         data['author'] = {
           'firstName': author!.firstName,
           'lastName': author!.lastName,
           'id': author!.sId,
-          'imageUrl': author!.picture != null
-              ? '${HTTPConnection.domain}api/images/${author!.picture!.shieldedID}/512/${ChatConnection.brandCode}'
-              : null,
+          'imageUrl': imageUrl,
         };
       }
     }

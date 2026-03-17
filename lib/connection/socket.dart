@@ -33,7 +33,7 @@ class StreamSocket {
   }
 
   void connectAndListen(StreamSocket streamSocket, User user) {
-    print('--- [SOCKET] Đang khởi tạo kết nối... ---');
+    // print('--- [SOCKET] Đang khởi tạo kết nối... ---');
     socket = io.io(
         HTTPConnection.domain,
         io.OptionBuilder()
@@ -52,22 +52,22 @@ class StreamSocket {
     // --- CÁC TRÌNH LẮNG NGHE QUAN TRỌNG ĐỂ DEBUG ---
 
     socket!.onConnect((_) {
-      print('✅ [SOCKET] Kết nối thành công! ID: ${socket!.id}');
-      print('🔑 [SOCKET] Đang gửi token để xác thực...');
+      // print('✅ [SOCKET] Kết nối thành công! ID: ${socket!.id}');
+      // print('🔑 [SOCKET] Đang gửi token để xác thực...');
       socket!.emit('authenticate', {'token': user.token});
     });
 
     socket!.on('authenticated', (data) {
-      print('👍 [SOCKET] Xác thực thành công!');
+      // print('👍 [SOCKET] Xác thực thành công!');
       streamSocket.addResponse(data.toString());
     });
 
     socket!.onConnectError((data) {
-      print('⛔️ [SOCKET] LỖI KẾT NỐI: $data');
+      // print('⛔️ [SOCKET] LỖI KẾT NỐI: $data');
     });
 
     socket!.onDisconnect((reason) {
-      print('🔌 [SOCKET] Đã ngắt kết nối: $reason');
+      // print('🔌 [SOCKET] Đã ngắt kết nối: $reason');
     });
 
   }
@@ -77,7 +77,7 @@ class StreamSocket {
   }
 
   void sendMessage(String? message, c.Room? room) {
-    print('➡️ [SOCKET] Gửi đi sự kiện "message-in"');
+    // print('➡️ [SOCKET] Gửi đi sự kiện "message-in"');
     socket!.emit('message-in',
         {'status': 200, 'message': message, 'room': room?.toJson()});
   }

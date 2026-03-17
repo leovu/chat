@@ -182,8 +182,10 @@ class Message extends StatelessWidget {
                         .userAvatarImageBackgroundColor
                     : color,
                 backgroundImage: hasImage
-                    ? NetworkImage(message.author.imageUrl!,
-                        headers: {'brand-code': ChatConnection.brandCode!})
+                    ? CachedNetworkImageProvider(
+                        message.author.imageUrl!,
+                        headers: {'brand-code': ChatConnection.brandCode!},
+                      )
                     : null,
                 radius: 12,
                 child: !hasImage

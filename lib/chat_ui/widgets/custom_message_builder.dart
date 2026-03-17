@@ -346,7 +346,7 @@ Widget buildCustomMessageWidget(types.CustomMessage message, int messageWidth) {
   final metadata = message.metadata ?? {};
 
   final title = metadata['title'] ?? '';
-  final description = metadata['description'] ?? '';
+  // final description = metadata['description'] ?? '';
   final thumbUrl = metadata['thumb'] ?? '';
   final videoUrl = metadata['href'] ?? '';
 

@@ -17,7 +17,6 @@ class Room {
     if (json[!isFavorite ? 'rooms' : 'favorites'] != null) {
       rooms = <Rooms>[];
       json[!isFavorite ? 'rooms' : 'favorites'].forEach((v) {
-        print(v);
         Rooms data = Rooms.fromJson(v);
         rooms!.add(data);
       });
@@ -838,9 +837,6 @@ class Owner {
   }
 
   String getAvatarName() {
-    // if (avatar != null) {
-    //   return avatar ?? '';
-    // }
     String avatarName = '';
     String? firstNameResult = firstName?.replaceAll(RegExp('[^A-Za-z0-9]'), '');
     if (firstNameResult != '' && firstNameResult != null) {
