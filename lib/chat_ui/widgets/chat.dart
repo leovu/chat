@@ -695,7 +695,9 @@ class _ChatState extends State<Chat> {
 
   // Build file preview widget
   Widget _buildFilePreview() {
-    if (_selectedImages.isEmpty && _selectedVideo == null && _selectedFile == null) {
+    if (_selectedImages.isEmpty &&
+        _selectedVideo == null &&
+        _selectedFile == null) {
       return const SizedBox.shrink();
     }
 
@@ -903,7 +905,8 @@ class _ChatState extends State<Chat> {
                           height: 80,
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF9C27B0).withValues(alpha: 0.1),
+                            color:
+                                const Color(0xFF9C27B0).withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
                               color: const Color(0xFF9C27B0),
@@ -1031,7 +1034,9 @@ class _ChatState extends State<Chat> {
       onFileSelected: _handleFileSelection,
       onVideoSelected: _handleVideoSelection,
       onImageSelected: _handleImageSelection,
-      hasSelectedFiles: _selectedImages.isNotEmpty || _selectedVideo != null || _selectedFile != null,
+      hasSelectedFiles: _selectedImages.isNotEmpty ||
+          _selectedVideo != null ||
+          _selectedFile != null,
       inputBuilder: (BuildContext context,
           void Function({types.TextMessage? editContent}) method) {
         requestFocusTextField = method;

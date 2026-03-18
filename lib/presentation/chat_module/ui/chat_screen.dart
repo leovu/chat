@@ -74,7 +74,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   final ChatController chatController = ChatController();
   bool newMessage = false;
   double progress = 0;
-  late void Function() focusTextField;
+  late Function() focusTextField;
   bool isInitScreen = true;
   Tag? tag;
   Tag? tagByUser = null;
@@ -96,7 +96,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   }
 
   @override
-  void initState() {
+  initState() {
     super.initState();
     _bloc = ChatBloc();
 
@@ -135,7 +135,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   }
 
   @override
-  void dispose() {
+  dispose() {
     super.dispose();
     itemPositionsListener.itemPositions.removeListener(() {});
     ChatConnection.isLoadMore = false;
@@ -149,7 +149,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     setState(() {});
   }
 
-  void _groupConsecutiveImages() {
+  _groupConsecutiveImages() {
     _imageGroups.clear();
     _hiddenImageIds.clear();
 
@@ -190,7 +190,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     }
   }
 
-  void _addMessage(types.Message message, String id,
+  _addMessage(types.Message message, String id,
       {String? text,
       String? repliedMessageId,
       types.TextMessage? isEdit}) async {
@@ -237,12 +237,12 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     }
   }
 
-  void addTaskInstance(String textMessage) {
+  addTaskInstance(String textMessage) {
     ChatConnection.addOnModules!.firstWhere((e) => e['key'] == 'create_jobs')[
         'function'](checkTag(textMessage, data?.room?.people));
   }
 
-  void _handleAttachmentPressed() {
+  _handleAttachmentPressed() {
     showModalActionSheet<String>(
       context: context,
       actions: _attachmentSheetAction(),
@@ -296,7 +296,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     return _list;
   }
 
-  void _handleFileSelection() async {
+  _handleFileSelection() async {
     bool permission = await _requestStoragePermission();
     if (!permission) {
       return;
@@ -371,7 +371,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     }
   }
 
-  void _handelVideoSelection() async {
+  _handelVideoSelection() async {
     bool permission = await _requestStoragePermission();
     if (!permission) {
       return;
@@ -415,7 +415,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     }
   }
 
-  void _handleImageSelection() async {
+  _handleImageSelection() async {
     bool permission = await _requestStoragePermission();
     if (!permission) {
       return;
@@ -429,7 +429,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     }
   }
 
-  void pickedImageFromMulti(XFile result) async {
+  pickedImageFromMulti(XFile result) async {
     final bytes = await result.readAsBytes();
     final image = await decodeImageFromList(bytes);
     String id = const Uuid().v4();
@@ -463,8 +463,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         // Log the updated message
         try {
           final updatedMsg = _messages.firstWhere((m) => m.id == r);
-          if (updatedMsg is types.ImageMessage) {
-          }
+          if (updatedMsg is types.ImageMessage) {}
         } catch (e) {
           print('⚠️ [pickedImageFromMulti] Could not find updated message: $e');
         }
@@ -475,7 +474,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     });
   }
 
-  void _handleCameraSelection() async {
+  _handleCameraSelection() async {
     bool permission = await Permission.camera.request().isGranted;
     if (!permission) {
       return;
@@ -552,7 +551,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         });
   }
 
-  void _handleMessageTap(
+  _handleMessageTap(
       BuildContext cxt, types.Message message, bool isRepliedMessage) async {
     if (isRepliedMessage) {
       if (message is types.FileMessage) {
@@ -578,7 +577,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     }
   }
 
-  void _handleMessageLongPress(
+  _handleMessageLongPress(
       BuildContext context, types.Message message) async {
     if (message is types.TextMessage &&
         message.text == AppLocalizations.text(LangKey.messageRecalled)) {
@@ -682,7 +681,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     return false;
   }
 
-  void downloadMessage(types.Message message) async {
+  downloadMessage(types.Message message) async {
     showLoading();
     if (message is types.FileMessage) {
       await download(
@@ -696,7 +695,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     Navigator.of(context).pop();
   }
 
-  void copyMessage(types.TextMessage message) {
+  copyMessage(types.TextMessage message) {
     String copyText = checkTag(message.text, data?.room?.people);
     if (copyText.isNotEmpty) {
       try {
@@ -710,7 +709,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     }
   }
 
-  void pinMesage(types.Message message, c.Messages? value) async {
+  pinMesage(types.Message message, c.Messages? value) async {
     bool result = await ChatConnection.pinMessage(value!.sId, data?.room);
     if (result) {
       setState(() {
@@ -719,7 +718,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     }
   }
 
-  void recall(types.Message message, c.Messages? value) async {
+  recall(types.Message message, c.Messages? value) async {
     bool result = await ChatConnection.recall(value, data?.room);
     if (result) {
       setState(() {
@@ -740,7 +739,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     }
   }
 
-  void forward(types.Message message, c.Messages? value) async {
+  forward(types.Message message, c.Messages? value) async {
     bool? result = await Navigator.of(context).push(MaterialPageRoute(
         builder: (context) => ForwardScreen(message: message, value: value),
         settings: const RouteSettings(name: 'forward_screen')));
@@ -750,7 +749,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     }
   }
 
-  void _handlePreviewDataFetched(
+  _handlePreviewDataFetched(
     types.TextMessage message,
     types.PreviewData previewData,
   ) {
@@ -767,7 +766,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     });
   }
 
-  void _handleSendPressed(types.PartialText message,
+  _handleSendPressed(types.PartialText message,
       {types.Message? repliedMessage, types.TextMessage? isEdit}) {
     String id = const Uuid().v4();
     final textMessage = types.TextMessage(
@@ -782,7 +781,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         isEdit: isEdit);
   }
 
-  void _onStickerPressed(File sticker) async {
+  _onStickerPressed(File sticker) async {
     final result = XFile(sticker.path);
     final bytes = await result.readAsBytes();
     final image = await decodeImageFromList(bytes);
@@ -823,7 +822,6 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   // Custom image message builder using CachedNetworkImage
   Widget _buildImageMessageWidget(types.ImageMessage message,
       {required int messageWidth}) {
-
     // Check if this message should be hidden (part of a group but not the first)
     if (_hiddenImageIds.contains(message.id)) {
       return const SizedBox.shrink();
@@ -996,14 +994,14 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   }
 
   // Handler for sending multiple images from preview
-  void _handleImageMessageSend(List<XFile> images) async {
+  _handleImageMessageSend(List<XFile> images) async {
     for (var image in images) {
       pickedImageFromMulti(image);
     }
   }
 
   // Handler for sending video from preview
-  void _handleVideoMessageSend(XFile video) async {
+  _handleVideoMessageSend(XFile video) async {
     var size = await video.length();
     String id = const Uuid().v4();
     final message = types.FileMessage(
@@ -1039,7 +1037,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   }
 
   // Handler for sending file from preview
-  void _handleFileMessageSend(PlatformFile platformFile) async {
+  _handleFileMessageSend(PlatformFile platformFile) async {
     String id = const Uuid().v4();
     final message = types.FileMessage(
       author: _user,
@@ -1183,7 +1181,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     } catch (_) {}
   }
 
-  void _handleBlockUser() async {
+  _handleBlockUser() async {
     final owner = widget.data.owner;
     final fullName = '${owner!.firstName} ${owner.lastName}';
     await showInfoDialog(
@@ -1425,7 +1423,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         }
       },
       isGroup: data?.room?.isGroup ?? false,
-      people: widget.data.people,
+      people: data?.room?.people ?? widget.data.people,
       progressUpdate: (value) {
         progress = value;
         if (progress < 0.1 && newMessage) {
@@ -1484,7 +1482,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
       searchController: _controllerSearch,
       chatController: chatController,
       loadMore: loadMore,
-      builder: (BuildContext context, void Function() method) {
+      builder: (BuildContext context, Function() method) {
         focusTextField = method;
       },
       canSend: checkQuota,

@@ -279,8 +279,19 @@ class _InputState extends State<Input> {
         for (var e in _idTagList) {
           try {
             People p = widget.people!.firstWhere((element) => element.sId == e);
-            trimmedText = trimmedText.replaceAll('@${p.firstName}${p.lastName}',
-                '@${p.firstName}${p.lastName}-${p.sId}@');
+            final searchName = '@${p.firstName}${p.lastName}';
+            final replacement = '@${p.firstName}${p.lastName} -${p.sId}@';
+            int idx = trimmedText.indexOf(searchName);
+            while (idx != -1) {
+              final after = trimmedText.substring(idx + searchName.length);
+              if (!after.startsWith(' -')) {
+                trimmedText = trimmedText.substring(0, idx) +
+                    replacement +
+                    trimmedText.substring(idx + searchName.length);
+                break;
+              }
+              idx = trimmedText.indexOf(searchName, idx + 1);
+            }
           } catch (_) {}
         }
       }
@@ -342,6 +353,12 @@ class _InputState extends State<Input> {
           tagString = '';
         }
         detectTagInTextField(tagString);
+      }
+    } else {
+      if (_taggingSuggestList != null) {
+        setState(() {
+          _taggingSuggestList = null;
+        });
       }
     }
   }
@@ -1149,22 +1166,30 @@ class _InputState extends State<Input> {
           },
           child: Row(
             children: [
-              e.picture == null
+              (e.avatar?.isNotEmpty == true)
                   ? CircleAvatar(
                       radius: 12.0,
-                      child: AutoSizeText(
-                        e.getAvatarName(),
-                        style:
-                            const TextStyle(color: Colors.white, fontSize: 8),
-                      ),
-                    )
-                  : CircleAvatar(
-                      radius: 12.0,
-                      backgroundImage: CachedNetworkImageProvider(
-                          '${HTTPConnection.domain}api/images/${e.picture!.shieldedID}/256/${ChatConnection.brandCode!}',
-                          headers: {'brand-code': ChatConnection.brandCode!}),
+                      backgroundImage: CachedNetworkImageProvider(e.avatar!),
                       backgroundColor: Colors.transparent,
-                    ),
+                    )
+                  : (e.picture?.shieldedID?.isNotEmpty == true)
+                      ? CircleAvatar(
+                          radius: 12.0,
+                          backgroundImage: CachedNetworkImageProvider(
+                              '${HTTPConnection.domain}api/images/${e.picture!.shieldedID}/256/${ChatConnection.brandCode!}',
+                              headers: {
+                                'brand-code': ChatConnection.brandCode!
+                              }),
+                          backgroundColor: Colors.transparent,
+                        )
+                      : CircleAvatar(
+                          radius: 12.0,
+                          child: AutoSizeText(
+                            e.getAvatarName(),
+                            style: const TextStyle(
+                                color: Colors.white, fontSize: 8),
+                          ),
+                        ),
               Expanded(
                   child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 5.0),
@@ -1300,7 +1325,9 @@ class _InputState extends State<Input> {
       _textController.text = checkTag(editContent.text, widget.people);
       for (var e in widget.people!) {
         if (editContent.text
-            .contains('@${e.firstName}${e.lastName}-${e.sId}')) {
+                .contains('@${e.firstName}${e.lastName}-${e.sId}') ||
+            editContent.text
+                .contains('@${e.firstName}${e.lastName} -${e.sId}')) {
           if (!_idTagList.contains(e.sId)) {
             _idTagList.add(e.sId!);
           }

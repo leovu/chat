@@ -12,8 +12,20 @@ String checkTag(String message,List<People>? list) {
     result = result.replaceAll('@all-all@', '@${AppLocalizations.text(LangKey.all)}');
   }
   if(list != null && list.isNotEmpty) {
-    for (var e in list) { 
-      if(result.contains('@${e.firstName}${e.lastName}-${e.sId}@')) {
+    for (var e in list) {
+      if(result.contains('@${e.firstName}${e.lastName} -${e.sId}@')) {
+        if(!_tagList.contains(e.sId!)) {
+          _tagList.add(e.sId!);
+          result = result.replaceAll('@${e.firstName}${e.lastName} -${e.sId}@', '@${e.firstName} ${e.lastName}');
+        }
+      }
+      else if(result.contains('@${e.firstName} ${e.lastName} -${e.sId}@')) {
+        if(!_tagList.contains(e.sId!)) {
+          _tagList.add(e.sId!);
+          result = result.replaceAll('@${e.firstName} ${e.lastName} -${e.sId}@', '@${e.firstName} ${e.lastName}');
+        }
+      }
+      else if(result.contains('@${e.firstName}${e.lastName}-${e.sId}@')) {
         if(!_tagList.contains(e.sId!)) {
           _tagList.add(e.sId!);
           result = result.replaceAll('@${e.firstName}${e.lastName}-${e.sId}@', '@${e.firstName} ${e.lastName}');
@@ -86,7 +98,19 @@ List<String> detectTag(String message,List<People>? list) {
   }
   if(list != null && list.isNotEmpty) {
     for (var e in list) {
-      if(result.contains('@${e.firstName}${e.lastName}-${e.sId}@')) {
+      if(result.contains('@${e.firstName}${e.lastName} -${e.sId}@')) {
+        if(!_tagList.contains(e.sId!)) {
+          _tagList.add(e.sId!);
+          result = result.replaceAll('@${e.firstName}${e.lastName} -${e.sId}@', '@${e.firstName} ${e.lastName}');
+        }
+      }
+      else if(result.contains('@${e.firstName} ${e.lastName} -${e.sId}@')) {
+        if(!_tagList.contains(e.sId!)) {
+          _tagList.add(e.sId!);
+          result = result.replaceAll('@${e.firstName} ${e.lastName} -${e.sId}@', '@${e.firstName} ${e.lastName}');
+        }
+      }
+      else if(result.contains('@${e.firstName}${e.lastName}-${e.sId}@')) {
         if(!_tagList.contains(e.sId!)) {
           _tagList.add(e.sId!);
           result = result.replaceAll('@${e.firstName}${e.lastName}-${e.sId}@', '@${e.firstName} ${e.lastName}');

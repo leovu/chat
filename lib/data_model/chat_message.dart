@@ -668,7 +668,8 @@ class Messages {
       seen: json['seen'] as int? ?? 0,
       sessionStatus: json['sessionStatus'] as String?,
       sessionTime: json['sessionTime'] as String?,
-      socialMessageId: json['socialMessageId'] as String?,
+      socialMessageId:
+          (json['social_message_id'] ?? json['socialMessageId']) as String?,
       replies: _safeParse(() => Replies.fromJson(json['replies'])),
       author: _safeParse(() => Author.fromJson(json['author'])),
       file: _safeParse(() => File.fromJson(json['file'])),
@@ -874,12 +875,20 @@ class Messages {
 
       case 'file_url':
         data['type'] = 'file';
-        data['uri'] = messageObject?['file_url'];
-        data['name'] = messageObject?['file_name'] ?? 'File';
+        // WhatsApp document: message_object có thể không có file_url (hasMedia=true, URL chưa được server lưu vào message_object)
+        // Fallback: photos.original → photos.fullsize → null
+        final rawFileUrl = messageObject?['file_url'] as String?;
+        final photosFileUrl = (photos?.original?.isNotEmpty == true)
+            ? photos!.original
+            : (photos?.fullsize?.isNotEmpty == true ? photos!.fullsize : null);
+        data['uri'] =
+            (rawFileUrl?.isNotEmpty == true) ? rawFileUrl : photosFileUrl;
+        data['name'] = messageObject?['file_name'] ?? content ?? 'File';
         data['size'] =
             int.tryParse(messageObject?['file_size']?.toString() ?? '0') ?? 0;
         data['file_type'] = messageObject?['file_type'];
-        data['mimeType'] = lookupMimeType(data['name']);
+        data['mimeType'] =
+            messageObject?['file_type'] ?? lookupMimeType(data['name']);
         break;
 
       case 'audio':
