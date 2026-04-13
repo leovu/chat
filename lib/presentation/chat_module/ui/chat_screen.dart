@@ -892,7 +892,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         for (var e in messages) {
           if (e.author?.sId != null && e.sId != null) {
             final result = Map<String, dynamic>.from(
-              e.toMessageJson(messageSeen: data?.room?.messageSeen),
+              e.toMessageJson(messageSeen: data?.room?.messageSeen, roomOwner: data?.room?.owner),
             );
             try {
               final msg = types.Message.fromJson(result);
@@ -927,7 +927,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
           List<types.Message> values = [];
           for (var e in messages) {
             Map<String, dynamic> result =
-                e.toMessageJson(messageSeen: data?.room?.messageSeen);
+                e.toMessageJson(messageSeen: data?.room?.messageSeen, roomOwner: data?.room?.owner);
             if (e.author?.sId != null && e.sId != null) {
               values.add(types.Message.fromJson(result));
             }
@@ -1891,7 +1891,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         List<types.Message> values = [];
         for (var e in messages) {
           Map<String, dynamic> result =
-              e.toMessageJson(messageSeen: data?.room?.messageSeen);
+              e.toMessageJson(messageSeen: data?.room?.messageSeen, roomOwner: data?.room?.owner);
           if (e.author?.sId != null && e.sId != null) {
             values.add(types.Message.fromJson(result));
           }

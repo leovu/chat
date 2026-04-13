@@ -154,7 +154,7 @@ class _MyAppState extends State<MyApp> {
                       // _userNameController.value.text,
                       // _passwordController.value.text,
                       'admin@matthewsliquor.com',
-                      '123456',
+                      'matthews@2026',
                       'assets/icon-app.png',
                       const Locale(LangKey.langVi, 'VI'),
                       domain: 'https://chathub.matthewsliquor.com.au/',
@@ -162,7 +162,7 @@ class _MyAppState extends State<MyApp> {
                       brandCode: 'matthewsliquor',
                       isChatHub: true,
                       token:
-                          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyN2JkMDc5NDhhNTUxMDUzZWFkMGFiNyIsInVpZCI6MjA3LCJzaWQiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AbWF0dGhld3NsaXF1b3IuY29tIiwibGV2ZWwiOiJyb290IiwiZmlyc3ROYW1lIjoiQWRtaW4iLCJsYXN0TmFtZSI6IiIsInVzZXJuYW1lIjoiYWRtaW4iLCJicmFuZF9jb2RlIjoibWF0dGhld3NsaXF1b3IiLCJpYXQiOjE3NzA2MjYyOTgsImV4cCI6MTc3NTgxMDI5OH0.m7rqrMZGl0hs-uOpRWpeCVeC_U_qJXsPCqsHdHscfPs"
+                          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyN2JkMDc5NDhhNTUxMDUzZWFkMGFiNyIsInVpZCI6MjA3LCJzaWQiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AbWF0dGhld3NsaXF1b3IuY29tIiwibGV2ZWwiOiJyb290IiwiZmlyc3ROYW1lIjoiQWRtaW4iLCJsYXN0TmFtZSI6IiIsInVzZXJuYW1lIjoiYWRtaW4iLCJicmFuZF9jb2RlIjoibWF0dGhld3NsaXF1b3IiLCJpYXQiOjE3NzYwNjQyODksImV4cCI6MTc4MTI0ODI4OX0.KIENhC46LS1kQirwydF1fDoWlqmxf24fi2CdMcD7r4c"
                       // roomId: '632a88f7dd01b42c37330585'
                       );
 

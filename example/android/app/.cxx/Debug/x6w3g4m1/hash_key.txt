@@ -1,6 +1,6 @@
 # Values used to calculate the hash in this folder name.
 # Should not depend on the absolute path of the project itself.
-#   - AGP: 8.1.0.
+#   - AGP: 8.2.1.
 #   - $NDK is the path to NDK 25.1.8937393.
 #   - $PROJECT is the path to the parent folder of the root Gradle build file.
 #   - $ABI is the ABI to be built with. The specific value doesn't contribute to the value of the hash.

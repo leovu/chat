@@ -771,7 +771,7 @@ class Messages {
     };
   }
 
-  Map<String, dynamic> toMessageJson({List<MessageSeen>? messageSeen}) {
+  Map<String, dynamic> toMessageJson({List<MessageSeen>? messageSeen, Owner? roomOwner}) {
     final Map<String, dynamic> data = <String, dynamic>{};
 
     final Map<String, dynamic> metadata = {};
@@ -786,7 +786,16 @@ class Messages {
       data['remoteId'] = '$edit';
     }
     if (author != null) {
-      if (staff != null && ChatConnection.isChatHub) {
+      if (roomOwner != null && author!.sId == roomOwner.sId) {
+        data['author'] = {
+          'firstName': roomOwner.firstName,
+          'lastName': roomOwner.lastName,
+          'id': author!.sId,
+          'imageUrl': author!.picture != null
+              ? '${HTTPConnection.domain}api/images/${author!.picture!.shieldedID}/512/${ChatConnection.brandCode}'
+              : null,
+        };
+      } else if (staff != null && ChatConnection.isChatHub) {
         data['author'] = {
           'firstName': staff!.fullName,
           'id': author!.sId,

@@ -519,9 +519,7 @@ class Message extends StatelessWidget {
                         ? CrossAxisAlignment.end
                         : CrossAxisAlignment.start,
                     children: [
-                      // Show sender name for the first message in a group
-                      // roundBorder = isFirstInGroup = true means first message
-                      if (!_currentUserIsAuthor && roundBorder && showUserAvatars)
+                      if (!_currentUserIsAuthor && roundBorder && showUserAvatars && message.type != types.MessageType.text)
                         Padding(
                           padding: const EdgeInsets.only(
                             bottom: 4.0,
