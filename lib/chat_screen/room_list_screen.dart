@@ -144,7 +144,7 @@ class _RoomListScreenState extends State<RoomListScreen>
       isInitScreen = false;
       if (ChatConnection.isChatHub) {
         if (widget.refreshTabNoti != null) {
-          widget.refreshTabNoti!();
+          widget.refreshTabNoti?.call();
         }
       }
 
@@ -167,7 +167,7 @@ class _RoomListScreenState extends State<RoomListScreen>
         isInitScreen = false;
         if (ChatConnection.isChatHub) {
           if (widget.refreshTabNoti != null) {
-            widget.refreshTabNoti!();
+            widget.refreshTabNoti?.call();
           }
         }
 
@@ -201,7 +201,9 @@ class _RoomListScreenState extends State<RoomListScreen>
       roomListVisible = Room();
       roomListVisible?.limit = roomListData?.limit;
       try {
-        roomListVisible?.rooms = <Rooms>[...roomListData!.rooms!.toList()];
+        roomListVisible?.rooms = <Rooms>[
+          ...(roomListData?.rooms?.toList() ?? [])
+        ];
       } catch (_) {}
       setState(() {});
     }
@@ -343,8 +345,8 @@ class _RoomListScreenState extends State<RoomListScreen>
                                                         AppLocalizations
                                                             .delegate
                                                             .load(Locale("en"));
-                                                        await Globals.prefs!
-                                                            .setString(
+                                                        await Globals.prefs
+                                                            ?.setString(
                                                                 SharedPrefsKey
                                                                     .language,
                                                                 'en');
@@ -397,8 +399,8 @@ class _RoomListScreenState extends State<RoomListScreen>
                                                         AppLocalizations
                                                             .delegate
                                                             .load(Locale("vi"));
-                                                        await Globals.prefs!
-                                                            .setString(
+                                                        await Globals.prefs
+                                                            ?.setString(
                                                                 SharedPrefsKey
                                                                     .language,
                                                                 'vi');
@@ -462,7 +464,7 @@ class _RoomListScreenState extends State<RoomListScreen>
                                 child: InkWell(
                                   onTap: () async {
                                     if (widget.openCreateChatRoom != null) {
-                                      widget.openCreateChatRoom!();
+                                      widget.openCreateChatRoom?.call();
                                     }
                                   },
                                   child: Image.asset(
@@ -498,7 +500,7 @@ class _RoomListScreenState extends State<RoomListScreen>
                             controller: _controllerSearch,
                             onChanged: (_) {
                               if (_debounce?.isActive ?? false)
-                                _debounce!.cancel();
+                                _debounce?.cancel();
                               _debounce =
                                   Timer(const Duration(milliseconds: 300), () {
                                 setState(() {
@@ -592,11 +594,12 @@ class _RoomListScreenState extends State<RoomListScreen>
                                     index == 0) {
                                   return InkWell(
                                     onTap: () {
-                                      ChatConnection.openChatGPT!();
+                                      ChatConnection.openChatGPT?.call();
                                     },
                                     child: _gptRoom(!(roomListVisible?.rooms !=
                                             null &&
-                                        roomListVisible!.rooms!.isNotEmpty)),
+                                        (roomListVisible?.rooms?.isNotEmpty ??
+                                            false))),
                                   );
                                 }
                                 return parseRoom(position);
@@ -617,25 +620,23 @@ class _RoomListScreenState extends State<RoomListScreen>
       padding: const EdgeInsets.symmetric(vertical: 5.0),
       child: InkWell(
           onTap: () async {
+            final room = roomListVisible?.rooms?[position];
+            if (room == null) return;
             if (ChatConnection.isChatHub) {
-              ChatbotService()
-                  .setRoomId(roomListVisible?.rooms?[position].sId ?? '');
-              ChatbotService()
-                  .setStatus(roomListVisible?.rooms?[position].enable_bot ?? 0);
+              ChatbotService().setRoomId(room.sId ?? '');
+              ChatbotService().setStatus(room.enable_bot ?? 0);
             }
-            final groupOwner = extractOwner(roomListVisible!.rooms![position]);
+            final groupOwner = extractOwner(room);
             await Navigator.of(context, rootNavigator: true).push(
               MaterialPageRoute(
                   builder: (context) => ChatScreen(
                         isChatbot: ChatConnection.isChatHub
-                            ? roomListVisible!
-                                        .rooms![position].channel!.enable_bot ==
-                                    1
+                            ? room.channel?.enable_bot == 1
                                 ? true
                                 : false
                             : null,
-                        data: roomListVisible!.rooms![position],
-                        source: roomListVisible!.rooms![position].source,
+                        data: room,
+                        source: room.source,
                         groupOwner:
                             !ChatConnection.isChatHub ? groupOwner : null,
                       ),
@@ -648,13 +649,14 @@ class _RoomListScreenState extends State<RoomListScreen>
               endActionPane: ActionPane(
                 motion: const StretchMotion(),
                 children: [
-                  if (roomListVisible!.rooms![position].isGroup!)
+                  if (roomListVisible?.rooms?[position].isGroup ?? false)
                     SlidableAction(
                       onPressed: (cxt) {
                         showModalActionSheet<String>(
                           context: context,
                           actions: [
-                            if (roomListVisible!.rooms![position].isGroup!)
+                            if (roomListVisible?.rooms?[position].isGroup ??
+                                false)
                               SheetAction(
                                 icon: Icons.remove_circle,
                                 label: AppLocalizations.text(LangKey.leave),
@@ -668,7 +670,8 @@ class _RoomListScreenState extends State<RoomListScreen>
                                   isDestructiveAction: true)
                           ],
                         ).then((value) => value == 'Leave'
-                            ? _leaveRoom(roomListVisible!.rooms![position].sId!)
+                            ? _leaveRoom(
+                                roomListVisible?.rooms?[position].sId ?? '')
                             : () {});
                       },
                       autoClose: true,
@@ -677,24 +680,27 @@ class _RoomListScreenState extends State<RoomListScreen>
                       icon: Icons.remove_circle,
                       label: AppLocalizations.text(LangKey.leave),
                     ),
-                  if (roomListVisible!.rooms![position].owner?.sId ==
-                              ChatConnection.user!.id &&
-                          roomListVisible!.rooms![position].isGroup! ||
-                      !roomListVisible!.rooms![position].isGroup!)
+                  if (roomListVisible?.rooms?[position].owner?.sId ==
+                              ChatConnection.user?.id &&
+                          (roomListVisible?.rooms?[position].isGroup ??
+                              false) ||
+                      !(roomListVisible?.rooms?[position].isGroup ?? false))
                     SlidableAction(
                       onPressed: (cxt) {
                         showModalActionSheet<String>(
                           context: context,
                           actions: [
-                            if (!roomListVisible!.rooms![position].isGroup!)
+                            if (!(roomListVisible?.rooms?[position].isGroup ??
+                                false))
                               SheetAction(
                                 icon: Icons.remove_circle,
                                 label: AppLocalizations.text(LangKey.delete),
                                 key: 'Leave',
                               ),
-                            if (roomListVisible!.rooms![position].isGroup! &&
-                                roomListVisible!.rooms![position].owner?.sId ==
-                                    ChatConnection.user!.id)
+                            if ((roomListVisible?.rooms?[position].isGroup ??
+                                    false) &&
+                                roomListVisible?.rooms?[position].owner?.sId ==
+                                    ChatConnection.user?.id)
                               SheetAction(
                                 icon: Icons.remove_circle,
                                 label: AppLocalizations.text(LangKey.delete),
@@ -709,10 +715,10 @@ class _RoomListScreenState extends State<RoomListScreen>
                           ],
                         ).then((value) => value == 'Delete'
                             ? _removeRoom(
-                                roomListVisible!.rooms![position].sId!)
+                                roomListVisible?.rooms?[position].sId ?? '')
                             : value == 'Leave'
                                 ? _removeLeaveRoom(
-                                    roomListVisible!.rooms![position].sId!)
+                                    roomListVisible?.rooms?[position].sId ?? '')
                                 : () {});
                       },
                       autoClose: true,
@@ -723,8 +729,14 @@ class _RoomListScreenState extends State<RoomListScreen>
                     ),
                 ],
               ),
-              child: _room(roomListVisible!.rooms![position],
-                  position == roomListVisible!.rooms!.length - 1))),
+              child: () {
+                final room = roomListVisible?.rooms?[position];
+                if (room == null) return const SizedBox.shrink();
+                return _room(
+                    room,
+                    position ==
+                        ((roomListVisible?.rooms?.length ?? 0) - 1));
+              }())),
     );
   }
 
@@ -921,10 +933,10 @@ class _RoomListScreenState extends State<RoomListScreen>
     if (!ChatConnection.isChatHub) {
       owner = extractOwner(data);
 
-      if (data.people != null && data.people!.isNotEmpty) {
+      if (data.people != null && (data.people?.isNotEmpty ?? false)) {
         final matchLastAuthor =
-            data.people!.where((e) => e.sId == data.lastAuthor);
-        if (matchLastAuthor.isNotEmpty) {
+            data.people?.where((e) => e.sId == data.lastAuthor);
+        if (matchLastAuthor != null && matchLastAuthor.isNotEmpty) {
           Owner chatLastMessageOwner = Owner.fromPeople(matchLastAuthor.first);
           author = findAuthor(chatLastMessageOwner, data.lastMessage?.author);
         }
@@ -940,7 +952,7 @@ class _RoomListScreenState extends State<RoomListScreen>
         return Container();
       }
 
-      return roomChatHubWidget(data, author!, isLast);
+      return roomChatHubWidget(data, author ?? '', isLast);
     } else {
       return roomWidget(data, owner ?? Owner(), author, isLast);
     }
@@ -960,7 +972,7 @@ class _RoomListScreenState extends State<RoomListScreen>
                 children: [
                   Stack(
                     children: [
-                      !data.isGroup!
+                      !(data.isGroup ?? false)
                           ? (people.picture == null || people.picture == "")
                               ? CircleAvatar(
                                   radius: 25.0,
@@ -972,9 +984,10 @@ class _RoomListScreenState extends State<RoomListScreen>
                               : CircleAvatar(
                                   radius: 25.0,
                                   backgroundImage: CachedNetworkImageProvider(
-                                      '${HTTPConnection.domain}api/images/${people.picture}/256/${ChatConnection.brandCode!}',
+                                      '${HTTPConnection.domain}api/images/${people.picture}/256/${ChatConnection.brandCode ?? ''}',
                                       headers: {
-                                        'brand-code': ChatConnection.brandCode!
+                                        'brand-code':
+                                            ChatConnection.brandCode ?? ''
                                       }),
                                   backgroundColor: Colors.transparent,
                                 )
@@ -989,9 +1002,10 @@ class _RoomListScreenState extends State<RoomListScreen>
                               : CircleAvatar(
                                   radius: 25.0,
                                   backgroundImage: CachedNetworkImageProvider(
-                                      '${HTTPConnection.domain}api/images/${data.room_avatar!.shieldedID}/256/${ChatConnection.brandCode!}',
+                                      '${HTTPConnection.domain}api/images/${data.room_avatar?.shieldedID}/256/${ChatConnection.brandCode ?? ''}',
                                       headers: {
-                                        'brand-code': ChatConnection.brandCode!
+                                        'brand-code':
+                                            ChatConnection.brandCode ?? ''
                                       }),
                                   backgroundColor: Colors.transparent,
                                 ),
@@ -1010,7 +1024,7 @@ class _RoomListScreenState extends State<RoomListScreen>
                           children: [
                             Expanded(
                               child: Text(
-                                !data.isGroup!
+                                !(data.isGroup ?? false)
                                     ? '${people.firstName ?? 'Unknow'} ${people.lastName ?? 'User'}'
                                     : data.title ??
                                         '${AppLocalizations.text(LangKey.group)} ${people.firstName ?? ''} ${people.lastName ?? ''}',
@@ -1042,7 +1056,7 @@ class _RoomListScreenState extends State<RoomListScreen>
                             Expanded(
                                 child: FutureBuilder<String>(
                               future: draftMessage(
-                                  data.sId!,
+                                  data.sId ?? '',
                                   '$author'
                                   '${checkTag(_checkContent(data), null)}'),
                               builder: (BuildContext context,
@@ -1121,7 +1135,7 @@ class _RoomListScreenState extends State<RoomListScreen>
           radius: radius,
           backgroundImage: CachedNetworkImageProvider(
             '${owner?.avatar}',
-            headers: {'brand-code': ChatConnection.brandCode!},
+            headers: {'brand-code': ChatConnection.brandCode ?? ''},
           ),
           backgroundColor: Colors.transparent,
         );
@@ -1136,15 +1150,15 @@ class _RoomListScreenState extends State<RoomListScreen>
     }
 
     if ((data.shieldedID != null && data.shieldedID != '') &&
-        data.shieldedID!.isNotEmpty) {
+        (data.shieldedID?.isNotEmpty ?? false)) {
       return CircleAvatar(
         radius: radius,
         backgroundColor: Colors.transparent,
         child: ClipOval(
           child: Image(
             image: CachedNetworkImageProvider(
-              '${HTTPConnection.domain}api/images/${data.shieldedID}/256/${ChatConnection.brandCode!}',
-              headers: {'brand-code': ChatConnection.brandCode!},
+              '${HTTPConnection.domain}api/images/${data.shieldedID}/256/${ChatConnection.brandCode ?? ''}',
+              headers: {'brand-code': ChatConnection.brandCode ?? ''},
             ),
             fit: BoxFit.cover,
             width: radius * 2,
@@ -1210,15 +1224,16 @@ class _RoomListScreenState extends State<RoomListScreen>
   }
 
   Widget _buildNameRow(Rooms data) {
-    final customerType = checkCustomerTypeChatHub(data.owner!);
+    final customerType =
+        data.owner != null ? checkCustomerTypeChatHub(data.owner!) : null;
     final hasUnread =
         findUnread(data.messagesReceived, data.messageUnSeen) != '0';
 
-    final roomName = !data.isGroup!
+    final roomName = !(data.isGroup ?? false)
         ? '${data.owner?.firstName} ${data.owner?.lastName}'
         : data.room_name ??
             data.title ??
-            'Group ${data.owner!.firstName} ${data.owner!.lastName}';
+            'Group ${data.owner?.firstName ?? ''} ${data.owner?.lastName ?? ''}';
 
     return Row(
       children: [
@@ -1260,8 +1275,8 @@ class _RoomListScreenState extends State<RoomListScreen>
       children: [
         Expanded(
           child: FutureBuilder<String>(
-            future: draftMessage(
-                data.sId!, '$author${checkTag(_checkContent(data), null)}'),
+            future: draftMessage(data.sId ?? '',
+                '$author${checkTag(_checkContent(data), null)}'),
             builder: (context, snapshot) {
               return ChatRoomWidget(content: snapshot.data ?? '');
             },
@@ -1385,13 +1400,13 @@ class _RoomListScreenState extends State<RoomListScreen>
     if ((model.lastMessage?.content ?? "").isEmpty) {
       return AppLocalizations.text(LangKey.forwardMessage);
     }
-    return model.lastMessage!.content!;
+    return model.lastMessage?.content ?? '';
   }
 
   People getPeople(List<People>? people) {
-    return people!.first.sId != ChatConnection.user!.id
-        ? people.first
-        : people.last;
+    return people?.first.sId != ChatConnection.user?.id
+        ? (people?.first ?? People())
+        : (people?.last ?? People());
   }
 
   String findUnread(
@@ -1400,7 +1415,7 @@ class _RoomListScreenState extends State<RoomListScreen>
       MessagesReceived? m;
       try {
         m = messagesRecived
-            ?.firstWhere((e) => e.people == ChatConnection.user!.id);
+            ?.firstWhere((e) => e.people == ChatConnection.user?.id);
         if ((m?.total ?? 0) > 99) {
           return '99+';
         }
@@ -1422,7 +1437,7 @@ class _RoomListScreenState extends State<RoomListScreen>
     Owner? p;
     try {
       p = people;
-      return "${p!.sId != ChatConnection.user!.id ? ('${(p.firstName ?? '').trim()} ${(p.lastName ?? '').trim()}').trim() : AppLocalizations.text(LangKey.you)}: ";
+      return "${p?.sId != ChatConnection.user?.id ? ('${(p?.firstName ?? '').trim()} ${(p?.lastName ?? '').trim()}').trim() : AppLocalizations.text(LangKey.you)}: ";
     } catch (_) {
       return '';
     }
