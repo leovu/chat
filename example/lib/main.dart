@@ -160,9 +160,9 @@ class _MyAppState extends State<MyApp> {
                       // domain: 'https://chat.epoints.vn/',
 
                       domain: 'https://chathub.epoints.vn/',
-                      brandCode: 'vietsolutions',
+                      brandCode: 'sale',
                       isChatHub: true,
-                      token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4OWQ2ZDk0ZTRiMWI2MDAxMjJjNmE1MiIsInVpZCI6MSwic2lkIjoiYWRtaW4iLCJlbWFpbCI6ImFkbWluQHBpb2FwcHMudm4iLCJsZXZlbCI6InJvb3QiLCJmaXJzdE5hbWUiOiJBZG1pbiIsImxhc3ROYW1lIjoiIiwidXNlcm5hbWUiOiJhZG1pbiIsImJyYW5kX2NvZGUiOiJ2aWV0c29sdXRpb25zIiwiaWF0IjoxNzc2MzMwOTc4LCJleHAiOjE3ODE1MTQ5Nzh9.e0k4fn-R-C6-MaFKDtTpTxJZz0mQpna5WfzYXLmYgY0"
+                      token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyZmQwMjA0ZDcwMzNlMjRkYTc5YzYwNiIsInVpZCI6MSwic2lkIjoiYWRtaW4iLCJlbWFpbCI6InZ1QHBpb2FwcHMudm4iLCJsZXZlbCI6InJvb3QiLCJmaXJzdE5hbWUiOiJBZG1pbiIsImxhc3ROYW1lIjoiVXNlciIsInVzZXJuYW1lIjoiYWRtaW4iLCJicmFuZF9jb2RlIjoic2FsZSIsImlhdCI6MTc3OTE4NTkzOSwiZXhwIjoxNzg0MzY5OTM5fQ.JP01FOzPv7LjnGFyAH0MAr9ZlhUCWy4Qxjh-N5Y5dYE"
                       // token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ZmNjMjM1ZDAwYzZjMDAxMjVlZmViNSIsInNpZCI6ImFkbWluQHBpb2FwcHMudm4iLCJlbWFpbCI6ImFkbWluQHBpb2FwcHMudm4iLCJsZXZlbCI6InN0YW5kYXJkIiwiZmlyc3ROYW1lIjoiQWRtaW4iLCJsYXN0TmFtZSI6IiIsInVzZXJuYW1lIjoiYWRtaW5AcGlvYXBwcy52biIsImJyYW5kIjoic2FsZSIsImlhdCI6MTc3MzcxODYxOSwiZXhwIjoxNzc4OTAyNjE5fQ.PlWt4vsnR54OplYTv-pHIbzZCwtoQSakZUKc0JeSOBI'
                       
                       // roomId: '632a88f7dd01b42c37330585'

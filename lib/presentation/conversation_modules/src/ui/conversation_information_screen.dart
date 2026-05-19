@@ -1709,17 +1709,21 @@ class _ConversationInformationScreenState
                 }));
                 if (result != null) {
                   showLoading(context);
-                  await ChatConnection.customerLink(
-                      widget.roomData.sId ?? '',
-                      result['customerId'],
-                      result['customerLeadId'],
-                      result['type'],
-                      customerAccount?.data?.mappingId ?? '',
-                      widget.roomData.channel?.source);
-                  isShowListSearch = false;
-                  customerAccountSearch = null;
-                  _loadAccount();
-                  Navigator.of(context).pop();
+                  try {
+                    await ChatConnection.customerLink(
+                        widget.roomData.sId ?? '',
+                        result['customerId'],
+                        result['type'],
+                        customerAccount?.data?.mappingId ?? '',
+                        widget.roomData.channel?.source,
+                        widget.roomData.owner?.sId,
+                        customerLeadId: result['customerLeadId'] ?? '');
+                    isShowListSearch = false;
+                    customerAccountSearch = null;
+                    _loadAccount();
+                  } finally {
+                    Navigator.of(context).pop();
+                  }
                 }
               },
               iconData: Icons.accessibility,

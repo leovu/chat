@@ -74,6 +74,7 @@ class _State extends State<ActionListUserChathubScreen> {
                         '${widget.data.firstName ?? ''} ${widget.data.lastName ?? ''}');
                     if (addCustomer != null) {
                       Navigator.of(context).pop(addCustomer);
+                      // Navigator.of(context).pop(addCustomer);
                     }
                   }
                 }),
