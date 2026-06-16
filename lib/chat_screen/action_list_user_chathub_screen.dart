@@ -83,7 +83,7 @@ class _State extends State<ActionListUserChathubScreen> {
                             widget.customerAccount?.data?.mappingId ?? '',
                             widget.roomData?.channel?.source,
                             widget.roomData?.owner?.sId,
-                            customerLeadId: addCustomer['customerLeadId'] ?? '');
+                            customerLeadId: (addCustomer['customerLeadId'] ?? '').toString());
                         await ChatConnection.detect(
                             widget.roomData?.owner?.sId ?? '');
                       }
