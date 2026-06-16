@@ -85,7 +85,9 @@ class _State extends State<ByTimeResultScreen>
             List<String> listDates = widget.search!.split('-');
             if (listDates.length >= 2) {
               if (dt.isBetween(
-                  format2.parse(listDates[0]), format2.parse(listDates[1]))) {
+                  format2.parse(listDates[0]),
+                  format2.parse(listDates[1]).add(const Duration(
+                      hours: 23, minutes: 59, seconds: 59, milliseconds: 999)))) {
                 if (values.containsKey(formattedDate)) {
                   values[formattedDate]!.add(widgetCacheImage(e.content!));
                 } else {
@@ -126,7 +128,9 @@ class _State extends State<ByTimeResultScreen>
             List<String> listDates = widget.search!.split('-');
             if (listDates.length >= 2) {
               if (dt.isBetween(
-                  format2.parse(listDates[0]), format2.parse(listDates[1]))) {
+                  format2.parse(listDates[0]),
+                  format2.parse(listDates[1]).add(const Duration(
+                      hours: 23, minutes: 59, seconds: 59, milliseconds: 999)))) {
                 if (values.containsKey(formattedDate)) {
                   values[formattedDate]!.add(widgetCacheFile(e));
                 } else {
@@ -169,7 +173,9 @@ class _State extends State<ByTimeResultScreen>
             List<String> listDates = widget.search!.split('-');
             if (listDates.length >= 2) {
               if (dt.isBetween(
-                  format2.parse(listDates[0]), format2.parse(listDates[1]))) {
+                  format2.parse(listDates[0]),
+                  format2.parse(listDates[1]).add(const Duration(
+                      hours: 23, minutes: 59, seconds: 59, milliseconds: 999)))) {
                 if (values.containsKey(formattedDate)) {
                   List<String> urls = [];
                   final urlMatches = urlRegExp.allMatches(e.content ?? '');

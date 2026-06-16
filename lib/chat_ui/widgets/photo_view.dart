@@ -1,7 +1,8 @@
 import 'dart:io';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/download.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:chat/localization/app_localizations.dart';
+import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
@@ -106,9 +107,9 @@ class _PhotoScreenState extends State<PhotoScreen> {
               color: Colors.white,
               tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
               onPressed: () async {
-                showLoading();
                 final currentImageUrl = _imageList[_currentIndex];
                 final isNetwork = _isNetworkImage(currentImageUrl);
+                _showSnack(AppLocalizations.text(LangKey.downloading));
 
                 if (isNetwork) {
                   // Network image: tải về và lưu vào gallery
@@ -120,8 +121,6 @@ class _PhotoScreenState extends State<PhotoScreen> {
                   saveGallery(currentImageUrl,
                       '${DateTime.now().millisecondsSinceEpoch}.jpeg');
                 }
-
-                Navigator.of(context).pop();
               },
             ),
           ),
@@ -168,23 +167,15 @@ class _PhotoScreenState extends State<PhotoScreen> {
     return "${HTTPConnection.domain}api/images/$shieldedId/$size/${ChatConnection.brandCode}";
   }
 
-  Future showLoading() async {
-    return await showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return SimpleDialog(
-            elevation: 0.0,
-            backgroundColor: Colors.transparent,
-            children: <Widget>[
-              Center(
-                child: Platform.isAndroid
-                    ? const CircularProgressIndicator()
-                    : const CupertinoActivityIndicator(),
-              )
-            ],
-          );
-        });
+  void _showSnack(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+        content: Text(message),
+        duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+      ));
   }
 
   void _onCloseGalleryPressed() {

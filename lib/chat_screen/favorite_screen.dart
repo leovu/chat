@@ -260,6 +260,7 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen>
 
   Widget _room(Rooms data, bool isLast) {
     People info = getPeople(data.people);
+    Owner people = extractOwner(data) ?? Owner();
     String? author = findAuthor(data.people, data.lastMessage?.author);
     return Column(
       children: [
@@ -272,23 +273,41 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen>
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  !data.isGroup!
-                      ? info.picture == null
+                  !(data.isGroup ?? false)
+                      ? (people.picture == null || people.picture == "")
                           ? CircleAvatar(
                               radius: 25.0,
                               child: Text(
-                                info.getAvatarName(),
+                                people.getAvatarName(),
                                 style: const TextStyle(color: Colors.white),
                               ),
                             )
                           : CircleAvatar(
                               radius: 25.0,
-                              backgroundImage: CachedNetworkImageProvider(
-                                  '${HTTPConnection.domain}api/images/${info.picture!.shieldedID}/256/${ChatConnection.brandCode!}',
-                                  headers: {
-                                    'brand-code': ChatConnection.brandCode!
-                                  }),
                               backgroundColor: Colors.transparent,
+                              child: ClipOval(
+                                child: Image(
+                                  image: CachedNetworkImageProvider(
+                                      '${HTTPConnection.domain}api/images/${people.picture}/256/${ChatConnection.brandCode ?? ''}',
+                                      headers: {
+                                        'brand-code':
+                                            ChatConnection.brandCode ?? ''
+                                      }),
+                                  fit: BoxFit.cover,
+                                  width: 50.0,
+                                  height: 50.0,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return CircleAvatar(
+                                      radius: 25.0,
+                                      child: Text(
+                                        people.getAvatarName(),
+                                        style: const TextStyle(
+                                            color: Colors.white),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
                             )
                       : data.room_avatar == null
                           ? CircleAvatar(
@@ -300,12 +319,30 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen>
                             )
                           : CircleAvatar(
                               radius: 25.0,
-                              backgroundImage: CachedNetworkImageProvider(
-                                  '${HTTPConnection.domain}api/images/${data.room_avatar!.shieldedID}/256/${ChatConnection.brandCode!}',
-                                  headers: {
-                                    'brand-code': ChatConnection.brandCode!
-                                  }),
                               backgroundColor: Colors.transparent,
+                              child: ClipOval(
+                                child: Image(
+                                  image: CachedNetworkImageProvider(
+                                      '${HTTPConnection.domain}api/images/${data.room_avatar?.shieldedID}/256/${ChatConnection.brandCode ?? ''}',
+                                      headers: {
+                                        'brand-code':
+                                            ChatConnection.brandCode ?? ''
+                                      }),
+                                  fit: BoxFit.cover,
+                                  width: 50.0,
+                                  height: 50.0,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return CircleAvatar(
+                                      radius: 25.0,
+                                      child: Text(
+                                        data.getAvatarGroupName(),
+                                        style: const TextStyle(
+                                            color: Colors.white),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
                             ),
                   Expanded(
                       child: Container(

@@ -217,7 +217,7 @@ class Room {
       links = <Images>[];
       json['links'].forEach((v) {
         if (v['content'] != 'Message recalled') {
-          files?.add(Images.fromJson(v));
+          links?.add(Images.fromJson(v));
         }
       });
     }

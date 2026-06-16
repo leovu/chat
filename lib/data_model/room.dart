@@ -526,8 +526,13 @@ class People {
     // Let's apply this interpretation.
 
     try {
-      picture =
-          (json['picture'] != null) ? Picture.fromJson(json['picture']) : null;
+      if (json['picture'] is String) {
+        picture = Picture(shieldedID: json['picture']);
+      } else if (json['picture'] != null) {
+        picture = Picture.fromJson(json['picture']);
+      } else {
+        picture = null;
+      }
     } catch (e) {
       picture = null;
     }
@@ -648,7 +653,15 @@ class Picture {
   String? location;
   String? shieldedID;
 
-  Picture({sId, name, author, size, shield, iV, location, shieldedID});
+  Picture(
+      {this.sId,
+      this.name,
+      this.author,
+      this.size,
+      this.shield,
+      this.iV,
+      this.location,
+      this.shieldedID});
 
   Picture.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];

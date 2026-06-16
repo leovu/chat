@@ -53,10 +53,10 @@ class ChatGroupMemberBloc extends BaseBloc {
   }
   openUrl(String url) async {
   final Uri uri = Uri.parse(url);
-  if (await canLaunchUrl(uri)) {
+  try {
     await launchUrl(uri, mode: LaunchMode.externalApplication);
-  } else {
-    throw 'Could not launch $url';
+  } catch (_) {
+    await launchUrl(uri, mode: LaunchMode.platformDefault);
   }
 }
 }

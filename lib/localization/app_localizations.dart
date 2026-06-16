@@ -23,7 +23,7 @@ class AppLocalizations {
     return true;
   }
   static String text(String key) {
-    return _localizedStrings[key]!;
+    return _localizedStrings[key] ?? key;
   }
 }
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -262,7 +262,11 @@ class _InternalChatScreenState extends ChatScreenBaseState<InternalChatScreen> {
                       children: [
                         AutoSizeText(
                           !widget.data.isGroup!
-                              ? '${widget.data.people![1].firstName} ${widget.data.people![1].lastName}'
+                              ? () {
+                                  final owner = extractOwner(widget.data);
+                                  return '${owner?.firstName ?? ''} ${owner?.lastName ?? ''}'
+                                      .trim();
+                                }()
                               : widget.data.room_name != null
                                   ? widget.data.room_name!
                                   : widget.data.title ??

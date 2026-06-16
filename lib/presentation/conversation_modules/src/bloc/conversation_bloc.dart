@@ -77,10 +77,10 @@ class ConversationBloc extends BaseBloc {
 
   Future<void> openUrl(String url) async {
     final Uri uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
+    try {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (_) {
       await launchUrl(uri, mode: LaunchMode.platformDefault);
-    } else {
-      throw 'Could not launch $url';
     }
   }
 

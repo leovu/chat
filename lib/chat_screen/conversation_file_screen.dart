@@ -1,7 +1,5 @@
-import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:chat/chat_screen/by_time_search_list.dart';
-import 'package:chat/chat_ui/widgets/link_preview.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/download.dart';
 import 'package:chat/connection/http_connection.dart';
@@ -14,6 +12,7 @@ import 'package:chat/data_model/chat_message.dart' as c;
 import 'package:chat/data_model/room.dart' as r;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ConversationFileScreen extends StatefulWidget {
   final c.ChatMessage? chatMessage;
@@ -208,15 +207,17 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
         itemBuilder: (BuildContext context, int position) {
           return InkWell(
             onTap: () async {
-              showLoading();
               var message = widget.chatMessage?.room?.files?[position].file!;
+              _showSnack(AppLocalizations.text(LangKey.downloading));
               String? result = await download(
                   context,
-                  '${HTTPConnection.domain}api/files/${message!.shieldedID}',
+                  '${HTTPConnection.domain}api/files/${message!.shieldedID}/${ChatConnection.brandCode}',
                   '${widget.chatMessage?.room?.files?[position].date}_${message.name}');
-              Navigator.of(context).pop();
-              openFile(result, context,
-                  message.name ?? AppLocalizations.text(LangKey.file));
+              if (result != null) {
+                _showSnack(AppLocalizations.text(LangKey.downloadSuccess));
+                openFile(result, context,
+                    message.name ?? AppLocalizations.text(LangKey.file));
+              }
             },
             child: Column(
               children: [
@@ -235,14 +236,21 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                         package: 'chat',
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Column(
-                        children: [
-                          AutoSizeText(widget.chatMessage?.room
-                                  ?.files?[position].file?.name ??
-                              '')
-                        ],
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            AutoSizeText(
+                              widget.chatMessage?.room?.files?[position].file
+                                      ?.name ??
+                                  '',
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            )
+                          ],
+                        ),
                       ),
                     ),
                   ],
@@ -265,11 +273,14 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
         r"((https?:www\.)|(https?:\/\/)|(www\.))[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9]{1,6}(\/[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)?");
     List<String> urls = [];
     for (var e in widget.chatMessage?.room?.links ?? <c.Images>[]) {
-      final urlMatches = urlRegExp.allMatches(e.content ?? '');
+      final content = e.content ?? '';
+      final urlMatches = urlRegExp.allMatches(content);
       List<String> url = urlMatches
-          .map((urlMatch) =>
-              (e.content ?? '').substring(urlMatch.start, urlMatch.end))
+          .map((urlMatch) => content.substring(urlMatch.start, urlMatch.end))
           .toList();
+      if (url.isEmpty && content.isNotEmpty) {
+        url = [content];
+      }
       urls.addAll(url);
     }
     return ListView.builder(
@@ -279,32 +290,67 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         itemCount: urls.length,
         itemBuilder: (BuildContext context, int position) {
-          return Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: PreviewLink(
-              content: urls[position], // This disables tap event
+          return InkWell(
+            onTap: () => _openLink(urls[position]),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 10.0, vertical: 6.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 45.0,
+                    height: 45.0,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(5),
+                      color: Colors.blue,
+                    ),
+                    child: const Icon(Icons.link, color: Colors.white),
+                  ),
+                  const SizedBox(width: 8.0),
+                  Expanded(
+                    child: Text(
+                      urls[position],
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.blue,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           );
         });
   }
 
-  Future showLoading() async {
-    return await showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return SimpleDialog(
-            elevation: 0.0,
-            backgroundColor: Colors.transparent,
-            children: <Widget>[
-              Center(
-                child: Platform.isAndroid
-                    ? const CircularProgressIndicator()
-                    : const CupertinoActivityIndicator(),
-              )
-            ],
-          );
-        });
+  void _showSnack(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+        content: Text(message),
+        duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+      ));
+  }
+
+  Future<void> _openLink(String url) async {
+    String fullUrl = url;
+    if (!fullUrl.startsWith('http://') && !fullUrl.startsWith('https://')) {
+      fullUrl = 'https://$fullUrl';
+    }
+    final uri = Uri.tryParse(fullUrl);
+    if (uri == null) return;
+    try {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (_) {
+      try {
+        await launchUrl(uri, mode: LaunchMode.platformDefault);
+      } catch (_) {}
+    }
   }
 
   Widget searchOptionItem(String title, int type, {bool dateType = false}) {

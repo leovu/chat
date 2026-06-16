@@ -234,13 +234,16 @@ void _showSaveResult(SaveResult result) {
 /// Hiển thị thông báo thành công
 void _showSuccessSnackBar(String message) {
   try {
-    ScaffoldMessenger.of(ChatConnection.buildContext).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        duration: const Duration(seconds: 2),
-        backgroundColor: Colors.green,
-      ),
-    );
+    ScaffoldMessenger.of(ChatConnection.buildContext)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(message),
+          duration: const Duration(seconds: 2),
+          // backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
   } catch (_) {}
 }
 

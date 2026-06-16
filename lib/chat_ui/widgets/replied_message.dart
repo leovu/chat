@@ -351,8 +351,13 @@ class RepliedMessage extends StatelessWidget {
         return InkWell(
           onTap: () async {
             final uri = Uri.tryParse(text);
-            if (uri != null && await canLaunchUrl(uri)) {
+            if (uri == null) return;
+            try {
               await launchUrl(uri, mode: LaunchMode.externalApplication);
+            } catch (_) {
+              try {
+                await launchUrl(uri, mode: LaunchMode.platformDefault);
+              } catch (_) {}
             }
           },
           child: Container(
@@ -373,8 +378,13 @@ class RepliedMessage extends StatelessWidget {
       final href = (first['href'] as String? ?? '').trim();
       Future<void> _openUrl(String url) async {
         final uri = Uri.tryParse(url);
-        if (uri != null && await canLaunchUrl(uri)) {
+        if (uri == null) return;
+        try {
           await launchUrl(uri, mode: LaunchMode.externalApplication);
+        } catch (_) {
+          try {
+            await launchUrl(uri, mode: LaunchMode.platformDefault);
+          } catch (_) {}
         }
       }
 

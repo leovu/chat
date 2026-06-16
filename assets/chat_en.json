@@ -82,6 +82,7 @@
   "download": "Download",
   "downloadSuccess": "Downloaded completed",
   "downloadFailed": "Downloaded failed",
+  "downloading": "Downloading...",
   "draft": "Draft",
   "filter": "Filter",
   "not_seen": "Not seen",
