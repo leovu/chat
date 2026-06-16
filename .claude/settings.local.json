@@ -8,7 +8,11 @@
       "Bash(flutter pub get:*)",
       "Bash(rtk grep *)",
       "Bash(rtk git *)",
-      "Bash(rtk read *)"
+      "Bash(rtk read *)",
+      "Bash(rtk ls *)",
+      "Bash(grep \".dart$\")",
+      "Bash(rtk find *)",
+      "Bash(rtk wc *)"
     ]
   }
 }

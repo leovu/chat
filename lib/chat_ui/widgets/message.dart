@@ -486,17 +486,13 @@ class Message extends StatelessWidget {
                   roundBorder
                       ? (circleAvatar != null
                           ? Padding(
-                              padding:
-                                  const EdgeInsets.only(right: 5.0),
+                              padding: const EdgeInsets.only(right: 5.0),
                               child: circleAvatar,
                             )
-                          : Padding(
-                              padding: const EdgeInsets.only(right: 6.0),
-                              child: _avatarBuilder(context),
-                            ))
-                      : const SizedBox(
-                          width: 25.0,
-                        ),
+                          : _avatarBuilder(context))
+                      : (circleAvatar != null
+                          ? const SizedBox(width: 35.0)
+                          : _avatarBuilder(context)),
                 ],
                 if (message.remoteId != null &&
                     message.remoteId == '1' &&

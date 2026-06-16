@@ -1629,7 +1629,7 @@ class _ConversationInformationScreenState
       child: Column(
         children: [
           SizedBox(
-            height: 10,
+            height: 8,
           ),
 
           /// Tập tin
@@ -1762,7 +1762,7 @@ class _ConversationInformationScreenState
                 border: Border.all(color: Colors.grey.shade400),
               ),
               height: 40.0,
-              width: MediaQuery.of(context).size.width * 0.85,
+              width: MediaQuery.of(context).size.width * 0.9,
               child: Row(
                 children: [
                   const SizedBox(width: 5.0),
@@ -1930,7 +1930,7 @@ class _ConversationInformationScreenState
           borderRadius: BorderRadius.circular(10.0),
           border: Border.all(color: Colors.grey.shade400)),
       padding: EdgeInsets.only(left: 5, right: 20),
-      width: MediaQuery.of(context).size.width * 0.85,
+      width: MediaQuery.of(context).size.width * 0.9,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1969,7 +1969,10 @@ class _ConversationInformationScreenState
               ),
             ),
           ),
-          CustomLine(),
+          // CustomLine(),
+          // SizedBox(
+          //   height: 8.0,
+          // ),
           expandedSocialInfo ? socialInfoTable() : Container()
         ],
       ),
@@ -2128,7 +2131,7 @@ class _ConversationInformationScreenState
   Widget _section(Icon icon, String name, Function function,
       {Color? textColor}) {
     return Padding(
-      padding: const EdgeInsets.only(top: 15.0),
+      padding: const EdgeInsets.only(top: 8.0),
       child: InkWell(
         onTap: () {
           function();

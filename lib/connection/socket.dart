@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/data_model/user.dart';
+import 'package:flutter/foundation.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 import 'package:chat/data_model/chat_message.dart' as c;
 
@@ -18,14 +19,14 @@ class MyHttpOverrides extends HttpOverrides {
 
 
 class StreamSocket {
-  final _socketResponse = StreamController<String>.broadcast(); 
+  final _socketResponse = StreamController<String>.broadcast();
   void Function(String) get addResponse => _socketResponse.sink.add;
   Stream<String> get getResponse => _socketResponse.stream;
   io.Socket? socket;
 
   void dispose() {
     _socketResponse.close();
-    socket?.dispose(); 
+    socket?.dispose();
   }
 
   String? id() {
@@ -33,7 +34,7 @@ class StreamSocket {
   }
 
   void connectAndListen(StreamSocket streamSocket, User user) {
-    print('--- [SOCKET] Đang khởi tạo kết nối tới: ${HTTPConnection.domain} ---');
+    debugPrint('[SOCKET] Initializing connection to: ${HTTPConnection.domain}');
     socket = io.io(
         HTTPConnection.domain,
         io.OptionBuilder()
@@ -50,32 +51,31 @@ class StreamSocket {
             .build());
 
     socket!.onConnect((_) {
-      print('✅ [SOCKET] Kết nối thành công! ID: ${socket!.id}');
-      print('🔑 [SOCKET] Đang gửi token để xác thực...');
+      debugPrint('[SOCKET] Connected. ID: ${socket!.id}');
+      debugPrint('[SOCKET] Sending token for authentication...');
       socket!.emit('authenticate', {'token': user.token});
     });
 
     socket!.on('authenticated', (data) {
-      print('👍 [SOCKET] Xác thực thành công: $data');
+      debugPrint('[SOCKET] Authenticated: $data');
       streamSocket.addResponse(data.toString());
     });
 
     socket!.onConnectError((data) {
-      print('⛔️ [SOCKET] LỖI KẾT NỐI: $data');
+      debugPrint('[SOCKET] Connection error: $data');
     });
 
     socket!.on('error', (data) {
-      print('❌ [SOCKET] Lỗi từ server: $data');
+      debugPrint('[SOCKET] Server error: $data');
     });
 
     socket!.on('unauthorized', (data) {
-      print('🚫 [SOCKET] Xác thực thất bại: $data');
+      debugPrint('[SOCKET] Authentication failed: $data');
     });
 
     socket!.onDisconnect((reason) {
-      print('🔌 [SOCKET] Đã ngắt kết nối: $reason');
+      debugPrint('[SOCKET] Disconnected: $reason');
     });
-
   }
 
   bool checkConnected() {
@@ -83,26 +83,25 @@ class StreamSocket {
   }
 
   void sendMessage(String? message, c.Room? room) {
-    // print('➡️ [SOCKET] Gửi đi sự kiện "message-in"');
     socket!.emit('message-in',
         {'status': 200, 'message': message, 'room': room?.toJson()});
   }
 
   void joinRoom(String? roomId) {
-    print('🚪 [SOCKET] Emit join: roomID=$roomId');
+    debugPrint('[SOCKET] Emit join: roomID=$roomId');
     socket!.emit('join', {'roomID': roomId});
     socket!.on('joined', (data) {
-      print('✅ [SOCKET] Server xác nhận joined: $data');
+      debugPrint('[SOCKET] Server confirmed joined: $data');
     });
     socket!.on('join', (data) {
-      print('✅ [SOCKET] Server phản hồi join: $data');
+      debugPrint('[SOCKET] Server join response: $data');
     });
   }
 
   void listenChat(Function callback) {
-    print('👂 [SOCKET] Đăng ký lắng nghe message-in');
+    debugPrint('[SOCKET] Registering listener for message-in');
     socket!.on('message-in', (data) {
-      print('📩 [SOCKET] Nhận message-in: $data');
+      debugPrint('[SOCKET] Received message-in: $data');
       callback(data);
       ChatConnection.notificationList();
     });

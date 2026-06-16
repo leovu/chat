@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:chat/chat_ui/notification.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/connection/socket.dart';
 import 'package:chat/data_model/chat_message.dart' as c;
@@ -9,27 +8,34 @@ import 'package:chat/data_model/contact.dart' as ct;
 import 'package:chat/data_model/customer_account.dart';
 import 'package:chat/data_model/notifications.dart' as n;
 import 'package:chat/data_model/response/check_user_token_response_model.dart';
+import 'package:chat/data_model/response/friend_response_model.dart';
+import 'package:chat/data_model/response/group_info_response.dart';
 import 'package:chat/data_model/response/group_member_response_model.dart';
 import 'package:chat/data_model/response/notes_response_model.dart';
 import 'package:chat/data_model/response/quota_response_model.dart';
 import 'package:chat/data_model/response/room_info_response_model.dart';
 import 'package:chat/data_model/room.dart' as r;
 import 'package:chat/data_model/session.dart';
+import 'package:chat/data_model/summary.dart';
 import 'package:chat/data_model/tag.dart';
 import 'package:chat/data_model/user.dart';
-import 'package:chat/localization/app_localizations.dart';
-import 'package:chat/localization/lang_key.dart';
+import 'package:chat/services/auth_service.dart';
+import 'package:chat/services/chathub_service.dart';
+import 'package:chat/services/customer_service.dart';
+import 'package:chat/services/group_service.dart';
+import 'package:chat/services/media_service.dart';
+import 'package:chat/services/message_service.dart';
+import 'package:chat/services/notes_service.dart';
+import 'package:chat/services/notification_service.dart';
+import 'package:chat/services/room_service.dart';
+import 'package:chat/services/tag_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:image_picker/image_picker.dart';
-import 'package:jwt_decode/jwt_decode.dart';
-import 'package:overlay_support/overlay_support.dart';
 import '../data_model/response/base_response_model.dart';
-import '../data_model/response/friend_response_model.dart';
-import '../data_model/response/group_info_response.dart';
-import '../data_model/summary.dart';
 
 class ChatConnection {
+  // ── State ────────────────────────────────────────────────────────────────
   static late void Function() refreshRoom;
   static late Locale locale;
   static late void Function() refreshContact;
@@ -47,10 +53,8 @@ class ChatConnection {
   static List<Map<String, dynamic>>? addOnModules;
   static bool isLoadMore = false;
   static Map<String, dynamic>? initialData;
-  static late Function(Map<String, dynamic> message)
-      homeScreenNotificationHandler;
-  static late Function(Map<String, dynamic> message)
-      chatScreenNotificationHandler;
+  static late Function(Map<String, dynamic> message) homeScreenNotificationHandler;
+  static late Function(Map<String, dynamic> message) chatScreenNotificationHandler;
   static ValueNotifier<String> notificationNotifier = ValueNotifier('0');
   static Function? searchProducts;
   static Function? searchOrders;
@@ -73,226 +77,186 @@ class ChatConnection {
   static String? creatorIdGroup;
   static String? ownerId;
 
-  static Future<bool> init(String email, String password,
-      {String? token}) async {
-    HttpOverrides.global = MyHttpOverrides();
-    String? resultToken;
-    if (token != null) {
-      resultToken = token;
-    } else {
-      resultToken = await login(email, password);
-    }
-    if (resultToken != null) {
-      user = User(email: email, password: password, token: resultToken);
-      Map<String, dynamic> payload = Jwt.parseJwt(resultToken);
-      user!.id = payload['sub'].toString();
-      if (user!.id == "null") {
-        user!.id = payload["id"];
-      }
-      ChatConnection.uid = payload["uid"].toString();
-      user!.firstName = payload['firstName'] ?? '';
-      user!.lastName = payload['lastName'] ?? '';
-      streamSocket.connectAndListen(streamSocket, user!);
-      return true;
-    } else {
-      return false;
-    }
-  }
+  // ── Auth ─────────────────────────────────────────────────────────────────
+  static Future<bool> init(String email, String password, {String? token}) =>
+      AuthService.init(connection, streamSocket, email, password,
+          token: token,
+          onUserReady: (u) => user = u,
+          onUidReady: (id) => uid = id);
 
-  static Future<String?> login(String email, String password) async {
-    ResponseData responseData = await connection
-        .post('api/login', {'email': email, 'password': password});
-    if (responseData.isSuccess) {
-      return responseData.data['token'];
-    }
-    return null;
-  }
+  static Future<String?> login(String email, String password) =>
+      AuthService.login(connection, email, password);
 
-  static Future<String?> token(String email, String password) async {
-    HttpOverrides.global = MyHttpOverrides();
-    ResponseData responseData = await connection
-        .post('api/check-user-token', {'email': email, 'password': password});
-    if (responseData.isSuccess) {
-      return responseData.data['token'];
-    }
-    return null;
-  }
-
-  static bool checkConnected() {
-    if (streamSocket.socket == null) {
-      return false;
-    }
-    return streamSocket.checkConnected();
-  }
+  static Future<String?> token(String email, String password) =>
+      AuthService.token(connection, email, password);
 
   static Future<bool> register(String username, String email, String firstName,
-      String lastName, String password, String repeatPassword) async {
-    ResponseData responseData = await connection.post('api/register', {
-      'username': username,
-      'email': email,
-      'firstName': firstName,
-      'lastName': lastName,
-      'password': password,
-      'repeatPassword': repeatPassword
-    });
-    return responseData.isSuccess;
-  }
+          String lastName, String password, String repeatPassword) =>
+      AuthService.register(connection, username, email, firstName, lastName, password, repeatPassword);
 
-  static Future<r.Rooms?> createRoom(String? counterpart) async {
-    ResponseData responseData =
-        await connection.post('api/room/create', {'counterpart': counterpart});
-    if (responseData.isSuccess) {
-      return r.Rooms.fromJson(responseData.data['room']);
-    }
-    return null;
-  }
+  static Future<bool> checkUserToken() => AuthService.checkUserToken(
+        connection, user!, brandCode,
+        onResult: (m) => checkUserTokenResponseModel = m,
+        onUserUpdated: (u) => user = u,
+      );
+
+  static bool checkConnected() => AuthService.checkConnected(streamSocket);
+
+  static void reconnect() => AuthService.reconnect(streamSocket);
+
+  static void reAuthenticate() => AuthService.reAuthenticate(streamSocket, user);
+
+  static dispose({bool isDispose = false}) =>
+      AuthService.dispose(streamSocket, isDispose: isDispose);
+
+  // ── Room ─────────────────────────────────────────────────────────────────
+  static Future<r.Rooms?> createRoom(String? counterpart) =>
+      RoomService.createRoom(connection, counterpart);
 
   static Future<r.Room?> roomList({
-    String? source,
-    String? channelId,
-    String? status,
-    List<String?>? tagIds,
-    int page = 1,
-    r.Room? roomData,
-    String? link_status,
-    String? startDate,
-    String? endDate,
-    bool? isGroup,
-    String? keyword,
-  }) async {
-    Map<String, dynamic> json = {'page': page};
-    if (source != null) json['source'] = source;
-    if (channelId != null) json['channel_id'] = channelId;
-    if (status != null) json['status'] = status;
+    String? source, String? channelId, String? status,
+    List<String?>? tagIds, int page = 1, r.Room? roomData,
+    String? link_status, String? startDate, String? endDate,
+    bool? isGroup, String? keyword,
+  }) => RoomService.roomList(connection,
+        isChatHub: isChatHub, source: source, channelId: channelId,
+        status: status, tagIds: tagIds, page: page, roomData: roomData,
+        link_status: link_status, startDate: startDate, endDate: endDate,
+        isGroup: isGroup, keyword: keyword);
 
-    if (link_status != null) json['linked_status'] = link_status;
-    if (startDate != null && endDate != null)
-      json['created_at'] = [startDate, endDate];
-    isGroup == true ? json['is_group'] = isGroup : null;
-    keyword != null ? json['keyword'] = keyword : null;
+  static Future<r.Room?> favoritesList() => RoomService.favoritesList(connection);
 
-    json['limit'] = 15;
-    if (tagIds != null && tagIds.isNotEmpty) {
-      final parsedTagIds =
-          tagIds.where((e) => e != null).map((e) => e!).toList();
+  static Future<c.ChatMessage?> joinRoom(String id, {bool refresh = false}) =>
+      RoomService.joinRoom(connection, streamSocket, isChatHub: isChatHub, id: id, refresh: refresh);
 
-      if (parsedTagIds.isNotEmpty) {
-        json['tag_ids'] = parsedTagIds;
-      }
-    }
-    ;
-    String url =
-        ChatConnection.isChatHub ? 'api/v3/list-rooms' : 'api/rooms/list';
-    ResponseData responseData = await connection.post(url, json);
-    if (responseData.isSuccess) {
-      r.Room room = r.Room.fromJson(responseData.data);
-      if (ChatConnection.isChatHub) {
-        // await notificationCount();
-      }
-      if (page != 1 && roomData != null) {
-        final existingIds = roomData.rooms!.map((r) => r.sId).toSet();
-        final newRooms =
-            room.rooms!.where((r) => !existingIds.contains(r.sId)).toList();
-        roomData.rooms!.addAll(newRooms);
-        return roomData;
-      } else
-        return room;
-    }
-    return null;
-  }
+  static Future<bool> autoUpdateChatSeenWhenJoinRoom(String id) =>
+      RoomService.autoUpdateChatSeenWhenJoinRoom(connection, id);
 
-  static Future<void> notificationCount() async {
-    ResponseData responseData =
-        await connection.post('api/notification/user', {});
-    if (responseData.isSuccess) {
-      n.NotificationCount result =
-          n.NotificationCount.fromJson(responseData.data);
-      ChatConnection.notiChatHubAll = result.total;
-      ChatConnection.notiChatHubClient = result.client;
-      ChatConnection.notiChatHubFacebook = result.facebook;
-      ChatConnection.notiChatHubZalo = result.zalo;
-      ChatConnection.notiChatHubZaloPersonal = result.zalo_personal;
-      ChatConnection.notiChatHubWhatsApp = result.whatsapp;
-    }
-  }
+  static Future<bool> toggleFavorites(String? roomId) =>
+      RoomService.toggleFavorites(connection, roomId);
 
-  static Future<ChathubChannel?> channelList() async {
-    ResponseData responseData = await connection.post('api/channels/list', {});
-    if (responseData.isSuccess) {
-      return ChathubChannel.fromJson(responseData.data);
-    }
-    return null;
-  }
+  static Future<bool> updateRoomName(String roomId, String data) =>
+      RoomService.updateRoomName(connection, roomId, data);
 
-  static Future<r.Room?> favoritesList() async {
-    ResponseData responseData = await connection.post('api/favorites/list', {});
-    if (responseData.isSuccess) {
-      return r.Room.fromJson(responseData.data, isFavorite: true);
-    }
-    return null;
-  }
+  static Future<bool> removeRoom(String roomId) => RoomService.removeRoom(connection, roomId);
 
-  static Future<n.Notifications?> notificationList() async {
-    ResponseData responseData =
-        await connection.post('api/notification/list', {});
-    if (responseData.isSuccess) {
-      n.Notifications result = n.Notifications.fromJson(responseData.data);
-      int totalUnread = 0;
-      result.notifications?.forEach((e) {
-        if (e.isRead == 0) {
-          totalUnread += 1;
-        }
+  static Future<bool> leaveRoom(String roomId, String? userId) =>
+      RoomService.leaveRoom(connection, roomId, userId);
+
+  static Future<r.Rooms?> createGroup(String title, List<String> people, String owner) =>
+      RoomService.createGroup(connection, title, people, owner);
+
+  static Future<List<c.Messages>?> loadMoreMessageRoom(String id, String firstMessageID, String firstMessageDate) =>
+      RoomService.loadMoreMessageRoom(connection,
+          isChatHub: isChatHub, id: id,
+          firstMessageID: firstMessageID, firstMessageDate: firstMessageDate);
+
+  static Future<ct.Contacts?> contactsList() => RoomService.contactsList(connection);
+
+  static Future<ct.Contacts?> contactsSearch(String search, {int limit = 50}) =>
+      RoomService.contactsSearch(connection, search, limit: limit);
+
+  // ── Message ───────────────────────────────────────────────────────────────
+  static void listenChat(Function callback) =>
+      MessageService.listenChat(streamSocket, callback);
+
+  static Future<String?> sendChat(c.ChatMessage? data, List<types.Message> listMessage,
+      String id, String? message, c.Room? room, String authorId,
+      {String? reppliedMessageId}) =>
+      MessageService.sendChat(connection, streamSocket,
+          isChatHub: isChatHub, data: data, listMessage: listMessage,
+          id: id, message: message, room: room, authorId: authorId,
+          reppliedMessageId: reppliedMessageId);
+
+  static Future<bool> forwardMessage(String? message, c.Room? room,
+      String authorId, String? reppliedMessageId) =>
+      MessageService.forwardMessage(connection, streamSocket,
+          isChatHub: isChatHub, message: message, room: room,
+          authorId: authorId, reppliedMessageId: reppliedMessageId);
+
+  static Future<void> updateChat(String data, String? messageId, c.Room? room,
+      {String? reppliedMessageId}) =>
+      MessageService.updateChat(connection, streamSocket, data, messageId, room,
+          reppliedMessageId: reppliedMessageId);
+
+  static Future<bool> recall(c.Messages? value, c.Room? room) =>
+      MessageService.recall(connection, streamSocket, value, room);
+
+  static Future<bool> pinMessage(String? data, c.Room? room) =>
+      MessageService.pinMessage(connection, streamSocket, data, room);
+
+  // ── Media ─────────────────────────────────────────────────────────────────
+  static File convertToFile(XFile xFile) => MediaService.convertToFile(xFile);
+
+  static Future<String?> uploadImage(BuildContext context, c.ChatMessage? data,
+      List<types.Message> listMessage, String id, XFile image, c.Room? room, String authorId) =>
+      MediaService.uploadImage(connection, streamSocket,
+          isChatHub: isChatHub, brandCode: brandCode, context: context,
+          data: data, listMessage: listMessage, id: id, image: image,
+          room: room, authorId: authorId,
+          showError: (ctx, {content}) => showError(ctx, content: content));
+
+  static Future<String?> uploadFile(BuildContext context, c.ChatMessage? data,
+      List<types.Message> listMessage, String id, File file, c.Room? room, String authorId) =>
+      MediaService.uploadFile(connection, streamSocket,
+          isChatHub: isChatHub, context: context, data: data,
+          listMessage: listMessage, id: id, file: file,
+          room: room, authorId: authorId,
+          showError: (ctx, {content}) => showError(ctx, content: content));
+
+  // ── Notification ──────────────────────────────────────────────────────────
+  static Future<n.Notifications?> notificationList() =>
+      NotificationService.notificationList(connection,
+          onCountUpdated: (v) => notificationNotifier.value = v);
+
+  static Future<void> notificationCount() =>
+      NotificationService.notificationCount(connection, onResult: (all, client, fb, zalo, zaloP, wa) {
+        notiChatHubAll = all;
+        notiChatHubClient = client;
+        notiChatHubFacebook = fb;
+        notiChatHubZalo = zalo;
+        notiChatHubZaloPersonal = zaloP;
+        notiChatHubWhatsApp = wa;
       });
-      ChatConnection.notificationNotifier.value =
-          totalUnread > 99 ? '99+' : '$totalUnread';
-      return result;
-    }
-    return null;
-  }
 
-  static Future<bool> toggleFavorites(String? roomId) async {
-    ResponseData responseData =
-        await connection.post('api/favorite/toggle', {'roomID': roomId});
-    return responseData.isSuccess;
-  }
+  static Future<bool> readNotification(String notiId) =>
+      NotificationService.readNotification(connection, notiId);
 
-  static Future<c.ChatMessage?> joinRoom(String id,
-      {bool refresh = false}) async {
-    // String version = ChatConnection.isChatHub ? '/v3' : '';
-    try {
-      String url =
-          ChatConnection.isChatHub ? 'api/v3/join-room' : 'api/room/join';
-      ResponseData responseData = await connection.post(url, {'id': id});
-      if (responseData.isSuccess) {
-        if (!refresh) {
-          streamSocket.joinRoom(id);
-        }
-        await autoUpdateChatSeenWhenJoinRoom(id);
-        return c.ChatMessage.fromJson(responseData.data);
-      }
-    } catch (_) {
-      return null;
-    }
-    return null;
-  }
+  static void showNotification(String notificationTitle, String notificationDes,
+      Map<String, dynamic> message, String iconApp,
+      Function(Map<String, dynamic>) onMessageCallback) =>
+      NotificationService.showNotification(notificationTitle, notificationDes,
+          message, iconApp, onMessageCallback);
 
-  static Future<bool> autoUpdateChatSeenWhenJoinRoom(String id) async {
-    ResponseData responseData =
-        await connection.post('api/notification/update-chat', {'id': id});
-    if (responseData.isSuccess) {
-      return true;
-    }
-    return false;
-  }
+  static void showError(BuildContext context, {String? content}) =>
+      NotificationService.showError(context, content: content);
 
-  static Future<CustomerAccount?> detect(String userId) async {
-    ResponseData responseData =
-        await connection.post('api/customer/detect', {'user_id': userId});
-    if (responseData.isSuccess) {
-      return CustomerAccount.fromJson(responseData.data);
-    }
-    return null;
-  }
+  // ── ChatHub ───────────────────────────────────────────────────────────────
+  static Future<ChathubChannel?> channelList() => ChatHubService.channelList(connection);
+
+  static Future<bool> changeStatusChatbot(String roomId, int status) =>
+      ChatHubService.changeStatusChatbot(connection, roomId, status);
+
+  static Future<bool> clearChat(String roomId) => ChatHubService.clearChat(connection, roomId);
+
+  static Future<c.Owner?> blockUser(String userId, bool isBlocked) =>
+      ChatHubService.blockUser(connection, userId, isBlocked);
+
+  static Future<List<SessionModel>> getSession(String roomId, {int? limit = 5, int? offset = 0}) =>
+      ChatHubService.getSession(connection, roomId, limit: limit, offset: offset);
+
+  static Future<ConversationSummaryModel?> getSummary(String session_id) =>
+      ChatHubService.getSummary(connection, session_id);
+
+  static Future<RoomResponse?> getRoomByPhoneNumber(String customerPhone) =>
+      ChatHubService.getRoomByPhoneNumber(connection, customerPhone);
+
+  static Future<bool> messageSystem(String authorID, String roomID) =>
+      ChatHubService.messageSystem(connection, authorID, roomID);
+
+  // ── Customer ──────────────────────────────────────────────────────────────
+  static Future<CustomerAccount?> detect(String userId) =>
+      CustomerService.detect(connection, userId);
 
   static Future<bool> customerLink(
     String userId,
@@ -302,1017 +266,98 @@ class ChatConnection {
     String? source,
     String? socialId, {
     String? customerLeadId = '',
-  }) async {
-    Map<String, dynamic> json = {
-      'user_id': userId,
-      'mapping_id': userId,
-      'type_customer': typeCustomer,
-      "customer_id": customerId,
-      "type_social": source,
-      "social_id": socialId
-    };
-    ResponseData responseData =
-        await connection.post('api/customer/link', json);
-    if (responseData.isSuccess) {
-      return true;
-    }
-    return false;
-  }
+  }) =>
+      CustomerService.customerLink(connection, userId, customerId,
+          typeCustomer: typeCustomer, mappingId: mappingId,
+          source: source, socialId: socialId, customerLeadId: customerLeadId);
 
   static Future<CustomerAccount?> customerUnlink(String userId, int? customerId,
-      {int? customerLeadId}) async {
-    Map<String, dynamic> json = {'user_id': userId};
-    if (customerId != null) {
-      json['customer_id'] = customerId;
-    }
-    if (customerLeadId != null) {
-      json['customer_lead_id'] = customerLeadId;
-    }
-    ResponseData responseData =
-        await connection.post('api/customer/remove-link', json);
-    if (responseData.isSuccess) {
-      return CustomerAccount.fromJson(responseData.data);
-    }
-    return null;
-  }
+      {int? customerLeadId}) =>
+      CustomerService.customerUnlink(connection, userId, customerId,
+          customerLeadId: customerLeadId);
 
-  static Future<List<CustomerAccount?>?> searchCustomer(String keyword) async {
-    ResponseData responseData = await connection
-        .post('api/customer/search', {'keyword': keyword, 'limit': 50});
-    if (responseData.isSuccess) {
-      try {
-        List<CustomerAccount?> arr = [];
-        List<dynamic> data = responseData.data['data'];
-        for (var e in data) {
-          arr.add(CustomerAccount.fromJson({'data': e}));
-        }
-        return arr;
-      } catch (_) {
-        return null;
-      }
-    }
-    return null;
-  }
+  static Future<List<CustomerAccount?>?> searchCustomer(String keyword) =>
+      CustomerService.searchCustomer(connection, keyword);
 
-  static Future<List<c.Messages>?> loadMoreMessageRoom(
-      String id, String firstMessageID, String firstMessageDate) async {
-    String url =
-        ChatConnection.isChatHub ? 'api/v2/message/more' : 'api/messages/more';
-    ResponseData responseData = await connection.post(url, {
-      'roomID': id,
-      'firstMessageID': firstMessageID,
-      "firstMessageDate": firstMessageDate
-    });
-    if (responseData.isSuccess) {
-      List<dynamic> json = responseData.data['messages'];
-      List<c.Messages>? data =
-          json.reversed.map((e) => c.Messages.fromJson(e)).toList();
-      return data;
-    }
-    return null;
-  }
+  static Future<bool> updateNameChatHub(String id, String typeCustomer, String fullName) =>
+      CustomerService.updateNameChatHub(connection, id, typeCustomer, fullName);
 
-  static void listenChat(Function callback) {
-    streamSocket.listenChat(callback);
-  }
+  // ── Tag ───────────────────────────────────────────────────────────────────
+  static Future<Tag?> getTagList() => TagService.getTagList(connection);
 
-  static Future<String?> sendChat(
-    c.ChatMessage? data,
-    List<types.Message> listMessage,
-    String id,
-    String? message,
-    c.Room? room,
-    String authorId, {
-    String? reppliedMessageId,
-  }) async {
-    final json = {
-      'authorID': authorId,
-      'content': message ?? '',
-      'type': 'text',
-      'roomID': room?.sId ?? '',
-      if (reppliedMessageId != null) ...{
-        'replies': reppliedMessageId,
-        'action': 'reply',
-      }
-    };
+  static Future<Tag?> getTagListByUser(String userId) =>
+      TagService.getTagListByUser(connection, userId);
 
-    final version = ChatConnection.isChatHub ? '/v2' : '';
-    final ResponseData responseData =
-        await connection.post('api$version/message', json);
+  static Future<bool> createTag(String name, String color, String userId) =>
+      TagService.createTag(connection, name, color, userId);
 
-    if (!responseData.isSuccess) return null;
+  static Future<Map<String, dynamic>> removeTag(String tagId, String userId) =>
+      TagService.removeTag(connection, tagId, userId);
 
-    streamSocket.sendMessage(message, room);
+  static Future<bool> updateTag(List<String> tagIds, String userId) =>
+      TagService.updateTag(connection, tagIds, userId);
 
-    final defaultAuthor = types.User(id: 'default-user');
+  // ── Notes ─────────────────────────────────────────────────────────────────
+  static Future<NotesResponseModel?> notes(String roomId) =>
+      NotesService.notes(connection, roomId);
 
-    final val = listMessage.cast<types.Message?>().firstWhere(
-          (element) => element?.id == id,
-          orElse: () => types.TextMessage(
-            id: 'default-id',
-            author: defaultAuthor,
-            text: '',
-            createdAt: DateTime.now().millisecondsSinceEpoch,
-          ),
-        )!;
+  static Future<bool> createNotes(String roomId, String content) =>
+      NotesService.createNotes(connection, roomId, content);
 
-    final index = listMessage.indexWhere((element) => element.id == val.id);
+  static Future<bool> updateNotes(String roomId, String content, String noteId) =>
+      NotesService.updateNotes(connection, roomId, content, noteId);
 
-    final targetIndex = index != -1 ? index : listMessage.length;
+  static Future<bool> deleteNotes(String roomId, String noteId) =>
+      NotesService.deleteNotes(connection, roomId, noteId);
 
-    final messageJson = responseData.data['data']?['message'];
-    if (messageJson == null) return null;
+  // ── Group ─────────────────────────────────────────────────────────────────
+  static Future<bool> addMemberGroup(List<String> people, String roomId) =>
+      GroupService.addMemberGroup(connection, people, roomId);
 
-    final valueResponse = c.Messages.fromJson(messageJson);
+  static Future<ResponseData> addUserGroup(List<String> memberUserIds, String channelId, String groupId) =>
+      GroupService.addUserGroup(connection, memberUserIds, channelId, groupId);
 
-    final oldMessage = index != -1 ? listMessage[index] : val;
-    listMessage.length <= targetIndex
-        ? listMessage.add(types.TextMessage(
-            author: oldMessage.author,
-            createdAt: oldMessage.createdAt,
-            id: valueResponse.sId ?? 'default-id',
-            text: (oldMessage as types.TextMessage).text,
-            repliedMessage: oldMessage.repliedMessage,
-            status:
-                (responseData.data['error'] == 0) ? null : types.Status.error,
-            metadata: responseData.data['message'] != null
-                ? {'error_message': responseData.data['message']}
-                : null,
-          ))
-        : listMessage[targetIndex] = types.TextMessage(
-            author: oldMessage.author,
-            createdAt: oldMessage.createdAt,
-            id: valueResponse.sId ?? 'default-id',
-            text: (oldMessage as types.TextMessage).text,
-            repliedMessage: oldMessage.repliedMessage,
-            status:
-                (responseData.data['error'] == 0) ? null : types.Status.error,
-            metadata: responseData.data['message'] != null
-                ? {'error_message': responseData.data['message']}
-                : null,
-          );
+  static Future<MemberListData?> getMemberInfo(String channelId, String roomId,
+      {int? limit = 10, int? offset = 0}) =>
+      GroupService.getMemberInfo(connection, channelId, roomId, limit: limit, offset: offset);
 
-    // Thêm message vào room
-    data?.room?.messages?.insert(0, valueResponse);
+  static Future<MemberListData?> getMemberPendingInvite(String channelId, String groupId) =>
+      GroupService.getMemberPendingInvite(connection, channelId, groupId);
 
-    // Xử lý quota
-    final quota = responseData.data['data']?['quota'];
-    if (quota != null) {
-      final type = quota['type'];
-      if (type == 'OA Tier') {
-        return AppLocalizations.text(LangKey.zaloSendOATier);
-      } else if (type == 'reply') {
-        return '${AppLocalizations.text(LangKey.zaloSendReply1)}${quota['remain'] ?? 0}/${quota['total'] ?? 0}${AppLocalizations.text(LangKey.zaloSendReply2)}';
-      } else {
-        return AppLocalizations.text(LangKey.zaloSendOther);
-      }
-    }
+  static Future<GroupInfoResponseZP?> getGroupInfo(String channelId, String groupId) =>
+      GroupService.getGroupInfo(connection, channelId, groupId,
+          onCreatorId: (id) => creatorIdGroup = id);
 
-    return null;
-  }
+  static Future<bool> removeUserGroup(String channelId, String groupId, String memberUserId) =>
+      GroupService.removeUserGroup(connection, channelId, groupId, memberUserId);
 
-  static Future<bool> forwardMessage(String? message, c.Room? room,
-      String authorId, String? reppliedMessageId) async {
-    String version = ChatConnection.isChatHub ? '/v2' : '';
-    ResponseData responseData = await connection.post('api$version/message', {
-      'authorID': authorId,
-      'content': message,
-      'contentType': "text",
-      'roomID': room?.sId,
-      'forward': 1,
-      'replies': reppliedMessageId
-    });
-    if (responseData.isSuccess) {
-      streamSocket.sendMessage(message, room);
-    }
-    return responseData.isSuccess;
-  }
+  static Future<ResponseData?> removeMember(String channelId, String groupId, List<String> memberUserIds) =>
+      GroupService.removeMember(connection, channelId, groupId, memberUserIds);
 
-  static Future<void> updateChat(String data, String? messageId, c.Room? room,
-      {String? reppliedMessageId}) async {
-    Map<String, dynamic> json = {
-      'data': data,
-      'messageId': messageId,
-      'type': "edit",
-      'roomId': room!.sId
-    };
-    if (reppliedMessageId != null) {
-      json['replies'] = reppliedMessageId;
-    }
-    ResponseData responseData =
-        await connection.post('api/message/update', json);
-    if (responseData.isSuccess) {
-      streamSocket.sendMessage(data, room);
-    }
-    return;
-  }
+  static Future<FriendListResponse?> getListFriend(String channelId) =>
+      GroupService.getListFriend(connection, channelId);
 
-  static Future<bool> recall(c.Messages? value, c.Room? room) async {
-    ResponseData responseData = await connection.post('api/message/update', {
-      'data': value?.content,
-      'messageId': value?.sId,
-      'roomId': room!.sId,
-      'type': 'recall'
-    });
-    if (responseData.isSuccess) {
-      streamSocket.sendMessage(value?.content, room);
-      return true;
-    }
-    return false;
-  }
+  static Future<r.UserZaloOAList?> getListUserZaloOA({String source = 'zalo', String? search}) =>
+      GroupService.getListUserZaloOA(connection, source: source, search: search);
 
-  static Future<bool> pinMessage(String? data, c.Room? room) async {
-    ResponseData responseData = await connection.post('api/group/update', {
-      'data': data,
-      'field': 'pinMessage',
-      'roomId': room?.sId,
-      'type': 'single-data'
-    });
-    if (responseData.isSuccess) {
-      streamSocket.sendMessage(data, room);
-      return true;
-    }
-    return false;
-  }
+  static Future<ResponseData?> inviteMember(String? groupId, List<String> memberUserIds, String channelId) =>
+      GroupService.inviteMember(connection, groupId, memberUserIds, channelId);
 
-  static Future<String?> uploadImage(
-      BuildContext context,
-      c.ChatMessage? data,
-      List<types.Message> listMessage,
-      String id,
-      XFile image,
-      c.Room? room,
-      String authorId) async {
-    int sizeInBytes = await image.length();
-    double sizeInMb = sizeInBytes / (1024 * 1024);
-    if (sizeInMb > 20) {
-      showError(context);
-      return 'limit';
-    }
-    ResponseData response = await connection
-        .upload('api/upload', convertToFile(image), isImage: true);
-    if (response.isSuccess) {
-      String version = ChatConnection.isChatHub ? '/v2' : '';
-      ResponseData responseData = await connection.post('api$version/message', {
-        'authorID': authorId,
-        'content': response.data['image']['shieldedID'],
-        'imageID': response.data['image']['_id'],
-        'type': "image",
-        'roomID': room?.sId
-      });
-      if (responseData.isSuccess) {
-        streamSocket.sendMessage(response.data['image']['shieldedID'], room);
-        types.Message val =
-            listMessage.firstWhere((element) => element.id == id);
-        int index = listMessage.indexOf(val);
-        c.Messages valueResponse = c.Messages.fromJson(ChatConnection.isChatHub
-            ? responseData.data['data']['message']
-            : responseData.data['message']);
-        types.Status s =
-            valueResponse.sId == null ? types.Status.error : types.Status.sent;
-        final oldMessage = listMessage[index] as types.ImageMessage;
+  static Future<bool?> updateUserInfo(String userId, String name, String phone) =>
+      GroupService.updateUserInfo(connection, userId, name, phone);
 
-        // Use image location from response (S3 URL) if available, otherwise construct URL
-        String newUri;
-        if (valueResponse.image?.location != null &&
-            valueResponse.image!.location!.isNotEmpty) {
-          newUri = valueResponse.image!.location!;
-          print('📸 [uploadImage] Using S3 URL from response: $newUri');
-        } else if (valueResponse.content != null &&
-            valueResponse.content!.isNotEmpty) {
-          newUri =
-              '${HTTPConnection.domain}api/images/${valueResponse.content}/${ChatConnection.brandCode}';
-          print('📸 [uploadImage] Constructed URL from content: $newUri');
-        } else {
-          newUri = oldMessage.uri; // Fallback to old URI
-        }
+  static Future<ResponseData?> acceptPendingInvite(String chanelId, String groupId, List<String> memberUserIds) =>
+      GroupService.acceptPendingInvite(connection, chanelId, groupId, memberUserIds);
 
-        listMessage[index] = types.ImageMessage(
-            author: oldMessage.author,
-            createdAt: oldMessage.createdAt,
-            id: valueResponse.sId!,
-            height: oldMessage.height,
-            name: oldMessage.name,
-            size: oldMessage.size,
-            uri: newUri,
-            width: oldMessage.width,
-            showStatus: true,
-            status: s,
-            metadata: oldMessage.metadata,
-            repliedMessage: oldMessage.repliedMessage);
-        data?.room?.messages?.insert(0, valueResponse);
-        return valueResponse.sId!;
-      }
-    }
-    return null;
-  }
+  static Future<ResponseData?> rejectPendingInvite(String chanelId, String groupId, List<String> memberUserIds) =>
+      GroupService.rejectPendingInvite(connection, chanelId, groupId, memberUserIds);
 
-  static Future<String?> uploadFile(
-      BuildContext context,
-      c.ChatMessage? data,
-      List<types.Message> listMessage,
-      String id,
-      File file,
-      c.Room? room,
-      String authorId) async {
-    int sizeInBytes = file.lengthSync();
-    double sizeInMb = sizeInBytes / (1024 * 1024);
-    if (sizeInMb > 20) {
-      showError(context);
-      return 'limit';
-    }
-    ResponseData response =
-        await connection.upload('api/upload/file', file, isImage: false);
-    if (response.isSuccess) {
-      String version = ChatConnection.isChatHub ? '/v2' : '';
-      ResponseData responseData = await connection.post('api$version/message', {
-        'authorID': authorId,
-        'content': response.data['file']['shieldedID'],
-        'fileID': response.data['file']['_id'],
-        'type': "file",
-        'roomID': room?.sId
-      });
-      if (responseData.isSuccess) {
-        streamSocket.sendMessage(response.data['file']['shieldedID'], room);
-        types.Message val =
-            listMessage.firstWhere((element) => element.id == id);
-        int index = listMessage.indexOf(val);
-        c.Messages valueResponse = c.Messages.fromJson(ChatConnection.isChatHub
-            ? responseData.data['data']['message']
-            : responseData.data['message']);
-        types.Status s =
-            valueResponse.sId == null ? types.Status.error : types.Status.sent;
-        listMessage[index] = types.FileMessage(
-            author: listMessage[index].author,
-            createdAt: listMessage[index].createdAt,
-            id: valueResponse.sId!,
-            mimeType: (listMessage[index] as types.FileMessage).mimeType,
-            name: (listMessage[index] as types.FileMessage).name,
-            size: (listMessage[index] as types.FileMessage).size,
-            uri:
-                '${HTTPConnection.domain}api/files/${valueResponse.file!.shieldedID!}',
-            showStatus: true,
-            status: s,
-            repliedMessage: listMessage[index].repliedMessage);
-        data?.room?.messages?.insert(0, valueResponse);
-        return valueResponse.sId!;
-      }
-    }
-    return null;
-  }
+  static Future<ResponseData?> getContactWhatsapp(String phone) =>
+      GroupService.getContactWhatsapp(connection, phone);
 
-  static Future<bool> updateRoomName(String roomId, String data) async {
-    ResponseData responseData = await connection.post(
-        'api/group/update', {'data': data, 'roomId': roomId, 'type': 'title'});
-    return responseData.isSuccess;
-  }
+  static Future<QuotaResponseModel?> getQuota(String socialChannelId, String userSocialId) =>
+      GroupService.getQuota(connection, socialChannelId, userSocialId);
 
-  static Future<bool> removeRoom(String roomId) async {
-    ResponseData responseData =
-        await connection.post('api/room/remove', {'id': roomId});
-    return responseData.isSuccess;
-  }
-
-  static Future<bool> leaveRoom(String roomId, String? userId) async {
-    ResponseData responseData = await connection.post('api/group/update',
-        {'data': userId, 'type': 'remove-people', 'roomId': roomId});
-    return responseData.isSuccess;
-  }
-
-  static Future<r.Rooms?> createGroup(
-      String title, List<String> people, String owner) async {
-    ResponseData responseData = await connection.post(
-        'api/group/create', {'title': title, 'people': people, 'owner': owner});
-    if (responseData.isSuccess) {
-      return r.Rooms.fromJson(responseData.data);
-    }
-    return null;
-  }
-
-  static Future<bool> readNotification(String notiId) async {
-    ResponseData responseData = await connection
-        .post('api/notification/update', {'type': 'read', 'notiId': notiId});
-    return responseData.isSuccess;
-  }
-
-  static Future<bool> addMemberGroup(List<String> people, String roomId) async {
-    ResponseData responseData = await connection.post('api/group/update',
-        {'data': people, 'type': 'add-people', 'roomId': roomId});
-    if (responseData.isSuccess) {
-      return responseData.isSuccess;
-    }
-    return false;
-  }
-
-  static Future<ResponseData> addUserGroup(
-      List<String> member_user_ids, String channel_id, String group_id) async {
-    ResponseData responseData = await connection.post(
-      'api/zalo-personal/add-user-group',
-      {
-        'member_user_ids': member_user_ids,
-        'channel_id': channel_id,
-        'group_id': group_id,
-      },
-    );
-    return responseData;
-  }
-
-  static Future<ct.Contacts?> contactsList() async {
-    ResponseData responseData =
-        await connection.post('api/search', {'limit': 500, 'search': ''});
-    if (responseData.isSuccess) {
-      return ct.Contacts.fromJson(responseData.data);
-    }
-    return null;
-  }
-
-  static Future<ct.Contacts?> contactsSearch(String search,
-      {int limit = 50}) async {
-    ResponseData responseData = await connection
-        .post('api/search', {'limit': limit, 'search': search});
-    if (responseData.isSuccess) {
-      return ct.Contacts.fromJson(responseData.data);
-    }
-    return null;
-  }
-
-  static Future<bool> updateNameChatHub(
-      String id, String typeCustomer, String fullName) async {
-    ResponseData responseData =
-        await connection.post('api/customer/update/$id', {
-      'type_customer': typeCustomer,
-      'data': {'full_name': fullName}
-    });
-    return responseData.isSuccess;
-  }
-
-  static Future<Tag?> getTagList() async {
-    ///api/v2/tags/lists
-    ResponseData responseData = await connection.get('api/tags/lists');
-    if (responseData.isSuccess) {
-      return Tag.fromJson(responseData.data);
-    }
-    return null;
-  }
-
-  static Future<Tag?> getTagListByUser(String userId) async {
-    ResponseData responseData =
-        await connection.post('api/v2/tags/list-by-user', {'user_id': userId});
-    if (responseData.isSuccess) {
-      return Tag.fromListJson(responseData.data["data"]);
-    }
-    return null;
-  }
-
-  static Future<bool> createTag(
-      String name, String color, String userId) async {
-    ResponseData responseData = await connection.post('api/v2/tags/create',
-        {'name': name, 'color': color, 'user_id': userId});
-    return responseData.isSuccess;
-  }
-
-  static Future<Map<String, dynamic>> removeTag(
-      String tagId, String userId) async {
-    ResponseData responseData = await connection
-        .post('api/tags/remove', {'tag_id': tagId, 'user_id': userId});
-    return responseData.data;
-  }
-
-  static Future<bool> updateTag(List<String> tagIds, String userId) async {
-    ResponseData responseData = await connection
-        .post('api/tags/user-add', {'tag_ids': tagIds, 'user_id': userId});
-    return responseData.isSuccess;
-  }
-
-  /// NOTES
-  static Future<NotesResponseModel?> notes(String roomId) async {
-    ResponseData responseData = await connection
-        .post('api/v2/notes', {'room_id': roomId, 'offset': 0, 'limit': 100});
-    if (responseData.isSuccess) {
-      return NotesResponseModel.fromJson(responseData.data);
-    }
-    return null;
-  }
-
-  static Future<bool> createNotes(String roomId, String content) async {
-    ResponseData responseData = await connection
-        .post('api/v2/notes/create', {'content': content, 'room_id': roomId});
-    return responseData.isSuccess;
-  }
-
-  static Future<bool> updateNotes(
-      String roomId, String content, String noteId) async {
-    ResponseData responseData = await connection.post('api/v2/notes/update',
-        {'room_id': roomId, 'content': content, 'note_id': noteId});
-    return responseData.isSuccess;
-  }
-
-  static Future<bool> deleteNotes(String roomId, String noteId) async {
-    ResponseData responseData = await connection
-        .post('api/v2/notes/delete', {'note_id': noteId, 'room_id': roomId});
-    return responseData.isSuccess;
-  }
-
-  /// QUOTA
-  static Future<QuotaResponseModel?> getQuota(
-      String socialChannelId, String userSocialId) async {
-    ResponseData responseData = await connection.post('api/zalo/get-quota',
-        {'social_channel_id': socialChannelId, 'user_social_id': userSocialId});
-    if (responseData.isSuccess) {
-      return QuotaResponseModel.fromJson(responseData.data);
-    }
-    return null;
-  }
-
-  static Future<bool> sendTransaction(
-      String channelId, String type, String userSocialId) async {
-    ResponseData responseData = await connection.post(
-        'api/zalo/send-transaction', {
-      'channel_id': channelId,
-      'type': type,
-      'user_social_id': userSocialId
-    });
-    return responseData.isSuccess;
-  }
-
-  static Future<bool> messageSystem(String authorID, String roomID) async {
-    ResponseData responseData = await connection.post('api/v2/message-system', {
-      'action': 'message',
-      'authorID': authorID,
-      'content': 'Đã gửi tin tương tác: Tin đánh giá',
-      'roomID': roomID,
-      'type': 'system'
-    });
-    return responseData.isSuccess;
-  }
-
-  /// CHECK USER TOKEN
-  static Future<bool> checkUserToken() async {
-    Map<String, dynamic> header = {"brand-code": brandCode};
-    ResponseData responseData = await connection.post(
-        'api/check-user-token', {'token': ChatConnection.user!.token},
-        header: header);
-    //https://chat.epoints.vn/api/rooms/list
-    if (responseData.isSuccess) {
-      ChatConnection.checkUserTokenResponseModel =
-          CheckUserTokenResponseModel.fromJson(responseData.data);
-      ChatConnection.user =
-          User.fromCheckUserToken(ChatConnection.checkUserTokenResponseModel!);
-      return responseData.isSuccess;
-    }
-    return false;
-  }
-
-  static File convertToFile(XFile xFile) => File(xFile.path);
-
-  static reconnect() {
-    streamSocket.socket!.connect();
-  }
-
-  static void reAuthenticate() {
-    if (user != null && streamSocket.socket?.connected == true) {
-      streamSocket.socket!.emit('authenticate', {'token': user!.token});
-    }
-  }
-
-  static dispose({bool isDispose = false}) {
-    if (!isDispose) {
-      streamSocket.socket!.disconnect();
-    } else {
-      streamSocket.socket!.disconnect();
-      streamSocket.dispose();
-    }
-  }
-
-  static void showNotification(
-      String notificationTitle,
-      String notificationDes,
-      Map<String, dynamic> message,
-      String iconApp,
-      Function(Map<String, dynamic>) onMessageCallback) {
-    bool isImage = message['message']['type'] == 'image';
-    bool isFile = message['message']['type'] == 'file';
-    showOverlayNotification((context) {
-      return BannerNotification(
-        notificationTitle: notificationTitle,
-        notificationDescription: isImage
-            ? '${HTTPConnection.domain}api/images/$notificationDes/256'
-            : notificationDes,
-        iconApp: iconApp,
-        isImage: isImage,
-        isFile: isFile,
-        onReplay: () {
-          onMessageCallback(message);
-          OverlaySupportEntry.of(context)?.dismiss();
-        },
-      );
-    }, duration: const Duration(seconds: 2));
-  }
-
-  static void showError(BuildContext context, {String? content}) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(AppLocalizations.text(LangKey.warning)),
-        content:
-            Text(content ?? AppLocalizations.text(LangKey.limitSizeUpload)),
-        actions: [
-          ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text(AppLocalizations.text(LangKey.accept)))
-        ],
-      ),
-    );
-  }
-
-  //Bật tắt chatbot
-  static Future<bool> changeStatusChatbot(String roomId, int status) async {
-    String url = ChatConnection.isChatHub ? 'api/chatbot/change-status' : '';
-    Map<String, dynamic> json = {};
-    json = {"room_id": roomId, "status": status};
-    try {
-      ResponseData response = await connection.post(url, json);
-      return response.isSuccess;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  //  Clear chat
-  static Future<bool> clearChat(String roomId) async {
-    String url = ChatConnection.isChatHub ? 'api/message/clear' : '';
-    Map<String, dynamic> json = {"roomId": roomId};
-    try {
-      ResponseData response = await connection.post(url, json);
-      return response.isSuccess;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  //  Chặn/bỏ chặn người dùng
-  static Future<c.Owner?> blockUser(String userId, bool isBlocked) async {
-    String url = ChatConnection.isChatHub ? 'api/user/block' : '';
-    Map<String, dynamic> json = {"userId": userId, "isBlocked": isBlocked};
-    try {
-      ResponseData response = await connection.post(url, json);
-      if (response.isSuccess) {
-        return c.Owner.fromJson(response.data['data']);
-      }
-    } catch (e) {
-      return null;
-    }
-    return null;
-  }
-
-  //  sessions
-  static Future<List<SessionModel>> getSession(String roomId,
-      {int? limit = 5, int? offset = 0}) async {
-    String url = ChatConnection.isChatHub ? 'api/sessions' : '';
-    Map<String, dynamic> json = {
-      'room_id': roomId,
-      "limit": limit,
-      'offset': offset
-    };
-
-    try {
-      ResponseData response = await connection.post(url, json);
-      if (response.isSuccess) {
-        final List<dynamic> dataList = response.data['data'];
-        return dataList
-            .map((sessionJson) => SessionModel.fromJson(sessionJson))
-            .toList();
-      }
-    } catch (e) {}
-    return [];
-  }
-
-  //  summary
-  static Future<ConversationSummaryModel?> getSummary(
-    String session_id,
-  ) async {
-    String url = 'api/summary';
-    Map<String, dynamic> json = {
-      'session_id': session_id,
-    };
-
-    try {
-      ResponseData response = await connection.post(url, json);
-      if (response.isSuccess) {
-        final dataList =
-            ConversationSummaryModel.fromJson(response.data['data']);
-        return dataList;
-      }
-    } catch (e) {}
-    return null;
-  }
-
-  //get roomId by phone number
-  static Future<RoomResponse?> getRoomByPhoneNumber(
-      String customerPhone) async {
-    String url = 'public/zalo-personal/redirect-to-room';
-    Map<String, dynamic> json = {
-      'customer_phone': customerPhone,
-    };
-    try {
-      ResponseData response =
-          await connection.post(url, json, isJoinByNumberPhone: true);
-      final data = RoomResponse.fromJson(response.data);
-      return data;
-    } catch (e) {
-      return null;
-    }
-  }
-
-  //get thông tin member
-  static Future<MemberListData?> getMemberInfo(
-    String channelId,
-    String roomId, {
-    int? limit = 10,
-    int? offset = 0,
-  }) async {
-    const String url = 'api/group/get-members';
-    final Map<String, dynamic> payload = {
-      'channel_id': channelId,
-      'room_id': roomId,
-      'limit': limit,
-      'offset': offset,
-    };
-
-    try {
-      final ResponseData response = await connection.post(
-        url,
-        payload,
-        isJoinByNumberPhone: true,
-      );
-
-      final baseResponse = BaseResponse<MemberListData>.fromJson(
-        response.data,
-        (json) => MemberListData.fromJson(json),
-      );
-
-      if (baseResponse.error == 0 && baseResponse.data != null) {
-        return baseResponse.data;
-      } else {
-        return null;
-      }
-    } catch (e) {
-      return null;
-    }
-  }
-
-  //get thông tin member pending invite
-  static Future<MemberListData?> getMemberPendingInvite(
-      String channelId, String group_id) async {
-    const String url = 'api/group/list-pending-invite';
-    final Map<String, dynamic> payload = {
-      'channel_id': channelId,
-      'group_id': group_id,
-    };
-
-    try {
-      final ResponseData response = await connection.post(
-        url,
-        payload,
-        isJoinByNumberPhone: true,
-      );
-
-      final baseResponse = BaseResponse<MemberListData>.fromJson(
-        response.data,
-        (json) => MemberListData.fromJson(json),
-      );
-
-      if (baseResponse.error == 0 && baseResponse.data != null) {
-        return baseResponse.data;
-      } else {
-        return null;
-      }
-    } catch (e) {
-      return null;
-    }
-  }
-
-  //get group info zalo persional
-
-  static Future<GroupInfoResponseZP?> getGroupInfo(
-      String channelId, String group_id) async {
-    const String url = 'api/zalo-personal/get-group-info';
-    final Map<String, dynamic> payload = {
-      'channel_id': channelId,
-      'group_id': group_id,
-    };
-
-    try {
-      final ResponseData response = await connection.post(
-        url,
-        payload,
-      );
-
-      final baseResponse = BaseResponse<GroupInfoResponseZP>.fromJson(
-        response.data,
-        (json) => GroupInfoResponseZP.fromJson(json),
-      );
-
-      if (baseResponse.error == 0 && baseResponse.data != null) {
-        creatorIdGroup = baseResponse.data!.groupInfo!.creatorId;
-        return baseResponse.data;
-      } else {
-        return null;
-      }
-    } catch (e) {
-      return null;
-    }
-  }
-
-  static Future<bool> removeUserGroup(
-      String channelId, String group_id, String member_user_id) async {
-    const String url = 'api/zalo-personal/remove-user-group';
-    final Map<String, dynamic> payload = {
-      'channel_id': channelId,
-      'group_id': group_id,
-      'member_user_id': member_user_id,
-    };
-
-    try {
-      final ResponseData response = await connection.post(
-        url,
-        payload,
-      );
-
-      final baseResponse = BaseResponse<GroupInfoResponseZP>.fromJson(
-        response.data,
-        (json) => GroupInfoResponseZP.fromJson(json),
-      );
-
-      return baseResponse.error == 0;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  static Future<ResponseData?> removeMember(
-      String channelId, String group_id, List<String> member_user_id) async {
-    const String url = 'api/group/remove-member';
-    final Map<String, dynamic> payload = {
-      'channel_id': channelId,
-      'group_id': group_id,
-      'member_user_ids': member_user_id,
-    };
-
-    try {
-      final ResponseData response = await connection.post(
-        url,
-        payload,
-      );
-
-      return response;
-    } catch (e) {}
-    return null;
-  }
-
-  static Future<FriendListResponse?> getListFriend(String channelId) async {
-    const String url = 'api/zalo-personal/get-friends';
-    final Map<String, dynamic> payload = {
-      'channel_id': channelId,
-    };
-
-    try {
-      final ResponseData response = await connection.post(url, payload);
-      final friendListResponse = FriendListResponse.fromJson(response.data);
-      return friendListResponse;
-    } catch (e) {
-      return null;
-    }
-  }
-
-  static Future<r.UserZaloOAList?> getListUserZaloOA({
-    String source = 'zalo',
-    String? search,
-  }) async {
-    const String url = 'api/user/list';
-    final Map<String, dynamic> payload = {
-      'search': search,
-      'source': source,
-    };
-
-    try {
-      // Gọi hàm post và nhận về danh sách dữ liệu
-      final List<dynamic> userListJson =
-          await connection.postReturnList(url, payload);
-
-      if (userListJson.isNotEmpty) {
-        final userList = r.UserZaloOAList.fromJsonList(userListJson);
-        return userList;
-      } else {
-        return null;
-      }
-    } catch (e) {
-      return null;
-    }
-  }
-
-  static Future<ResponseData?> inviteMember(
-    String? group_id,
-    List<String> member_user_ids,
-    String channel_id,
-  ) async {
-    const String url = 'api/group/invite-member';
-    final Map<String, dynamic> payload = {
-      'channel_id': channel_id,
-      'group_id': group_id,
-      'member_user_ids': member_user_ids,
-    };
-
-    try {
-      final ResponseData response = await connection.post(url, payload);
-      return response;
-    } catch (e) {}
-    return null;
-  }
-
-  // static Future<People?> updateUserInfo(
-  //     String userId, String name, String phone) async {
-  //   const String url = 'api/user/update-info';
-  //   final Map<String, dynamic> body = {
-  //     "user_id": userId,
-  //     "params": {
-  //       "firstName": name,
-  //       "phone": phone,
-  //     },
-  //   };
-
-  //   try {
-  //     final ResponseData response = await connection.post(url, body);
-  //     return People.fromJson(response.data);
-  //   } catch (e) {
-  //     return null;
-  //   }
-  // }
-  static Future<bool?> updateUserInfo(
-      String userId, String name, String phone) async {
-    const String url = 'api/user/update-info';
-    final Map<String, dynamic> body = {
-      "user_id": userId,
-      "params": {
-        "firstName": name,
-        "phone": phone,
-      },
-    };
-
-    try {
-      final ResponseData response = await connection.post(url, body);
-      return response.isSuccess;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  static Future<ResponseData?> acceptPendingInvite(
-      String chanelId, String groupId, List<String> memeberUserIds) async {
-    String url = 'api/group/accept-pending-invite';
-    Map<String, dynamic> body = {
-      'channel_id': chanelId,
-      'group_id': groupId,
-      'member_user_ids': memeberUserIds
-    };
-    try {
-      final ResponseData response = await connection.post(url, body);
-      return response;
-    } catch (e) {
-      return null;
-    }
-  }
-
-  static Future<ResponseData?> rejectPendingInvite(
-      String chanelId, String groupId, List<String> memeberUserIds) async {
-    String url = 'api/group/reject-pending-invite';
-    Map<String, dynamic> body = {
-      'channel_id': chanelId,
-      'group_id': groupId,
-      'member_user_ids': memeberUserIds
-    };
-    try {
-      final ResponseData response = await connection.post(url, body);
-      return response;
-    } catch (e) {
-      return null;
-    }
-  }
-
-  /// WHATSAPP
-  //Lấy danh sách thành viên
-  static Future<ResponseData?> getContactWhatsapp(String phone) async {
-    String url = 'api/whatsapp/get-contacts';
-    Map<String, dynamic> body = {
-      'phone': phone,
-    };
-    try {
-      final ResponseData response = await connection.post(url, body);
-      return response;
-    } catch (e) {
-      return null;
-    }
-  }
+  static Future<bool> sendTransaction(String channelId, String type, String userSocialId) =>
+      GroupService.sendTransaction(connection, channelId, type, userSocialId);
 }
