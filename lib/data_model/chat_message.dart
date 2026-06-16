@@ -671,7 +671,7 @@ class Messages {
       socialMessageId:
           (json['social_message_id'] ?? json['socialMessageId']) as String?,
       replies: _safeParse(() => Replies.fromJson(json['replies'])),
-      author: _safeParse(() => Author.fromJson(json['author'])),
+      author: _parseAuthor(json['author']),
       file: _safeParse(() => File.fromJson(json['file'])),
       staff: _safeParse(() => Staff.fromJson(json['staff'])),
       photos: _safeParse(() => Photos.fromJson(json['photos'])),
@@ -680,7 +680,7 @@ class Messages {
       image: _safeParse(() => ImageInfo.fromJson(json['image'])),
     );
     message.replies = _safeParse(() => Replies.fromJson(json['replies']));
-    message.author = _safeParse(() => Author.fromJson(json['author']));
+    message.author = _parseAuthor(json['author']);
     message.file = _safeParse(() => File.fromJson(json['file']));
     message.staff = _safeParse(() => Staff.fromJson(json['staff']));
     message.photos = _safeParse(() => Photos.fromJson(json['photos']));
@@ -776,7 +776,6 @@ class Messages {
     }
     if (author != null) {
       if (staff != null && ChatConnection.isChatHub) {
-        // ChatHub — staff message: dùng staffAvatar nếu có
         data['author'] = {
           'firstName': staff!.fullName,
           'id': author!.sId,
@@ -785,8 +784,6 @@ class Messages {
               : null,
         };
       } else {
-        // ChatHub customer: ưu tiên author.avatar (CDN URL trực tiếp từ platform, luôn load được).
-        // Non-ChatHub: ưu tiên picture.shieldedID (internal upload), fallback sang avatar.
         final String? imageUrl = ChatConnection.isChatHub
             ? (author!.avatar?.isNotEmpty == true
                 ? author!.avatar
@@ -805,6 +802,14 @@ class Messages {
           'imageUrl': imageUrl,
         };
       }
+    } else if (staff != null) {
+      data['author'] = {
+        'firstName': staff!.fullName,
+        'id': staff!.staffId ?? sId,
+        'imageUrl': staff!.staffAvatar?.isNotEmpty == true ? staff!.staffAvatar : null,
+      };
+    } else {
+      data['author'] = {'id': sId ?? 'unknown', 'firstName': null, 'lastName': null};
     }
     if (staff != null) {
       data['staff'] = {
@@ -1274,6 +1279,13 @@ T? _safeParse<T>(T Function() fn) {
   } catch (_) {
     return null;
   }
+}
+
+Author? _parseAuthor(dynamic value) {
+  if (value == null) return null;
+  if (value is Map<String, dynamic>) return _safeParse(() => Author.fromJson(value));
+  if (value is String && value.isNotEmpty) return Author()..sId = value;
+  return null;
 }
 
 class Photos {

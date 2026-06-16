@@ -282,9 +282,7 @@ class Message extends StatelessWidget {
                 hideBackgroundOnEmojiMessages: hideBackgroundOnEmojiMessages,
                 message: textMessage,
                 onPreviewDataFetched: onPreviewDataFetched,
-                showName: currentUserIsAuthor
-                    ? (ChatConnection.isChatHub ? true : showName)
-                    : false,
+                showName: currentUserIsAuthor ? showName : false,
                 usePreviewData: usePreviewData,
                 searchController: searchController,
                 showUserNameForRepliedMessage: true,
@@ -593,22 +591,6 @@ class Message extends StatelessWidget {
                         Icons.edit_outlined,
                         color: Colors.black,
                         size: 15.0,
-                      ),
-                    ),
-                  ),
-                if (!_currentUserIsAuthor)
-                  GestureDetector(
-                    onTap: () {
-                      onMessageReply(context, message);
-                      focusSearch();
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.only(left: 4.0),
-                      alignment: Alignment.center,
-                      child: Icon(
-                        Icons.reply_rounded,
-                        color: Colors.grey[100],
-                        size: 18.0,
                       ),
                     ),
                   ),

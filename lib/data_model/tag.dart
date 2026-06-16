@@ -48,7 +48,7 @@ class Data {
 
   Data.fromJson(Map<String, dynamic> json) {
     status = json['status'];
-    sId = json['tag_id'] != null ? json['tag_id'] : json['_id'];
+    sId = json['tag_id'] != null ? json['tag_id'].toString() : json['_id'].toString();
     name = json['name'];
     color = json['color'].toString();
     createdAt = json['createdAt'];

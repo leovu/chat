@@ -329,9 +329,10 @@ class Chat extends StatefulWidget {
 /// [Chat] widget state
 class _ChatState extends State<Chat> {
   List<Object> _chatMessages = [];
-  late void Function() hideEmoji;
+  void Function() hideEmoji = () {};
   types.Message? _repliedMessage;
-  late Function({types.TextMessage? editContent}) requestFocusTextField;
+  Function({types.TextMessage? editContent}) requestFocusTextField =
+      ({types.TextMessage? editContent}) {};
 
   // File preview states
   List<XFile> _selectedImages = [];

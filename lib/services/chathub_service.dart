@@ -49,6 +49,17 @@ class ChatHubService {
     return [];
   }
 
+  static Future<List<c.Messages>> getSessionMessages(HTTPConnection connection, List<String> messageIds) async {
+    try {
+      final response = await connection.post('api/sessions/messages', {'message_ids': messageIds});
+      if (response.isSuccess) {
+        final List<dynamic> data = response.data['data'] ?? [];
+        return data.map((e) => c.Messages.fromJson(e as Map<String, dynamic>)).toList();
+      }
+    } catch (_) {}
+    return [];
+  }
+
   static Future<ConversationSummaryModel?> getSummary(HTTPConnection connection, String sessionId) async {
     try {
       final response = await connection.post('api/summary', {'session_id': sessionId});

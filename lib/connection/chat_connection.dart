@@ -248,6 +248,9 @@ class ChatConnection {
   static Future<ConversationSummaryModel?> getSummary(String session_id) =>
       ChatHubService.getSummary(connection, session_id);
 
+  static Future<List<c.Messages>> getSessionMessages(List<String> messageIds) =>
+      ChatHubService.getSessionMessages(connection, messageIds);
+
   static Future<RoomResponse?> getRoomByPhoneNumber(String customerPhone) =>
       ChatHubService.getRoomByPhoneNumber(connection, customerPhone);
 

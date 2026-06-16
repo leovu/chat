@@ -1,4 +1,9 @@
 import 'dart:io';
+import 'package:chat/chat_ui/flutter_chat_ui.dart';
+import 'package:chat/chat_ui/widgets/custom_message_builder.dart';
+import 'package:chat/connection/download.dart';
+import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -1353,10 +1358,15 @@ class _ConversationInformationScreenState
               return _itemChatInfo(
                 session,
                 () {
-                  showDialog(
+                  showModalBottomSheet(
                     context: context,
-                    builder: (context) =>
-                        buildChatSessionDialog(session: session, index: index),
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    builder: (_) => _ChatSessionBottomSheet(
+                      session: session,
+                      index: index,
+                      bloc: _bloc,
+                    ),
                   );
                 },
               );
@@ -1497,132 +1507,6 @@ class _ConversationInformationScreenState
     );
   }
 
-  Widget buildChatSessionDialog({
-    required SessionModel session,
-    required int? index,
-  }) {
-    return StreamBuilder(
-      stream: _bloc.sessionStream,
-      builder: (context, summarySnapshot) {
-        return Dialog(
-          key: const Key('chat_session_dialog'),
-          insetPadding: const EdgeInsets.symmetric(horizontal: 10),
-          backgroundColor: Colors.white,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          child: DefaultTabController(
-            length: 2,
-            child: StatefulBuilder(
-              builder: (context, setState) {
-                String summaryText = '';
-                if (summarySnapshot.hasData &&
-                    summarySnapshot.data != null &&
-                    summarySnapshot.data!.isNotEmpty)
-                  summaryText = summarySnapshot.data![index!].summary ?? '';
-                // Nội dung tab tóm tắt
-                final summaryContent = Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if (summarySnapshot.hasError)
-                      Text(
-                        AppLocalizations.text(LangKey.load_summary_error),
-                        style: TextStyle(color: Colors.red),
-                      )
-                    else if (summaryText.trim().isNotEmpty)
-                      Column(
-                        children: extractSummaryWidgetsFromHtml(summaryText),
-                      ),
-                    const SizedBox(height: 10),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                      child: InkWell(
-                        onTap: () async {
-                          showLoading(context);
-                          try {
-                            // Gọi API để lấy tóm tắt
-                            await _bloc.getSummary(session.id!);
-                            await _bloc.getSession(widget.roomData.sId!);
-                            Navigator.pop(context);
-                          } catch (e) {
-                            // Hiển thị thông báo lỗi
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                  content: Text(
-                                      '${AppLocalizations.text(LangKey.load_summary_failed)} $e')),
-                            );
-                          }
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: Colors.white70,
-                            border: Border.all(color: Colors.blue),
-                          ),
-                          width: MediaQuery.of(context).size.width * 0.4,
-                          height: 35,
-                          child: Center(
-                            child: Text(
-                              AppLocalizations.text(LangKey.summary),
-                              style: TextStyle(color: Colors.blue),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                );
-
-                return SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.9,
-                  height: MediaQuery.of(context).size.height * 0.7,
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.all(10.0),
-                        child: Center(
-                          child: Text(
-                            AppLocalizations.text(LangKey.chat_session_info),
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const Divider(),
-                      const SizedBox(height: 8),
-                      Expanded(
-                        child: SingleChildScrollView(
-                          child: Padding(
-                            padding: const EdgeInsets.all(5.0),
-                            child: summaryContent,
-                          ),
-                        ),
-                      ),
-                      const Divider(height: 1),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context),
-                            child: Text(
-                              AppLocalizations.text(LangKey.close),
-                              style: TextStyle(color: Colors.blue),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                        ],
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ),
-        );
-      },
-    );
-  }
 
   Widget _chatFunction() {
     return SingleChildScrollView(
@@ -1705,19 +1589,24 @@ class _ConversationInformationScreenState
                     data: info,
                     customerAccount: customerAccount,
                     isGroup: widget.chatMessage?.room?.isGroup ?? false,
+                    roomData: widget.roomData,
                   );
                 }));
                 if (result != null) {
                   showLoading(context);
                   try {
-                    await ChatConnection.customerLink(
-                        widget.roomData.sId ?? '',
-                        result['customerId'],
-                        result['type'],
-                        customerAccount?.data?.mappingId ?? '',
-                        widget.roomData.channel?.source,
-                        widget.roomData.owner?.sId,
-                        customerLeadId: result['customerLeadId'] ?? '');
+                    // Khách hàng tiềm năng (customerLeadId) đã được link + detect
+                    // ngay trong ActionListUserChathubScreen, ở đây chỉ refresh.
+                    if (result['customerLeadId'] == null) {
+                      await ChatConnection.customerLink(
+                          widget.roomData.sId ?? '',
+                          result['customerId'],
+                          result['type'],
+                          customerAccount?.data?.mappingId ?? '',
+                          widget.roomData.channel?.source,
+                          widget.roomData.owner?.sId,
+                          customerLeadId: result['customerLeadId'] ?? '');
+                    }
                     isShowListSearch = false;
                     customerAccountSearch = null;
                     _loadAccount();
@@ -2177,7 +2066,9 @@ class _ConversationInformationScreenState
     );
   }
 
-  List<Widget> extractSummaryWidgetsFromHtml(String input) {
+}
+
+List<Widget> extractSummaryWidgetsFromHtml(String input) {
     // 1. Xử lý sơ bộ HTML
     input = input.replaceAll(RegExp(r'<h1[^>]*>.*?</h1>', dotAll: true), '');
 
@@ -2235,5 +2126,285 @@ class _ConversationInformationScreenState
         ),
       );
     }).toList();
+}
+
+// ── Session bottom sheet ─────────────────────────────────────────────────────
+
+class _ChatSessionBottomSheet extends StatefulWidget {
+  final SessionModel session;
+  final int? index;
+  final ConversationBloc bloc;
+
+  const _ChatSessionBottomSheet({
+    required this.session,
+    required this.index,
+    required this.bloc,
+  });
+
+  @override
+  State<_ChatSessionBottomSheet> createState() =>
+      _ChatSessionBottomSheetState();
+}
+
+class _ChatSessionBottomSheetState extends State<_ChatSessionBottomSheet>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  List<types.Message> _typesMessages = [];
+  bool _loadingMessages = false;
+  String? _summary;
+
+  final _searchController = TextEditingController();
+
+  // Controllers required by the Chat widget (read-only replay)
+  final ItemScrollController _itemScrollController = ItemScrollController();
+  final ItemPositionsListener _itemPositionsListener =
+      ItemPositionsListener.create();
+  final ChatController _chatController = ChatController();
+  final Map<String, int> _listIdMessages = {};
+
+  late types.User _currentUser;
+
+  @override
+  void initState() {
+    super.initState();
+    _summary = widget.session.summary;
+    final u = ChatConnection.checkUserTokenResponseModel?.user;
+    _currentUser = types.User(
+      id: u?.sId ?? '',
+      firstName: u?.firstName ?? '',
+      lastName: u?.lastName ?? '',
+    );
+    _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(() {
+      if (_tabController.index == 1 && _typesMessages.isEmpty && !_loadingMessages) {
+        _fetchMessages();
+      }
+    });
+    widget.bloc.sessionStream.listen((sessions) {
+      if (mounted && widget.index != null && sessions.length > widget.index!) {
+        setState(() => _summary = sessions[widget.index!].summary ?? widget.session.summary);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _fetchMessages() async {
+    if (widget.session.messageIds == null || widget.session.messageIds!.isEmpty) return;
+    setState(() => _loadingMessages = true);
+    final rawMsgs = await ChatConnection.getSessionMessages(widget.session.messageIds!);
+    final List<types.Message> converted = [];
+    for (final m in rawMsgs) {
+      if (m.author?.sId != null && m.sId != null) {
+        try {
+          converted.add(types.Message.fromJson(m.toMessageJson()));
+        } catch (_) {}
+      }
+    }
+    if (mounted) setState(() {
+      _typesMessages = List.from(converted.reversed);
+      _loadingMessages = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final height = MediaQuery.of(context).size.height * 0.85;
+    final msgCount = widget.session.messageIds?.length ?? 0;
+    return Container(
+      height: height,
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      child: Column(
+        children: [
+          // drag handle
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            child: Text(
+              AppLocalizations.text(LangKey.chat_session_info),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+          ),
+          const Divider(height: 1),
+          TabBar(
+            controller: _tabController,
+            labelColor: Colors.blue,
+            unselectedLabelColor: Colors.grey,
+            indicatorColor: Colors.blue,
+            tabs: [
+              Tab(text: AppLocalizations.text(LangKey.summary)),
+              Tab(text: 'Tin nhắn phiên chat ($msgCount)'),
+            ],
+          ),
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                _buildSummaryTab(),
+                _buildMessagesTab(),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSummaryTab() {
+    final summaryText = _summary ?? '';
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (summaryText.trim().isNotEmpty)
+            ...extractSummaryWidgetsFromHtml(summaryText)
+          else
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                child: Text(
+                  AppLocalizations.text(LangKey.no_chat_session),
+                  style: const TextStyle(color: Colors.grey),
+                ),
+              ),
+            ),
+          const SizedBox(height: 12),
+          Center(
+            child: InkWell(
+              onTap: () async {
+                showLoading(context);
+                try {
+                  await widget.bloc.getSummary(widget.session.id!);
+                  await widget.bloc.getSession(widget.session.room ?? '');
+                  if (mounted) Navigator.pop(context);
+                } catch (_) {
+                  if (mounted) Navigator.pop(context);
+                }
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: Colors.white,
+                  border: Border.all(color: Colors.blue),
+                ),
+                width: MediaQuery.of(context).size.width * 0.4,
+                height: 36,
+                child: Center(
+                  child: Text(
+                    AppLocalizations.text(LangKey.summary),
+                    style: const TextStyle(color: Colors.blue),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMessagesTab() {
+    if (_loadingMessages) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (_typesMessages.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(AppLocalizations.text(LangKey.no_chat_session),
+                style: const TextStyle(color: Colors.grey)),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: _fetchMessages,
+              child: const Text('Tải tin nhắn'),
+            ),
+          ],
+        ),
+      );
+    }
+    // Render với widget Chat giống chat_screen.dart.
+    // isSearchChat: true => ẩn ô nhập liệu (đây là phần xem lại tin nhắn của phiên).
+    return Chat(
+      messages: _typesMessages,
+      user: _currentUser,
+      isSearchChat: true,
+      canSend: true,
+      isGroup: false,
+      people: const [],
+      roomData: r.Rooms(),
+      showUserAvatars: true,
+      showUserNames: true,
+      scrollPhysics: const ClampingScrollPhysics(),
+      itemScrollController: _itemScrollController,
+      itemPositionsListener: _itemPositionsListener,
+      listIdMessages: _listIdMessages,
+      searchController: _searchController,
+      chatController: _chatController,
+      imageMessageBuilder: (message, {required int messageWidth}) =>
+          _buildSessionImage(message, messageWidth),
+      fileMessageBuilder: buildFileWidget,
+      customMessageBuilder: customMessageBuilder,
+      onMessageTap: (ctx, message, isRepliedMessage) async {
+        if (message is types.ImageMessage) {
+          openImage(ctx, message.uri);
+        } else if (message is types.FileMessage) {
+          showLoading(ctx);
+          final result = await download(
+              ctx, message.uri, '${message.createdAt}_${message.name}');
+          if (mounted) Navigator.of(ctx).pop();
+          openFile(result, ctx, message.name);
+        }
+      },
+      progressUpdate: (_) {},
+      onStickerPressed: (_) {},
+      onSendPressed: (_, {repliedMessage, isEdit}) {},
+      builder: (_, __) {},
+    );
+  }
+
+  Widget _buildSessionImage(types.ImageMessage message, int messageWidth) {
+    final uri = message.uri;
+    final w = messageWidth.toDouble() * 0.7;
+    return GestureDetector(
+      onTap: () => openImage(context, uri),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: CachedNetworkImage(
+          imageUrl: uri,
+          width: w,
+          fit: BoxFit.cover,
+          httpHeaders: ChatConnection.brandCode != null
+              ? {'brand-code': ChatConnection.brandCode!}
+              : null,
+          placeholder: (_, __) => SizedBox(
+              width: w, height: 120,
+              child: const Center(child: CircularProgressIndicator(strokeWidth: 2))),
+          errorWidget: (_, __, ___) => SizedBox(
+              width: w, height: 120,
+              child: const Icon(Icons.broken_image, color: Colors.grey)),
+        ),
+      ),
+    );
   }
 }

@@ -11,11 +11,13 @@ class ActionListUserChathubScreen extends StatefulWidget {
   final r.People data;
   final CustomerAccount? customerAccount;
   final bool isGroup;
+  final r.Rooms? roomData;
   const ActionListUserChathubScreen(
       {Key? key,
       required this.data,
       required this.customerAccount,
-      this.isGroup = false})
+      this.isGroup = false,
+      this.roomData})
       : super(key: key);
   @override
   _State createState() => _State();
@@ -73,8 +75,19 @@ class _State extends State<ActionListUserChathubScreen> {
                             .addCustomerPotential!(widget.data.phone ?? '',
                         '${widget.data.firstName ?? ''} ${widget.data.lastName ?? ''}');
                     if (addCustomer != null) {
+                      if (addCustomer['customerLeadId'] != null) {
+                        await ChatConnection.customerLink(
+                            widget.roomData?.sId ?? '',
+                            addCustomer['customerId'],
+                            addCustomer['type'],
+                            widget.customerAccount?.data?.mappingId ?? '',
+                            widget.roomData?.channel?.source,
+                            widget.roomData?.owner?.sId,
+                            customerLeadId: addCustomer['customerLeadId'] ?? '');
+                        await ChatConnection.detect(
+                            widget.roomData?.owner?.sId ?? '');
+                      }
                       Navigator.of(context).pop(addCustomer);
-                      // Navigator.of(context).pop(addCustomer);
                     }
                   }
                 }),

@@ -12,7 +12,8 @@
       "Bash(rtk ls *)",
       "Bash(grep \".dart$\")",
       "Bash(rtk find *)",
-      "Bash(rtk wc *)"
+      "Bash(rtk wc *)",
+      "Bash(dart analyze *)"
     ]
   }
 }
