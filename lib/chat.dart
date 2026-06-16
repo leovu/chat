@@ -111,6 +111,7 @@ class Chat {
     ScreenInfo.initialize(MediaQuery.of(context));
     if (result) {
       await ChatConnection.checkUserToken();
+      ChatConnection.reAuthenticate();
       if (phoneNumber != null) {
         return await onOpenChatScreen(phoneNumber, context);
       } else if (roomId != null) {

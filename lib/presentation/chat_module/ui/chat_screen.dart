@@ -577,8 +577,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     }
   }
 
-  _handleMessageLongPress(
-      BuildContext context, types.Message message) async {
+  _handleMessageLongPress(BuildContext context, types.Message message) async {
     if (message is types.TextMessage &&
         message.text == AppLocalizations.text(LangKey.messageRecalled)) {
       return;
@@ -1810,7 +1809,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                         if (!ChatConnection.isChatHub)
                           AutoSizeText(
                             !widget.data.isGroup!
-                                ? '${widget.data.people![1].firstName} ${widget.data.people![1].lastName}'
+                                ? '${groupOwner1?.firstName ?? ''} ${groupOwner1?.lastName ?? ''}'
                                 : widget.data.room_name != null
                                     ? widget.data.room_name!
                                     : widget.data.title ??

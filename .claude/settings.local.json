@@ -5,7 +5,10 @@
       "Bash(git -C \"E:\\WAO\\EP\\Chat_version\" log --oneline -20)",
       "Bash(git -C \"E:\\WAO\\EP\\Chat_version\" branch -a)",
       "Bash(flutter analyze:*)",
-      "Bash(flutter pub get:*)"
+      "Bash(flutter pub get:*)",
+      "Bash(rtk grep *)",
+      "Bash(rtk git *)",
+      "Bash(rtk read *)"
     ]
   }
 }

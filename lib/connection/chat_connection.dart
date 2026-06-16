@@ -869,6 +869,12 @@ class ChatConnection {
     streamSocket.socket!.connect();
   }
 
+  static void reAuthenticate() {
+    if (user != null && streamSocket.socket?.connected == true) {
+      streamSocket.socket!.emit('authenticate', {'token': user!.token});
+    }
+  }
+
   static dispose({bool isDispose = false}) {
     if (!isDispose) {
       streamSocket.socket!.disconnect();

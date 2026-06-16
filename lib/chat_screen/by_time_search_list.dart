@@ -19,7 +19,14 @@ class ByTimeResultScreen extends StatefulWidget {
   final String? search;
   final String? title;
   final int tabbarIndex;
-  const ByTimeResultScreen({Key? key, required this.roomData, required this.chatMessage, this.search, this.title, required this.tabbarIndex}) : super(key: key);
+  const ByTimeResultScreen(
+      {Key? key,
+      required this.roomData,
+      required this.chatMessage,
+      this.search,
+      this.title,
+      required this.tabbarIndex})
+      : super(key: key);
   @override
   _State createState() => _State();
 }
@@ -41,8 +48,7 @@ class _State extends State<ByTimeResultScreen>
               color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
         ),
         leading: InkWell(
-          child: Icon(Icons.arrow_back_ios,
-              color: Colors.black),
+          child: Icon(Icons.arrow_back_ios, color: Colors.black),
           onTap: () => Navigator.of(context).pop(),
         ),
         backgroundColor: Colors.white,
@@ -64,49 +70,46 @@ class _State extends State<ByTimeResultScreen>
       ),
     );
   }
+
   List<Widget> _list() {
-    Map<String,List<Widget>> values = {};
+    Map<String, List<Widget>> values = {};
     List<String> keys = [];
     final format1 = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z");
     final format2 = DateFormat("dd/MM/yyyy");
-    if(widget.tabbarIndex == 0) {
+    if (widget.tabbarIndex == 0) {
       widget.chatMessage?.room?.images?.forEach((e) {
         final dt = format1.parse(e.date!, true).toLocal();
         String formattedDate = format2.format(dt);
-        if(widget.search != null && widget.search != '') {
-          if(widget.search!.contains('-')) {
+        if (widget.search != null && widget.search != '') {
+          if (widget.search!.contains('-')) {
             List<String> listDates = widget.search!.split('-');
-            if(listDates.length >= 2) {
-              if (dt.isBetween(format2.parse(listDates[0]), format2.parse(listDates[1]))) {
-                if(values.containsKey(formattedDate)) {
+            if (listDates.length >= 2) {
+              if (dt.isBetween(
+                  format2.parse(listDates[0]), format2.parse(listDates[1]))) {
+                if (values.containsKey(formattedDate)) {
                   values[formattedDate]!.add(widgetCacheImage(e.content!));
-                }
-                else {
+                } else {
                   values[formattedDate] = [];
                   values[formattedDate]!.add(widgetCacheImage(e.content!));
                   keys.add(formattedDate);
                 }
               }
             }
-          }
-          else {
-            if(formattedDate == widget.search) {
-              if(values.containsKey(formattedDate)) {
+          } else {
+            if (formattedDate == widget.search) {
+              if (values.containsKey(formattedDate)) {
                 values[formattedDate]!.add(widgetCacheImage(e.content!));
-              }
-              else {
+              } else {
                 values[formattedDate] = [];
                 values[formattedDate]!.add(widgetCacheImage(e.content!));
                 keys.add(formattedDate);
               }
             }
           }
-        }
-        else {
-          if(values.containsKey(formattedDate)) {
+        } else {
+          if (values.containsKey(formattedDate)) {
             values[formattedDate]!.add(widgetCacheImage(e.content!));
-          }
-          else {
+          } else {
             values[formattedDate] = [];
             values[formattedDate]!.add(widgetCacheImage(e.content!));
             keys.add(formattedDate);
@@ -114,44 +117,40 @@ class _State extends State<ByTimeResultScreen>
         }
       });
     }
-    if(widget.tabbarIndex == 1) {
+    if (widget.tabbarIndex == 1) {
       widget.chatMessage?.room?.files?.forEach((e) {
         final dt = format1.parse(e.date!, true).toLocal();
         String formattedDate = format2.format(dt);
-        if(widget.search != null && widget.search != '') {
-          if(widget.search!.contains('-')) {
+        if (widget.search != null && widget.search != '') {
+          if (widget.search!.contains('-')) {
             List<String> listDates = widget.search!.split('-');
-            if(listDates.length >= 2) {
-              if (dt.isBetween(format2.parse(listDates[0]), format2.parse(listDates[1]))) {
-                if(values.containsKey(formattedDate)) {
+            if (listDates.length >= 2) {
+              if (dt.isBetween(
+                  format2.parse(listDates[0]), format2.parse(listDates[1]))) {
+                if (values.containsKey(formattedDate)) {
                   values[formattedDate]!.add(widgetCacheFile(e));
-                }
-                else {
+                } else {
                   values[formattedDate] = [];
                   values[formattedDate]!.add(widgetCacheFile(e));
                   keys.add(formattedDate);
                 }
               }
             }
-          }
-          else {
-            if(formattedDate == widget.search) {
-              if(values.containsKey(formattedDate)) {
+          } else {
+            if (formattedDate == widget.search) {
+              if (values.containsKey(formattedDate)) {
                 values[formattedDate]!.add(widgetCacheFile(e));
-              }
-              else {
+              } else {
                 values[formattedDate] = [];
                 values[formattedDate]!.add(widgetCacheFile(e));
                 keys.add(formattedDate);
               }
             }
           }
-        }
-        else {
-          if(values.containsKey(formattedDate)) {
+        } else {
+          if (values.containsKey(formattedDate)) {
             values[formattedDate]!.add(widgetCacheFile(e));
-          }
-          else {
+          } else {
             values[formattedDate] = [];
             values[formattedDate]!.add(widgetCacheFile(e));
             keys.add(formattedDate);
@@ -159,34 +158,36 @@ class _State extends State<ByTimeResultScreen>
         }
       });
     }
-    if(widget.tabbarIndex == 2) {
+    if (widget.tabbarIndex == 2) {
       final urlRegExp = RegExp(
           r"((https?:www\.)|(https?:\/\/)|(www\.))[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9]{1,6}(\/[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)?");
       widget.chatMessage?.room?.links?.forEach((e) {
         final dt = format1.parse(e.date!, true).toLocal();
         String formattedDate = format2.format(dt);
-        if(widget.search != null && widget.search != '') {
-          if(widget.search!.contains('-')) {
+        if (widget.search != null && widget.search != '') {
+          if (widget.search!.contains('-')) {
             List<String> listDates = widget.search!.split('-');
-            if(listDates.length >= 2) {
-              if (dt.isBetween(format2.parse(listDates[0]), format2.parse(listDates[1]))) {
-                if(values.containsKey(formattedDate)) {
+            if (listDates.length >= 2) {
+              if (dt.isBetween(
+                  format2.parse(listDates[0]), format2.parse(listDates[1]))) {
+                if (values.containsKey(formattedDate)) {
                   List<String> urls = [];
                   final urlMatches = urlRegExp.allMatches(e.content ?? '');
-                  List<String> url = urlMatches.map(
-                          (urlMatch) => (e.content ?? '').substring(urlMatch.start, urlMatch.end))
+                  List<String> url = urlMatches
+                      .map((urlMatch) => (e.content ?? '')
+                          .substring(urlMatch.start, urlMatch.end))
                       .toList();
                   urls.addAll(url);
                   for (var e in urls) {
                     values[formattedDate]!.add(widgetCacheLink(e));
                   }
-                }
-                else {
+                } else {
                   values[formattedDate] = [];
                   List<String> urls = [];
                   final urlMatches = urlRegExp.allMatches(e.content ?? '');
-                  List<String> url = urlMatches.map(
-                          (urlMatch) => (e.content ?? '').substring(urlMatch.start, urlMatch.end))
+                  List<String> url = urlMatches
+                      .map((urlMatch) => (e.content ?? '')
+                          .substring(urlMatch.start, urlMatch.end))
                       .toList();
                   urls.addAll(url);
                   for (var e in urls) {
@@ -196,26 +197,26 @@ class _State extends State<ByTimeResultScreen>
                 }
               }
             }
-          }
-          else {
-            if(formattedDate == widget.search) {
-              if(values.containsKey(formattedDate)) {
+          } else {
+            if (formattedDate == widget.search) {
+              if (values.containsKey(formattedDate)) {
                 List<String> urls = [];
                 final urlMatches = urlRegExp.allMatches(e.content ?? '');
-                List<String> url = urlMatches.map(
-                        (urlMatch) => (e.content ?? '').substring(urlMatch.start, urlMatch.end))
+                List<String> url = urlMatches
+                    .map((urlMatch) => (e.content ?? '')
+                        .substring(urlMatch.start, urlMatch.end))
                     .toList();
                 urls.addAll(url);
                 for (var e in urls) {
                   values[formattedDate]!.add(widgetCacheLink(e));
                 }
-              }
-              else {
+              } else {
                 values[formattedDate] = [];
                 List<String> urls = [];
                 final urlMatches = urlRegExp.allMatches(e.content ?? '');
-                List<String> url = urlMatches.map(
-                        (urlMatch) => (e.content ?? '').substring(urlMatch.start, urlMatch.end))
+                List<String> url = urlMatches
+                    .map((urlMatch) => (e.content ?? '')
+                        .substring(urlMatch.start, urlMatch.end))
                     .toList();
                 urls.addAll(url);
                 for (var e in urls) {
@@ -225,25 +226,25 @@ class _State extends State<ByTimeResultScreen>
               }
             }
           }
-        }
-        else {
-          if(values.containsKey(formattedDate)) {
+        } else {
+          if (values.containsKey(formattedDate)) {
             List<String> urls = [];
             final urlMatches = urlRegExp.allMatches(e.content ?? '');
-            List<String> url = urlMatches.map(
-                    (urlMatch) => (e.content ?? '').substring(urlMatch.start, urlMatch.end))
+            List<String> url = urlMatches
+                .map((urlMatch) =>
+                    (e.content ?? '').substring(urlMatch.start, urlMatch.end))
                 .toList();
             urls.addAll(url);
             for (var e in urls) {
               values[formattedDate]!.add(widgetCacheLink(e));
             }
-          }
-          else {
+          } else {
             values[formattedDate] = [];
             List<String> urls = [];
             final urlMatches = urlRegExp.allMatches(e.content ?? '');
-            List<String> url = urlMatches.map(
-                    (urlMatch) => (e.content ?? '').substring(urlMatch.start, urlMatch.end))
+            List<String> url = urlMatches
+                .map((urlMatch) =>
+                    (e.content ?? '').substring(urlMatch.start, urlMatch.end))
                 .toList();
             urls.addAll(url);
             for (var e in urls) {
@@ -257,26 +258,32 @@ class _State extends State<ByTimeResultScreen>
     List<Widget> widgets = [];
     for (var element in keys) {
       final dt = format2.parse(element, true);
-      widgets.add(
-        Row(
-          children: [
-            Expanded(child: Padding(
-              padding: const EdgeInsets.only(left: 10.0,bottom: 15.0,top: 10.0),
-              child: Text(
-                dt.isToday() ? AppLocalizations.text(LangKey.today) : dt.isYesterday() ? AppLocalizations.text(LangKey.yesterday) :
-                element,
-                style: const TextStyle(fontWeight: FontWeight.w600),),
-            ))
-          ],
-        )
-      );
+      widgets.add(Row(
+        children: [
+          Expanded(
+              child: Padding(
+            padding: const EdgeInsets.only(left: 10.0, bottom: 15.0, top: 10.0),
+            child: Text(
+              dt.isToday()
+                  ? AppLocalizations.text(LangKey.today)
+                  : dt.isYesterday()
+                      ? AppLocalizations.text(LangKey.yesterday)
+                      : element,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+          ))
+        ],
+      ));
       widgets.add(Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8.0),
         child: Wrap(
           spacing: 5.0,
-          children: values[element]!,),
+          children: values[element]!,
+        ),
       ));
-      widgets.add(Container(height: 15.0,));
+      widgets.add(Container(
+        height: 15.0,
+      ));
     }
     return widgets;
   }
@@ -285,9 +292,13 @@ class _State extends State<ByTimeResultScreen>
     return InkWell(
       onTap: () async {
         showLoading();
-        String? result = await download(context,'${HTTPConnection.domain}api/files/${message.file?.shieldedID}','${message.date}_${message.file?.name}');
+        String? result = await download(
+            context,
+            '${HTTPConnection.domain}api/files/${message.file?.shieldedID}',
+            '${message.date}_${message.file?.name}');
         Navigator.of(context).pop();
-        openFile(result,context,message.file?.name ?? AppLocalizations.text(LangKey.file));
+        openFile(result, context,
+            message.file?.name ?? AppLocalizations.text(LangKey.file));
       },
       child: Column(
         children: [
@@ -309,33 +320,36 @@ class _State extends State<ByTimeResultScreen>
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: Column(
-                  children: [
-                    AutoSizeText(message.file?.name ?? '')
-                  ],
+                  children: [AutoSizeText(message.file?.name ?? '')],
                 ),
               ),
             ],
           ),
           Padding(
             padding: const EdgeInsets.only(top: 8.0),
-            child: Container(height: 1.0,color: Colors.grey.shade200,),
+            child: Container(
+              height: 1.0,
+              color: Colors.grey.shade200,
+            ),
           )
         ],
       ),
     );
   }
+
   Widget widgetCacheImage(String content) {
     return InkWell(
       onTap: () async {
-        openImage(context,'${HTTPConnection.domain}api/images/$content/512/${ChatConnection.brandCode}');
+        openImage(context,
+            '${HTTPConnection.domain}api/images/$content/512/${ChatConnection.brandCode}');
       },
       child: SizedBox(
         width: MediaQuery.of(context).size.width * 0.3,
         height: MediaQuery.of(context).size.width * 0.3,
         child: CachedNetworkImage(
           imageUrl:
-          '${HTTPConnection.domain}api/images/$content/256/${ChatConnection.brandCode!}',
-          httpHeaders: {'brand-code':ChatConnection.brandCode!},
+              '${HTTPConnection.domain}api/images/$content/256/${ChatConnection.brandCode!}',
+          httpHeaders: {'brand-code': ChatConnection.brandCode!},
           fit: BoxFit.cover,
           placeholder: (context, url) => const CupertinoActivityIndicator(),
           errorWidget: (context, url, error) => const Icon(Icons.error),
@@ -343,6 +357,7 @@ class _State extends State<ByTimeResultScreen>
       ),
     );
   }
+
   Widget widgetCacheLink(String content) {
     return Padding(
       padding: const EdgeInsets.all(10.0),
@@ -351,6 +366,7 @@ class _State extends State<ByTimeResultScreen>
       ),
     );
   }
+
   Future showLoading() async {
     return await showDialog(
         context: context,
@@ -361,7 +377,9 @@ class _State extends State<ByTimeResultScreen>
             backgroundColor: Colors.transparent,
             children: <Widget>[
               Center(
-                child: Platform.isAndroid ? const CircularProgressIndicator() : const CupertinoActivityIndicator(),
+                child: Platform.isAndroid
+                    ? const CircularProgressIndicator()
+                    : const CupertinoActivityIndicator(),
               )
             ],
           );
@@ -378,6 +396,7 @@ extension DateTimeExtension on DateTime? {
     }
     return null;
   }
+
   bool? isBeforeOrEqualTo(DateTime dateTime) {
     final date = this;
     if (date != null) {
@@ -386,10 +405,11 @@ extension DateTimeExtension on DateTime? {
     }
     return null;
   }
+
   bool isBetween(
-      DateTime fromDateTime,
-      DateTime toDateTime,
-      ) {
+    DateTime fromDateTime,
+    DateTime toDateTime,
+  ) {
     final date = this;
     if (date != null) {
       final isAfter = date.isAfterOrEqualTo(fromDateTime) ?? false;

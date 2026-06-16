@@ -33,7 +33,7 @@ class StreamSocket {
   }
 
   void connectAndListen(StreamSocket streamSocket, User user) {
-    // print('--- [SOCKET] Đang khởi tạo kết nối... ---');
+    print('--- [SOCKET] Đang khởi tạo kết nối tới: ${HTTPConnection.domain} ---');
     socket = io.io(
         HTTPConnection.domain,
         io.OptionBuilder()
@@ -49,25 +49,31 @@ class StreamSocket {
             })
             .build());
 
-    // --- CÁC TRÌNH LẮNG NGHE QUAN TRỌNG ĐỂ DEBUG ---
-
     socket!.onConnect((_) {
-      // print('✅ [SOCKET] Kết nối thành công! ID: ${socket!.id}');
-      // print('🔑 [SOCKET] Đang gửi token để xác thực...');
+      print('✅ [SOCKET] Kết nối thành công! ID: ${socket!.id}');
+      print('🔑 [SOCKET] Đang gửi token để xác thực...');
       socket!.emit('authenticate', {'token': user.token});
     });
 
     socket!.on('authenticated', (data) {
-      // print('👍 [SOCKET] Xác thực thành công!');
+      print('👍 [SOCKET] Xác thực thành công: $data');
       streamSocket.addResponse(data.toString());
     });
 
     socket!.onConnectError((data) {
-      // print('⛔️ [SOCKET] LỖI KẾT NỐI: $data');
+      print('⛔️ [SOCKET] LỖI KẾT NỐI: $data');
+    });
+
+    socket!.on('error', (data) {
+      print('❌ [SOCKET] Lỗi từ server: $data');
+    });
+
+    socket!.on('unauthorized', (data) {
+      print('🚫 [SOCKET] Xác thực thất bại: $data');
     });
 
     socket!.onDisconnect((reason) {
-      // print('🔌 [SOCKET] Đã ngắt kết nối: $reason');
+      print('🔌 [SOCKET] Đã ngắt kết nối: $reason');
     });
 
   }
@@ -83,13 +89,22 @@ class StreamSocket {
   }
 
   void joinRoom(String? roomId) {
+    print('🚪 [SOCKET] Emit join: roomID=$roomId');
     socket!.emit('join', {'roomID': roomId});
+    socket!.on('joined', (data) {
+      print('✅ [SOCKET] Server xác nhận joined: $data');
+    });
+    socket!.on('join', (data) {
+      print('✅ [SOCKET] Server phản hồi join: $data');
+    });
   }
 
   void listenChat(Function callback) {
+    print('👂 [SOCKET] Đăng ký lắng nghe message-in');
     socket!.on('message-in', (data) {
+      print('📩 [SOCKET] Nhận message-in: $data');
       callback(data);
-      ChatConnection.notificationList(); 
+      ChatConnection.notificationList();
     });
   }
 }

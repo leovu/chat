@@ -1005,6 +1005,7 @@ class Messages {
 
       repliedJson['author'] = {
         'firstName': replies!.author?.firstName,
+        'lastName': replies!.author?.lastName,
         'id': replies!.author?.sId,
       };
       repliedJson['id'] = replies!.sId!;

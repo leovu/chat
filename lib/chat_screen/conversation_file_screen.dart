@@ -674,17 +674,18 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                     ],
                   ),
                 ),
-                Container(
-                  height: 10.0,
-                  color: Colors.white,
-                ),
-                Expanded(child: InkWell(
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
                   onTap: () {
                     _searchController.text = '';
                     searchType = 0;
                     Navigator.of(context).pop();
                   },
-                ))
+                  child: Container(
+                    height: 40,
+                    color: Colors.transparent,
+                  ),
+                )
               ],
             );
           });
