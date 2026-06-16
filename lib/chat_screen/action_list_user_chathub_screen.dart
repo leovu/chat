@@ -34,9 +34,7 @@ class _State extends State<ActionListUserChathubScreen> {
                 color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
           ),
           leading: InkWell(
-            child: Icon(
-                Icons.arrow_back_ios,
-                color: Colors.black),
+            child: Icon(Icons.arrow_back_ios, color: Colors.black),
             onTap: () => Navigator.of(context).pop(),
           ),
           backgroundColor: Colors.white,
@@ -77,13 +75,15 @@ class _State extends State<ActionListUserChathubScreen> {
                     if (addCustomer != null) {
                       if (addCustomer['customerLeadId'] != null) {
                         await ChatConnection.customerLink(
-                            widget.roomData?.sId ?? '',
-                            addCustomer['customerId'],
+                            widget.roomData?.owner?.sId ?? '',
+                            addCustomer['customerLeadId'],
                             addCustomer['type'],
                             widget.customerAccount?.data?.mappingId ?? '',
-                            widget.roomData?.channel?.source,
-                            widget.roomData?.owner?.sId,
-                            customerLeadId: (addCustomer['customerLeadId'] ?? '').toString());
+                            widget.roomData?.owner?.source,
+                            widget.roomData?.owner?.userSocialId,
+                            customerLeadId:
+                                addCustomer['customerLeadId']?.toString() ??
+                                    '');
                         await ChatConnection.detect(
                             widget.roomData?.owner?.sId ?? '');
                       }
