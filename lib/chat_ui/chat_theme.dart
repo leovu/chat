@@ -17,21 +17,21 @@ const colors = [
 ];
 
 const avatarColors = [
-  Color(0xFFFF7A7A), // Coral Red
-  Color(0xFF4ECDBA), // Mint Teal
-  Color(0xFFE88BC3), // Soft Pink
-  Color(0xFFFFC857), // Warm Yellow
-  Color(0xFF7B61FF), // Violet
-  Color(0xFFFF9F68), // Soft Orange
-  Color(0xFF6BCB77), // Fresh Green
-  Color(0xFF5AB2FF), // Sky Blue
-  Color(0xFFFF6B8A), // Rose Pink
-  Color(0xFFB983FF), // Lavender
-  Color(0xFF20C997), // Theme Green
-  Color(0xFFF6822D), // Theme Orange
-  Color(0xFFE91D62), // Pink Sale
-  Color(0xFF26547C), // Navy Blue
-  Color(0xFF4FC3CB), // Aqua
+  Color(0xFF1E293B), // Slate 800
+  Color(0xFF334155), // Slate 700
+  Color(0xFF0F766E), // Teal 700
+  Color(0xFF155E75), // Cyan 800
+  Color(0xFF1D4ED8), // Blue 700
+  Color(0xFF3730A3), // Indigo 800
+  Color(0xFF6D28D9), // Purple 700
+  Color(0xFF9D174D), // Pink 800
+  Color(0xFFBE123C), // Rose 700
+  Color(0xFFB45309), // Amber 700
+  Color(0xFF92400E), // Orange 800
+  Color(0xFF166534), // Green 800
+  Color(0xFF3F3F46), // Zinc 700
+  Color(0xFF44403C), // Stone 700
+  Color(0xFF111827), // Gray 900
 ];
 
 /// Dark
