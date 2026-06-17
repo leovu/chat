@@ -157,13 +157,13 @@ class _MyAppState extends State<MyApp> {
                       'Waosupport@2025',
                       'assets/icon-app.png',
                       const Locale(LangKey.langVi, 'VI'),
-                      domain: 'https://chat.epoints.vn/',
+                      // domain: 'https://chat.epoints.vn/',
 
-                      // domain: 'https://chathub.epoints.vn/',
+                      domain: 'https://chathub.epoints.vn/',
                       brandCode: 'sale',
-                      isChatHub: false,
+                      isChatHub: true,
                       // token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3dvcmtzcGFjZS5lcG9pbnRzLnZuL3VzZXIvbG9naW4iLCJpYXQiOjE3ODE1NzU0NTAsImV4cCI6MTc4MTU5NzA1MCwibmJmIjoxNzgxNTc1NDUwLCJqdGkiOiJRVGpBUmx0OE1mTWNKWkdNIiwic3ViIjo4OCwicHJ2IjoiYTBmM2U3NGJlZGY1MTJjNDc3ODI5N2RlNWY5MjA4NmRhZDM5Y2E5ZiIsInNpZCI6InF1YW5nbG0iLCJicmFuZF9jb2RlIjoic2FsZSJ9.BtHX6cruqG8QhQHD4ax-P_qxc6l4s5u53pSy9FkasTQ"
-                      token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3dvcmtzcGFjZS5lcG9pbnRzLnZuL3VzZXIvbG9naW4iLCJpYXQiOjE3ODE2MDExNTEsImV4cCI6MTc4MTYyMjc1MSwibmJmIjoxNzgxNjAxMTUxLCJqdGkiOiIzaUNLSWEwVkpMcXVnblFuIiwic3ViIjo5NiwicHJ2IjoiYTBmM2U3NGJlZGY1MTJjNDc3ODI5N2RlNWY5MjA4NmRhZDM5Y2E5ZiIsInNpZCI6Im5nb2N2dG0iLCJicmFuZF9jb2RlIjoic2FsZSJ9.BpMbh8D4peayXeDav9zgftRjxL05zxf7MEeQa00L9WE'
+                      token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyZmQwMjA0ZDcwMzNlMjRkYTc5YzYwNiIsInVpZCI6MSwic2lkIjoiYWRtaW4iLCJlbWFpbCI6InZ1QHBpb2FwcHMudm4iLCJsZXZlbCI6InJvb3QiLCJmaXJzdE5hbWUiOiJBZG1pbiIsImxhc3ROYW1lIjoiVXNlciIsInVzZXJuYW1lIjoiYWRtaW4iLCJicmFuZF9jb2RlIjoic2FsZSIsImlhdCI6MTc4MTY2MTU5OCwiZXhwIjoxNzg2ODQ1NTk4fQ.HNVKX7-vHPpNun6BL9TeTAknaepme3wTlnlwbX4GZN0'
                       
                       // roomId: '632a88f7dd01b42c37330585'
                       );

@@ -203,6 +203,9 @@ class Chat {
   }
 
   static openNotification(Map<String, dynamic> notificationData) {
+    debugPrint('[NOTIFICATION] Received: $notificationData');
+    debugPrint('[NOTIFICATION] roomId=${ChatConnection.roomId}, '
+        'target=${ChatConnection.roomId == null ? 'homeScreen' : 'chatScreen'}');
     ChatConnection.notificationList();
     try {
       if (ChatConnection.roomId == null) {

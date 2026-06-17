@@ -7,6 +7,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/chat_ui/flutter_chat_ui.dart';
 import 'package:chat/connection/app_lifecycle.dart';
 import 'package:chat/connection/chat_connection.dart';
+import 'package:chat/services/notification_service.dart';
 import 'package:chat/connection/download.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/data_model/chat_message.dart' as c;
@@ -996,9 +997,7 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
     if (ChatConnection.roomId != null &&
         ChatConnection.roomId != notificationData['room']['_id']) {
       ChatConnection.showNotification(
-          notificationData['room']['isGroup'] == true
-              ? '${notificationData['message']['author']['firstName']} ${notificationData['message']['author']['lastName']} in ${notificationData['room']['title']}'
-              : '${notificationData['message']['author']['firstName']} ${notificationData['message']['author']['lastName']}',
+          NotificationService.buildTitle(notificationData),
           checkTag(notificationData['message']['content'], null),
           notificationData,
           ChatConnection.appIcon,

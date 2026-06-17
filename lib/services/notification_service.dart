@@ -40,6 +40,21 @@ class NotificationService {
     return responseData.isSuccess;
   }
 
+  static String buildTitle(Map<String, dynamic> data) {
+    final author = data['message']?['author'] ?? {};
+    final name = [author['firstName'], author['lastName']]
+        .where((e) => e != null && '$e'.trim().isNotEmpty)
+        .map((e) => '$e'.trim())
+        .join(' ');
+    final title = data['room']?['title'];
+    if (data['room']?['isGroup'] == true &&
+        title != null &&
+        '$title'.trim().isNotEmpty) {
+      return '$name in $title';
+    }
+    return name;
+  }
+
   static void showNotification(
     String notificationTitle,
     String notificationDes,
@@ -49,6 +64,9 @@ class NotificationService {
   ) {
     final isImage = message['message']['type'] == 'image';
     final isFile = message['message']['type'] == 'file';
+    debugPrint('[NOTIFICATION] Show banner: title=$notificationTitle, '
+        'type=${message['message']['type']}, roomId=${message['message']['room']}, '
+        'desc=$notificationDes');
     showOverlayNotification((context) {
       return BannerNotification(
         notificationTitle: notificationTitle,

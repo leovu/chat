@@ -9,6 +9,7 @@ import 'package:chat/chat_screen/favorite_screen.dart';
 import 'package:chat/chat_screen/notification_screen.dart';
 import 'package:chat/chat_screen/room_list_screen.dart';
 import 'package:chat/connection/chat_connection.dart';
+import 'package:chat/services/notification_service.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/check_tag.dart';
 import 'package:chat/localization/lang_key.dart';
@@ -226,9 +227,7 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
         json.decode(json.encode(data)) as Map<String, dynamic>;
     if (ChatConnection.roomId == null) {
       ChatConnection.showNotification(
-          notificationData['room']['isGroup'] == true
-              ? '${notificationData['message']['author']['firstName']} ${notificationData['message']['author']['lastName']} in ${notificationData['room']['title']}'
-              : '${notificationData['message']['author']['firstName']} ${notificationData['message']['author']['lastName']}',
+          NotificationService.buildTitle(notificationData),
           checkTag(notificationData['message']['content'], null),
           notificationData,
           ChatConnection.appIcon,
