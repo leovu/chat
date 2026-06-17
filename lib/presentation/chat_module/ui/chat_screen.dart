@@ -571,7 +571,7 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
         openFile(result, context, message.name);
       }
       if (message is types.ImageMessage) {
-        openImage(context, message.uri);
+        openImage(context, message.uri, onResend: _resendEditedImage);
       }
     } else {
       if (message is types.FileMessage &&
@@ -583,9 +583,14 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
         Navigator.of(context).pop();
         openFile(result, context, message.name);
       } else if (message is types.ImageMessage) {
-        openImage(context, message.uri);
+        openImage(context, message.uri, onResend: _resendEditedImage);
       }
     }
+  }
+
+  /// Gửi lại ảnh đã chỉnh sửa (vẽ/khoanh) vào cuộc trò chuyện hiện tại.
+  Future<void> _resendEditedImage(File editedImage) async {
+    await pickedImageFromMulti(XFile(editedImage.path));
   }
 
   void _handleMessageLongPress(
@@ -785,7 +790,8 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
     }
 
     return GestureDetector(
-      onTap: () => openImage(context, message.uri),
+      onTap: () =>
+          openImage(context, message.uri, onResend: _resendEditedImage),
       child: imageWidget,
     );
   }
@@ -850,7 +856,8 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
           }
 
           return GestureDetector(
-            onTap: () => openImages(context, imageUrls, initialIndex: index),
+            onTap: () => openImages(context, imageUrls,
+                initialIndex: index, onResend: _resendEditedImage),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: imageWidget,

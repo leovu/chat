@@ -18,17 +18,78 @@ class BySenderResultScreen extends StatefulWidget {
 
 class _State extends State<BySenderResultScreen>
     with SingleTickerProviderStateMixin {
+  late TextEditingController _searchController;
+  String _search = '';
+
   @override
   void initState() {
     super.initState();
+    _search = widget.search ?? '';
+    _searchController = TextEditingController(text: _search);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Widget _searchField() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
+      child: Container(
+        width: double.infinity,
+        height: 40,
+        decoration: BoxDecoration(
+            color: const Color(0xFFE7EAEF),
+            borderRadius: BorderRadius.circular(5)),
+        child: Row(
+          children: [
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              child: Center(child: Icon(Icons.search)),
+            ),
+            Expanded(
+                child: TextField(
+              controller: _searchController,
+              onChanged: (value) {
+                setState(() {
+                  _search = value;
+                });
+              },
+              decoration: InputDecoration.collapsed(
+                hintText: AppLocalizations.text(LangKey.bySender),
+              ),
+            )),
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(5),
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  child: Center(child: Icon(Icons.close)),
+                ),
+                onTap: () {
+                  _searchController.text = '';
+                  FocusManager.instance.primaryFocus?.unfocus();
+                  setState(() {
+                    _search = '';
+                  });
+                },
+              ),
+            )
+          ],
+        ),
+      ),
+    );
   }
 
   Widget totalText(){
     List<r.People?>? senders = widget.roomData.people?.map((e) {
       try{
         if(widget.tabbarIndex == 0) {
-          if(widget.search != '' && widget.search != null) {
-            var tmp = widget.chatMessage?.room?.images?.firstWhere((element) => element.author?.sId == e.sId && '${e.firstName} ${e.lastName}'.toLowerCase().contains(widget.search!.toLowerCase()));
+          if(_search != '') {
+            var tmp = widget.chatMessage?.room?.images?.firstWhere((element) => element.author?.sId == e.sId && '${e.firstName} ${e.lastName}'.toLowerCase().contains(_search.toLowerCase()));
             if(tmp != null) {
               return e;
             }
@@ -41,8 +102,8 @@ class _State extends State<BySenderResultScreen>
           }
         }
         else if(widget.tabbarIndex == 1) {
-          if(widget.search != '' && widget.search != null) {
-            var tmp = widget.chatMessage?.room?.files?.firstWhere((element) => element.author?.sId == e.sId && '${e.firstName} ${e.lastName}'.toLowerCase().contains(widget.search!.toLowerCase()));
+          if(_search != '') {
+            var tmp = widget.chatMessage?.room?.files?.firstWhere((element) => element.author?.sId == e.sId && '${e.firstName} ${e.lastName}'.toLowerCase().contains(_search.toLowerCase()));
             if(tmp != null) {
               return e;
             }
@@ -55,8 +116,8 @@ class _State extends State<BySenderResultScreen>
           }
         }
         else {
-          if(widget.search != '' && widget.search != null) {
-            var tmp = widget.chatMessage?.room?.links?.firstWhere((element) => element.author?.sId == e.sId && '${e.firstName} ${e.lastName}'.toLowerCase().contains(widget.search!.toLowerCase()));
+          if(_search != '') {
+            var tmp = widget.chatMessage?.room?.links?.firstWhere((element) => element.author?.sId == e.sId && '${e.firstName} ${e.lastName}'.toLowerCase().contains(_search.toLowerCase()));
             if(tmp != null) {
               return e;
             }
@@ -105,19 +166,26 @@ class _State extends State<BySenderResultScreen>
         ),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          physics: const ClampingScrollPhysics(),
-          child: Column(
-            children: [
-              Container(
-                margin: const EdgeInsets.only(top: 20.0),
-                child: Wrap(
-                  children: _list(),
+        child: Column(
+          children: [
+            _searchField(),
+            Expanded(
+              child: SingleChildScrollView(
+                physics: const ClampingScrollPhysics(),
+                child: Column(
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.only(top: 20.0),
+                      child: Wrap(
+                        children: _list(),
+                      ),
+                    ),
+                    totalText()
+                  ],
                 ),
               ),
-              totalText()
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -127,10 +195,10 @@ class _State extends State<BySenderResultScreen>
     List<c.Images>? listImages = widget.tabbarIndex == 0 ?
         widget.chatMessage?.room?.images : widget.tabbarIndex == 1 ?
     widget.chatMessage?.room?.files : widget.chatMessage?.room?.links;
-    if(widget.search != '' && widget.search != null) {
+    if(_search != '') {
       listPeople = [];
       for(var e in widget.roomData.people!) {
-        if('${e.firstName} ${e.lastName}'.toLowerCase().contains(widget.search!.toLowerCase())){
+        if('${e.firstName} ${e.lastName}'.toLowerCase().contains(_search.toLowerCase())){
           listPeople.add(e);
         }
       }

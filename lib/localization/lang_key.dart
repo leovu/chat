@@ -75,6 +75,7 @@ class LangKey {
   static const String searchUserAndGroup = "searchUserAndGroup";
   static const String sent = "sent";
   static const String send = "send";
+  static const String resend = "resend";
   static const String photos = "photos";
   static const String chats = "chats";
   static const String all = "all";

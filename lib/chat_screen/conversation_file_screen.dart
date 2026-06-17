@@ -28,15 +28,28 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   late TextEditingController _searchController;
-  late FocusNode _searchNode;
   int _activeTabIndex = 0;
+  c.ChatMessage? _chatMessage;
   @override
   void initState() {
     _tabController = TabController(length: 3, vsync: this);
     _searchController = TextEditingController();
-    _searchNode = FocusNode();
     _tabController.addListener(_setActiveTabIndex);
+    _chatMessage = widget.chatMessage;
     super.initState();
+    // Đồng bộ lại danh sách ảnh/file/link từ server (ảnh vừa gửi chưa có trong
+    // dữ liệu được truyền vào -> fetch mới để hiển thị đầy đủ).
+    WidgetsBinding.instance.addPostFrameCallback((_) => _syncFiles());
+  }
+
+  Future<void> _syncFiles() async {
+    final id = widget.roomData.sId ?? _chatMessage?.room?.sId;
+    if (id == null) return;
+    final fresh = await ChatConnection.joinRoom(id, refresh: true);
+    if (!mounted || fresh == null) return;
+    setState(() {
+      _chatMessage = fresh;
+    });
   }
 
   void _setActiveTabIndex() {
@@ -59,8 +72,7 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
               color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
         ),
         leading: InkWell(
-          child: Icon(Icons.arrow_back_ios,
-              color: Colors.black),
+          child: Icon(Icons.arrow_back_ios, color: Colors.black),
           onTap: () => Navigator.of(context).pop(),
         ),
         backgroundColor: Colors.white,
@@ -71,45 +83,39 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
       body: SafeArea(
         child: Column(
           children: [
-            Container(
-              color: Colors.white,
-              child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    physics: const BouncingScrollPhysics(),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      spacing: 8,
-                      children: [
-                        _buildSearchChip(AppLocalizations.text(LangKey.search),
-                            const Icon(Icons.search, color: Colors.black), () {
-                          _showBottomDialog();
-                        }),
-                        _buildSearchChip(
-                            AppLocalizations.text(LangKey.bySender),
-                            const Icon(Icons.people, color: Colors.black), () {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => BySenderResultScreen(
-                                    roomData: widget.roomData,
-                                    chatMessage: widget.chatMessage,
-                                    tabbarIndex: _activeTabIndex,
-                                  )));
-                        }),
-                        _buildSearchChip(AppLocalizations.text(LangKey.byTimes),
-                            const Icon(Icons.timer, color: Colors.black), () {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => ByTimeResultScreen(
-                                    roomData: widget.roomData,
-                                    chatMessage: widget.chatMessage,
-                                    tabbarIndex: _activeTabIndex,
-                                  )));
-                        }),
-                      ],
-                    ),
-                  )),
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: _buildSearchChip(
+                        AppLocalizations.text(LangKey.bySender),
+                        const Icon(Icons.people, color: Colors.black), () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => BySenderResultScreen(
+                                roomData: widget.roomData,
+                                chatMessage: _chatMessage,
+                                tabbarIndex: _activeTabIndex,
+                              )));
+                    }),
+                  ),
+                  const SizedBox(width: 8.0),
+                  Expanded(
+                    child: _buildSearchChip(
+                        AppLocalizations.text(LangKey.byTimes),
+                        const Icon(Icons.timer, color: Colors.black), () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => ByTimeResultScreen(
+                                roomData: widget.roomData,
+                                chatMessage: _chatMessage,
+                                tabbarIndex: _activeTabIndex,
+                              )));
+                    }),
+                  ),
+                ],
+              ),
             ),
-            // : CustomSearchTextField(_searchNode, _searchController, "Tìm ảnh, bộ sưu tạp, files, links"),
             Container(
               height: 3.0,
               color: const Color(0xFFE5E5E5),
@@ -150,23 +156,41 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
 
   Widget _buildSearchChip(String label, Icon icon, Function function) {
     return InkWell(
-      child: Chip(
-        labelPadding: const EdgeInsets.all(2.0),
-        avatar: icon,
-        label: Text(
-          '  $label',
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-            color: Colors.black,
-          ),
-        ),
-        backgroundColor: const Color(0xFFE5E5E5),
-        elevation: 6.0,
-        shadowColor: Colors.grey[60],
-        padding: const EdgeInsets.all(8.0),
-      ),
+      borderRadius: BorderRadius.circular(8.0),
       onTap: () => function(),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(4.0),
+        decoration: BoxDecoration(
+          color: const Color(0xFFE5E5E5),
+          borderRadius: BorderRadius.circular(8.0),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey[60] ?? Colors.grey,
+              blurRadius: 6.0,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            icon,
+            const SizedBox(width: 4.0),
+            Flexible(
+              child: Text(
+                label,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: Colors.black,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -176,18 +200,18 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
         shrinkWrap: true,
         physics: const ClampingScrollPhysics(),
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        itemCount: widget.chatMessage?.room?.images?.length ?? 0,
+        itemCount: _chatMessage?.room?.images?.length ?? 0,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 3, crossAxisSpacing: 8, mainAxisSpacing: 4),
         itemBuilder: (BuildContext context, int position) {
           return InkWell(
             onTap: () async {
               openImage(context,
-                  '${HTTPConnection.domain}api/images/${widget.chatMessage?.room?.images?[position].content}/512/${ChatConnection.brandCode}');
+                  '${HTTPConnection.domain}api/images/${_chatMessage?.room?.images?[position].content}/512/${ChatConnection.brandCode}');
             },
             child: CachedNetworkImage(
               imageUrl:
-                  '${HTTPConnection.domain}api/images/${widget.chatMessage?.room?.images?[position].content}/512/${ChatConnection.brandCode!}',
+                  '${HTTPConnection.domain}api/images/${_chatMessage?.room?.images?[position].content}/512/${ChatConnection.brandCode!}',
               httpHeaders: {'brand-code': ChatConnection.brandCode!},
               placeholder: (context, url) => const CupertinoActivityIndicator(),
               fit: BoxFit.cover,
@@ -203,16 +227,16 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
         shrinkWrap: true,
         physics: const ClampingScrollPhysics(),
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        itemCount: widget.chatMessage?.room?.files?.length ?? 0,
+        itemCount: _chatMessage?.room?.files?.length ?? 0,
         itemBuilder: (BuildContext context, int position) {
           return InkWell(
             onTap: () async {
-              var message = widget.chatMessage?.room?.files?[position].file!;
+              var message = _chatMessage?.room?.files?[position].file!;
               _showSnack(AppLocalizations.text(LangKey.downloading));
               String? result = await download(
                   context,
                   '${HTTPConnection.domain}api/files/${message!.shieldedID}/${ChatConnection.brandCode}',
-                  '${widget.chatMessage?.room?.files?[position].date}_${message.name}');
+                  '${_chatMessage?.room?.files?[position].date}_${message.name}');
               if (result != null) {
                 _showSnack(AppLocalizations.text(LangKey.downloadSuccess));
                 openFile(result, context,
@@ -243,7 +267,7 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             AutoSizeText(
-                              widget.chatMessage?.room?.files?[position].file
+                              _chatMessage?.room?.files?[position].file
                                       ?.name ??
                                   '',
                               maxLines: 2,
@@ -272,7 +296,7 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
     final urlRegExp = RegExp(
         r"((https?:www\.)|(https?:\/\/)|(www\.))[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9]{1,6}(\/[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)?");
     List<String> urls = [];
-    for (var e in widget.chatMessage?.room?.links ?? <c.Images>[]) {
+    for (var e in _chatMessage?.room?.links ?? <c.Images>[]) {
       final content = e.content ?? '';
       final urlMatches = urlRegExp.allMatches(content);
       List<String> url = urlMatches
@@ -293,8 +317,8 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
           return InkWell(
             onTap: () => _openLink(urls[position]),
             child: Padding(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 10.0, vertical: 6.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -418,320 +442,292 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
           return StatefulBuilder(
               builder: (BuildContext cxtx, StateSetter setState) {
             return Column(
+              mainAxisSize: MainAxisSize.max,
               children: [
-                Container(
-                  height: MediaQuery.of(context).viewPadding.top,
-                  color: Colors.white,
+                Expanded(
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () {
+                      searchType = 0;
+                      Navigator.of(context).pop();
+                    },
+                    child: Container(color: Colors.transparent),
+                  ),
                 ),
                 Container(
-                  color: Colors.white,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Expanded(
-                              child: Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: Container(
-                              width: double.infinity,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                  color: Colors.black.withAlpha(10),
-                                  borderRadius: BorderRadius.circular(5)),
-                              child: Row(
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10),
-                                    child: Center(
-                                      child: Icon(
-                                        Icons.search,
-                                        color: Colors.grey.shade500,
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                      child: TextField(
-                                    focusNode: _searchNode,
-                                    controller: _searchController,
-                                    onChanged: (_) {},
-                                    decoration: InputDecoration.collapsed(
-                                      hintText: AppLocalizations.text(
-                                          LangKey.findConversationFile),
-                                    ),
-                                  )),
-                                  Material(
-                                    color: Colors.transparent,
-                                    child: InkWell(
-                                      borderRadius: BorderRadius.circular(5),
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 10),
-                                        child: Center(
-                                          child: Icon(
-                                            Icons.close,
-                                            color: Colors.grey.shade500,
-                                          ),
-                                        ),
-                                      ),
-                                      onTap: () {
-                                        _searchController.text = '';
-                                        FocusManager.instance.primaryFocus
-                                            ?.unfocus();
-                                      },
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                          )),
-                          InkWell(
-                              onTap: () {
-                                if (searchType == 1) {
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(12.0),
+                      topRight: Radius.circular(12.0),
+                    ),
+                  ),
+                  child: SafeArea(
+                    top: false,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            if (searchType == 1)
+                              InkWell(
+                                onTap: () {
                                   setState(() {
                                     searchType = 0;
                                   });
-                                } else {
-                                  Navigator.of(context).pop();
-                                }
-                              },
-                              child: Container(
-                                margin:
-                                    const EdgeInsets.symmetric(horizontal: 8.0),
-                                child: Text(
-                                  AppLocalizations.text(LangKey.cancel),
-                                  style: TextStyle(
-                                      fontSize: 15.0,
-                                      fontWeight: FontWeight.w400,
-                                      color: Colors.grey.shade500),
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 12.0, top: 12.0, bottom: 12.0),
+                                  child: Icon(Icons.arrow_back_ios,
+                                      size: 18.0, color: Colors.grey.shade500),
                                 ),
-                              ))
-                        ],
-                      ),
-                      if (searchType == 0)
-                        InkWell(
-                            onTap: () {
-                              String text = _searchController.value.text;
-                              Navigator.of(context).pop();
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => BySenderResultScreen(
-                                        roomData: widget.roomData,
-                                        chatMessage: widget.chatMessage,
-                                        tabbarIndex: _activeTabIndex,
-                                        search: text,
-                                      )));
-                              _searchController.text = '';
-                              searchType = 0;
-                            },
-                            child: searchOptionItem(
-                                AppLocalizations.text(LangKey.bySender), 1)),
-                      if (searchType == 0)
-                        InkWell(
-                            onTap: () {
-                              setState(() {
-                                searchType = 1;
-                              });
-                            },
-                            child: searchOptionItem(
-                                AppLocalizations.text(LangKey.byTimes), 2)),
-                      // if (searchType == 1) InkWell(
-                      //   onTap: () {
-                      //     final format2 = DateFormat("dd/MM/yyyy");
-                      //     String formattedDate = format2.format(DateTime.now().toUtc().add(const Duration(hours: 7)));
-                      //     Navigator.of(context).pop();
-                      //     Navigator.of(context).push(MaterialPageRoute(
-                      //         builder: (context) => ByTimeResultScreen(
-                      //           roomData: widget.roomData,
-                      //           chatMessage: widget.chatMessage,
-                      //           search: formattedDate,
-                      //           title: 'Today',
-                      //         )));
-                      //     _searchController.text = '';
-                      //     searchType = 0;
-                      //   },
-                      //     child: searchOptionItem("Today", 4, dateType: true)),
-                      if (searchType == 1)
-                        InkWell(
-                            onTap: () {
-                              final format2 = DateFormat("dd/MM/yyyy");
-                              String formattedDate = format2.format(
-                                  DateTime.now()
-                                      .toUtc()
-                                      .add(const Duration(hours: 7))
-                                      .subtract(const Duration(days: 1)));
-                              Navigator.of(context).pop();
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => ByTimeResultScreen(
-                                        roomData: widget.roomData,
-                                        chatMessage: widget.chatMessage,
-                                        tabbarIndex: _activeTabIndex,
-                                        search: formattedDate,
-                                        title: AppLocalizations.text(
-                                            LangKey.yesterday),
-                                      )));
-                              _searchController.text = '';
-                              searchType = 0;
-                            },
-                            child: searchOptionItem(
-                                AppLocalizations.text(LangKey.yesterday), 4,
-                                dateType: true)),
-                      // if (searchType == 1) InkWell(
-                      //     onTap: () {
-                      //       final format2 = DateFormat("dd/MM/yyyy");
-                      //       DateTime thisWeekFirstDay = firstDateOfTheThisWeek(DateTime.now());
-                      //       DateTime thisWeekLastDay = lastDateOfTheThisWeek(thisWeekFirstDay);
-                      //       String formattedDate1 = format2.format(thisWeekFirstDay.toUtc().add(const Duration(hours: 7)));
-                      //       String formattedDate2 = format2.format(thisWeekLastDay.toUtc().add(const Duration(hours: 7)));
-                      //       Navigator.of(context).pop();
-                      //       Navigator.of(context).push(MaterialPageRoute(
-                      //           builder: (context) => ByTimeResultScreen(
-                      //             roomData: widget.roomData,
-                      //             chatMessage: widget.chatMessage,
-                      //             search: '$formattedDate1-$formattedDate2',
-                      //             title: 'This week',
-                      //           )));
-                      //       _searchController.text = '';
-                      //       searchType = 0;
-                      //     },child: searchOptionItem("This week", 4, dateType: true)),
-                      if (searchType == 1)
-                        InkWell(
-                            onTap: () {
-                              final format2 = DateFormat("dd/MM/yyyy");
-                              DateTime lastWeekFirstDay =
-                                  firstDateOfTheThisWeek(DateTime.now()
-                                      .subtract(const Duration(days: 7)));
-                              DateTime lastWeekLastDay =
-                                  lastDateOfTheThisWeek(lastWeekFirstDay);
-                              String formattedDate1 = format2.format(
-                                  lastWeekFirstDay
-                                      .toUtc()
-                                      .add(const Duration(hours: 7)));
-                              String formattedDate2 = format2.format(
-                                  lastWeekLastDay
-                                      .toUtc()
-                                      .add(const Duration(hours: 7)));
-                              Navigator.of(context).pop();
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => ByTimeResultScreen(
-                                        roomData: widget.roomData,
-                                        chatMessage: widget.chatMessage,
-                                        tabbarIndex: _activeTabIndex,
-                                        search:
-                                            '$formattedDate1-$formattedDate2',
-                                        title: AppLocalizations.text(
-                                            LangKey.lastWeek),
-                                      )));
-                              _searchController.text = '';
-                              searchType = 0;
-                            },
-                            child: searchOptionItem(
-                                AppLocalizations.text(LangKey.lastWeek), 4,
-                                dateType: true)),
-                      // if (searchType == 1) InkWell(
-                      //     onTap: () {
-                      //       final format2 = DateFormat("dd/MM/yyyy");
-                      //       DateTime firstDayOfMonth = firstDayCurrentMonth(DateTime.now());
-                      //       DateTime lastDayOfMonth = lastDayCurrentMonth(DateTime.now());
-                      //       String formattedDate1 = format2.format(firstDayOfMonth.toUtc().add(const Duration(hours: 7)));
-                      //       String formattedDate2 = format2.format(lastDayOfMonth.toUtc().add(const Duration(hours: 7)));
-                      //       Navigator.of(context).pop();
-                      //       Navigator.of(context).push(MaterialPageRoute(
-                      //           builder: (context) => ByTimeResultScreen(
-                      //             roomData: widget.roomData,
-                      //             chatMessage: widget.chatMessage,
-                      //             search: '$formattedDate1-$formattedDate2',
-                      //             title: 'This month',
-                      //           )));
-                      //       _searchController.text = '';
-                      //       searchType = 0;
-                      //     },child: searchOptionItem("This month", 4, dateType: true)),
-                      if (searchType == 1)
-                        InkWell(
-                            onTap: () {
-                              final format2 = DateFormat("dd/MM/yyyy");
-                              DateTime firstDayOfMonth =
-                                  firstDayLastMonth(DateTime.now());
-                              DateTime lastDayOfMonth =
-                                  lastDayLastMonth(DateTime.now());
-                              String formattedDate1 = format2.format(
-                                  firstDayOfMonth
-                                      .toUtc()
-                                      .add(const Duration(hours: 7)));
-                              String formattedDate2 = format2.format(
-                                  lastDayOfMonth
-                                      .toUtc()
-                                      .add(const Duration(hours: 7)));
-                              Navigator.of(context).pop();
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => ByTimeResultScreen(
-                                        roomData: widget.roomData,
-                                        chatMessage: widget.chatMessage,
-                                        tabbarIndex: _activeTabIndex,
-                                        search:
-                                            '$formattedDate1-$formattedDate2',
-                                        title: AppLocalizations.text(
-                                            LangKey.lastMonth),
-                                      )));
-                              _searchController.text = '';
-                              searchType = 0;
-                            },
-                            child: searchOptionItem(
-                                AppLocalizations.text(LangKey.lastMonth), 4,
-                                dateType: true)),
-                      if (searchType == 1)
-                        InkWell(
-                            onTap: () async {
-                              DateTimeRange? range = await showDateRangePicker(
-                                  context: context,
-                                  firstDate: DateTime(1990, 1, 1),
-                                  lastDate: DateTime.now(),
-                                  currentDate: DateTime.now(),
-                                  locale: ChatConnection.locale);
-                              if (range != null) {
+                              ),
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16.0, vertical: 12.0),
+                                child: Text(
+                                  searchType == 0
+                                      ? AppLocalizations.text(LangKey.search)
+                                      : AppLocalizations.text(LangKey.byTimes),
+                                  style: const TextStyle(
+                                      fontSize: 16.0,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.black),
+                                ),
+                              ),
+                            ),
+                            InkWell(
+                                onTap: () {
+                                  searchType = 0;
+                                  Navigator.of(context).pop();
+                                },
+                                child: Container(
+                                  margin: const EdgeInsets.symmetric(
+                                      horizontal: 12.0, vertical: 12.0),
+                                  child: Text(
+                                    AppLocalizations.text(LangKey.cancel),
+                                    style: TextStyle(
+                                        fontSize: 15.0,
+                                        fontWeight: FontWeight.w400,
+                                        color: Colors.grey.shade500),
+                                  ),
+                                ))
+                          ],
+                        ),
+                        if (searchType == 0)
+                          InkWell(
+                              onTap: () {
+                                Navigator.of(context).pop();
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) => BySenderResultScreen(
+                                          roomData: widget.roomData,
+                                          chatMessage: _chatMessage,
+                                          tabbarIndex: _activeTabIndex,
+                                        )));
+                                searchType = 0;
+                              },
+                              child: searchOptionItem(
+                                  AppLocalizations.text(LangKey.bySender), 1)),
+                        if (searchType == 0)
+                          InkWell(
+                              onTap: () {
+                                setState(() {
+                                  searchType = 1;
+                                });
+                              },
+                              child: searchOptionItem(
+                                  AppLocalizations.text(LangKey.byTimes), 2)),
+                        // if (searchType == 1) InkWell(
+                        //   onTap: () {
+                        //     final format2 = DateFormat("dd/MM/yyyy");
+                        //     String formattedDate = format2.format(DateTime.now().toUtc().add(const Duration(hours: 7)));
+                        //     Navigator.of(context).pop();
+                        //     Navigator.of(context).push(MaterialPageRoute(
+                        //         builder: (context) => ByTimeResultScreen(
+                        //           roomData: widget.roomData,
+                        //           chatMessage: _chatMessage,
+                        //           search: formattedDate,
+                        //           title: 'Today',
+                        //         )));
+                        //     _searchController.text = '';
+                        //     searchType = 0;
+                        //   },
+                        //     child: searchOptionItem("Today", 4, dateType: true)),
+                        if (searchType == 1)
+                          InkWell(
+                              onTap: () {
                                 final format2 = DateFormat("dd/MM/yyyy");
-                                String formattedDate1 = format2.format(range
-                                    .start
-                                    .toUtc()
-                                    .add(const Duration(hours: 7)));
-                                String formattedDate2 = format2.format(range.end
-                                    .toUtc()
-                                    .add(const Duration(hours: 7)));
+                                String formattedDate = format2.format(
+                                    DateTime.now()
+                                        .toUtc()
+                                        .add(const Duration(hours: 7))
+                                        .subtract(const Duration(days: 1)));
                                 Navigator.of(context).pop();
                                 Navigator.of(context).push(MaterialPageRoute(
                                     builder: (context) => ByTimeResultScreen(
                                           roomData: widget.roomData,
-                                          chatMessage: widget.chatMessage,
-                                          search:
-                                              '$formattedDate1-$formattedDate2',
+                                          chatMessage: _chatMessage,
                                           tabbarIndex: _activeTabIndex,
+                                          search: formattedDate,
                                           title: AppLocalizations.text(
-                                              LangKey.custom),
+                                              LangKey.yesterday),
                                         )));
                                 _searchController.text = '';
                                 searchType = 0;
-                              }
-                            },
-                            child: searchOptionItem(
-                                AppLocalizations.text(LangKey.custom), 4,
-                                dateType: true)),
-                    ],
+                              },
+                              child: searchOptionItem(
+                                  AppLocalizations.text(LangKey.yesterday), 4,
+                                  dateType: true)),
+                        // if (searchType == 1) InkWell(
+                        //     onTap: () {
+                        //       final format2 = DateFormat("dd/MM/yyyy");
+                        //       DateTime thisWeekFirstDay = firstDateOfTheThisWeek(DateTime.now());
+                        //       DateTime thisWeekLastDay = lastDateOfTheThisWeek(thisWeekFirstDay);
+                        //       String formattedDate1 = format2.format(thisWeekFirstDay.toUtc().add(const Duration(hours: 7)));
+                        //       String formattedDate2 = format2.format(thisWeekLastDay.toUtc().add(const Duration(hours: 7)));
+                        //       Navigator.of(context).pop();
+                        //       Navigator.of(context).push(MaterialPageRoute(
+                        //           builder: (context) => ByTimeResultScreen(
+                        //             roomData: widget.roomData,
+                        //             chatMessage: _chatMessage,
+                        //             search: '$formattedDate1-$formattedDate2',
+                        //             title: 'This week',
+                        //           )));
+                        //       _searchController.text = '';
+                        //       searchType = 0;
+                        //     },child: searchOptionItem("This week", 4, dateType: true)),
+                        if (searchType == 1)
+                          InkWell(
+                              onTap: () {
+                                final format2 = DateFormat("dd/MM/yyyy");
+                                DateTime lastWeekFirstDay =
+                                    firstDateOfTheThisWeek(DateTime.now()
+                                        .subtract(const Duration(days: 7)));
+                                DateTime lastWeekLastDay =
+                                    lastDateOfTheThisWeek(lastWeekFirstDay);
+                                String formattedDate1 = format2.format(
+                                    lastWeekFirstDay
+                                        .toUtc()
+                                        .add(const Duration(hours: 7)));
+                                String formattedDate2 = format2.format(
+                                    lastWeekLastDay
+                                        .toUtc()
+                                        .add(const Duration(hours: 7)));
+                                Navigator.of(context).pop();
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) => ByTimeResultScreen(
+                                          roomData: widget.roomData,
+                                          chatMessage: _chatMessage,
+                                          tabbarIndex: _activeTabIndex,
+                                          search:
+                                              '$formattedDate1-$formattedDate2',
+                                          title: AppLocalizations.text(
+                                              LangKey.lastWeek),
+                                        )));
+                                _searchController.text = '';
+                                searchType = 0;
+                              },
+                              child: searchOptionItem(
+                                  AppLocalizations.text(LangKey.lastWeek), 4,
+                                  dateType: true)),
+                        // if (searchType == 1) InkWell(
+                        //     onTap: () {
+                        //       final format2 = DateFormat("dd/MM/yyyy");
+                        //       DateTime firstDayOfMonth = firstDayCurrentMonth(DateTime.now());
+                        //       DateTime lastDayOfMonth = lastDayCurrentMonth(DateTime.now());
+                        //       String formattedDate1 = format2.format(firstDayOfMonth.toUtc().add(const Duration(hours: 7)));
+                        //       String formattedDate2 = format2.format(lastDayOfMonth.toUtc().add(const Duration(hours: 7)));
+                        //       Navigator.of(context).pop();
+                        //       Navigator.of(context).push(MaterialPageRoute(
+                        //           builder: (context) => ByTimeResultScreen(
+                        //             roomData: widget.roomData,
+                        //             chatMessage: _chatMessage,
+                        //             search: '$formattedDate1-$formattedDate2',
+                        //             title: 'This month',
+                        //           )));
+                        //       _searchController.text = '';
+                        //       searchType = 0;
+                        //     },child: searchOptionItem("This month", 4, dateType: true)),
+                        if (searchType == 1)
+                          InkWell(
+                              onTap: () {
+                                final format2 = DateFormat("dd/MM/yyyy");
+                                DateTime firstDayOfMonth =
+                                    firstDayLastMonth(DateTime.now());
+                                DateTime lastDayOfMonth =
+                                    lastDayLastMonth(DateTime.now());
+                                String formattedDate1 = format2.format(
+                                    firstDayOfMonth
+                                        .toUtc()
+                                        .add(const Duration(hours: 7)));
+                                String formattedDate2 = format2.format(
+                                    lastDayOfMonth
+                                        .toUtc()
+                                        .add(const Duration(hours: 7)));
+                                Navigator.of(context).pop();
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) => ByTimeResultScreen(
+                                          roomData: widget.roomData,
+                                          chatMessage: _chatMessage,
+                                          tabbarIndex: _activeTabIndex,
+                                          search:
+                                              '$formattedDate1-$formattedDate2',
+                                          title: AppLocalizations.text(
+                                              LangKey.lastMonth),
+                                        )));
+                                _searchController.text = '';
+                                searchType = 0;
+                              },
+                              child: searchOptionItem(
+                                  AppLocalizations.text(LangKey.lastMonth), 4,
+                                  dateType: true)),
+                        if (searchType == 1)
+                          InkWell(
+                              onTap: () async {
+                                DateTimeRange? range =
+                                    await showDateRangePicker(
+                                        context: context,
+                                        firstDate: DateTime(1990, 1, 1),
+                                        lastDate: DateTime.now(),
+                                        currentDate: DateTime.now(),
+                                        locale: ChatConnection.locale);
+                                if (range != null) {
+                                  final format2 = DateFormat("dd/MM/yyyy");
+                                  String formattedDate1 = format2.format(range
+                                      .start
+                                      .toUtc()
+                                      .add(const Duration(hours: 7)));
+                                  String formattedDate2 = format2.format(range
+                                      .end
+                                      .toUtc()
+                                      .add(const Duration(hours: 7)));
+                                  Navigator.of(context).pop();
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                      builder: (context) => ByTimeResultScreen(
+                                            roomData: widget.roomData,
+                                            chatMessage: _chatMessage,
+                                            search:
+                                                '$formattedDate1-$formattedDate2',
+                                            tabbarIndex: _activeTabIndex,
+                                            title: AppLocalizations.text(
+                                                LangKey.custom),
+                                          )));
+                                  _searchController.text = '';
+                                  searchType = 0;
+                                }
+                              },
+                              child: searchOptionItem(
+                                  AppLocalizations.text(LangKey.custom), 4,
+                                  dateType: true)),
+                        const SizedBox(height: 12.0),
+                      ],
+                    ),
                   ),
                 ),
-                GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () {
-                    _searchController.text = '';
-                    searchType = 0;
-                    Navigator.of(context).pop();
-                  },
-                  child: Container(
-                    height: 40,
-                    color: Colors.transparent,
-                  ),
-                )
               ],
             );
           });

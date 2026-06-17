@@ -286,15 +286,18 @@ void openFile(String? result, BuildContext context, String fileName) async {
   return null;
 }
 
-void openImage(BuildContext context, String url) {
+void openImage(BuildContext context, String url,
+    {Future<void> Function(File editedImage)? onResend}) {
   // Ensure URL has full domain (fix for relative paths like data/xxx/xxx.jpg)
   final fullUrl = _ensureFullUrl(url);
   Navigator.of(context).push(MaterialPageRoute(builder: (ctx) {
-    return PhotoScreen(imageViewed: fullUrl);
+    return PhotoScreen(imageViewed: fullUrl, onResend: onResend);
   }));
 }
 
-void openImages(BuildContext context, List<String> urls, {int initialIndex = 0}) {
+void openImages(BuildContext context, List<String> urls,
+    {int initialIndex = 0,
+    Future<void> Function(File editedImage)? onResend}) {
   // Ensure all URLs have full domain
   final fullUrls = urls.map((url) => _ensureFullUrl(url)).toList();
   Navigator.of(context).push(MaterialPageRoute(builder: (ctx) {
@@ -302,6 +305,7 @@ void openImages(BuildContext context, List<String> urls, {int initialIndex = 0})
       imageViewed: fullUrls[initialIndex],
       imageUrls: fullUrls,
       initialIndex: initialIndex,
+      onResend: onResend,
     );
   }));
 }

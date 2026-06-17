@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:chat/chat_screen/image_annotation_screen.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/download.dart';
 import 'package:chat/localization/app_localizations.dart';
@@ -13,11 +14,15 @@ class PhotoScreen extends StatefulWidget {
   final List<String>? imageUrls;
   final int initialIndex;
 
+  /// Khi có => hiển thị nút chỉnh sửa (vẽ/khoanh) và cho phép gửi lại ảnh đã chỉnh.
+  final Future<void> Function(File editedImage)? onResend;
+
   const PhotoScreen({
     Key? key,
     required this.imageViewed,
     this.imageUrls,
     this.initialIndex = 0,
+    this.onResend,
   }) : super(key: key);
 
   @override
@@ -124,6 +129,23 @@ class _PhotoScreenState extends State<PhotoScreen> {
               },
             ),
           ),
+          if (widget.onResend != null)
+            Positioned(
+              right: 90,
+              top: 0,
+              child: IconButton(
+                icon: const Icon(Icons.edit),
+                color: Colors.white,
+                onPressed: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => ImageAnnotationScreen(
+                      imageUrl: _imageList[_currentIndex],
+                      onResend: widget.onResend,
+                    ),
+                  ));
+                },
+              ),
+            ),
           if (_imageList.length > 1)
             Positioned(
               bottom: 20,
