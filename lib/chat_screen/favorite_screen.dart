@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:chat/chat_screen/home_screen.dart';
 import 'package:chat/chat_ui/vietnamese_text.dart';
 import 'package:chat/chat_ui/widgets/chat_room_widget.dart';
+import 'package:chat/chat_ui/widgets/custom_room_avatar.dart';
+import 'package:chat/presentation/utils/ultility.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/presentation/chat_module/ui/chat_screen.dart';
 import 'package:chat/data_model/room.dart';
@@ -277,6 +279,7 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen>
                       ? (people.picture == null || people.picture == "")
                           ? CircleAvatar(
                               radius: 25.0,
+                              backgroundColor: getAvatarColor(people.sId),
                               child: Text(
                                 people.getAvatarName(),
                                 style: const TextStyle(color: Colors.white),
@@ -299,6 +302,8 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen>
                                   errorBuilder: (context, error, stackTrace) {
                                     return CircleAvatar(
                                       radius: 25.0,
+                                      backgroundColor:
+                                          getAvatarColor(people.sId),
                                       child: Text(
                                         people.getAvatarName(),
                                         style: const TextStyle(
@@ -309,41 +314,10 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen>
                                 ),
                               ),
                             )
-                      : data.room_avatar == null
-                          ? CircleAvatar(
-                              radius: 25.0,
-                              child: Text(
-                                data.getAvatarGroupName(),
-                                style: const TextStyle(color: Colors.white),
-                              ),
-                            )
-                          : CircleAvatar(
-                              radius: 25.0,
-                              backgroundColor: Colors.transparent,
-                              child: ClipOval(
-                                child: Image(
-                                  image: CachedNetworkImageProvider(
-                                      '${HTTPConnection.domain}api/images/${data.room_avatar?.shieldedID}/256/${ChatConnection.brandCode ?? ''}',
-                                      headers: {
-                                        'brand-code':
-                                            ChatConnection.brandCode ?? ''
-                                      }),
-                                  fit: BoxFit.cover,
-                                  width: 50.0,
-                                  height: 50.0,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return CircleAvatar(
-                                      radius: 25.0,
-                                      child: Text(
-                                        data.getAvatarGroupName(),
-                                        style: const TextStyle(
-                                            color: Colors.white),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-                            ),
+                      : ChatGroupAvatar(
+                          people: data.people,
+                          size: 50,
+                        ),
                   Expanded(
                       child: Container(
                     padding: const EdgeInsets.only(

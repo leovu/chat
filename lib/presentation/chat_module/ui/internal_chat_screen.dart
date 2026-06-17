@@ -3,6 +3,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/chat_screen/forward_screen.dart';
 import 'package:chat/connection/chat_connection.dart';
+import 'package:chat/chat_ui/widgets/custom_room_avatar.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/data_model/chat_message.dart' as c;
 import 'package:chat/data_model/room.dart' as r;
@@ -249,7 +250,12 @@ class _InternalChatScreenState extends ChatScreenBaseState<InternalChatScreen> {
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
-                child: buildAvatar(),
+                child: widget.data.isGroup == true
+                    ? ChatGroupAvatar(
+                        people: widget.data.people,
+                        size: 50,
+                      )
+                    : buildAvatar(),
               ),
               Expanded(
                 child: Padding(
@@ -317,6 +323,7 @@ class _InternalChatScreenState extends ChatScreenBaseState<InternalChatScreen> {
       return isPictureEmpty
           ? CircleAvatar(
               radius: radius,
+              backgroundColor: getAvatarColor(owner?.sId),
               child: Text(
                 getAvatarName('${owner?.firstName ?? ''}',
                     '${owner?.lastName ?? ''}'),
@@ -335,6 +342,7 @@ class _InternalChatScreenState extends ChatScreenBaseState<InternalChatScreen> {
       return widget.data.room_avatar == null
           ? CircleAvatar(
               radius: radius,
+              backgroundColor: getAvatarColor(widget.data.sId),
               child: Text(
                 widget.data.getAvatarGroupName(),
                 style: const TextStyle(color: Colors.white),

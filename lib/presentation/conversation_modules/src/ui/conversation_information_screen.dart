@@ -196,6 +196,10 @@ class _ConversationInformationScreenState
                     .then((value) {
                   Navigator.of(cxt).pop();
                   if (value) {
+                    try {
+                      ChatConnection.refreshRoom.call();
+                      ChatConnection.refreshFavorites.call();
+                    } catch (_) {}
                     Navigator.of(context).popUntil(
                         (route) => route.settings.name == "chat_screen");
                     Navigator.of(context).pop();
@@ -242,6 +246,12 @@ class _ConversationInformationScreenState
                 ChatConnection.removeRoom(roomId).then((value) {
                   Navigator.of(cxt).pop();
                   if (value) {
+                    try {
+                      ChatConnection.refreshRoom.call();
+                      ChatConnection.refreshFavorites.call();
+                    } catch (_) {}
+                    Navigator.of(context).popUntil(
+                        (route) => route.settings.name == "chat_screen");
                     Navigator.of(context).pop();
                   } else {
                     showDialog(
@@ -415,8 +425,7 @@ class _ConversationInformationScreenState
               color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
         ),
         leading: InkWell(
-          child: Icon(Icons.arrow_back_ios,
-              color: Colors.black),
+          child: Icon(Icons.arrow_back_ios, color: Colors.black),
           onTap: () => Navigator.of(context).pop(),
         ),
         actions: [
@@ -673,7 +682,7 @@ class _ConversationInformationScreenState
               const Icon(
                 Icons.folder,
                 color: Color(0xff5686E1),
-                size: 35,
+                size: 30,
               ),
               AppLocalizations.text(LangKey.file), () {
             Navigator.of(context).push(MaterialPageRoute(
@@ -688,7 +697,7 @@ class _ConversationInformationScreenState
           //     const Icon(
           //       Icons.note_add,
           //       color: Color(0xff5686E1),
-          //       size: 35,
+          //       size: 30,
           //     ),
           //     AppLocalizations.text(LangKey.create_note), () async {
           //   await Navigator.of(context).push(MaterialPageRoute(
@@ -700,21 +709,13 @@ class _ConversationInformationScreenState
           // }),
           ListNoteComponent(_bloc, () => _bloc.getNotes(widget.roomData.sId!),
               widget.roomData),
-          if (widget.roomData.isGroup!)
-            Padding(
-              padding:
-                  const EdgeInsets.only(left: 50.0, right: 50.0, top: 13.0),
-              child: Container(
-                height: 1.0,
-                color: const Color(0xFFE5E5E5),
-              ),
-            ),
+
           if (widget.roomData.isGroup!)
             _section(
                 const Icon(
                   Icons.group,
                   color: Color(0xff5686E1),
-                  size: 35,
+                  size: 30,
                 ),
                 AppLocalizations.text(LangKey.viewMembers), () {
               Navigator.of(context).push(MaterialPageRoute(
@@ -724,46 +725,32 @@ class _ConversationInformationScreenState
                           widget.roomData.channel?.socialChanelId)));
             }),
           if (widget.roomData.isGroup!)
-            Padding(
-              padding:
-                  const EdgeInsets.only(left: 50.0, right: 50.0, top: 13.0),
-              child: Container(
-                height: 1.0,
-                color: const Color(0xFFE5E5E5),
-              ),
-            ),
-          if (widget.roomData.isGroup!)
-            _section(
-                const Icon(
-                  Icons.remove_circle,
-                  color: Color(0xff5686E1),
-                  size: 35,
-                ),
-                AppLocalizations.text(LangKey.leaveConversation), () {
-              _leaveRoom(widget.roomData.sId!);
-            }, textColor: Colors.black),
+
+            //Rời cuộc trò chuyện
+            if (widget.roomData.isGroup!)
+              _section(
+                  const Icon(
+                    Icons.remove_circle,
+                    color: Color(0xff5686E1),
+                    size: 30,
+                  ),
+                  AppLocalizations.text(LangKey.leaveConversation), () {
+                _leaveRoom(widget.roomData.sId!);
+              }, textColor: Colors.black),
           if (!widget.roomData.isGroup! ||
               (widget.roomData.owner?.sId == ChatConnection.user!.id &&
                   widget.roomData.isGroup!))
-            Padding(
-              padding:
-                  const EdgeInsets.only(left: 50.0, right: 50.0, top: 13.0),
-              child: Container(
-                height: 1.0,
-                color: const Color(0xFFE5E5E5),
-              ),
-            ),
 
-          /// CHƯA CHECK ĐIỀU KIỆN HIỂN THỊ
-          ChatConnection.isChatHub ? socialInformation() : Container(),
+            /// CHƯA CHECK ĐIỀU KIỆN HIỂN THỊ
+            ChatConnection.isChatHub ? socialInformation() : Container(),
           if (!widget.roomData.isGroup! ||
-              (widget.roomData.owner!.sId == ChatConnection.user!.id &&
+              (widget.roomData.owner?.sId == ChatConnection.user!.id &&
                   widget.roomData.isGroup!))
             _section(
                 const Icon(
                   Icons.delete,
                   color: Colors.red,
-                  size: 35,
+                  size: 30,
                 ),
                 AppLocalizations.text(LangKey.deleteConversation), () {
               !widget.roomData.isGroup!
@@ -980,14 +967,14 @@ class _ConversationInformationScreenState
             ? null
             : '${domain}api/images/${owner!.picture}/256/$brandCode';
       } else {
-        // Group: sử dụng room_avatar.shieldedID
-        avatarName = roomData.getAvatarGroupName();
+        // Group: đồng bộ cấu trúc avatar nhóm giống ChatHub
         displayName = roomData.title ??
             '${owner?.firstName ?? ''} ${owner?.lastName ?? ''}';
-
-        avatarUrl = roomData.room_avatar?.shieldedID != null
-            ? '${domain}api/images/${roomData.room_avatar!.shieldedID}/256/$brandCode'
-            : null;
+        return ChatGroupAvatar(
+          people: roomData.people,
+          groupName: displayName,
+          size: 50,
+        );
       }
     } else {
       // ===== CHAT HUB (giống roomChatHubWidget trong room_list_screen.dart) =====
@@ -1018,18 +1005,17 @@ class _ConversationInformationScreenState
             roomData.title ??
             'Group ${roomData.owner?.firstName ?? ''} ${roomData.owner?.lastName ?? ''}';
 
-        // ChatHub group: dùng GroupAvatar từ people[].avatar (giống chat_screen.dart)
-        return GroupAvatarWithName(
-          img1: roomData.people?[0].avatar ?? '',
-          img2: roomData.people?[1].avatar ?? '',
-          img3: roomData.people?[2].avatar ?? '',
+        // ChatHub group: đồng bộ cùng ChatGroupAvatar
+        return ChatGroupAvatar(
+          people: roomData.people,
           groupName: displayName,
           size: 50,
         );
       }
     }
 
-    return _buildAvatar(displayName, avatarName, avatarUrl);
+    return _buildAvatar(displayName, avatarName, avatarUrl,
+        colorId: owner?.sId);
   }
 
   Widget actionChatHubView() {
@@ -1109,7 +1095,7 @@ class _ConversationInformationScreenState
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             _section(
-              const Icon(Icons.note_add, color: Color(0xff5686E1), size: 35),
+              const Icon(Icons.note_add, color: Color(0xff5686E1), size: 30),
               AppLocalizations.text(LangKey.create_note),
               () async {
                 await Navigator.of(context).push(MaterialPageRoute(
@@ -1506,7 +1492,6 @@ class _ConversationInformationScreenState
       ),
     );
   }
-
 
   Widget _chatFunction() {
     return SingleChildScrollView(
@@ -1919,7 +1904,8 @@ class _ConversationInformationScreenState
                   ? '$httpFacebook${widget.roomData.channel!.socialChanelId}'
                   : '$httpOA${widget.roomData.channel!.socialChanelId}';
               final uri = Uri.tryParse(link);
-              if (uri != null) launchUrl(uri, mode: LaunchMode.externalApplication);
+              if (uri != null)
+                launchUrl(uri, mode: LaunchMode.externalApplication);
             },
             child: CustomRowInformation(
               title: widget.roomData.source == facebookConst
@@ -1952,7 +1938,8 @@ class _ConversationInformationScreenState
     );
   }
 
-  Widget _buildAvatar(String name, String avatarName, String? url) {
+  Widget _buildAvatar(String name, String avatarName, String? url,
+      {String? colorId}) {
     Widget child;
     double radius = MediaQuery.of(context).size.width * 0.125;
     if (url != null && url != '') {
@@ -1965,6 +1952,7 @@ class _ConversationInformationScreenState
     } else {
       child = CircleAvatar(
         radius: radius,
+        backgroundColor: getAvatarColor(colorId),
         child: Text(avatarName,
             style: const TextStyle(color: Colors.white),
             maxLines: 1,
@@ -2020,112 +2008,118 @@ class _ConversationInformationScreenState
   Widget _section(Icon icon, String name, Function function,
       {Color? textColor}) {
     return Padding(
-      padding: const EdgeInsets.only(top: 8.0),
-      child: InkWell(
-        onTap: () {
-          function();
-        },
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8.0),
+          border: Border.all(color: const Color(0xFFE5E5E5)),
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(8.0),
+          onTap: () {
+            function();
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 10.0, right: 10),
-                  child: icon,
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: AutoSizeText(
-                      name,
-                      maxLines: 1,
-                      textScaleFactor: 1.2,
-                      style: TextStyle(color: textColor ?? Colors.black),
+                Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8.0, right: 8),
+                      child: icon,
                     ),
-                  ),
-                ),
-                if (textColor == null)
-                  const Padding(
-                    padding: EdgeInsets.only(left: 5.0, right: 10.0),
-                    child: Icon(
-                      Icons.navigate_next_outlined,
-                      color: Color(0xFFE5E5E5),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: AutoSizeText(
+                          name,
+                          maxLines: 1,
+                          textScaleFactor: 1.2,
+                          style: TextStyle(color: textColor ?? Colors.black),
+                        ),
+                      ),
                     ),
-                  ),
+                    if (textColor == null)
+                      const Padding(
+                        padding: EdgeInsets.only(left: 5.0, right: 8.0),
+                        child: Icon(
+                          Icons.navigate_next_outlined,
+                          color: Color(0xFFE5E5E5),
+                        ),
+                      ),
+                  ],
+                ),
               ],
             ),
-            Container(
-              margin: EdgeInsets.only(left: 20.0, right: 20.0, top: 10.0),
-              child: CustomLine(),
-            )
-          ],
+          ),
         ),
       ),
     );
   }
-
 }
 
 List<Widget> extractSummaryWidgetsFromHtml(String input) {
-    // 1. Xử lý sơ bộ HTML
-    input = input.replaceAll(RegExp(r'<h1[^>]*>.*?</h1>', dotAll: true), '');
+  // 1. Xử lý sơ bộ HTML
+  input = input.replaceAll(RegExp(r'<h1[^>]*>.*?</h1>', dotAll: true), '');
 
-    input = input.replaceAllMapped(
-      RegExp(r'<h2[^>]*>(.*?)<\/h2>', dotAll: true),
-      (match) => '\n${match.group(1)?.trim()}:',
-    );
+  input = input.replaceAllMapped(
+    RegExp(r'<h2[^>]*>(.*?)<\/h2>', dotAll: true),
+    (match) => '\n${match.group(1)?.trim()}:',
+  );
 
-    input = input.replaceAllMapped(
-      RegExp(r'<li[^>]*>(.*?)<\/li>', dotAll: true),
-      (match) => '- ${match.group(1)?.trim()}\n',
-    );
+  input = input.replaceAllMapped(
+    RegExp(r'<li[^>]*>(.*?)<\/li>', dotAll: true),
+    (match) => '- ${match.group(1)?.trim()}\n',
+  );
 
-    input = input.replaceAll(
-        RegExp(r'<\/?(ul|ol|p)[^>]*>', caseSensitive: false), '');
-    input = input.replaceAll(RegExp(r'<[^>]+>'), '');
-    input = input.trim();
+  input = input.replaceAll(
+      RegExp(r'<\/?(ul|ol|p)[^>]*>', caseSensitive: false), '');
+  input = input.replaceAll(RegExp(r'<[^>]+>'), '');
+  input = input.trim();
 
-    // 2. Giải mã một số HTML entity đơn giản bằng tay (ví dụ: &gt; -> >)
-    input = input.replaceAll('&gt;', '>');
-    input = input.replaceAll('&lt;', '<');
-    input = input.replaceAll('&amp;', '&');
-    input = input.replaceAll('&quot;', '"');
-    input = input.replaceAll('&#39;', "'");
-    input = input.replaceAll('-', "");
+  // 2. Giải mã một số HTML entity đơn giản bằng tay (ví dụ: &gt; -> >)
+  input = input.replaceAll('&gt;', '>');
+  input = input.replaceAll('&lt;', '<');
+  input = input.replaceAll('&amp;', '&');
+  input = input.replaceAll('&quot;', '"');
+  input = input.replaceAll('&#39;', "'");
+  input = input.replaceAll('-', "");
 
-    // 3. Xử lý dấu ::: về :
-    input = input.replaceAll(RegExp(r':{2,}'), ':');
+  // 3. Xử lý dấu ::: về :
+  input = input.replaceAll(RegExp(r':{2,}'), ':');
 
-    // 4. Tách dòng
-    final lines = input.split('\n');
+  // 4. Tách dòng
+  final lines = input.split('\n');
 
-    // 5. Tạo danh sách Widget từ từng dòng
-    return lines.where((line) => line.trim().isNotEmpty).map((line) {
-      final trimmed = line.trim();
-      final isTitle = RegExp(r'^[IVXLCDM]+\.\s').hasMatch(trimmed);
+  // 5. Tạo danh sách Widget từ từng dòng
+  return lines.where((line) => line.trim().isNotEmpty).map((line) {
+    final trimmed = line.trim();
+    final isTitle = RegExp(r'^[IVXLCDM]+\.\s').hasMatch(trimmed);
 
-      return Padding(
-        padding: EdgeInsets.only(
-          top: isTitle ? 10 : 0,
-          left: isTitle ? 0 : 15.0,
-          bottom: 6.0,
-        ),
-        child: Align(
-          alignment: Alignment.centerLeft, // Giúp text căn trái
-          child: AutoSizeText(
-            trimmed,
-            minFontSize: isTitle ? 16 : 12,
-            maxFontSize: isTitle ? 20 : 16,
-            style: TextStyle(
-              fontWeight: isTitle ? FontWeight.bold : FontWeight.normal,
-              color: isTitle ? const Color(0xFF007BFF) : Colors.black,
-            ),
+    return Padding(
+      padding: EdgeInsets.only(
+        top: isTitle ? 10 : 0,
+        left: isTitle ? 0 : 15.0,
+        bottom: 6.0,
+      ),
+      child: Align(
+        alignment: Alignment.centerLeft, // Giúp text căn trái
+        child: AutoSizeText(
+          trimmed,
+          minFontSize: isTitle ? 16 : 12,
+          maxFontSize: isTitle ? 20 : 16,
+          style: TextStyle(
+            fontWeight: isTitle ? FontWeight.bold : FontWeight.normal,
+            color: isTitle ? const Color(0xFF007BFF) : Colors.black,
           ),
         ),
-      );
-    }).toList();
+      ),
+    );
+  }).toList();
 }
 
 // ── Session bottom sheet ─────────────────────────────────────────────────────
@@ -2176,13 +2170,16 @@ class _ChatSessionBottomSheetState extends State<_ChatSessionBottomSheet>
     );
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(() {
-      if (_tabController.index == 1 && _typesMessages.isEmpty && !_loadingMessages) {
+      if (_tabController.index == 1 &&
+          _typesMessages.isEmpty &&
+          !_loadingMessages) {
         _fetchMessages();
       }
     });
     widget.bloc.sessionStream.listen((sessions) {
       if (mounted && widget.index != null && sessions.length > widget.index!) {
-        setState(() => _summary = sessions[widget.index!].summary ?? widget.session.summary);
+        setState(() => _summary =
+            sessions[widget.index!].summary ?? widget.session.summary);
       }
     });
   }
@@ -2195,9 +2192,11 @@ class _ChatSessionBottomSheetState extends State<_ChatSessionBottomSheet>
   }
 
   Future<void> _fetchMessages() async {
-    if (widget.session.messageIds == null || widget.session.messageIds!.isEmpty) return;
+    if (widget.session.messageIds == null || widget.session.messageIds!.isEmpty)
+      return;
     setState(() => _loadingMessages = true);
-    final rawMsgs = await ChatConnection.getSessionMessages(widget.session.messageIds!);
+    final rawMsgs =
+        await ChatConnection.getSessionMessages(widget.session.messageIds!);
     final List<types.Message> converted = [];
     for (final m in rawMsgs) {
       if (m.author?.sId != null && m.sId != null) {
@@ -2206,10 +2205,11 @@ class _ChatSessionBottomSheetState extends State<_ChatSessionBottomSheet>
         } catch (_) {}
       }
     }
-    if (mounted) setState(() {
-      _typesMessages = List.from(converted.reversed);
-      _loadingMessages = false;
-    });
+    if (mounted)
+      setState(() {
+        _typesMessages = List.from(converted.reversed);
+        _loadingMessages = false;
+      });
   }
 
   @override
@@ -2398,10 +2398,13 @@ class _ChatSessionBottomSheetState extends State<_ChatSessionBottomSheet>
               ? {'brand-code': ChatConnection.brandCode!}
               : null,
           placeholder: (_, __) => SizedBox(
-              width: w, height: 120,
-              child: const Center(child: CircularProgressIndicator(strokeWidth: 2))),
+              width: w,
+              height: 120,
+              child: const Center(
+                  child: CircularProgressIndicator(strokeWidth: 2))),
           errorWidget: (_, __, ___) => SizedBox(
-              width: w, height: 120,
+              width: w,
+              height: 120,
               child: const Icon(Icons.broken_image, color: Colors.grey)),
         ),
       ),

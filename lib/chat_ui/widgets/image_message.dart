@@ -246,10 +246,8 @@ class _ImageMessageState extends State<ImageMessage> {
       );
     } else {
       return Container(
-        decoration: BoxDecoration(
-          color: _user.id == widget.message.author.id
-              ? InheritedChatTheme.of(context).theme.primaryColor
-              : InheritedChatTheme.of(context).theme.secondaryColor,
+        decoration: const BoxDecoration(
+          color: Colors.transparent,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,

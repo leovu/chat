@@ -152,10 +152,8 @@ class _ChatHubScreenState extends ChatScreenBaseState<ChatHubScreen> {
               Padding(
                 padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
                 child: widget.data.isGroup == true
-                    ? GroupAvatar(
-                        img1: widget.data.people?[0].avatar ?? '',
-                        img2: widget.data.people?[1].avatar ?? '',
-                        img3: widget.data.people?[2].avatar ?? '',
+                    ? ChatGroupAvatar(
+                        people: widget.data.people,
                         size: 50,
                       )
                     : buildAvatar(),
@@ -237,6 +235,7 @@ class _ChatHubScreenState extends ChatScreenBaseState<ChatHubScreen> {
         } else {
           return CircleAvatar(
             radius: radius,
+            backgroundColor: getAvatarColor(widget.data.owner?.sId),
             child: Text(
               getAvatarName('${widget.data.owner?.firstName ?? ''}',
                   '${widget.data.owner?.lastName ?? ''}'),
@@ -257,6 +256,7 @@ class _ChatHubScreenState extends ChatScreenBaseState<ChatHubScreen> {
               )
             : CircleAvatar(
                 radius: radius,
+                backgroundColor: getAvatarColor(widget.data.owner?.sId),
                 child: Text(
                   getAvatarName('${widget.data.owner?.firstName ?? ''}',
                       '${widget.data.owner?.lastName ?? ''}'),
@@ -268,6 +268,7 @@ class _ChatHubScreenState extends ChatScreenBaseState<ChatHubScreen> {
       return widget.data.avatar == null
           ? CircleAvatar(
               radius: radius,
+              backgroundColor: getAvatarColor(widget.data.sId),
               child: Text(
                 widget.data.getAvatarGroupName(),
                 style: const TextStyle(color: Colors.white),

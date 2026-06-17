@@ -16,6 +16,24 @@ const colors = [
   Color(0xffc78ae5),
 ];
 
+const avatarColors = [
+  Color(0xFFFF7A7A), // Coral Red
+  Color(0xFF4ECDBA), // Mint Teal
+  Color(0xFFE88BC3), // Soft Pink
+  Color(0xFFFFC857), // Warm Yellow
+  Color(0xFF7B61FF), // Violet
+  Color(0xFFFF9F68), // Soft Orange
+  Color(0xFF6BCB77), // Fresh Green
+  Color(0xFF5AB2FF), // Sky Blue
+  Color(0xFFFF6B8A), // Rose Pink
+  Color(0xFFB983FF), // Lavender
+  Color(0xFF20C997), // Theme Green
+  Color(0xFFF6822D), // Theme Orange
+  Color(0xFFE91D62), // Pink Sale
+  Color(0xFF26547C), // Navy Blue
+  Color(0xFF4FC3CB), // Aqua
+];
+
 /// Dark
 const dark = Color(0xff1f1c38);
 
@@ -40,8 +58,10 @@ const neutral7WithOpacity = Color(0x80ffffff);
 /// Primary
 const primary = Color(0xffdbf1ff);
 
+const primaryColor = Color(0xFF3398dc);
+
 /// Secondary
-const secondary = Color(0xfff5f5f7);
+const secondary = Color(0xffe6eaf0);
 
 /// Secondary dark
 const secondaryDark = Color(0xff2b2250);
@@ -430,7 +450,7 @@ class DefaultChatTheme extends ChatTheme {
     EdgeInsetsGeometry statusIconPadding =
         const EdgeInsets.symmetric(horizontal: 4),
     Color userAvatarImageBackgroundColor = Colors.transparent,
-    List<Color> userAvatarNameColors = colors,
+    List<Color> userAvatarNameColors = avatarColors,
     TextStyle userAvatarTextStyle = const TextStyle(
       color: neutral7,
       fontSize: 12,
@@ -646,7 +666,7 @@ class DarkChatTheme extends ChatTheme {
     EdgeInsetsGeometry statusIconPadding =
         const EdgeInsets.symmetric(horizontal: 4),
     Color userAvatarImageBackgroundColor = Colors.transparent,
-    List<Color> userAvatarNameColors = colors,
+    List<Color> userAvatarNameColors = avatarColors,
     TextStyle userAvatarTextStyle = const TextStyle(
       color: neutral7,
       fontSize: 12,

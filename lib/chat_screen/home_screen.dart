@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:chat/chat_ui/chat_theme.dart';
 import 'package:chat/common/global.dart';
 import 'package:chat/common/shared_prefs/shared_prefs_key.dart';
 import 'package:chat/presentation/chat_module/ui/chat_screen.dart';
@@ -18,7 +19,6 @@ import 'package:flutter/material.dart';
 import 'package:chat/data_model/room.dart' as r;
 import 'package:chat/connection/app_lifecycle.dart';
 import 'package:badges/badges.dart' as bdg;
-
 
 typedef RefreshBuilder = void Function(
     BuildContext context, void Function() refresh);
@@ -76,7 +76,7 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
           }
         },
         backgroundColor: Colors.white,
-        activeColor: const Color(0xff9012FE),
+        activeColor: primaryColor,
         items: [
           BottomNavigationBarItem(
               icon: const Icon(Icons.chat),
@@ -144,7 +144,7 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
           }
         },
         backgroundColor: Colors.white,
-        activeColor: const Color(0xff9012FE),
+        activeColor: primaryColor,
         items: [
           BottomNavigationBarItem(
               icon: const Icon(Icons.chat),

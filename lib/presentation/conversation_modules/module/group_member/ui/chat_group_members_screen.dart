@@ -3,7 +3,6 @@ import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/chat_screen/add_member_group_screen.dart';
 import 'package:chat/chat_ui/widgets/widget_divider.dart';
-import 'package:chat/common/theme.dart';
 import 'package:chat/data_model/chat_message.dart';
 import 'package:chat/data_model/response/group_member_response_model.dart';
 import 'package:chat/presentation/chat_module/ui/chat_screen.dart';
@@ -15,6 +14,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:chat/presentation/conversation_modules/module/group_member/bloc/chat_group_member_bloc.dart';
+import 'package:chat/presentation/utils/ultility.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -383,6 +383,12 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
     );
   }
 
+  String _avatarNameFromDisplay(String displayName) {
+    final parts = displayName.trim().split(RegExp(r'\s+'));
+    return getAvatarName(
+        parts.isNotEmpty ? parts.first : '', parts.length > 1 ? parts.last : '');
+  }
+
   Widget _buildPeopleAvatar(r.People? data) {
     const double radius = 25.0;
     String? avatarUrl;
@@ -414,9 +420,9 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
 
     return CircleAvatar(
       radius: radius,
-      backgroundColor: AppColors.bluePrimary,
+      backgroundColor: getAvatarColor(data?.sId),
       child: Text(
-        data?.getAvatarName() ?? '*',
+        getAvatarName(data?.firstName, data?.lastName),
         style: const TextStyle(color: Colors.white),
         maxLines: 1,
         textScaler: TextScaler.linear(1.0),
@@ -586,11 +592,15 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
                 child: Row(
                   children: [
-                    avatarUrl == null
+                    avatarUrl == null || avatarUrl.isEmpty
                         ? CircleAvatar(
                             radius: 25.0,
+                            backgroundColor: getAvatarColor(id),
                             child: Text(
-                                displayName.isNotEmpty ? displayName[0] : '?'))
+                              _avatarNameFromDisplay(displayName),
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          )
                         : CircleAvatar(
                             radius: 25.0,
                             backgroundImage: CachedNetworkImageProvider(

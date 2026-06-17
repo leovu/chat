@@ -14,7 +14,8 @@
       "Bash(rtk find *)",
       "Bash(rtk wc *)",
       "Bash(dart analyze *)",
-      "Bash(awk '/^class Owner/{f=1} f&&/source|userSocialId|sId|String\\\\?|Owner\\\\\\(/{print NR\": \"$0} f&&/^}/{print NR\": }\"; exit}' /Users/mwang/WAO/Epoints/chat/lib/data_model/room.dart)"
+      "Bash(awk '/^class Owner/{f=1} f&&/source|userSocialId|sId|String\\\\?|Owner\\\\\\(/{print NR\": \"$0} f&&/^}/{print NR\": }\"; exit}' /Users/mwang/WAO/Epoints/chat/lib/data_model/room.dart)",
+      "Bash(grep -E \"\\\\.\\(dart\\)$\")"
     ]
   }
 }

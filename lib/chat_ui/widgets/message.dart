@@ -203,12 +203,24 @@ class Message extends StatelessWidget {
         : const SizedBox(width: 30);
   }
 
+  /// Hình ảnh, sticker, icon: không bọc nền màu để khỏi trùng nền tin nhắn.
+  bool get _isMediaMessage {
+    if (message.type == types.MessageType.image) return true;
+    if (message.type == types.MessageType.custom) {
+      final customType =
+          (message as types.CustomMessage).metadata?['custom_type'];
+      return customType == 'sticker' || customType == 'image_url';
+    }
+    return false;
+  }
+
   Widget _bubbleBuilder(
     BuildContext context,
     BorderRadius borderRadius,
     bool currentUserIsAuthor,
     bool enlargeEmojis,
   ) {
+    final bool isMedia = _isMediaMessage;
     Color color =
         !currentUserIsAuthor || message.type == types.MessageType.image
             ? InheritedChatTheme.of(context).theme.secondaryColor
@@ -224,11 +236,13 @@ class Message extends StatelessWidget {
             : Container(
                 key: key,
                 decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    color: !currentUserIsAuthor ||
-                            message.type == types.MessageType.image
-                        ? InheritedChatTheme.of(context).theme.secondaryColor
-                        : InheritedChatTheme.of(context).theme.primaryColor),
+                  borderRadius: BorderRadius.circular(12),
+                  color: isMedia
+                      ? Colors.transparent
+                      : (currentUserIsAuthor
+                          ? InheritedChatTheme.of(context).theme.primaryColor
+                          : InheritedChatTheme.of(context).theme.secondaryColor),
+                ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   child: _messageBuilder(color, currentUserIsAuthor),

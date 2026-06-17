@@ -9,6 +9,7 @@ import 'package:chat/data_model/notifications.dart' as n;
 import 'package:chat/data_model/room.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
+import 'package:chat/presentation/utils/ultility.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -147,7 +148,9 @@ class _NotificationScreenState extends State<NotificationScreen> with AutomaticK
               children: [
                 data.createdBy?.picture == null ? CircleAvatar(
                   radius: 20.0,
-                  child: Text(data.createdBy!.getAvatarName()),
+                  backgroundColor: getAvatarColor(data.createdBy?.sId),
+                  child: Text(data.createdBy!.getAvatarName(),
+                      style: const TextStyle(color: Colors.white)),
                 ) : CircleAvatar(
                   radius: 20.0,
                   backgroundImage:

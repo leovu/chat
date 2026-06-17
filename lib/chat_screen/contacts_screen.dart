@@ -9,6 +9,7 @@ import 'package:chat/data_model/contact.dart';
 import 'package:chat/data_model/room.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
+import 'package:chat/presentation/utils/ultility.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/data_model/room.dart' as r;
@@ -231,7 +232,9 @@ class _ContactsScreenState extends State<ContactsScreen> with AutomaticKeepAlive
                   children: [
                     data.picture == null ? CircleAvatar(
                       radius: 25.0,
-                      child: Text(data.getAvatarName()),
+                      backgroundColor: getAvatarColor(data.sId),
+                      child: Text(data.getAvatarName(),
+                          style: const TextStyle(color: Colors.white)),
                     ) : CircleAvatar(
                       radius: 25.0,
                       backgroundImage:

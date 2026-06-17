@@ -976,6 +976,7 @@ class _RoomListScreenState extends State<RoomListScreen>
                           ? (people.picture == null || people.picture == "")
                               ? CircleAvatar(
                                   radius: 25.0,
+                                  backgroundColor: getAvatarColor(people.sId),
                                   child: Text(
                                     people.getAvatarName(),
                                     style: const TextStyle(color: Colors.white),
@@ -991,24 +992,10 @@ class _RoomListScreenState extends State<RoomListScreen>
                                       }),
                                   backgroundColor: Colors.transparent,
                                 )
-                          : data.room_avatar == null
-                              ? CircleAvatar(
-                                  radius: 25.0,
-                                  child: Text(
-                                    data.getAvatarGroupName(),
-                                    style: const TextStyle(color: Colors.white),
-                                  ),
-                                )
-                              : CircleAvatar(
-                                  radius: 25.0,
-                                  backgroundImage: CachedNetworkImageProvider(
-                                      '${HTTPConnection.domain}api/images/${data.room_avatar?.shieldedID}/256/${ChatConnection.brandCode ?? ''}',
-                                      headers: {
-                                        'brand-code':
-                                            ChatConnection.brandCode ?? ''
-                                      }),
-                                  backgroundColor: Colors.transparent,
-                                ),
+                          : ChatGroupAvatar(
+                              people: data.people,
+                              size: 50,
+                            ),
                     ],
                   ),
                   Expanded(
@@ -1142,6 +1129,7 @@ class _RoomListScreenState extends State<RoomListScreen>
       }
       return CircleAvatar(
         radius: radius,
+        backgroundColor: getAvatarColor(owner?.sId),
         child: Text(
             getAvatarName(
                 '${owner?.firstName ?? ''}', '${owner?.lastName ?? ''}'),
@@ -1166,6 +1154,7 @@ class _RoomListScreenState extends State<RoomListScreen>
             errorBuilder: (context, error, stackTrace) {
               return CircleAvatar(
                 radius: radius,
+                backgroundColor: getAvatarColor(data.people?.first.sId),
                 child: Text(
                     getAvatarName('${data.people?.first.firstName ?? ''}',
                         '${data.people?.first.lastName ?? ''}'),
@@ -1179,6 +1168,7 @@ class _RoomListScreenState extends State<RoomListScreen>
 
     return CircleAvatar(
       radius: radius,
+      backgroundColor: getAvatarColor(owner?.sId),
       child: Text(
         getAvatarName('${owner?.firstName ?? ''}', '${owner?.lastName ?? ''}'),
         style: const TextStyle(color: Colors.white),
@@ -1201,10 +1191,8 @@ class _RoomListScreenState extends State<RoomListScreen>
     //         style: const TextStyle(color: Colors.white)),
     //   );
     // }
-    return GroupAvatar(
-      img1: data.people?[0].avatar ?? '',
-      img2: data.people?[1].avatar ?? '',
-      img3: data.people?[2].avatar ?? '',
+    return ChatGroupAvatar(
+      people: data.people,
       size: 50,
     );
   }

@@ -1,9 +1,14 @@
 import 'dart:io';
 
+import 'package:chat/chat_ui/chat_theme.dart' show avatarColors;
 import 'package:chat/data_model/room.dart' show Owner;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
+
+/// Màu nền avatar mặc định theo id (đồng bộ với getUserAvatarNameColor).
+Color getAvatarColor(String? id) =>
+    avatarColors[(id ?? '').hashCode % avatarColors.length];
 
 configKeyboardActions(List<KeyboardActionsItem> actions) {
   return KeyboardActionsConfig(
