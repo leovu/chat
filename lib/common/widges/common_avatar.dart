@@ -16,6 +16,7 @@ class CommonAvatar extends StatelessWidget {
             ? data.owner!.picture == null
                 ? CircleAvatar(
                     radius: 25.0,
+                    backgroundColor: getAvatarColor(data.owner?.sId),
                     child: Text(
                       data.owner!.getAvatarName(),
                       style: const TextStyle(color: Colors.white),
@@ -31,6 +32,7 @@ class CommonAvatar extends StatelessWidget {
             : data.room_avatar == null
                 ? CircleAvatar(
                     radius: 25.0,
+                    backgroundColor: getAvatarColor(data.sId),
                     child: Text(
                       data.getAvatarGroupName(),
                       style: const TextStyle(color: Colors.white),

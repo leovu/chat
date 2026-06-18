@@ -6,6 +6,7 @@ import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
+import 'package:chat/presentation/utils/ultility.dart' show getAvatarColor;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/data_model/chat_message.dart' as c;
@@ -407,6 +408,7 @@ class ForwardScreenState extends State<ForwardScreen> {
                       ? info.picture == null
                           ? CircleAvatar(
                               radius: 10.0,
+                              backgroundColor: getAvatarColor(info.sId),
                               child: Text(
                                 info.getAvatarName(),
                                 style: const TextStyle(
@@ -425,6 +427,7 @@ class ForwardScreenState extends State<ForwardScreen> {
                       : data.room_avatar == null
                           ? CircleAvatar(
                               radius: 10.0,
+                              backgroundColor: getAvatarColor(data.sId),
                               child: Text(
                                 data.getAvatarGroupName(),
                                 style: const TextStyle(

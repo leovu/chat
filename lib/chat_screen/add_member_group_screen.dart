@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:chat/presentation/utils/ultility.dart' show getAvatarColor;
 import 'package:chat/chat_ui/vietnamese_text.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';
@@ -528,14 +529,26 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    if (data.picture != null)
-                      CircleAvatar(
-                        radius: 25.0,
-                        backgroundImage: CachedNetworkImageProvider(
-                            '${HTTPConnection.domain}api/images/${data.picture!.shieldedID}/256/${ChatConnection.brandCode!}',
-                            headers: {'brand-code': ChatConnection.brandCode!}),
-                        backgroundColor: Colors.transparent,
-                      ),
+                    data.picture == null
+                        ? CircleAvatar(
+                            radius: 25.0,
+                            backgroundColor: getAvatarColor(data.userSocialId),
+                            child: Text(
+                              data.fullName.isNotEmpty
+                                  ? data.fullName[0].toUpperCase()
+                                  : '?',
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          )
+                        : CircleAvatar(
+                            radius: 25.0,
+                            backgroundImage: CachedNetworkImageProvider(
+                                '${HTTPConnection.domain}api/images/${data.picture!.shieldedID}/256/${ChatConnection.brandCode!}',
+                                headers: {
+                                  'brand-code': ChatConnection.brandCode!
+                                }),
+                            backgroundColor: Colors.transparent,
+                          ),
                     Expanded(
                         child: Container(
                       padding: const EdgeInsets.only(
@@ -746,12 +759,26 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    if (data.avatar.isNotEmpty)
-                      CircleAvatar(
-                        radius: 25.0,
-                        child: Image.network(data.avatar),
-                        // child: Text(data.getAvatarName()),
-                      ),
+                    data.avatar.isEmpty
+                        ? CircleAvatar(
+                            radius: 25.0,
+                            backgroundColor: getAvatarColor(data.userId),
+                            child: Text(
+                              data.displayName.isNotEmpty
+                                  ? data.displayName[0].toUpperCase()
+                                  : '?',
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          )
+                        : CircleAvatar(
+                            radius: 25.0,
+                            backgroundImage:
+                                CachedNetworkImageProvider(data.avatar,
+                                    headers: {
+                                  'brand-code': ChatConnection.brandCode!
+                                }),
+                            backgroundColor: Colors.transparent,
+                          ),
                     Expanded(
                         child: Container(
                       padding: const EdgeInsets.only(
@@ -827,7 +854,11 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                     data.picture == null
                         ? CircleAvatar(
                             radius: 25.0,
-                            child: Text(data.getAvatarName()),
+                            backgroundColor: getAvatarColor(data.sId),
+                            child: Text(
+                              data.getAvatarName(),
+                              style: const TextStyle(color: Colors.white),
+                            ),
                           )
                         : CircleAvatar(
                             radius: 25.0,

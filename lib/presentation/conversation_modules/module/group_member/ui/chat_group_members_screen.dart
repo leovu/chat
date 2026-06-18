@@ -3,7 +3,6 @@ import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/chat_screen/add_member_group_screen.dart';
 import 'package:chat/chat_ui/widgets/widget_divider.dart';
-import 'package:chat/common/theme.dart';
 import 'package:chat/data_model/chat_message.dart';
 import 'package:chat/data_model/response/group_member_response_model.dart';
 import 'package:chat/presentation/chat_module/ui/chat_screen.dart';
@@ -20,6 +19,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../../data_model/response/group_info_response.dart';
 import '../../../../utils/dialog.dart';
+import '../../../../utils/ultility.dart' show getAvatarColor;
 
 class ChatGroupMembersScreen extends StatefulWidget {
   // final r.Rooms roomData;
@@ -55,24 +55,27 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
           ? lengthPeople = widget.chatMessage.room?.people?.length ?? 0
           : lengthPeople = widget.chatMessage.room?.people?.length ?? 1 - 1;
     } else {
+      lengthPeople = widget.chatMessage.room?.people?.length ?? 0;
       isInitScreen = false;
     }
   }
 
   void onGetInfoOnOpen() async {
-    final channelId = widget.chatMessage.room?.channel?.socialChanelId;
-    final channelZaloId = widget.chatMessage.room?.channel?.id;
-    final groupId = widget.chatMessage.room?.oa_group_id;
+    try {
+      final channelId = widget.chatMessage.room?.channel?.socialChanelId;
+      final channelZaloId = widget.chatMessage.room?.channel?.id;
+      final groupId = widget.chatMessage.room?.oa_group_id;
 
-    if (isZalo) {
-      await _bloc.onGetMemberInfo(
-          channelZaloId!, widget.chatMessage.room?.sId ?? '');
-      listPendingInvite = await ChatConnection.getMemberPendingInvite(
-          channelZaloId, groupId ?? '');
-    } else if (isZaloPersonal) {
-      infoMemberZaloPersional =
-          await ChatConnection.getGroupInfo(channelId ?? '', groupId ?? '');
-    }
+      if (isZalo) {
+        await _bloc.onGetMemberInfo(
+            channelZaloId ?? '', widget.chatMessage.room?.sId ?? '');
+        listPendingInvite = await ChatConnection.getMemberPendingInvite(
+            channelZaloId ?? '', groupId ?? '');
+      } else if (isZaloPersonal) {
+        infoMemberZaloPersional =
+            await ChatConnection.getGroupInfo(channelId ?? '', groupId ?? '');
+      }
+    } catch (_) {}
     isInitScreen = false;
     setState(() {});
   }
@@ -194,8 +197,8 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
             final memberZP = members[index];
             if (memberZP.level == 'root') return Container();
             final isLast = index == members.length - 1;
-            return buildMemberZPItem(context, memberZP, isLast, memberZP.id!,
-                widget.chatMessage.room!.isGroup!);
+            return buildMemberZPItem(context, memberZP, isLast, memberZP.id ?? '',
+                widget.chatMessage.room?.isGroup == true);
           },
         );
       }
@@ -277,7 +280,7 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
         widget.chatMessage.room?.channel?.id ?? '',
         widget.chatMessage.room!.oa_group_id!,
         [memberId]);
-    if (response!.isSuccess) {
+    if (response?.isSuccess == true) {
       onGetInfoOnOpen();
     } else {
       showDialog(
@@ -315,6 +318,7 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
       itemCount: itemCount,
       itemBuilder: (context, index) {
         final item = listPendingInvite?.members?[index];
+        if (item == null) return const SizedBox.shrink();
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8),
           child: Card(
@@ -326,7 +330,7 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
                     color: Colors.grey.shade300,
                   )),
               child: buildMemberZItem(
-                  context, item!, !(index == itemCount), index,
+                  context, item, !(index == itemCount), index,
                   isPending: true),
             ),
           ),
@@ -336,7 +340,7 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
   }
 
   Widget _itemChat(BuildContext context, int index) {
-    final data = widget.chatMessage.room?.people![index];
+    final data = widget.chatMessage.room?.people?[index];
     bool isLast = index == (widget.chatMessage.room?.people?.length ?? 1) - 1;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0),
@@ -397,7 +401,7 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
                                 backgroundColor: Colors.transparent,
                               )
                             : CircleAvatar(
-                                backgroundColor: AppColors.bluePrimary,
+                                backgroundColor: getAvatarColor(data?.sId),
                                 child: Text(
                                     '${data?.firstName} ${data?.lastName}',
                                     style: const TextStyle(color: Colors.white),
@@ -526,8 +530,10 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
                     avatarUrl == null
                         ? CircleAvatar(
                             radius: 25.0,
+                            backgroundColor: getAvatarColor(id),
                             child: Text(
-                                displayName.isNotEmpty ? displayName[0] : '?'))
+                                displayName.isNotEmpty ? displayName[0] : '?',
+                                style: const TextStyle(color: Colors.white)))
                         : CircleAvatar(
                             radius: 25.0,
                             backgroundImage: CachedNetworkImageProvider(

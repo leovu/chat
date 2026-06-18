@@ -9,17 +9,51 @@ import '../../connection/http_connection.dart' show HTTPConnection;
 
 class PhotoScreen extends StatefulWidget {
   final String imageViewed;
-  const PhotoScreen({Key? key, required this.imageViewed}) : super(key: key);
+  final List<String>? imageUrls;
+  final int initialIndex;
+  final Future<void> Function(File editedImage)? onResend;
+
+  const PhotoScreen({
+    Key? key,
+    required this.imageViewed,
+    this.imageUrls,
+    this.initialIndex = 0,
+    this.onResend,
+  }) : super(key: key);
 
   @override
   _PhotoScreenState createState() => _PhotoScreenState();
 }
 
 class _PhotoScreenState extends State<PhotoScreen> {
-  /// Kiểm tra xem imageViewed là URL hay local file path
-  bool get _isNetworkImage =>
-      widget.imageViewed.startsWith('http://') ||
-      widget.imageViewed.startsWith('https://');
+  late PageController _pageController;
+  late int _currentIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex;
+    _pageController = PageController(initialPage: widget.initialIndex);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  List<String> get _imageList => widget.imageUrls ?? [widget.imageViewed];
+
+  void _showSnack(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+        content: Text(message),
+        duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+      ));
+  }
 
   Widget _imageGalleryBuilder() {
     return Dismissible(
@@ -30,20 +64,20 @@ class _PhotoScreenState extends State<PhotoScreen> {
         children: [
           PhotoViewGallery.builder(
             builder: (BuildContext context, int index) {
+              final imageUrl = _imageList[index];
+              final isNetwork = imageUrl.startsWith('http://') || imageUrl.startsWith('https://');
               ImageProvider imageProvider;
-              if (_isNetworkImage) {
-                imageProvider = NetworkImage(widget.imageViewed);
+              if (isNetwork) {
+                imageProvider = NetworkImage(imageUrl);
               } else {
-                imageProvider = FileImage(File(widget.imageViewed));
+                imageProvider = FileImage(File(imageUrl));
               }
 
               return PhotoViewGalleryPageOptions(
                 imageProvider: imageProvider,
                 errorBuilder: (context, error, stackTrace) {
-                  // Chỉ thử fallback URL nếu là network image
-                  // Local file không cần fallback network
-                  if (_isNetworkImage) {
-                    final fallbackUrl = buildFallbackImageUrl(widget.imageViewed);
+                  if (isNetwork) {
+                    final fallbackUrl = buildFallbackImageUrl(imageUrl);
                     return Image.network(
                       fallbackUrl,
                       fit: BoxFit.contain,
@@ -56,11 +90,11 @@ class _PhotoScreenState extends State<PhotoScreen> {
                 },
               );
             },
-            itemCount: 1,
+            itemCount: _imageList.length,
             loadingBuilder: (context, event) =>
                 _imageGalleryLoadingBuilder(context, event),
             onPageChanged: _onPageChanged,
-            pageController: PageController(initialPage: 0),
+            pageController: _pageController,
             scrollPhysics: const ClampingScrollPhysics(),
           ),
           Positioned(
@@ -79,24 +113,40 @@ class _PhotoScreenState extends State<PhotoScreen> {
               color: Colors.white,
               tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
               onPressed: () async {
-                showLoading();
-
-                if (_isNetworkImage) {
-                  // Network image: tải về và lưu vào gallery
-                  // Sử dụng URL trực tiếp (đã được xử lý đầy đủ domain trong download.dart)
-                  await download(context, widget.imageViewed,
+                _showSnack('Đang tải...');
+                final currentUrl = _imageList[_currentIndex];
+                final isNetwork = currentUrl.startsWith('http://') || currentUrl.startsWith('https://');
+                if (isNetwork) {
+                  await download(context, currentUrl,
                       '${DateTime.now().millisecondsSinceEpoch}.jpeg',
                       isSaveGallery: true);
                 } else {
-                  // Local file: lưu trực tiếp vào gallery
-                  saveGallery(widget.imageViewed,
+                  saveGallery(currentUrl,
                       '${DateTime.now().millisecondsSinceEpoch}.jpeg');
                 }
-
-                Navigator.of(context).pop();
+                _showSnack('Đã lưu ảnh');
               },
             ),
           ),
+          if (_imageList.length > 1)
+            Positioned(
+              bottom: 20,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.6),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Text(
+                    '${_currentIndex + 1} / ${_imageList.length}',
+                    style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500),
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -117,31 +167,12 @@ class _PhotoScreenState extends State<PhotoScreen> {
     return "${HTTPConnection.domain}api/images/$shieldedId/$size/${ChatConnection.brandCode}";
   }
 
-  Future showLoading() async {
-    return await showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return SimpleDialog(
-            elevation: 0.0,
-            backgroundColor: Colors.transparent,
-            children: <Widget>[
-              Center(
-                child: Platform.isAndroid
-                    ? const CircularProgressIndicator()
-                    : const CupertinoActivityIndicator(),
-              )
-            ],
-          );
-        });
-  }
-
   void _onCloseGalleryPressed() {
     Navigator.of(context).pop();
   }
 
   void _onPageChanged(int index) {
-    setState(() {});
+    setState(() { _currentIndex = index; });
   }
 
   Widget _imageGalleryLoadingBuilder(

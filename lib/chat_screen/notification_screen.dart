@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:chat/presentation/utils/ultility.dart' show getAvatarColor;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/presentation/chat_module/ui/chat_screen.dart';
 import 'package:chat/chat_screen/home_screen.dart';
@@ -147,7 +148,8 @@ class _NotificationScreenState extends State<NotificationScreen> with AutomaticK
               children: [
                 data.createdBy?.picture == null ? CircleAvatar(
                   radius: 20.0,
-                  child: Text(data.createdBy!.getAvatarName()),
+                  backgroundColor: getAvatarColor(data.createdBy?.sId),
+                  child: Text(data.createdBy!.getAvatarName(), style: const TextStyle(color: Colors.white)),
                 ) : CircleAvatar(
                   radius: 20.0,
                   backgroundImage:

@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:chat/chat_screen/group_image_item.dart';
 import 'package:chat/localization/app_localizations.dart';
@@ -19,9 +18,36 @@ class BySenderResultScreen extends StatefulWidget {
 
 class _State extends State<BySenderResultScreen>
     with SingleTickerProviderStateMixin {
+  final TextEditingController _searchController = TextEditingController();
+  String _search = '';
+
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Widget _searchField() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: TextField(
+        controller: _searchController,
+        onChanged: (v) => setState(() { _search = v; }),
+        decoration: InputDecoration(
+          hintText: AppLocalizations.text(LangKey.search),
+          prefixIcon: const Icon(Icons.search, size: 20),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(24), borderSide: BorderSide.none),
+          filled: true,
+          fillColor: Colors.grey.shade100,
+        ),
+      ),
+    );
   }
 
   Widget totalText(){
@@ -96,8 +122,7 @@ class _State extends State<BySenderResultScreen>
               color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
         ),
         leading: InkWell(
-          child: Icon(Platform.isIOS ? Icons.arrow_back_ios : Icons.arrow_back,
-              color: Colors.black),
+          child: const Icon(Icons.arrow_back_ios, color: Colors.black),
           onTap: () => Navigator.of(context).pop(),
         ),
         backgroundColor: Colors.white,
@@ -106,43 +131,51 @@ class _State extends State<BySenderResultScreen>
         ),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          physics: const ClampingScrollPhysics(),
-          child: Column(
-            children: [
-              Container(
-                margin: const EdgeInsets.only(top: 20.0),
-                child: Wrap(
-                  children: _list(),
+        child: Column(
+          children: [
+            _searchField(),
+            Expanded(
+              child: SingleChildScrollView(
+                physics: const ClampingScrollPhysics(),
+                child: Column(
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.only(top: 20.0),
+                      child: Wrap(
+                        children: _listFiltered(),
+                      ),
+                    ),
+                    totalText()
+                  ],
                 ),
               ),
-              totalText()
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
-  List<Widget> _list() {
+  List<Widget> _listFiltered() {
+    final query = _search.isNotEmpty ? _search : (widget.search ?? '');
     List<r.People?>? listPeople;
-    List<c.Images>? listImages = widget.tabbarIndex == 0 ?
-        widget.chatMessage?.room?.images : widget.tabbarIndex == 1 ?
-    widget.chatMessage?.room?.files : widget.chatMessage?.room?.links;
-    if(widget.search != '' && widget.search != null) {
-      listPeople = [];
-      for(var e in widget.roomData.people!) {
-        if('${e.firstName} ${e.lastName}'.toLowerCase().contains(widget.search!.toLowerCase())){
-          listPeople.add(e);
-        }
-      }
-    }
-    else {
+    List<c.Images>? listImages = widget.tabbarIndex == 0
+        ? widget.chatMessage?.room?.images
+        : widget.tabbarIndex == 1
+            ? widget.chatMessage?.room?.files
+            : widget.chatMessage?.room?.links;
+    if (query.isNotEmpty) {
+      listPeople = widget.roomData.people?.where((e) {
+        final name = '${e.firstName} ${e.lastName}'.toLowerCase();
+        return name.contains(query.toLowerCase());
+      }).toList();
+    } else {
       listPeople = widget.roomData.people;
     }
-    List<GroupImageItem>? widgets = listPeople?.map((e) =>  GroupImageItem(people: e!,
-      tabbarIndex: widget.tabbarIndex,images:
-    listImages?.where((element) => element.author?.sId == e.sId).toList()
-      ,)).toList();
+    final widgets = listPeople?.map((e) => GroupImageItem(
+          people: e!,
+          tabbarIndex: widget.tabbarIndex,
+          images: listImages?.where((el) => el.author?.sId == e.sId).toList(),
+        )).toList();
     return widgets ?? [];
   }
 }

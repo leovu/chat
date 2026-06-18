@@ -73,7 +73,7 @@ class Message extends StatelessWidget {
   final Widget Function(types.CustomMessage, {required int messageWidth})?
       customMessageBuilder;
 
-  final CircleAvatar? circleAvatar;
+  final Widget? circleAvatar;
 
   /// Controls the enlargement behavior of the emojis in the
   /// [types.TextMessage].
@@ -182,7 +182,7 @@ class Message extends StatelessWidget {
                         .userAvatarImageBackgroundColor
                     : color,
                 backgroundImage: hasImage
-                    ? NetworkImage(message.author.imageUrl!,
+                    ? CachedNetworkImageProvider(message.author.imageUrl!,
                         headers: {'brand-code': ChatConnection.brandCode!})
                     : null,
                 radius: 12,
@@ -201,40 +201,48 @@ class Message extends StatelessWidget {
         : const SizedBox(width: 30);
   }
 
+  bool get _isMediaMessage {
+    if (message.type == types.MessageType.image) return true;
+    if (message.type == types.MessageType.custom) {
+      final customType = (message as types.CustomMessage).metadata?['custom_type'];
+      return customType == 'sticker' || customType == 'image_url';
+    }
+    return false;
+  }
+
   Widget _bubbleBuilder(
     BuildContext context,
     BorderRadius borderRadius,
     bool currentUserIsAuthor,
     bool enlargeEmojis,
   ) {
-    Color color =
-        !currentUserIsAuthor || message.type == types.MessageType.image
-            ? InheritedChatTheme.of(context).theme.secondaryColor
-            : InheritedChatTheme.of(context).theme.primaryColor;
+    final bool isMedia = _isMediaMessage;
+    Color color = isMedia
+        ? Colors.transparent
+        : (currentUserIsAuthor
+            ? InheritedChatTheme.of(context).theme.primaryColor
+            : InheritedChatTheme.of(context).theme.secondaryColor);
     return bubbleBuilder != null
         ? bubbleBuilder!(
-            _messageBuilder(color),
+            _messageBuilder(color, currentUserIsAuthor),
             message: message,
             nextMessageInGroup: roundBorder,
           )
         : enlargeEmojis && hideBackgroundOnEmojiMessages
-            ? _messageBuilder(color)
+            ? _messageBuilder(color, currentUserIsAuthor)
             : Container(
                 key: key,
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
-                    color: !currentUserIsAuthor ||
-                            message.type == types.MessageType.image
-                        ? InheritedChatTheme.of(context).theme.secondaryColor
-                        : InheritedChatTheme.of(context).theme.primaryColor),
+                    color: color),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
-                  child: _messageBuilder(color),
+                  child: _messageBuilder(color, currentUserIsAuthor),
                 ),
               );
   }
 
-  Widget _messageBuilder(Color color) {
+  Widget _messageBuilder(Color color, bool currentUserIsAuthor) {
     switch (message.type) {
       case types.MessageType.custom:
         final customMessage = message as types.CustomMessage;
@@ -280,7 +288,7 @@ class Message extends StatelessWidget {
                 hideBackgroundOnEmojiMessages: hideBackgroundOnEmojiMessages,
                 message: textMessage,
                 onPreviewDataFetched: onPreviewDataFetched,
-                showName: ChatConnection.isChatHub ? true : showName,
+                showName: currentUserIsAuthor ? showName : false,
                 usePreviewData: usePreviewData,
                 searchController: searchController,
                 showUserNameForRepliedMessage: true,
@@ -485,15 +493,12 @@ class Message extends StatelessWidget {
                   roundBorder
                       ? (circleAvatar != null
                           ? Padding(
-                              padding: const EdgeInsets.only(right: 5.0, top: 5.0),
+                              padding: const EdgeInsets.only(right: 5.0),
                               child: circleAvatar,
                             )
-                          : Padding(
-                              padding: const EdgeInsets.only(top: 5.0),
-                              child: _avatarBuilder(context),
-                            ))
+                          : _avatarBuilder(context))
                       : const SizedBox(
-                          width: 30.0, // Avatar placeholder width to maintain alignment
+                          width: 35.0,
                         ),
                 ],
                 if (message.remoteId != null &&
@@ -592,23 +597,6 @@ class Message extends StatelessWidget {
                         Icons.edit_outlined,
                         color: Colors.black,
                         size: 15.0,
-                      ),
-                    ),
-                  ),
-                // Reply button for messages from others
-                if (!_currentUserIsAuthor)
-                  GestureDetector(
-                    onTap: () {
-                      onMessageReply(context, message);
-                      focusSearch();
-                    },
-                    child: Container(
-                      height: 30.0,
-                      padding: const EdgeInsets.only(left: 8.0, top: 20.0),
-                      child: const Icon(
-                        Icons.reply_rounded,
-                        color: Colors.blue,
-                        size: 18.0,
                       ),
                     ),
                   ),

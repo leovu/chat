@@ -133,7 +133,7 @@ class Chat extends StatefulWidget {
 
   final ChatController chatController;
 
-  final CircleAvatar? avatar;
+  final Widget? avatar;
 
   final InputBuilder builder;
 

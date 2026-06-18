@@ -90,6 +90,18 @@ class _ImageMessageState extends State<ImageMessage> {
   }
 
   @override
+  void didUpdateWidget(ImageMessage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.message.uri != widget.message.uri) {
+      try {
+        _image = Conditional().getProvider(widget.message.uri);
+        _size = Size(widget.message.width ?? 0, widget.message.height ?? 0);
+        if (mounted) setState(() {});
+      } catch (e) {}
+    }
+  }
+
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (_size.isEmpty) {
@@ -148,9 +160,7 @@ class _ImageMessageState extends State<ImageMessage> {
       );
     } else if (_size.aspectRatio < 0.1 || _size.aspectRatio > 10) {
       return Container(
-        color: _user.id == widget.message.author.id
-            ? InheritedChatTheme.of(context).theme.primaryColor
-            : InheritedChatTheme.of(context).theme.secondaryColor,
+        color: Colors.transparent,
         child: Column(
           children: [
             if (widget.message.repliedMessage != null)
@@ -229,11 +239,7 @@ class _ImageMessageState extends State<ImageMessage> {
       );
     } else {
       return Container(
-        decoration: BoxDecoration(
-          color: _user.id == widget.message.author.id
-              ? InheritedChatTheme.of(context).theme.primaryColor
-              : InheritedChatTheme.of(context).theme.secondaryColor,
-        ),
+        decoration: const BoxDecoration(color: Colors.transparent),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [

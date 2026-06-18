@@ -321,67 +321,67 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
                           ),
                         ),
 
-                        ///Button chấp nhận
                         Padding(
-                          padding:
-                              const EdgeInsets.only(bottom: 9.0, top: 15.0),
-                          child: SizedBox(
-                            height: 41.0,
-                            width: MediaQuery.of(context).size.width * 0.95,
-                            child: MaterialButton(
-                              color: const Color(0xFF5686E1),
-                              onPressed: () async {
-                                _handleDateValidation(context);
-                              },
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10.0),
+                          padding: const EdgeInsets.only(bottom: 15.0, top: 15.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              SizedBox(
+                                height: 41.0,
+                                width: MediaQuery.of(context).size.width * 0.43,
+                                child: MaterialButton(
+                                  color: Colors.white,
+                                  onPressed: () async {
+                                    setState(() {
+                                      status = null;
+                                      channel = null;
+                                      link_status = null;
+                                      _startDay = null;
+                                      _endDay = null;
+                                      _isGroup = false;
+                                      arrLabel.clear();
+                                    });
+                                    _submitFilter();
+                                  },
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                      side: const BorderSide(color: Color(0xFF5686E1))),
+                                  child: Text(
+                                    AppLocalizations.text(LangKey.delete),
+                                    style: const TextStyle(color: Color(0xFF5686E1), fontSize: 16, fontWeight: FontWeight.w600),
+                                  ),
+                                ),
                               ),
-                              child: Text(
-                                AppLocalizations.text(LangKey.accept),
-                                style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600),
+                              SizedBox(
+                                height: 41.0,
+                                width: MediaQuery.of(context).size.width * 0.43,
+                                child: MaterialButton(
+                                  color: const Color(0xFF5686E1),
+                                  onPressed: () async {
+                                    _handleDateValidation(context);
+                                  },
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                  ),
+                                  child: Text(
+                                    AppLocalizations.text(LangKey.accept),
+                                    style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                        ),
-
-                        ///button xóa
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 15.0),
-                          child: SizedBox(
-                            height: 41.0,
-                            width: MediaQuery.of(context).size.width * 0.95,
-                            child: MaterialButton(
-                              color: Colors.white,
-                              onPressed: () async {
-                                setState(() {
-                                  status = null;
-                                  channel = null;
-                                  link_status = null;
-                                  _startDay = null;
-                                  _endDay = null;
-                                  _isGroup = false;
-                                });
-                                _submitFilter();
-                              },
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  side: const BorderSide(
-                                      color: Color(0xFF5686E1))),
-                              child: Text(
-                                AppLocalizations.text(LangKey.delete),
-                                style: const TextStyle(
-                                    color: Color(0xFF5686E1),
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600),
-                              ),
-                            ),
+                            ],
                           ),
                         )
                       ],
                     ))),
+    );
+  }
+
+  Widget _chipWidget(String label, bool isSelected) {
+    return Chip(
+      label: Text(label, style: TextStyle(color: isSelected ? Colors.blueAccent : Colors.grey)),
+      backgroundColor: isSelected ? Colors.white : Colors.grey.shade200,
+      shape: StadiumBorder(side: BorderSide(color: isSelected ? Colors.blueAccent : Colors.grey)),
     );
   }
 
@@ -400,23 +400,7 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
                 }
                 setState(() {});
               },
-              child: Chip(
-                label: Text(
-                  e.name ?? '',
-                  style: TextStyle(
-                      color: arrLabel.contains(e.sId)
-                          ? Colors.blueAccent
-                          : Colors.grey),
-                ),
-                backgroundColor: arrLabel.contains(e.sId)
-                    ? Colors.white
-                    : Colors.grey.shade200,
-                shape: StadiumBorder(
-                    side: BorderSide(
-                        color: arrLabel.contains(e.sId)
-                            ? Colors.blueAccent
-                            : Colors.grey)),
-              ),
+              child: _chipWidget(e.name ?? '', arrLabel.contains(e.sId)),
             ),
           ),
         )
@@ -431,19 +415,7 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
                 arrLabel.clear();
               });
             },
-            child: Chip(
-              label: Text(
-                AppLocalizations.text(LangKey.all),
-                style: TextStyle(
-                    color: arrLabel.isEmpty ? Colors.blueAccent : Colors.grey),
-              ),
-              backgroundColor:
-                  arrLabel.isEmpty ? Colors.white : Colors.grey.shade200,
-              shape: StadiumBorder(
-                  side: BorderSide(
-                      color:
-                          arrLabel.isEmpty ? Colors.blueAccent : Colors.grey)),
-            ),
+            child: _chipWidget(AppLocalizations.text(LangKey.all), arrLabel.isEmpty),
           ),
         ));
     return arr;
@@ -461,18 +433,7 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
                   status = e;
                 });
               },
-              child: Chip(
-                label: Text(
-                  AppLocalizations.text(e),
-                  style: TextStyle(
-                      color: status == e ? Colors.blueAccent : Colors.grey),
-                ),
-                backgroundColor:
-                    status == e ? Colors.white : Colors.grey.shade200,
-                shape: StadiumBorder(
-                    side: BorderSide(
-                        color: status == e ? Colors.blueAccent : Colors.grey)),
-              ),
+              child: _chipWidget(AppLocalizations.text(e), status == e),
             ),
           ),
         )
@@ -487,18 +448,7 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
                 status = null;
               });
             },
-            child: Chip(
-              label: Text(
-                AppLocalizations.text(LangKey.all),
-                style: TextStyle(
-                    color: status == null ? Colors.blueAccent : Colors.grey),
-              ),
-              backgroundColor:
-                  status == null ? Colors.white : Colors.grey.shade200,
-              shape: StadiumBorder(
-                  side: BorderSide(
-                      color: status == null ? Colors.blueAccent : Colors.grey)),
-            ),
+            child: _chipWidget(AppLocalizations.text(LangKey.all), status == null),
           ),
         ));
     return arr;
@@ -518,20 +468,7 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
               link_status = value;
             });
           },
-          child: Chip(
-            label: Text(
-              displayText,
-              style: TextStyle(
-                color: isSelected ? Colors.blueAccent : Colors.grey,
-              ),
-            ),
-            backgroundColor: isSelected ? Colors.white : Colors.grey.shade200,
-            shape: StadiumBorder(
-              side: BorderSide(
-                color: isSelected ? Colors.blueAccent : Colors.grey,
-              ),
-            ),
-          ),
+          child: _chipWidget(displayText, isSelected),
         ),
       );
     }
@@ -555,21 +492,7 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
                   channel = e.sId ?? '';
                 });
               },
-              child: Chip(
-                label: Text(
-                  e.nameApp ?? '',
-                  style: TextStyle(
-                      color:
-                          channel == e.sId ? Colors.blueAccent : Colors.grey),
-                ),
-                backgroundColor:
-                    channel == e.sId ? Colors.white : Colors.grey.shade200,
-                shape: StadiumBorder(
-                    side: BorderSide(
-                        color: channel == e.sId
-                            ? Colors.blueAccent
-                            : Colors.grey)),
-              ),
+              child: _chipWidget(e.nameApp ?? '', channel == e.sId),
             ),
           ),
         )
@@ -584,19 +507,7 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
                 channel = null;
               });
             },
-            child: Chip(
-              label: Text(
-                AppLocalizations.text(LangKey.all),
-                style: TextStyle(
-                    color: channel == null ? Colors.blueAccent : Colors.grey),
-              ),
-              backgroundColor:
-                  channel == null ? Colors.white : Colors.grey.shade200,
-              shape: StadiumBorder(
-                  side: BorderSide(
-                      color:
-                          channel == null ? Colors.blueAccent : Colors.grey)),
-            ),
+            child: _chipWidget(AppLocalizations.text(LangKey.all), channel == null),
           ),
         ));
     return arr;
@@ -617,18 +528,37 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
     List<String> arrLabel = const [],
   }) {
     return InkWell(
-      onTap: () async {
-        final picked = await showDatePicker(
+      onTap: () {
+        DateTime tempDate = parseDate(selectedDate) ?? DateTime.now();
+        showCupertinoModalPopup(
           context: context,
-          initialDate: parseDate(selectedDate) ?? DateTime.now(),
-          firstDate: DateTime(2000),
-          lastDate: DateTime(2100),
+          builder: (_) => Container(
+            height: 280,
+            color: Colors.white,
+            child: Column(
+              children: [
+                SizedBox(
+                  height: 220,
+                  child: CupertinoDatePicker(
+                    mode: CupertinoDatePickerMode.date,
+                    initialDateTime: parseDate(selectedDate) ?? DateTime.now(),
+                    minimumDate: DateTime(2000),
+                    maximumDate: DateTime(2100),
+                    onDateTimeChanged: (d) { tempDate = d; },
+                  ),
+                ),
+                CupertinoButton(
+                  child: const Text('OK'),
+                  onPressed: () {
+                    Navigator.pop(context);
+                    final formatted = DateFormat('dd/MM/yyyy').format(tempDate);
+                    onDatePicked(formatted);
+                  },
+                ),
+              ],
+            ),
+          ),
         );
-
-        if (picked != null) {
-          final formatted = DateFormat('dd/MM/yyyy').format(picked);
-          onDatePicked(formatted);
-        }
       },
       child: Container(
         width: MediaQuery.sizeOf(context).width * 0.4,

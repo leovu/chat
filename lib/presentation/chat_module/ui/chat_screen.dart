@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'package:chat/chat_ui/widgets/custom_room_avatar.dart' show ChatGroupAvatar;
+import 'package:chat/presentation/utils/ultility.dart' show getAvatarColor;
 
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:auto_size_text/auto_size_text.dart';
@@ -1239,7 +1241,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         }
       },
       onAvatarTap: (p0) {},
-      avatar: buildAvatar(width: 15),
+      avatar: widget.data.isGroup == true ? null : buildAvatar(width: 15),
       imageMessageBuilder: _buildImageMessageWidget,
       //  (types.User user) async {
       //Lỗi chưa xác định, xử lí phần chathub
@@ -1532,38 +1534,28 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
             visualDensity:
                 const VisualDensity(horizontal: -4.0, vertical: -4.0),
             padding: EdgeInsets.zero,
-            icon: const Icon(
+            icon: Icon(
               Icons.format_list_bulleted,
-              color: Colors.black,
+              color: data != null ? Colors.black : Colors.grey.shade400,
             ),
-            onPressed: () async {
-              showLoading();
-              // data = await ChatConnection.joinRoom(widget.data.sId!,
-              //     refresh: true);
-              Navigator.of(context).pop();
-              await Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => ConversationInformationScreen(
-                      isChatBot: widget.isChatbot,
-                      roomData: widget.data,
-                      chatMessage: data,
-                      groupOwner:
-                          !ChatConnection.isChatHub ? groupOwner1 : null),
-                  settings: const RouteSettings(
-                      name: 'conversation_information_screen')));
-              _loadMessages();
-              // if (ChatConnection.isChatHub &&
-              //     widget.data.isGroup == false)
-              await _getTagList();
-              setState(() {});
-              // if(getPeople(widget.data.people).isUpdateTagList) {
-              //   getPeople(widget.data.people).isUpdateTagList = false;
-              //   await _getTagList();
-              //   setState(() {});
-              // }
-              // else {
-              //   setState(() {});
-              // }
-            },
+            onPressed: data == null
+                ? null
+                : () async {
+                    showLoading();
+                    Navigator.of(context).pop();
+                    await Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => ConversationInformationScreen(
+                            isChatBot: widget.isChatbot,
+                            roomData: widget.data,
+                            chatMessage: data,
+                            groupOwner:
+                                !ChatConnection.isChatHub ? groupOwner1 : null),
+                        settings: const RouteSettings(
+                            name: 'conversation_information_screen')));
+                    _loadMessages();
+                    await _getTagList();
+                    setState(() {});
+                  },
           )
         ],
         title: SizedBox(
@@ -1663,19 +1655,17 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   }
 
   /// Build avatar widget - đồng bộ với room_list_screen.dart
-  CircleAvatar buildAvatar({double? width}) {
+  Widget buildAvatar({double? width}) {
     double radius = width ?? 25.0;
 
     if (!ChatConnection.isChatHub) {
-      // Logic cho non-ChatHub (giống roomWidget trong room_list_screen.dart)
       if (!widget.data.isGroup!) {
-        // Không phải group: sử dụng people.picture
         final owner = extractOwner(widget.data);
         final isPictureEmpty = owner?.picture == null || owner?.picture == "";
-
         return isPictureEmpty
             ? CircleAvatar(
                 radius: radius,
+                backgroundColor: getAvatarColor(owner?.sId),
                 child: Text(
                   owner?.getAvatarName() ?? '',
                   style: const TextStyle(color: Colors.white),
@@ -1690,30 +1680,21 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                 backgroundColor: Colors.transparent,
               );
       } else {
-        // Group: sử dụng room_avatar.shieldedID
-        return widget.data.room_avatar == null
-            ? CircleAvatar(
-                radius: radius,
-                child: Text(
-                  widget.data.getAvatarGroupName(),
-                  style: const TextStyle(color: Colors.white),
-                ),
-              )
-            : CircleAvatar(
-                radius: radius,
-                backgroundImage: CachedNetworkImageProvider(
-                  '${HTTPConnection.domain}api/images/${widget.data.room_avatar!.shieldedID}/256/${ChatConnection.brandCode!}',
-                  headers: {'brand-code': ChatConnection.brandCode!},
-                ),
-                backgroundColor: Colors.transparent,
-              );
+        if (widget.data.room_avatar != null) {
+          return CircleAvatar(
+            radius: radius,
+            backgroundImage: CachedNetworkImageProvider(
+              '${HTTPConnection.domain}api/images/${widget.data.room_avatar!.shieldedID}/256/${ChatConnection.brandCode!}',
+              headers: {'brand-code': ChatConnection.brandCode!},
+            ),
+            backgroundColor: Colors.transparent,
+          );
+        }
+        return ChatGroupAvatar(people: widget.data.people, size: radius * 2);
       }
     } else {
-      // Logic cho ChatHub (giống roomChatHubWidget trong room_list_screen.dart)
       if (widget.data.isGroup == false) {
-        // Không phải group
         if (widget.data.owner?.picture == null) {
-          // Nếu không có picture, kiểm tra avatar
           if (widget.data.owner?.avatar != null) {
             return CircleAvatar(
               radius: radius,
@@ -1726,6 +1707,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
           } else {
             return CircleAvatar(
               radius: radius,
+              backgroundColor: getAvatarColor(widget.data.owner?.sId),
               child: Text(
                 widget.data.owner?.getAvatarName() ?? '',
                 style: const TextStyle(color: Colors.white),
@@ -1733,7 +1715,6 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
             );
           }
         } else {
-          // Có picture, kiểm tra shieldedID
           final sid = widget.data.shieldedID;
           return (sid != null && sid != '')
               ? CircleAvatar(
@@ -1746,6 +1727,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                 )
               : CircleAvatar(
                   radius: radius,
+                  backgroundColor: getAvatarColor(widget.data.owner?.sId),
                   child: Text(
                     widget.data.owner?.getAvatarName() ?? '',
                     style: const TextStyle(color: Colors.white),
@@ -1753,23 +1735,17 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                 );
         }
       } else {
-        // Group: sử dụng avatar hoặc text
-        return widget.data.avatar == null
-            ? CircleAvatar(
-                radius: radius,
-                child: Text(
-                  widget.data.getAvatarGroupName(),
-                  style: const TextStyle(color: Colors.white),
-                ),
-              )
-            : CircleAvatar(
-                radius: radius,
-                backgroundImage: CachedNetworkImageProvider(
-                  widget.data.avatar!,
-                  headers: {'brand-code': ChatConnection.brandCode!},
-                ),
-                backgroundColor: Colors.transparent,
-              );
+        if (widget.data.avatar != null) {
+          return CircleAvatar(
+            radius: radius,
+            backgroundImage: CachedNetworkImageProvider(
+              widget.data.avatar!,
+              headers: {'brand-code': ChatConnection.brandCode!},
+            ),
+            backgroundColor: Colors.transparent,
+          );
+        }
+        return ChatGroupAvatar(people: widget.data.people, size: radius * 2);
       }
     }
   }

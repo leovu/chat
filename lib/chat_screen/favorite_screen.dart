@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:chat/chat_screen/home_screen.dart';
+import 'package:chat/chat_ui/widgets/custom_room_avatar.dart' show ChatGroupAvatar;
+import 'package:chat/presentation/utils/ultility.dart' show getAvatarColor;
 import 'package:chat/chat_ui/vietnamese_text.dart';
 import 'package:chat/chat_ui/widgets/chat_room_widget.dart';
 import 'package:chat/connection/chat_connection.dart';
@@ -278,6 +280,7 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen>
                       ? info.picture == null
                           ? CircleAvatar(
                               radius: 25.0,
+                              backgroundColor: getAvatarColor(info.sId),
                               child: Text(
                                 info.getAvatarName(),
                                 style: const TextStyle(color: Colors.white),
@@ -293,13 +296,7 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen>
                               backgroundColor: Colors.transparent,
                             )
                       : data.room_avatar == null
-                          ? CircleAvatar(
-                              radius: 25.0,
-                              child: Text(
-                                data.getAvatarGroupName(),
-                                style: const TextStyle(color: Colors.white),
-                              ),
-                            )
+                          ? ChatGroupAvatar(people: data.people, size: 50)
                           : CircleAvatar(
                               radius: 25.0,
                               backgroundImage: CachedNetworkImageProvider(

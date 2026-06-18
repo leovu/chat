@@ -1,7 +1,6 @@
-import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:chat/chat_screen/by_time_search_list.dart';
-import 'package:chat/chat_ui/widgets/link_preview.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/download.dart';
 import 'package:chat/connection/http_connection.dart';
@@ -60,8 +59,7 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
               color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
         ),
         leading: InkWell(
-          child: Icon(Platform.isIOS ? Icons.arrow_back_ios : Icons.arrow_back,
-              color: Colors.black),
+          child: const Icon(Icons.arrow_back_ios, color: Colors.black),
           onTap: () => Navigator.of(context).pop(),
         ),
         backgroundColor: Colors.white,
@@ -76,20 +74,13 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
               color: Colors.white,
               child: Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    physics: const BouncingScrollPhysics(),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      spacing: 8,
-                      children: [
-                        _buildSearchChip(AppLocalizations.text(LangKey.search),
-                            const Icon(Icons.search, color: Colors.black), () {
-                          _showBottomDialog();
-                        }),
-                        _buildSearchChip(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: _buildSearchChip(
                             AppLocalizations.text(LangKey.bySender),
-                            const Icon(Icons.people, color: Colors.black), () {
+                            Icons.people, () {
                           Navigator.of(context).push(MaterialPageRoute(
                               builder: (context) => BySenderResultScreen(
                                     roomData: widget.roomData,
@@ -97,8 +88,11 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                                     tabbarIndex: _activeTabIndex,
                                   )));
                         }),
-                        _buildSearchChip(AppLocalizations.text(LangKey.byTimes),
-                            const Icon(Icons.timer, color: Colors.black), () {
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _buildSearchChip(AppLocalizations.text(LangKey.byTimes),
+                            Icons.timer, () {
                           Navigator.of(context).push(MaterialPageRoute(
                               builder: (context) => ByTimeResultScreen(
                                     roomData: widget.roomData,
@@ -106,8 +100,8 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                                     tabbarIndex: _activeTabIndex,
                                   )));
                         }),
-                      ],
-                    ),
+                      ),
+                    ],
                   )),
             ),
             // : CustomSearchTextField(_searchNode, _searchController, "Tìm ảnh, bộ sưu tạp, files, links"),
@@ -149,26 +143,47 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
     );
   }
 
-  Widget _buildSearchChip(String label, Icon icon, Function function) {
-    return InkWell(
-      child: Chip(
-        labelPadding: const EdgeInsets.all(2.0),
-        avatar: icon,
-        label: Text(
-          '  $label',
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-            color: Colors.black,
-          ),
-        ),
-        backgroundColor: const Color(0xFFE5E5E5),
-        elevation: 6.0,
-        shadowColor: Colors.grey[60],
-        padding: const EdgeInsets.all(8.0),
-      ),
+  Widget _buildSearchChip(String label, IconData iconData, Function function) {
+    return GestureDetector(
       onTap: () => function(),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 4, offset: const Offset(0, 2))],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(iconData, size: 18, color: Colors.black87),
+            const SizedBox(width: 6),
+            Flexible(child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.w500))),
+          ],
+        ),
+      ),
     );
+  }
+
+  void _openLink(String url) async {
+    final uri = Uri.tryParse(url);
+    if (uri == null) return;
+    try {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (_) {
+      try { await launchUrl(uri, mode: LaunchMode.platformDefault); } catch (_) {}
+    }
+  }
+
+  void _showSnack(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+        content: Text(message),
+        duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+      ));
   }
 
   Widget _images() {
@@ -208,13 +223,12 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
         itemBuilder: (BuildContext context, int position) {
           return InkWell(
             onTap: () async {
-              showLoading();
+              _showSnack('Đang tải...');
               var message = widget.chatMessage?.room?.files?[position].file!;
               String? result = await download(
                   context,
                   '${HTTPConnection.domain}api/files/${message!.shieldedID}',
                   '${widget.chatMessage?.room?.files?[position].date}_${message.name}');
-              Navigator.of(context).pop();
               openFile(result, context,
                   message.name ?? AppLocalizations.text(LangKey.file));
             },
@@ -235,14 +249,14 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                         package: 'chat',
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Column(
-                        children: [
-                          AutoSizeText(widget.chatMessage?.room
-                                  ?.files?[position].file?.name ??
-                              '')
-                        ],
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: AutoSizeText(
+                          widget.chatMessage?.room?.files?[position].file?.name ?? '',
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ),
                   ],
@@ -279,30 +293,25 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         itemCount: urls.length,
         itemBuilder: (BuildContext context, int position) {
-          return Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: PreviewLink(
-              content: urls[position], // This disables tap event
+          return InkWell(
+            onTap: () => _openLink(urls[position]),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: Row(
+                children: [
+                  const Icon(Icons.link, size: 20, color: Colors.blue),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      urls[position],
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(color: Colors.blue, decoration: TextDecoration.underline, fontSize: 13),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          );
-        });
-  }
-
-  Future showLoading() async {
-    return await showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return SimpleDialog(
-            elevation: 0.0,
-            backgroundColor: Colors.transparent,
-            children: <Widget>[
-              Center(
-                child: Platform.isAndroid
-                    ? const CircularProgressIndicator()
-                    : const CupertinoActivityIndicator(),
-              )
-            ],
           );
         });
   }

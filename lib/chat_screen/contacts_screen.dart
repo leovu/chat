@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:chat/presentation/utils/ultility.dart' show getAvatarColor;
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:chat/chat_screen/home_screen.dart';
 import 'package:chat/chat_ui/vietnamese_text.dart';
@@ -231,7 +232,8 @@ class _ContactsScreenState extends State<ContactsScreen> with AutomaticKeepAlive
                   children: [
                     data.picture == null ? CircleAvatar(
                       radius: 25.0,
-                      child: Text(data.getAvatarName()),
+                      backgroundColor: getAvatarColor(data.sId),
+                      child: Text(data.getAvatarName(), style: const TextStyle(color: Colors.white)),
                     ) : CircleAvatar(
                       radius: 25.0,
                       backgroundImage:

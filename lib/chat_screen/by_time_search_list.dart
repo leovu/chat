@@ -41,8 +41,7 @@ class _State extends State<ByTimeResultScreen>
               color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
         ),
         leading: InkWell(
-          child: Icon(Platform.isIOS ? Icons.arrow_back_ios : Icons.arrow_back,
-              color: Colors.black),
+          child: const Icon(Icons.arrow_back_ios, color: Colors.black),
           onTap: () => Navigator.of(context).pop(),
         ),
         backgroundColor: Colors.white,
@@ -77,7 +76,7 @@ class _State extends State<ByTimeResultScreen>
           if(widget.search!.contains('-')) {
             List<String> listDates = widget.search!.split('-');
             if(listDates.length >= 2) {
-              if (dt.isBetween(format2.parse(listDates[0]), format2.parse(listDates[1]))) {
+              if (dt.isBetween(format2.parse(listDates[0]), format2.parse(listDates[1]).add(const Duration(hours: 23, minutes: 59, seconds: 59, milliseconds: 999)))) {
                 if(values.containsKey(formattedDate)) {
                   values[formattedDate]!.add(widgetCacheImage(e.content!));
                 }
@@ -122,7 +121,7 @@ class _State extends State<ByTimeResultScreen>
           if(widget.search!.contains('-')) {
             List<String> listDates = widget.search!.split('-');
             if(listDates.length >= 2) {
-              if (dt.isBetween(format2.parse(listDates[0]), format2.parse(listDates[1]))) {
+              if (dt.isBetween(format2.parse(listDates[0]), format2.parse(listDates[1]).add(const Duration(hours: 23, minutes: 59, seconds: 59, milliseconds: 999)))) {
                 if(values.containsKey(formattedDate)) {
                   values[formattedDate]!.add(widgetCacheFile(e));
                 }
@@ -169,7 +168,7 @@ class _State extends State<ByTimeResultScreen>
           if(widget.search!.contains('-')) {
             List<String> listDates = widget.search!.split('-');
             if(listDates.length >= 2) {
-              if (dt.isBetween(format2.parse(listDates[0]), format2.parse(listDates[1]))) {
+              if (dt.isBetween(format2.parse(listDates[0]), format2.parse(listDates[1]).add(const Duration(hours: 23, minutes: 59, seconds: 59, milliseconds: 999)))) {
                 if(values.containsKey(formattedDate)) {
                   List<String> urls = [];
                   final urlMatches = urlRegExp.allMatches(e.content ?? '');

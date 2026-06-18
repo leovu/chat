@@ -8,11 +8,6 @@ import 'package:chat/chat_screen/filter_chathub_screen.dart';
 import 'package:chat/chat_screen/home_screen.dart';
 import 'package:chat/chat_ui/widgets/chat_room_widget.dart';
 import 'package:chat/chat_ui/widgets/custom_room_avatar.dart';
-import 'package:chat/common/assets.dart';
-import 'package:chat/common/global.dart';
-import 'package:chat/common/shared_prefs/shared_prefs_key.dart';
-import 'package:chat/common/theme.dart';
-import 'package:chat/common/widges/widget.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/data_model/room.dart';
@@ -102,7 +97,14 @@ class _RoomListScreenState extends State<RoomListScreen>
   void _scrollListener() async {
     if (_listViewController.position.maxScrollExtent ==
         _listViewController.offset) {
+      final prevCount = roomListData?.rooms?.length ?? 0;
       await _getRooms(page: _currentPage + 1);
+      final newCount = roomListData?.rooms?.length ?? 0;
+      if (newCount > prevCount) {
+        _refreshController.loadComplete();
+      } else {
+        _refreshController.loadNoData();
+      }
     }
   }
 
@@ -264,13 +266,9 @@ class _RoomListScreenState extends State<RoomListScreen>
                             onTap: () {
                               Navigator.of(ChatConnection.buildContext).pop();
                             },
-                            child: SizedBox(
+                            child: const SizedBox(
                                 width: 30.0,
-                                child: Icon(
-                                    Platform.isIOS
-                                        ? Icons.arrow_back_ios
-                                        : Icons.arrow_back,
-                                    color: Colors.black)),
+                                child: Icon(Icons.arrow_back_ios, color: Colors.black)),
                           ),
                         ],
                       ),
@@ -286,175 +284,6 @@ class _RoomListScreenState extends State<RoomListScreen>
                                   fontSize: 25.0, color: Colors.black)),
                         ),
                         Expanded(child: Container()),
-                        if (!ChatConnection.isChatHub)
-                          Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 20.0),
-                            child: SizedBox(
-                                width: 30.0,
-                                height: 30.0,
-                                child: InkWell(
-                                  onTap: () async {
-                                    showDialog(
-                                        context: context,
-                                        builder: (context) {
-                                          return AlertDialog(
-                                            contentPadding: EdgeInsets.zero,
-                                            shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.all(
-                                                    Radius.circular(5.0))),
-                                            content: Container(
-                                                decoration: BoxDecoration(
-                                                    color: AppColors.white,
-                                                    borderRadius:
-                                                        new BorderRadius.all(
-                                                            Radius.circular(
-                                                                5))),
-                                                height: 210,
-                                                padding: EdgeInsets.symmetric(
-                                                    vertical: 16,
-                                                    horizontal: 27),
-                                                child: Column(
-                                                  children: <Widget>[
-                                                    Container(
-                                                      alignment:
-                                                          Alignment.centerLeft,
-                                                      margin: EdgeInsets.only(
-                                                          bottom: 11),
-                                                      child: Text(
-                                                        AppLocalizations.text(
-                                                            LangKey
-                                                                .change_language),
-                                                        style: AppTextStyles
-                                                            .style18BlackBold,
-                                                      ),
-                                                    ),
-                                                    const Padding(
-                                                      padding: EdgeInsets.only(
-                                                          top: 8.0),
-                                                      child: Divider(),
-                                                    ),
-                                                    InkWell(
-                                                      onTap: () async {
-                                                        Navigator.of(context,
-                                                                rootNavigator:
-                                                                    true)
-                                                            .pop();
-                                                        RestartWidget
-                                                            .restartApp(
-                                                                context);
-                                                        AppLocalizations
-                                                            .delegate
-                                                            .load(Locale("en"));
-                                                        await Globals.prefs!
-                                                            .setString(
-                                                                SharedPrefsKey
-                                                                    .language,
-                                                                'en');
-                                                      },
-                                                      child: Container(
-                                                          height: 40.0,
-                                                          child: Row(
-                                                            children: <Widget>[
-                                                              Container(
-                                                                margin: EdgeInsets
-                                                                    .only(
-                                                                        right:
-                                                                            10.0),
-                                                                height: 30.0,
-                                                                width: 30.0,
-                                                                child:
-                                                                    Image.asset(
-                                                                  Assets.iconUK,
-                                                                  package:
-                                                                      'chat',
-                                                                ),
-                                                              ),
-                                                              Expanded(
-                                                                child:
-                                                                    Container(
-                                                                  height: 40.0,
-                                                                  alignment:
-                                                                      Alignment
-                                                                          .centerLeft,
-                                                                  child: Text(
-                                                                    'English',
-                                                                    style: AppTextStyles
-                                                                        .style14BlackWeight500,
-                                                                  ),
-                                                                ),
-                                                              )
-                                                            ],
-                                                          )),
-                                                    ),
-                                                    CustomLine(),
-                                                    InkWell(
-                                                      onTap: () async {
-                                                        Navigator.of(context,
-                                                                rootNavigator:
-                                                                    true)
-                                                            .pop();
-                                                        RestartWidget
-                                                            .restartApp(
-                                                                context);
-                                                        AppLocalizations
-                                                            .delegate
-                                                            .load(Locale("vi"));
-                                                        await Globals.prefs!
-                                                            .setString(
-                                                                SharedPrefsKey
-                                                                    .language,
-                                                                'vi');
-                                                      },
-                                                      child: Container(
-                                                          margin:
-                                                              EdgeInsets.only(
-                                                                  top: 10.0),
-                                                          height: 40.0,
-                                                          child: Row(
-                                                            children: <Widget>[
-                                                              Container(
-                                                                margin: EdgeInsets
-                                                                    .only(
-                                                                        right:
-                                                                            10.0),
-                                                                height: 30.0,
-                                                                width: 30.0,
-                                                                child:
-                                                                    Image.asset(
-                                                                  Assets
-                                                                      .iconViet,
-                                                                  package:
-                                                                      'chat',
-                                                                ),
-                                                              ),
-                                                              Expanded(
-                                                                child:
-                                                                    Container(
-                                                                  alignment:
-                                                                      Alignment
-                                                                          .centerLeft,
-                                                                  child: Text(
-                                                                    'Tiếng Việt',
-                                                                    style: AppTextStyles
-                                                                        .style14BlackWeight500,
-                                                                  ),
-                                                                ),
-                                                              )
-                                                            ],
-                                                          )),
-                                                    ),
-                                                  ],
-                                                )),
-                                          );
-                                        });
-                                  },
-                                  child: Image.asset(
-                                    Assets.iconChangeLanguage,
-                                    package: 'chat',
-                                  ),
-                                )),
-                          ),
                         if (!ChatConnection.isChatHub)
                           Padding(
                             padding:
@@ -563,6 +392,8 @@ class _RoomListScreenState extends State<RoomListScreen>
                                 Widget body;
                                 if (mode == LoadStatus.failed) {
                                   body = const Text(LangKey.load_more_failed);
+                                } else if (mode == LoadStatus.noMore || mode == LoadStatus.idle) {
+                                  body = const SizedBox.shrink();
                                 } else {
                                   body = Platform.isAndroid
                                       ? const SizedBox(
@@ -967,6 +798,7 @@ class _RoomListScreenState extends State<RoomListScreen>
                           ? (people.picture == null || people.picture == "")
                               ? CircleAvatar(
                                   radius: 25.0,
+                                  backgroundColor: getAvatarColor(people.sId),
                                   child: Text(
                                     people.getAvatarName(),
                                     style: const TextStyle(color: Colors.white),
@@ -982,13 +814,7 @@ class _RoomListScreenState extends State<RoomListScreen>
                                   backgroundColor: Colors.transparent,
                                 )
                           : data.room_avatar == null
-                              ? CircleAvatar(
-                                  radius: 25.0,
-                                  child: Text(
-                                    data.getAvatarGroupName(),
-                                    style: const TextStyle(color: Colors.white),
-                                  ),
-                                )
+                              ? ChatGroupAvatar(people: data.people, size: 50)
                               : CircleAvatar(
                                   radius: 25.0,
                                   backgroundImage: CachedNetworkImageProvider(
@@ -1127,6 +953,7 @@ class _RoomListScreenState extends State<RoomListScreen>
                                     )
                                   : CircleAvatar(
                                       radius: 25.0,
+                                      backgroundColor: getAvatarColor(data.owner?.sId),
                                       child: Text(
                                         data.owner!.getAvatarName(),
                                         style: const TextStyle(
@@ -1147,27 +974,14 @@ class _RoomListScreenState extends State<RoomListScreen>
                                     )
                                   : CircleAvatar(
                                       radius: 25.0,
+                                      backgroundColor: getAvatarColor(data.owner?.sId),
                                       child: Text(
-                                        // widget.data.owner!.avatar!,
                                         data.owner!.getAvatarName(),
                                         style: const TextStyle(
                                             color: Colors.white),
                                       ),
                                     )
-                          : data.avatar == null
-                              ? CircleAvatar(
-                                  radius: 25.0,
-                                  child: Text(
-                                    data.getAvatarGroupName(),
-                                    style: const TextStyle(color: Colors.white),
-                                  ),
-                                )
-                              : GroupAvatar(
-                                  img1: data.people?[0].avatar ?? '',
-                                  img2: data.people?[1].avatar ?? '',
-                                  img3: data.people?[2].avatar ?? '',
-                                  size: 50,
-                                ),
+                          : ChatGroupAvatar(people: data.people, size: 50),
                       // CircleAvatar(
                       //     radius: 25.0,
                       //     backgroundImage: CachedNetworkImageProvider(

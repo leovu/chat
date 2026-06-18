@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:chat/chat_ui/widgets/custom_room_avatar.dart' show ChatGroupAvatar;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/chat_screen/action_list_user_chathub_screen.dart';
 import 'package:chat/chat_ui/hex_color.dart';
@@ -410,8 +411,7 @@ class _ConversationInformationScreenState
               color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
         ),
         leading: InkWell(
-          child: Icon(Platform.isIOS ? Icons.arrow_back_ios : Icons.arrow_back,
-              color: Colors.black),
+          child: const Icon(Icons.arrow_back_ios, color: Colors.black),
           onTap: () => Navigator.of(context).pop(),
         ),
         actions: [
@@ -579,7 +579,7 @@ class _ConversationInformationScreenState
                       border: Border.all(color: Colors.grey.shade400),
                     ),
                     height: 40.0,
-                    width: MediaQuery.of(context).size.width * 0.85,
+                    width: MediaQuery.of(context).size.width * 0.9,
                     child: Row(
                       children: [
                         const SizedBox(width: 10.0),
@@ -668,7 +668,7 @@ class _ConversationInformationScreenState
               const Icon(
                 Icons.folder,
                 color: Color(0xff5686E1),
-                size: 35,
+                size: 30,
               ),
               AppLocalizations.text(LangKey.file), () {
             Navigator.of(context).push(MaterialPageRoute(
@@ -683,7 +683,7 @@ class _ConversationInformationScreenState
           //     const Icon(
           //       Icons.note_add,
           //       color: Color(0xff5686E1),
-          //       size: 35,
+          //       size: 30,
           //     ),
           //     AppLocalizations.text(LangKey.create_note), () async {
           //   await Navigator.of(context).push(MaterialPageRoute(
@@ -693,8 +693,9 @@ class _ConversationInformationScreenState
           //           )));
           //   _bloc.getNotes(widget.roomData.sId!);
           // }),
-          ListNoteComponent(_bloc, () => _bloc.getNotes(widget.roomData.sId!),
-              widget.roomData),
+          if ((_bloc.notes.valueOrNull?.data?.isNotEmpty == true))
+            ListNoteComponent(_bloc, () => _bloc.getNotes(widget.roomData.sId!),
+                widget.roomData),
           if (widget.roomData.isGroup!)
             Padding(
               padding:
@@ -709,9 +710,10 @@ class _ConversationInformationScreenState
                 const Icon(
                   Icons.group,
                   color: Color(0xff5686E1),
-                  size: 35,
+                  size: 30,
                 ),
                 AppLocalizations.text(LangKey.viewMembers), () {
+              if (widget.chatMessage == null) return;
               Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => ChatGroupMembersScreen(
                       // roomData: widget.roomData,
@@ -731,7 +733,7 @@ class _ConversationInformationScreenState
                 const Icon(
                   Icons.remove_circle,
                   color: Color(0xff5686E1),
-                  size: 35,
+                  size: 30,
                 ),
                 AppLocalizations.text(LangKey.leaveConversation), () {
               _leaveRoom(widget.roomData.sId!);
@@ -757,7 +759,7 @@ class _ConversationInformationScreenState
                 const Icon(
                   Icons.delete,
                   color: Colors.red,
-                  size: 35,
+                  size: 30,
                 ),
                 AppLocalizations.text(LangKey.deleteConversation), () {
               !widget.roomData.isGroup!
@@ -973,14 +975,11 @@ class _ConversationInformationScreenState
             ? null
             : '${domain}api/images/${owner!.picture}/256/$brandCode';
       } else {
-        // Group: sử dụng room_avatar.shieldedID
-        avatarName = roomData.getAvatarGroupName();
+        // Group non-chathub: dùng ChatGroupAvatar
         displayName = roomData.title ??
             '${owner?.firstName ?? ''} ${owner?.lastName ?? ''}';
-
-        avatarUrl = roomData.room_avatar?.shieldedID != null
-            ? '${domain}api/images/${roomData.room_avatar!.shieldedID}/256/$brandCode'
-            : null;
+        final people = roomData.people;
+        return ChatGroupAvatar(people: people, size: 80, groupName: displayName);
       }
     } else {
       // ===== CHAT HUB (giống roomChatHubWidget trong room_list_screen.dart) =====
@@ -1001,18 +1000,17 @@ class _ConversationInformationScreenState
               : null;
         }
       } else {
-        // Group
-        avatarName = roomData.getAvatarGroupName();
+        // Group chathub: dùng ChatGroupAvatar
         displayName = roomData.room_name ??
             roomData.title ??
             'Group ${roomData.owner?.firstName ?? ''} ${roomData.owner?.lastName ?? ''}';
-
-        // Sử dụng avatar nếu có
-        avatarUrl = roomData.avatar;
+        final people = roomData.people;
+        return ChatGroupAvatar(people: people, size: 80, groupName: displayName);
       }
     }
 
-    return _buildAvatar(displayName, avatarName, avatarUrl);
+    final ownerId = isChatHub ? roomData.owner?.sId : owner?.sId;
+    return _buildAvatar(displayName, avatarName, avatarUrl, id: ownerId);
   }
 
   Widget actionChatHubView() {
@@ -1092,7 +1090,7 @@ class _ConversationInformationScreenState
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             _section(
-              const Icon(Icons.note_add, color: Color(0xff5686E1), size: 35),
+              const Icon(Icons.note_add, color: Color(0xff5686E1), size: 30),
               AppLocalizations.text(LangKey.create_note),
               () async {
                 await Navigator.of(context).push(MaterialPageRoute(
@@ -1277,8 +1275,10 @@ class _ConversationInformationScreenState
               return _itemChatInfo(
                 session,
                 () {
-                  showDialog(
+                  showModalBottomSheet(
                     context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
                     builder: (context) =>
                         buildChatSessionDialog(session: session, index: index),
                   );
@@ -1583,6 +1583,7 @@ class _ConversationInformationScreenState
               visible: ChatConnection.isChatHub,
               child: _actionButtonTile(
                 onTap: () {
+                  if (widget.chatMessage == null) return;
                   Navigator.of(context).push(MaterialPageRoute(
                       builder: (context) => ChatGroupMembersScreen(
                           // roomData: widget.roomData,
@@ -1681,7 +1682,7 @@ class _ConversationInformationScreenState
                 border: Border.all(color: Colors.grey.shade400),
               ),
               height: 40.0,
-              width: MediaQuery.of(context).size.width * 0.85,
+              width: MediaQuery.of(context).size.width * 0.9,
               child: Row(
                 children: [
                   const SizedBox(width: 5.0),
@@ -1849,7 +1850,7 @@ class _ConversationInformationScreenState
           borderRadius: BorderRadius.circular(10.0),
           border: Border.all(color: Colors.grey.shade400)),
       padding: EdgeInsets.only(left: 5, right: 20),
-      width: MediaQuery.of(context).size.width * 0.85,
+      width: MediaQuery.of(context).size.width * 0.9,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1970,7 +1971,7 @@ class _ConversationInformationScreenState
     );
   }
 
-  Widget _buildAvatar(String name, String avatarName, String? url) {
+  Widget _buildAvatar(String name, String avatarName, String? url, {String? id}) {
     Widget child;
     double radius = MediaQuery.of(context).size.width * 0.125;
     if (url != null && url != '') {
@@ -1983,6 +1984,7 @@ class _ConversationInformationScreenState
     } else {
       child = CircleAvatar(
         radius: radius,
+        backgroundColor: getAvatarColor(id ?? name),
         child: Text(avatarName,
             style: const TextStyle(color: Colors.white),
             maxLines: 1,

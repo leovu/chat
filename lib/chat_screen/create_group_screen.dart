@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/presentation/chat_module/ui/chat_screen.dart';
+import 'package:chat/presentation/utils/ultility.dart' show getAvatarColor;
 import 'package:chat/chat_ui/vietnamese_text.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';
@@ -24,6 +25,7 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
   final _controllerSearch = TextEditingController();
   final _focusGroupName = FocusNode();
   final _controllerGroupName = TextEditingController();
+  final Set<String> _selectedIds = {};
   Contacts? contactsListVisible;
   Contacts? contactsListData;
   bool isInitScreen = true;
@@ -48,8 +50,10 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
     if(val!= '') {
       contactsListVisible!.users = contactsListVisible!.users!.where((element) {
         try {
-          if(
-          ('${element.firstName} ${element.lastName}'.toLowerCase().removeAccents()).contains(val)) {
+          if (('${element.firstName} ${element.lastName}'.toLowerCase().removeAccents()).contains(val)) {
+            return true;
+          }
+          if (element.username?.toLowerCase().contains(val) ?? false) {
             return true;
           }
           return false;
@@ -93,9 +97,9 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
                             onTap: () {
                               Navigator.of(context).pop();
                             },
-                            child: SizedBox(
+                            child: const SizedBox(
                                 width:30.0,
-                                child: Icon(Platform.isIOS ? Icons.arrow_back_ios : Icons.arrow_back, color: Colors.black)),
+                                child: Icon(Icons.arrow_back_ios, color: Colors.black)),
                           ),
                         ],
                       ),
@@ -195,19 +199,20 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
                   itemBuilder: (BuildContext context, int position) {
                     return InkWell(
                         onTap: () async {
+                          final id = contactsListVisible!.users![position].sId;
+                          if (id == null) return;
                           setState(() {
-                            if(contactsListVisible!.users![position].isSelected != null) {
-                              contactsListVisible!.users![position].isSelected = !contactsListVisible!.users![position].isSelected!;
-                            }
-                            else {
-                              contactsListVisible!.users![position].isSelected = true;
+                            if (_selectedIds.contains(id)) {
+                              _selectedIds.remove(id);
+                            } else {
+                              _selectedIds.add(id);
                             }
                           });
                         },
                         child: _contacts(contactsListVisible!.users![position], position == contactsListVisible!.users!.length-1));
                   }) : Container(),
             ),
-            contactsListVisible != null && isSelectedMember(contactsListVisible?.users) ? Padding(
+            _selectedIds.isNotEmpty ? Padding(
               padding: const EdgeInsets.only(bottom: 15.0),
               child: SizedBox(
                 height: 49.0,
@@ -215,14 +220,7 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
                 child: MaterialButton(
                   color: const Color(0xFF5686E1),
                   onPressed: () async {
-                    List<String> people = [];
-                    try{
-                      contactsListData?.users?.forEach((element) {
-                        if(element.isSelected != null && element.isSelected == true) {
-                          people.add(element.sId!);
-                        }
-                      });
-                    }catch(_){}
+                    final List<String> people = List.from(_selectedIds);
                     if(people.isEmpty) {
                       showDialog(
                         context: context,
@@ -280,12 +278,7 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
     ));
   }
   bool isSelectedMember(List<People>? data) {
-    try {
-      data?.firstWhere((element) => element.isSelected == true);
-      return true;
-    }catch(_){
-      return false;
-    }
+    return _selectedIds.isNotEmpty;
   }
   Widget _contacts(People data, bool isLast) {
     return Padding(
@@ -303,7 +296,8 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
                   children: [
                     data.picture == null ? CircleAvatar(
                       radius: 25.0,
-                      child: Text(data.getAvatarName()),
+                      backgroundColor: getAvatarColor(data.sId),
+                      child: Text(data.getAvatarName(), style: const TextStyle(color: Colors.white)),
                     ) : CircleAvatar(
                       radius: 25.0,
                       backgroundImage:
@@ -328,7 +322,7 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
                     SizedBox(
                       height: 30.0,
                       width: 30.0,
-                      child: data.isSelected != null && data.isSelected! ? const Icon(Icons.radio_button_checked,size: 25.0,color: Color(0xff0021F5))
+                      child: _selectedIds.contains(data.sId) ? const Icon(Icons.radio_button_checked,size: 25.0,color: Color(0xff0021F5))
                           : const Icon(Icons.radio_button_off,size: 25.0,color: Color(0xff0021F5)),
                     )
                   ],
