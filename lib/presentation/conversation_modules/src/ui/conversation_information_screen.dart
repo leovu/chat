@@ -1622,28 +1622,44 @@ class _ConversationInformationScreenState
             ///Các thao tác
             _actionButtonTile(
               onTap: () async {
-                r.People info = getPeople(widget.chatMessage?.room?.people);
-                Map<String, dynamic>? result = await Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (ctx) {
-                  return ActionListUserChathubScreen(
-                    data: info,
-                    customerAccount: customerAccount,
-                    isGroup: widget.chatMessage?.room?.isGroup ?? false,
-                  );
-                }));
-                if (result != null) {
-                  showLoading(context);
-                  await ChatConnection.customerLink(
-                      widget.roomData.sId ?? '',
-                      result['customerId'],
-                      result['customerLeadId'],
-                      result['type'],
-                      customerAccount?.data?.mappingId ?? '',
-                      widget.roomData.channel?.source);
-                  isShowListSearch = false;
-                  customerAccountSearch = null;
-                  _loadAccount();
-                  Navigator.of(context).pop();
+                try {
+                  r.People? info = getPeople(
+                      widget.chatMessage?.room?.people ?? widget.roomData.people);
+                  if (info == null) {
+                    final owner = widget.roomData.owner;
+                    if (owner == null) return;
+                    info = r.People(
+                      sId: owner.sId,
+                      firstName: owner.firstName,
+                      lastName: owner.lastName,
+                      avatar: owner.avatar,
+                      username: owner.username,
+                    );
+                  }
+                  Map<String, dynamic>? result = await Navigator.of(context)
+                      .push(MaterialPageRoute(builder: (ctx) {
+                    return ActionListUserChathubScreen(
+                      data: info!,
+                      customerAccount: customerAccount,
+                      isGroup: widget.chatMessage?.room?.isGroup ?? false,
+                    );
+                  }));
+                  if (result != null) {
+                    showLoading(context);
+                    await ChatConnection.customerLink(
+                        widget.roomData.sId ?? '',
+                        result['customerId'],
+                        result['customerLeadId'],
+                        result['type'],
+                        customerAccount?.data?.mappingId ?? '',
+                        widget.roomData.channel?.source);
+                    isShowListSearch = false;
+                    customerAccountSearch = null;
+                    _loadAccount();
+                    Navigator.of(context).pop();
+                  }
+                } catch (e) {
+                  print('[DEBUG] error: $e');
                 }
               },
               iconData: Icons.accessibility,
@@ -2031,10 +2047,10 @@ class _ConversationInformationScreenState
     );
   }
 
-  r.People getPeople(List<r.People>? people) {
-    return people!.first.sId != ChatConnection.user!.id
-        ? people.first
-        : people.last;
+  r.People? getPeople(List<r.People>? people) {
+    if (people == null || people.isEmpty) return null;
+    final other = people.where((e) => e.sId != ChatConnection.user?.id);
+    return other.isNotEmpty ? other.first : people.first;
   }
 
   Widget _section(Icon icon, String name, Function function,
