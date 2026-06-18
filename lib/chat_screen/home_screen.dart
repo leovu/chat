@@ -1,7 +1,8 @@
 import 'dart:convert';
-import 'package:chat/chat_ui/chat_theme.dart';
+import 'dart:ui';
 import 'package:chat/common/global.dart';
 import 'package:chat/common/shared_prefs/shared_prefs_key.dart';
+import 'package:chat/common/widgets/liquid_glass_tab_bar.dart';
 import 'package:chat/presentation/chat_module/ui/chat_screen.dart';
 import 'package:chat/chat_screen/chathub_room_list_screen.dart';
 import 'package:chat/chat_screen/contacts_screen.dart';
@@ -18,7 +19,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/data_model/room.dart' as r;
 import 'package:chat/connection/app_lifecycle.dart';
-import 'package:badges/badges.dart' as bdg;
 
 typedef RefreshBuilder = void Function(
     BuildContext context, void Function() refresh);
@@ -31,6 +31,9 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends AppLifeCycle<HomeScreen> {
+  int _chatTabIndex = 0;
+  int _chatHubTabIndex = 0;
+
   @override
   void initState() {
     super.initState();
@@ -66,153 +69,180 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
   }
 
   Widget _chatHub() {
-    return CupertinoTabScaffold(
-      tabBar: CupertinoTabBar(
-        onTap: (index) {
-          if (index == 1) {
-            try {
-              ChatConnection.refreshNotifications.call();
-            } catch (_) {}
-          }
-        },
-        backgroundColor: Colors.white,
-        activeColor: primaryColor,
-        items: [
-          BottomNavigationBarItem(
-              icon: const Icon(Icons.chat),
-              label: AppLocalizations.text(LangKey.chats)),
-          BottomNavigationBarItem(
-              icon: ValueListenableBuilder(
-                builder: (BuildContext context, value, Widget? child) {
-                  return bdg.Badge(
-                    badgeContent: Text('$value',
-                        style:
-                            const TextStyle(color: Colors.white, fontSize: 10)),
-                    showBadge: value == '0' ? false : true,
-                    badgeAnimation: const bdg.BadgeAnimation.rotation(
-                      toAnimate: false,
-                    ),
-                    badgeStyle: const bdg.BadgeStyle(
-                      badgeColor: Colors.red,
-                    ),
-                    child: const Icon(Icons.notifications),
-                  );
-                },
-                valueListenable: ChatConnection.notificationNotifier,
-              ),
-              label: AppLocalizations.text(LangKey.notifications)),
+    return Scaffold(
+      extendBody: true,
+      body: IndexedStack(
+        index: _chatHubTabIndex,
+        children: [
+          ChatConnection.isChatHub
+              ? RoomListChathubScreen(
+                  builder: (BuildContext context, void Function() method) {
+                    ChatConnection.refreshRoom = method;
+                  },
+                  openCreateChatRoom: _openCreateRoom,
+                )
+              : RoomListScreen(
+                  builder: (BuildContext context, void Function() method) {
+                    ChatConnection.refreshRoom = method;
+                  },
+                  openCreateChatRoom: _openCreateRoom,
+                ),
+          NotificationScreen(
+            builder: (BuildContext context, void Function() method) {
+              ChatConnection.refreshNotifications = method;
+            },
+            homeCallback: () {
+              try { ChatConnection.refreshRoom.call(); } catch (_) {}
+            },
+          ),
         ],
       ),
-      tabBuilder: (context, index) {
-        if (index == 0) {
-          return CupertinoTabView(
-            builder: (BuildContext context) => ChatConnection.isChatHub
-                ? RoomListChathubScreen(
-                    builder: (BuildContext context, void Function() method) {
-                      ChatConnection.refreshRoom = method;
+      bottomNavigationBar: _buildChatHubTabBar(),
+    );
+  }
+
+  Widget _buildChatHubTabBar() {
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.12),
+            border: Border(
+              top: BorderSide(color: Colors.white.withValues(alpha: 0.4), width: 0.5),
+            ),
+          ),
+          child: SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
+              child: ValueListenableBuilder<String>(
+                valueListenable: ChatConnection.notificationNotifier,
+                builder: (context, notifValue, _) {
+                  final notifCount = int.tryParse(notifValue) ?? 0;
+                  return LiquidGlassTabBar(
+                    selectedIndex: _chatHubTabIndex,
+                    expandItems: true,
+                    onTabChanged: (index, item) {
+                      if (index == 1) {
+                        try { ChatConnection.refreshNotifications.call(); } catch (_) {}
+                      }
+                      setState(() => _chatHubTabIndex = index);
                     },
-                    openCreateChatRoom: _openCreateRoom,
-                  )
-                : RoomListScreen(
-                    builder: (BuildContext context, void Function() method) {
-                      ChatConnection.refreshRoom = method;
-                    },
-                    openCreateChatRoom: _openCreateRoom,
-                  ),
-          );
-        } else {
-          return CupertinoTabView(
-            builder: (BuildContext context) => NotificationScreen(
-                builder: (BuildContext context, void Function() method) {
-                  ChatConnection.refreshNotifications = method;
+                    items: [
+                      LiquidGlassTabItem(
+                        iconData: Icons.chat,
+                        title: AppLocalizations.text(LangKey.chats),
+                      ),
+                      LiquidGlassTabItem(
+                        iconData: Icons.notifications,
+                        title: AppLocalizations.text(LangKey.notifications),
+                        badgeCount: notifCount,
+                      ),
+                    ],
+                  );
                 },
-                homeCallback: ChatConnection.refreshRoom.call),
-          );
-        }
-      },
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 
   Widget _chat() {
-    return CupertinoTabScaffold(
-      tabBar: CupertinoTabBar(
-        onTap: (index) {
-          if (index == 3) {
-            try {
-              ChatConnection.refreshNotifications.call();
-            } catch (_) {}
-          }
-        },
-        backgroundColor: Colors.white,
-        activeColor: primaryColor,
-        items: [
-          BottomNavigationBarItem(
-              icon: const Icon(Icons.chat),
-              label: AppLocalizations.text(LangKey.chats)),
-          BottomNavigationBarItem(
-              icon: const Icon(Icons.contact_mail),
-              label: AppLocalizations.text(LangKey.contacts)),
-          BottomNavigationBarItem(
-              icon: const Icon(Icons.star_border),
-              label: AppLocalizations.text(LangKey.favorites)),
-          BottomNavigationBarItem(
-              icon: ValueListenableBuilder(
-                builder: (BuildContext context, value, Widget? child) {
-                  return bdg.Badge(
-                    badgeContent: Text(value,
-                        style:
-                            const TextStyle(color: Colors.white, fontSize: 10)),
-                    showBadge: value == '0' ? false : true,
-                    badgeAnimation: const bdg.BadgeAnimation.rotation(
-                      toAnimate: false,
-                    ),
-                    badgeStyle: const bdg.BadgeStyle(
-                      badgeColor: Colors.red,
-                    ),
-                    child: const Icon(Icons.notifications),
-                  );
-                },
-                valueListenable: ChatConnection.notificationNotifier,
-              ),
-              label: AppLocalizations.text(LangKey.notifications)),
+    return Scaffold(
+      extendBody: true,
+      body: IndexedStack(
+        index: _chatTabIndex,
+        children: [
+          RoomListScreen(
+            builder: (BuildContext context, void Function() method) {
+              ChatConnection.refreshRoom = method;
+            },
+            openCreateChatRoom: _openCreateRoom,
+          ),
+          ContactsScreen(
+            builder: (BuildContext context, void Function() method) {
+              ChatConnection.refreshContact = method;
+            },
+          ),
+          FavoriteScreen(
+            builder: (BuildContext context, void Function() method) {
+              ChatConnection.refreshFavorites = method;
+            },
+            homeCallback: () {
+              try { ChatConnection.refreshRoom.call(); } catch (_) {}
+            },
+          ),
+          NotificationScreen(
+            builder: (BuildContext context, void Function() method) {
+              ChatConnection.refreshNotifications = method;
+            },
+            homeCallback: () {
+              try { ChatConnection.refreshRoom.call(); } catch (_) {}
+            },
+          ),
         ],
       ),
-      tabBuilder: (context, index) {
-        if (index == 0) {
-          return CupertinoTabView(
-            builder: (BuildContext context) => RoomListScreen(
-              builder: (BuildContext context, void Function() method) {
-                ChatConnection.refreshRoom = method;
-              },
-              openCreateChatRoom: _openCreateRoom,
+      bottomNavigationBar: _buildChatTabBar(),
+    );
+  }
+
+  Widget _buildChatTabBar() {
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.12),
+            border: Border(
+              top: BorderSide(color: Colors.white.withValues(alpha: 0.4), width: 0.5),
             ),
-          );
-        }
-        if (index == 1) {
-          return CupertinoTabView(
-              builder: (BuildContext context) => ContactsScreen(
-                      builder: (BuildContext context, void Function() method) {
-                    ChatConnection.refreshContact = method;
-                  }));
-        }
-        if (index == 2) {
-          return CupertinoTabView(
-            builder: (BuildContext context) => FavoriteScreen(
-                builder: (BuildContext context, void Function() method) {
-                  ChatConnection.refreshFavorites = method;
+          ),
+          child: SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
+              child: ValueListenableBuilder<String>(
+                valueListenable: ChatConnection.notificationNotifier,
+                builder: (context, notifValue, _) {
+                  final notifCount = int.tryParse(notifValue) ?? 0;
+                  return LiquidGlassTabBar(
+                    selectedIndex: _chatTabIndex,
+                    expandItems: true,
+                    onTabChanged: (index, item) {
+                      if (index == 3) {
+                        try { ChatConnection.refreshNotifications.call(); } catch (_) {}
+                      }
+                      setState(() => _chatTabIndex = index);
+                    },
+                    items: [
+                      LiquidGlassTabItem(
+                        iconData: Icons.chat,
+                        title: AppLocalizations.text(LangKey.chats),
+                      ),
+                      LiquidGlassTabItem(
+                        iconData: Icons.contact_mail,
+                        title: AppLocalizations.text(LangKey.contacts),
+                      ),
+                      LiquidGlassTabItem(
+                        iconData: Icons.star_border,
+                        title: AppLocalizations.text(LangKey.favorites),
+                      ),
+                      LiquidGlassTabItem(
+                        iconData: Icons.notifications,
+                        title: AppLocalizations.text(LangKey.notifications),
+                        badgeCount: notifCount,
+                      ),
+                    ],
+                  );
                 },
-                homeCallback: ChatConnection.refreshRoom.call),
-          );
-        } else {
-          return CupertinoTabView(
-            builder: (BuildContext context) => NotificationScreen(
-                builder: (BuildContext context, void Function() method) {
-                  ChatConnection.refreshNotifications = method;
-                },
-                homeCallback: ChatConnection.refreshRoom.call),
-          );
-        }
-      },
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 

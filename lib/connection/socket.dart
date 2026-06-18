@@ -20,7 +20,9 @@ class MyHttpOverrides extends HttpOverrides {
 
 class StreamSocket {
   final _socketResponse = StreamController<String>.broadcast();
-  void Function(String) get addResponse => _socketResponse.sink.add;
+  void addResponse(String data) {
+    if (!_socketResponse.isClosed) _socketResponse.sink.add(data);
+  }
   Stream<String> get getResponse => _socketResponse.stream;
   io.Socket? socket;
 
