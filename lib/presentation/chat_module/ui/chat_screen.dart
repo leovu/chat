@@ -1140,7 +1140,7 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
     return Chat(
       note: note,
       source: widget.source,
-      messages: messages,
+      messages: messages.where((m) => !_hiddenImageIds.contains(m.id)).toList(),
       onMessageStatusTap: (context, message) {
         if (message.metadata != null) {
           ScaffoldMessenger.of(context).hideCurrentSnackBar();

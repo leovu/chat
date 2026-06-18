@@ -261,22 +261,21 @@ class _InternalChatScreenState extends ChatScreenBaseState<InternalChatScreen> {
                 child: Padding(
                   padding: const EdgeInsets.only(left: 10.0),
                   child: SizedBox(
-                    height: !widget.data.isGroup! ? 25.0 : 50.0,
+                    height: widget.data.isGroup != true ? 25.0 : 50.0,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         AutoSizeText(
-                          !widget.data.isGroup!
+                          widget.data.isGroup != true
                               ? () {
                                   final owner = extractOwner(widget.data);
                                   return '${owner?.firstName ?? ''} ${owner?.lastName ?? ''}'
                                       .trim();
                                 }()
-                              : widget.data.room_name != null
-                                  ? widget.data.room_name!
-                                  : widget.data.title ??
-                                      'Group ${widget.data.owner!.firstName} ${widget.data.owner!.lastName}',
+                              : widget.data.room_name ??
+                                  widget.data.title ??
+                                  'Group ${widget.data.owner?.firstName ?? ''} ${widget.data.owner?.lastName ?? ''}'.trim(),
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
                           style: const TextStyle(
@@ -284,7 +283,7 @@ class _InternalChatScreenState extends ChatScreenBaseState<InternalChatScreen> {
                               fontWeight: FontWeight.bold,
                               fontSize: 16),
                         ),
-                        if (widget.data.isGroup!)
+                        if (widget.data.isGroup == true)
                           Padding(
                             padding: const EdgeInsets.only(bottom: 3.0),
                             child: AutoSizeText(
