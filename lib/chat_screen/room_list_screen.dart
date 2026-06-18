@@ -97,7 +97,14 @@ class _RoomListScreenState extends State<RoomListScreen>
   void _scrollListener() async {
     if (_listViewController.position.maxScrollExtent ==
         _listViewController.offset) {
+      final prevCount = roomListVisible?.rooms?.length ?? 0;
       await _getRooms(page: _currentPage + 1);
+      final newCount = roomListVisible?.rooms?.length ?? 0;
+      if (newCount > prevCount) {
+        _refreshController.loadComplete();
+      } else {
+        _refreshController.loadNoData();
+      }
     }
   }
 
@@ -388,6 +395,9 @@ class _RoomListScreenState extends State<RoomListScreen>
                                 Widget body;
                                 if (mode == LoadStatus.failed) {
                                   body = const Text(LangKey.load_more_failed);
+                                } else if (mode == LoadStatus.noMore ||
+                                    mode == LoadStatus.idle) {
+                                  body = const SizedBox.shrink();
                                 } else {
                                   body = Platform.isAndroid
                                       ? const SizedBox(

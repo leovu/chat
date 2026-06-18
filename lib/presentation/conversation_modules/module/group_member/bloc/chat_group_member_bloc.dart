@@ -17,11 +17,12 @@ class ChatGroupMemberBloc extends BaseBloc {
     listMemberZalo.close();
   }
 
-  onGetMemberInfo(String channelZaloId, String id) async {
+  Future<MemberListData?> onGetMemberInfo(String channelZaloId, String id) async {
     final respose = await ChatConnection.getMemberInfo(channelZaloId, id);
     if (respose != null) {
       listMemberZalo.add(respose);
     }
+    return respose;
   }
 
   onAcceptPending(

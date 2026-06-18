@@ -52,14 +52,12 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
   void initState() {
     super.initState();
     _bloc = ChatGroupMemberBloc();
+    lengthPeople = widget.chatMessage.room?.people?.length ?? 0;
     if (ChatConnection.isChatHub) {
       source = widget.chatMessage.room?.source ?? '';
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
         onGetInfoOnOpen();
       });
-      isZalo
-          ? lengthPeople = widget.chatMessage.room?.people?.length ?? 0
-          : lengthPeople = widget.chatMessage.room?.people?.length ?? 1 - 1;
     } else {
       isInitScreen = false;
     }
@@ -71,13 +69,25 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
     final groupId = widget.chatMessage.room?.oa_group_id;
 
     if (isZalo) {
-      await _bloc.onGetMemberInfo(
+      final response = await _bloc.onGetMemberInfo(
           channelZaloId!, widget.chatMessage.room?.sId ?? '');
+      if (response != null && response.members != null) {
+        lengthPeople = response.members!.length;
+      }
       listPendingInvite = await ChatConnection.getMemberPendingInvite(
           channelZaloId, groupId ?? '');
     } else if (isZaloPersonal) {
       infoMemberZaloPersional =
           await ChatConnection.getGroupInfo(channelId ?? '', groupId ?? '');
+      if (infoMemberZaloPersional != null &&
+          infoMemberZaloPersional!.members != null &&
+          infoMemberZaloPersional!.members!.isNotEmpty) {
+        lengthPeople = infoMemberZaloPersional!.members!
+            .where((m) => m.level != 'root')
+            .length;
+      } else {
+        lengthPeople = widget.chatMessage.room?.people?.length ?? 0;
+      }
     } else if (isWhatsApp) {
       // TODO: Phân tích response thực tế khi API hoàn thiện.
       // Hiện parse theo WhatsAppContactsResponse.fromJson — điều chỉnh nếu cấu trúc response thay đổi.
@@ -167,7 +177,12 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
                     chatMessage: widget.chatMessage,
                   ),
                 ));
-                if (ChatConnection.isChatHub) onGetInfoOnOpen();
+                if (ChatConnection.isChatHub) {
+                  onGetInfoOnOpen();
+                } else {
+                  lengthPeople = widget.chatMessage.room?.people?.length ?? 0;
+                  setState(() {});
+                }
               },
               child: Image.asset(
                 'assets/icon-edit.png',
@@ -203,7 +218,9 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
           },
         );
       } else if (isZaloPersonal) {
-        final members = infoMemberZaloPersional?.members ?? [];
+        final members = (infoMemberZaloPersional?.members ?? [])
+            .where((m) => m.level != 'root')
+            .toList();
         if (members.isNotEmpty) {
           return ListView.builder(
             shrinkWrap: true,
@@ -211,7 +228,6 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
             itemCount: members.length,
             itemBuilder: (context, index) {
               final memberZP = members[index];
-              if (memberZP.level == 'root') return Container();
               final isLast = index == members.length - 1;
               return buildMemberZPItem(context, memberZP, isLast, memberZP.id!,
                   widget.chatMessage.room!.isGroup!);
@@ -350,6 +366,7 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
         widget.chatMessage.room?.sId ?? '', people.sId);
     if (value) {
       widget.chatMessage.room?.people?.remove(people);
+      lengthPeople = widget.chatMessage.room?.people?.length ?? 0;
       setState(() {});
     }
   }

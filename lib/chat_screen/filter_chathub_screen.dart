@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:chat/common/theme.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/data_model/chathub_channel.dart';
 import 'package:chat/data_model/tag.dart';
@@ -157,9 +158,7 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
                   fontSize: 16),
             ),
             leading: InkWell(
-              child: Icon(
-                  Icons.arrow_back_ios,
-                  color: Colors.black),
+              child: Icon(Icons.arrow_back_ios, color: Colors.black),
               onTap: () => Navigator.of(context).pop(),
             ),
             backgroundColor: Colors.white,
@@ -187,7 +186,7 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
                                       MediaQuery.sizeOf(context).width * 0.95,
                                   child: Row(
                                     mainAxisAlignment:
-                                        MainAxisAlignment.spaceAround,
+                                        MainAxisAlignment.spaceEvenly,
                                     children: [
                                       datePickerDropdown(
                                         hintText: AppLocalizations.text(
@@ -199,6 +198,11 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
                                             _startDay = newDate;
                                           });
                                         },
+                                      ),
+                                      Container(
+                                        width: 16,
+                                        height: 2,
+                                        color: AppColors.black,
                                       ),
                                       datePickerDropdown(
                                         hintText: AppLocalizations.text(
@@ -321,63 +325,62 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
                           ),
                         ),
 
-                        ///Button chấp nhận
                         Padding(
-                          padding:
-                              const EdgeInsets.only(bottom: 9.0, top: 15.0),
-                          child: SizedBox(
-                            height: 41.0,
-                            width: MediaQuery.of(context).size.width * 0.95,
-                            child: MaterialButton(
-                              color: const Color(0xFF5686E1),
-                              onPressed: () async {
-                                _handleDateValidation(context);
-                              },
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10.0),
+                          padding: const EdgeInsets.only(bottom: 15.0, top: 15.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              SizedBox(
+                                height: 41.0,
+                                width: MediaQuery.of(context).size.width * 0.45,
+                                child: MaterialButton(
+                                  color: Colors.white,
+                                  onPressed: () {
+                                    setState(() {
+                                      status = null;
+                                      channel = null;
+                                      link_status = null;
+                                      _startDay = null;
+                                      _endDay = null;
+                                      _isGroup = false;
+                                      arrLabel.clear();
+                                    });
+                                    _submitFilter();
+                                  },
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                      side: const BorderSide(
+                                          color: Color(0xFF5686E1))),
+                                  child: Text(
+                                    AppLocalizations.text(LangKey.delete),
+                                    style: const TextStyle(
+                                        color: Color(0xFF5686E1),
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600),
+                                  ),
+                                ),
                               ),
-                              child: Text(
-                                AppLocalizations.text(LangKey.accept),
-                                style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600),
+                              SizedBox(
+                                height: 41.0,
+                                width: MediaQuery.of(context).size.width * 0.45,
+                                child: MaterialButton(
+                                  color: const Color(0xFF5686E1),
+                                  onPressed: () {
+                                    _handleDateValidation(context);
+                                  },
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                  ),
+                                  child: Text(
+                                    AppLocalizations.text(LangKey.accept),
+                                    style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600),
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                        ),
-
-                        ///button xóa
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 15.0),
-                          child: SizedBox(
-                            height: 41.0,
-                            width: MediaQuery.of(context).size.width * 0.95,
-                            child: MaterialButton(
-                              color: Colors.white,
-                              onPressed: () async {
-                                setState(() {
-                                  status = null;
-                                  channel = null;
-                                  link_status = null;
-                                  _startDay = null;
-                                  _endDay = null;
-                                  _isGroup = false;
-                                });
-                                _submitFilter();
-                              },
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  side: const BorderSide(
-                                      color: Color(0xFF5686E1))),
-                              child: Text(
-                                AppLocalizations.text(LangKey.delete),
-                                style: const TextStyle(
-                                    color: Color(0xFF5686E1),
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600),
-                              ),
-                            ),
+                            ],
                           ),
                         )
                       ],
@@ -390,8 +393,9 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
     arr = tag!.data!
         .map(
           (e) => Padding(
-            padding: const EdgeInsets.only(right: 8.0),
+            padding: const EdgeInsets.only(right: 8.0, bottom: 8.0),
             child: InkWell(
+              borderRadius: BorderRadius.circular(20),
               onTap: () {
                 if (arrLabel.contains(e.sId)) {
                   arrLabel.remove(e.sId);
@@ -400,23 +404,7 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
                 }
                 setState(() {});
               },
-              child: Chip(
-                label: Text(
-                  e.name ?? '',
-                  style: TextStyle(
-                      color: arrLabel.contains(e.sId)
-                          ? Colors.blueAccent
-                          : Colors.grey),
-                ),
-                backgroundColor: arrLabel.contains(e.sId)
-                    ? Colors.white
-                    : Colors.grey.shade200,
-                shape: StadiumBorder(
-                    side: BorderSide(
-                        color: arrLabel.contains(e.sId)
-                            ? Colors.blueAccent
-                            : Colors.grey)),
-              ),
+              child: _chipWidget(e.name ?? '', arrLabel.contains(e.sId)),
             ),
           ),
         )
@@ -424,26 +412,15 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
     arr.insert(
         0,
         Padding(
-          padding: const EdgeInsets.only(right: 8.0),
+          padding: const EdgeInsets.only(right: 8.0, bottom: 8.0),
           child: InkWell(
+            borderRadius: BorderRadius.circular(20),
             onTap: () {
               setState(() {
                 arrLabel.clear();
               });
             },
-            child: Chip(
-              label: Text(
-                AppLocalizations.text(LangKey.all),
-                style: TextStyle(
-                    color: arrLabel.isEmpty ? Colors.blueAccent : Colors.grey),
-              ),
-              backgroundColor:
-                  arrLabel.isEmpty ? Colors.white : Colors.grey.shade200,
-              shape: StadiumBorder(
-                  side: BorderSide(
-                      color:
-                          arrLabel.isEmpty ? Colors.blueAccent : Colors.grey)),
-            ),
+            child: _chipWidget(AppLocalizations.text(LangKey.all), arrLabel.isEmpty),
           ),
         ));
     return arr;
@@ -454,25 +431,15 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
     arr = arrStatus
         .map(
           (e) => Padding(
-            padding: const EdgeInsets.only(right: 8.0),
+            padding: const EdgeInsets.only(right: 8.0, bottom: 8.0),
             child: InkWell(
+              borderRadius: BorderRadius.circular(20),
               onTap: () {
                 setState(() {
                   status = e;
                 });
               },
-              child: Chip(
-                label: Text(
-                  AppLocalizations.text(e),
-                  style: TextStyle(
-                      color: status == e ? Colors.blueAccent : Colors.grey),
-                ),
-                backgroundColor:
-                    status == e ? Colors.white : Colors.grey.shade200,
-                shape: StadiumBorder(
-                    side: BorderSide(
-                        color: status == e ? Colors.blueAccent : Colors.grey)),
-              ),
+              child: _chipWidget(AppLocalizations.text(e), status == e),
             ),
           ),
         )
@@ -480,67 +447,36 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
     arr.insert(
         0,
         Padding(
-          padding: const EdgeInsets.only(right: 8.0),
+          padding: const EdgeInsets.only(right: 8.0, bottom: 8.0),
           child: InkWell(
+            borderRadius: BorderRadius.circular(20),
             onTap: () {
               setState(() {
                 status = null;
               });
             },
-            child: Chip(
-              label: Text(
-                AppLocalizations.text(LangKey.all),
-                style: TextStyle(
-                    color: status == null ? Colors.blueAccent : Colors.grey),
-              ),
-              backgroundColor:
-                  status == null ? Colors.white : Colors.grey.shade200,
-              shape: StadiumBorder(
-                  side: BorderSide(
-                      color: status == null ? Colors.blueAccent : Colors.grey)),
-            ),
+            child: _chipWidget(AppLocalizations.text(LangKey.all), status == null),
           ),
         ));
     return arr;
   }
 
   List<Widget> _list_Link_Status_Widget() {
-    final List<Widget> chips = [];
-
-    Widget buildChip(String? value, String displayText) {
+    return arr_link_status.map((value) {
       final bool isSelected = link_status == value;
-
       return Padding(
-        padding: const EdgeInsets.only(right: 8.0),
+        padding: const EdgeInsets.only(right: 8.0, bottom: 8.0),
         child: InkWell(
+          borderRadius: BorderRadius.circular(20),
           onTap: () {
             setState(() {
               link_status = value;
             });
           },
-          child: Chip(
-            label: Text(
-              displayText,
-              style: TextStyle(
-                color: isSelected ? Colors.blueAccent : Colors.grey,
-              ),
-            ),
-            backgroundColor: isSelected ? Colors.white : Colors.grey.shade200,
-            shape: StadiumBorder(
-              side: BorderSide(
-                color: isSelected ? Colors.blueAccent : Colors.grey,
-              ),
-            ),
-          ),
+          child: _chipWidget(AppLocalizations.text(value), isSelected),
         ),
       );
-    }
-
-    chips.addAll(arr_link_status.map(
-      (status) => buildChip(status, AppLocalizations.text(status)),
-    ));
-
-    return chips;
+    }).toList();
   }
 
   List<Widget> _listChannelWidget() {
@@ -548,28 +484,15 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
     arr = channels!.channels!
         .map(
           (e) => Padding(
-            padding: const EdgeInsets.only(right: 8.0),
+            padding: const EdgeInsets.only(right: 8.0, bottom: 8.0),
             child: InkWell(
+              borderRadius: BorderRadius.circular(20),
               onTap: () {
                 setState(() {
                   channel = e.sId ?? '';
                 });
               },
-              child: Chip(
-                label: Text(
-                  e.nameApp ?? '',
-                  style: TextStyle(
-                      color:
-                          channel == e.sId ? Colors.blueAccent : Colors.grey),
-                ),
-                backgroundColor:
-                    channel == e.sId ? Colors.white : Colors.grey.shade200,
-                shape: StadiumBorder(
-                    side: BorderSide(
-                        color: channel == e.sId
-                            ? Colors.blueAccent
-                            : Colors.grey)),
-              ),
+              child: _chipWidget(e.nameApp ?? '', channel == e.sId),
             ),
           ),
         )
@@ -577,29 +500,38 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
     arr.insert(
         0,
         Padding(
-          padding: const EdgeInsets.only(right: 8.0),
+          padding: const EdgeInsets.only(right: 8.0, bottom: 8.0),
           child: InkWell(
+            borderRadius: BorderRadius.circular(20),
             onTap: () {
               setState(() {
                 channel = null;
               });
             },
-            child: Chip(
-              label: Text(
-                AppLocalizations.text(LangKey.all),
-                style: TextStyle(
-                    color: channel == null ? Colors.blueAccent : Colors.grey),
-              ),
-              backgroundColor:
-                  channel == null ? Colors.white : Colors.grey.shade200,
-              shape: StadiumBorder(
-                  side: BorderSide(
-                      color:
-                          channel == null ? Colors.blueAccent : Colors.grey)),
-            ),
+            child: _chipWidget(AppLocalizations.text(LangKey.all), channel == null),
           ),
         ));
     return arr;
+  }
+
+  Widget _chipWidget(String label, bool isSelected) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: isSelected ? Colors.white : Colors.grey.shade200,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: isSelected ? Colors.blueAccent : Colors.grey,
+        ),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: isSelected ? Colors.blueAccent : Colors.grey,
+          fontSize: 14,
+        ),
+      ),
+    );
   }
 
   void _getChannel() async {
@@ -617,34 +549,71 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
     List<String> arrLabel = const [],
   }) {
     return InkWell(
-      onTap: () async {
-        final picked = await showDatePicker(
+      onTap: () {
+        DateTime tempDate = parseDate(selectedDate) ?? DateTime.now();
+        showCupertinoModalPopup(
           context: context,
-          initialDate: parseDate(selectedDate) ?? DateTime.now(),
-          firstDate: DateTime(2000),
-          lastDate: DateTime(2100),
+          builder: (_) => Container(
+            height: 280,
+            color: Colors.white,
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CupertinoButton(
+                      child: Text(
+                        AppLocalizations.text(LangKey.cancel),
+                        style: const TextStyle(color: Colors.grey),
+                      ),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                    CupertinoButton(
+                      child: Text(
+                        AppLocalizations.text(LangKey.accept),
+                        style: const TextStyle(color: Colors.blueAccent),
+                      ),
+                      onPressed: () {
+                        final formatted =
+                            DateFormat('dd/MM/yyyy').format(tempDate);
+                        onDatePicked(formatted);
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ],
+                ),
+                Expanded(
+                  child: CupertinoDatePicker(
+                    mode: CupertinoDatePickerMode.date,
+                    initialDateTime: tempDate,
+                    minimumDate: DateTime(2000),
+                    maximumDate: DateTime(2100),
+                    onDateTimeChanged: (date) {
+                      tempDate = date;
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
         );
-
-        if (picked != null) {
-          final formatted = DateFormat('dd/MM/yyyy').format(picked);
-          onDatePicked(formatted);
-        }
       },
       child: Container(
         width: MediaQuery.sizeOf(context).width * 0.4,
         height: 30,
         padding: EdgeInsets.zero,
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey),
-          borderRadius: BorderRadius.circular(8),
-        ),
+            border: Border.all(color: Colors.grey),
+            borderRadius: BorderRadius.circular(8),
+            color: AppColors.white),
         child: Center(
           child: Text(
             formatDate(parseDate(selectedDate), fallback: hintText),
             style: TextStyle(
-              color: arrLabel.isEmpty ? Colors.blueAccent : Colors.grey,
-              fontSize: 12,
-            ),
+                color: selectedDate != null ? Colors.blueAccent : Colors.grey,
+                fontSize: 14,
+                fontWeight:
+                    selectedDate != null ? FontWeight.w600 : null),
           ),
         ),
       ),
