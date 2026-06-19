@@ -164,6 +164,7 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
     super.dispose();
     itemPositionsListener.itemPositions.removeListener(() {});
     ChatConnection.isLoadMore = false;
+    ChatConnection.removeListenChat(_refreshMessage);
     ChatConnection.roomId = null;
   }
 
@@ -263,6 +264,7 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
           author: user,
           createdAt: ms.createdAt,
           id: ms.id,
+          remoteId: '1',
           text: (message as types.TextMessage).text,
           repliedMessage: isEdit.repliedMessage ?? ms.repliedMessage);
       int index = messages.indexOf(ms);
@@ -363,8 +365,8 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
           allowedExtensions: ['pdf', 'doc'],
         );
       } else {
-        result = await FilePicker.platform
-            .pickFiles(type: FileType.any, allowCompression: false, withData: false);
+        result = await FilePicker.platform.pickFiles(
+            type: FileType.any, allowCompression: false, withData: false);
       }
       if (result != null && result.files.single.path != null) {
         String id = const Uuid().v4();
@@ -522,7 +524,13 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
       );
       _addMessage(message, id);
       if (mounted) setState(() {});
-      ChatConnection.uploadImage(context, data, messages, id, result, data?.room,
+      ChatConnection.uploadImage(
+              context,
+              data,
+              messages,
+              id,
+              result,
+              data?.room,
               ChatConnection.checkUserTokenResponseModel?.user?.sId ?? '')
           .then((r) {
         if (r == 'limit') {
@@ -670,8 +678,8 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
   void _handlePreviewDataFetched(
       types.TextMessage message, types.PreviewData previewData) {
     final index = messages.indexWhere((element) => element.id == message.id);
-    final updatedMessage =
-        (messages[index] as types.TextMessage).copyWith(previewData: previewData);
+    final updatedMessage = (messages[index] as types.TextMessage)
+        .copyWith(previewData: previewData);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) setState(() => messages[index] = updatedMessage);
     });
@@ -686,10 +694,15 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
         id: id,
         text: message.text,
         repliedMessage: repliedMessage);
+    String? repliedMsgSId;
+    if (repliedMessage != null) {
+      final rid = repliedMessage.id;
+      if (RegExp(r'^[a-f0-9]{24}$').hasMatch(rid)) {
+        repliedMsgSId = rid;
+      }
+    }
     _addMessage(textMessage, id,
-        text: message.text,
-        repliedMessageId: repliedMessage?.id,
-        isEdit: isEdit);
+        text: message.text, repliedMessageId: repliedMsgSId, isEdit: isEdit);
   }
 
   void _onStickerPressed(File sticker) async {
@@ -755,7 +768,8 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
           errorBuilder: (_, __, ___) => Container(
             width: messageWidth.toDouble() * 0.7,
             height: 100,
-            child: const Icon(Icons.broken_image, size: 100, color: Colors.grey),
+            child:
+                const Icon(Icons.broken_image, size: 100, color: Colors.grey),
           ),
         ),
       );
@@ -778,12 +792,14 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
           placeholder: (context, url) => Container(
             width: messageWidth.toDouble() * 0.7,
             height: 100,
-            child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+            child:
+                const Center(child: CircularProgressIndicator(strokeWidth: 2)),
           ),
           errorWidget: (context, url, error) => Container(
             width: messageWidth.toDouble() * 0.7,
             height: 100,
-            child: const Icon(Icons.broken_image, size: 100, color: Colors.grey),
+            child:
+                const Icon(Icons.broken_image, size: 100, color: Colors.grey),
           ),
         ),
       );
@@ -796,7 +812,8 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
     );
   }
 
-  Widget _buildGroupedImages(List<types.ImageMessage> images, int messageWidth) {
+  Widget _buildGroupedImages(
+      List<types.ImageMessage> images, int messageWidth) {
     final maxWidth = messageWidth.toDouble() * 0.7;
     const spacing = 4.0;
     double imageSize;
@@ -845,7 +862,8 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
               placeholder: (context, url) => Container(
                 width: imageSize,
                 height: imageSize,
-                child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                child: const Center(
+                    child: CircularProgressIndicator(strokeWidth: 2)),
               ),
               errorWidget: (context, url, error) => Container(
                 width: imageSize,
@@ -966,8 +984,9 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
     if (mounted) {
       setState(() {});
     } else {
-      WidgetsBinding.instance
-          .addPostFrameCallback((_) { if (mounted) setState(() {}); });
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() {});
+      });
     }
   }
 
@@ -1054,78 +1073,80 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
   // ── Widgets ────────────────────────────────────────────────────────────────
 
   Widget _pinnedMessageWidget() {
-    if (data?.room?.pinMessage == null) return const SizedBox.shrink();
-    return Column(
-      children: [
-        Container(
-            color: Colors.white,
-            padding:
-                const EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
-            child: Row(
-              children: [
-                const Padding(
-                  padding: EdgeInsets.only(right: 8.0),
-                  child: Icon(Icons.chat_outlined, color: Color(0xff5686E1)),
+    final pin = data?.room?.pinMessage;
+    if (pin == null) return const SizedBox.shrink();
+    final imgSize = MediaQuery.sizeOf(context).width * 0.15;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border:
+            Border(bottom: BorderSide(color: Colors.grey.shade300, width: 2)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
+        child: Row(
+          children: [
+            const Padding(
+              padding: EdgeInsets.only(right: 8.0),
+              child: Icon(Icons.chat_outlined, color: Color(0xff5686E1)),
+            ),
+            Expanded(
+              child: InkWell(
+                onTap: () {
+                  try {
+                    scroll(listIdMessages[pin.sId]!);
+                  } catch (_) {}
+                },
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AutoSizeText(
+                      '${pin.author?.firstName} ${pin.author?.lastName}',
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xff5686E1)),
+                    ),
+                    if (pin.type == 'image')
+                      SizedBox(
+                        height: imgSize,
+                        width: imgSize,
+                        child: Padding(
+                          padding: const EdgeInsets.all(3.0),
+                          child: CachedNetworkImage(
+                            fit: BoxFit.cover,
+                            imageUrl:
+                                '${HTTPConnection.domain}api/images/${pin.content}/256/${ChatConnection.brandCode!}',
+                            httpHeaders: {
+                              'brand-code': ChatConnection.brandCode!
+                            },
+                            placeholder: (_, __) =>
+                                const CupertinoActivityIndicator(),
+                            errorWidget: (_, __, ___) =>
+                                const Icon(Icons.error),
+                          ),
+                        ),
+                      )
+                    else
+                      checkTagWidget(pin.content ?? ''),
+                  ],
                 ),
-                Expanded(
-                    child: InkWell(
-                  onTap: () {
-                    try {
-                      int? index = listIdMessages[data?.room?.pinMessage?.sId]!;
-                      scroll(index);
-                    } catch (_) {}
-                  },
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      AutoSizeText(
-                        '${data?.room?.pinMessage?.author?.firstName} ${data?.room?.pinMessage?.author?.lastName}',
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xff5686E1)),
-                      ),
-                      data?.room?.pinMessage?.type == 'image'
-                          ? SizedBox(
-                              height: MediaQuery.of(context).size.width * 0.15,
-                              width: MediaQuery.of(context).size.width * 0.15,
-                              child: Padding(
-                                padding: const EdgeInsets.all(3.0),
-                                child: CachedNetworkImage(
-                                  fit: BoxFit.cover,
-                                  imageUrl:
-                                      '${HTTPConnection.domain}api/images/${data?.room?.pinMessage?.content}/256/${ChatConnection.brandCode!}',
-                                  httpHeaders: {
-                                    'brand-code': ChatConnection.brandCode!
-                                  },
-                                  placeholder: (context, url) =>
-                                      const CupertinoActivityIndicator(),
-                                  errorWidget: (context, url, error) =>
-                                      const Icon(Icons.error),
-                                ),
-                              ),
-                            )
-                          : checkTagWidget(
-                              data?.room?.pinMessage?.content ?? ''),
-                    ],
-                  ),
-                )),
-                Container(
-                  margin: const EdgeInsets.only(left: 16),
-                  height: 30,
-                  width: 30,
-                  child: IconButton(
-                    icon: const Icon(Icons.close, color: Colors.grey, size: 20.0),
-                    onPressed: () async {
-                      setState(() => data?.room?.pinMessage = null);
-                      await ChatConnection.pinMessage(null, data?.room);
-                    },
-                    padding: EdgeInsets.zero,
-                  ),
-                )
-              ],
-            )),
-        Container(height: 2.0, color: Colors.grey.shade300),
-      ],
+              ),
+            ),
+            SizedBox(
+              height: 30,
+              width: 30,
+              child: IconButton(
+                icon: const Icon(Icons.close, color: Colors.grey, size: 20.0),
+                onPressed: () async {
+                  setState(() => data?.room?.pinMessage = null);
+                  await ChatConnection.pinMessage(null, data?.room);
+                },
+                padding: EdgeInsets.zero,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -1144,8 +1165,8 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
       onMessageStatusTap: (context, message) {
         if (message.metadata != null) {
           ScaffoldMessenger.of(context).hideCurrentSnackBar();
-          final snackBar =
-              SnackBar(content: AutoSizeText(message.metadata!['error_message']));
+          final snackBar = SnackBar(
+              content: AutoSizeText(message.metadata!['error_message']));
           ScaffoldMessenger.of(context).showSnackBar(snackBar);
         }
       },
@@ -1207,7 +1228,8 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
                   children: [
                     InkWell(
                       onTap: () {
-                        if (_listIdSearch.isNotEmpty && currentIndexSearch > 0) {
+                        if (_listIdSearch.isNotEmpty &&
+                            currentIndexSearch > 0) {
                           currentIndexSearch -= 1;
                           scroll(_listIdSearch[currentIndexSearch]);
                           setState(() {});
@@ -1288,8 +1310,8 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
             children: [
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 10),
-                child: Center(
-                    child: Icon(Icons.search, color: Color(0xFF787878))),
+                child:
+                    Center(child: Icon(Icons.search, color: Color(0xFF787878))),
               ),
               Expanded(
                   child: TextField(
@@ -1355,8 +1377,7 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
             String id = element.id;
             var message = element as types.TextMessage;
             List<String> contents = message.text.toLowerCase().split(' ');
-            if (contents
-                .contains(_controllerSearch.value.text.toLowerCase())) {
+            if (contents.contains(_controllerSearch.value.text.toLowerCase())) {
               int? idx = listIdMessages[id];
               if (idx != null) _listIdSearch.add(idx);
             }

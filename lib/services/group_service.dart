@@ -59,8 +59,7 @@ class GroupService {
       final response = await connection.post('api/zalo-personal/remove-user-group', {
         'channel_id': channelId, 'group_id': groupId, 'member_user_id': memberUserId,
       });
-      final base = BaseResponse<GroupInfoResponseZP>.fromJson(response.data, (json) => GroupInfoResponseZP.fromJson(json));
-      return base.error == 0;
+      return response.isSuccess;
     } catch (_) {
       return false;
     }
@@ -79,7 +78,9 @@ class GroupService {
     try {
       final response = await connection.post('api/zalo-personal/get-friends', {'channel_id': channelId});
       return FriendListResponse.fromJson(response.data);
-    } catch (_) {
+    } catch (e, s) {
+      print("ERROR in getListFriend: $e");
+      print(s);
       return null;
     }
   }

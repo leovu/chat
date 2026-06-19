@@ -10,6 +10,10 @@ class MessageService {
     streamSocket.listenChat(callback);
   }
 
+  static void removeListenChat(StreamSocket streamSocket, Function callback) {
+    streamSocket.removeListenChat(callback);
+  }
+
   static Future<String?> sendChat(
     HTTPConnection connection,
     StreamSocket streamSocket, {
@@ -25,12 +29,10 @@ class MessageService {
     final json = {
       'authorID': authorId,
       'content': message ?? '',
-      'type': 'text',
+      'contentType': 'text',
       'roomID': room?.sId ?? '',
-      if (reppliedMessageId != null) ...{
-        'replies': reppliedMessageId,
-        'action': 'reply',
-      },
+      'action': reppliedMessageId != null ? 'reply' : 'message',
+      if (reppliedMessageId != null) 'replies': reppliedMessageId,
     };
     final version = isChatHub ? '/v2' : '';
     final responseData = await connection.post('api$version/message', json);
@@ -50,7 +52,8 @@ class MessageService {
         )!;
     final index = listMessage.indexWhere((element) => element.id == val.id);
     final targetIndex = index != -1 ? index : listMessage.length;
-    final messageJson = responseData.data['data']?['message'];
+    final messageJson =
+        responseData.data['data']?['message'] ?? responseData.data['message'];
     if (messageJson == null) return null;
 
     final valueResponse = c.Messages.fromJson(messageJson);
@@ -61,8 +64,11 @@ class MessageService {
       id: valueResponse.sId ?? 'default-id',
       text: (oldMessage as types.TextMessage).text,
       repliedMessage: oldMessage.repliedMessage,
-      status: (responseData.data['error'] == 0) ? null : types.Status.error,
-      metadata: responseData.data['message'] != null
+      status: (responseData.data['error'] != null &&
+              responseData.data['error'] != 0)
+          ? types.Status.error
+          : null,
+      metadata: responseData.data['message'] is String
           ? {'error_message': responseData.data['message']}
           : null,
     );
@@ -74,7 +80,8 @@ class MessageService {
     final quota = responseData.data['data']?['quota'];
     if (quota != null) {
       final type = quota['type'];
-      if (type == 'OA Tier') return AppLocalizations.text(LangKey.zaloSendOATier);
+      if (type == 'OA Tier')
+        return AppLocalizations.text(LangKey.zaloSendOATier);
       if (type == 'reply') {
         return '${AppLocalizations.text(LangKey.zaloSendReply1)}${quota['remain'] ?? 0}/${quota['total'] ?? 0}${AppLocalizations.text(LangKey.zaloSendReply2)}';
       }

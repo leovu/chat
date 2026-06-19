@@ -60,6 +60,7 @@ class Rooms {
   int? enable_bot;
   String? room_name;
   String? avatar;
+  String? ownerId;
 
   Rooms({
     this.people,
@@ -81,6 +82,7 @@ class Rooms {
     this.enable_bot,
     this.room_name,
     this.avatar,
+    this.ownerId,
   });
   factory Rooms.mappingFromRoom(ChatMessage.Room r) {
     return Rooms(
@@ -153,7 +155,8 @@ class Rooms {
           owner = Owner.fromJson(json['owner']);
         }
       } else {
-        final ownerId = json['owner'];
+        final rawOwner = json['owner'];
+        ownerId = rawOwner is String ? rawOwner : rawOwner?['_id']?.toString();
         if (ownerId != null && people != null) {
           if (isGroup == true) {
             owner =

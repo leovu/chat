@@ -162,9 +162,9 @@ class _MyAppState extends State<MyApp> {
                       // domain: 'https://chathub.epoints.vn/',
                       brandCode: 'sale',
                       isChatHub: false,
-                      token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3dvcmtzcGFjZS5lcG9pbnRzLnZuL3YyL3VzZXIvbG9naW4iLCJpYXQiOjE3ODE3NTYxOTUsImV4cCI6MTc4MTc3Nzc5NSwibmJmIjoxNzgxNzU2MTk1LCJqdGkiOiI1OWlncE80ZkRNWnJ5TEpBIiwic3ViIjo5NiwicHJ2IjoiYTBmM2U3NGJlZGY1MTJjNDc3ODI5N2RlNWY5MjA4NmRhZDM5Y2E5ZiIsInNpZCI6Im5nb2N2dG0iLCJicmFuZF9jb2RlIjoic2FsZSJ9.6uxAiyjeMu-r3XbF3oKd-C-bsgDuRF2SPB65kaUX0_Q"
-                      // token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyZmQwMjA0ZDcwMzNlMjRkYTc5YzYwNiIsInVpZCI6MSwic2lkIjoiYWRtaW4iLCJlbWFpbCI6InZ1QHBpb2FwcHMudm4iLCJsZXZlbCI6InJvb3QiLCJmaXJzdE5hbWUiOiJBZG1pbiIsImxhc3ROYW1lIjoiVXNlciIsInVzZXJuYW1lIjoiYWRtaW4iLCJicmFuZF9jb2RlIjoic2FsZSIsImlhdCI6MTc4MTY2MTU5OCwiZXhwIjoxNzg2ODQ1NTk4fQ.HNVKX7-vHPpNun6BL9TeTAknaepme3wTlnlwbX4GZN0'
-                      
+                      token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3dvcmtzcGFjZS5lcG9pbnRzLnZuL3YyL3VzZXIvbG9naW4iLCJpYXQiOjE3ODE4MzA3NTQsImV4cCI6MTc4MTg1MjM1NCwibmJmIjoxNzgxODMwNzU0LCJqdGkiOiJrcGJ3dlJENkJlWk5LUkFkIiwic3ViIjo4OCwicHJ2IjoiYTBmM2U3NGJlZGY1MTJjNDc3ODI5N2RlNWY5MjA4NmRhZDM5Y2E5ZiIsInNpZCI6InF1YW5nbG0iLCJicmFuZF9jb2RlIjoic2FsZSJ9.nj6o20C68HxqZfZiqeIiyN9bZWWE6PjQkh7Wrj3LLnw"
+                      // token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyZmQwMjA0ZDcwMzNlMjRkYTc5YzYwNiIsInVpZCI6OTYsInNpZCI6ImFkbWluIiwiZW1haWwiOiJ2dUBwaW9hcHBzLnZuIiwibGV2ZWwiOiJyb290IiwiZmlyc3ROYW1lIjoiQWRtaW4iLCJsYXN0TmFtZSI6IlVzZXIiLCJ1c2VybmFtZSI6ImFkbWluIiwiYnJhbmRfY29kZSI6InNhbGUiLCJpYXQiOjE3ODE4NDE2NDEsImV4cCI6MTc4NzAyNTY0MX0.mh5c6vwdXGN1mgAvTDQIWPmrvaDUyjf9Sr50gBNt5yc'
+
                       // roomId: '632a88f7dd01b42c37330585'
                       );
                   //MATHEW TEST CHAT HUB

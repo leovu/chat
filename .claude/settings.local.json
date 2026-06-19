@@ -17,7 +17,8 @@
       "Bash(awk '/^class Owner/{f=1} f&&/source|userSocialId|sId|String\\\\?|Owner\\\\\\(/{print NR\": \"$0} f&&/^}/{print NR\": }\"; exit}' /Users/mwang/WAO/Epoints/chat/lib/data_model/room.dart)",
       "Bash(grep -E \"\\\\.\\(dart\\)$\")",
       "Bash(perl -0pi -e \"s/widget\\\\.search != '' && widget\\\\.search != null/_search != ''/g; s/widget\\\\.search!\\\\.toLowerCase\\\\\\(\\\\\\)/_search.toLowerCase\\(\\)/g; s/widget\\\\.search != '' && widget\\\\.search != null/_search != ''/g\" lib/chat_screen/by_sender_screen.dart)",
-      "Bash(perl -0pi -e 's/widget\\\\.chatMessage/_chatMessage/g' lib/chat_screen/conversation_file_screen.dart)"
+      "Bash(perl -0pi -e 's/widget\\\\.chatMessage/_chatMessage/g' lib/chat_screen/conversation_file_screen.dart)",
+      "Bash(grep -E \"error|warning|^$\")"
     ]
   }
 }

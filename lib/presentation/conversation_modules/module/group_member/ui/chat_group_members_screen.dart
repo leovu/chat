@@ -18,6 +18,7 @@ import 'package:chat/presentation/utils/ultility.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../../chat_ui/vietnamese_text.dart';
 import '../../../../../data_model/response/group_info_response.dart';
 import '../../../../../data_model/response/whatsapp_contact_response_model.dart';
 import '../../../../utils/dialog.dart';
@@ -47,6 +48,8 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
   bool get isWhatsApp => source == 'whatsapp';
   List<String> memberId = [];
   late int lengthPeople = 0;
+  final TextEditingController _searchController = TextEditingController();
+  List<r.People> _filteredMembers = [];
 
   @override
   void initState() {
@@ -59,8 +62,30 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
         onGetInfoOnOpen();
       });
     } else {
+      _filteredMembers = List.from(widget.chatMessage.room?.people ?? []);
       isInitScreen = false;
     }
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _filterMembers(String query) {
+    final all = widget.chatMessage.room?.people ?? [];
+    if (query.isEmpty) {
+      _filteredMembers = List.from(all);
+    } else {
+      final val = query.toLowerCase().removeAccents();
+      _filteredMembers = all.where((p) {
+        final name = '${p.firstName ?? ''} ${p.lastName ?? ''}'.toLowerCase().removeAccents();
+        final username = (p.username ?? '').toLowerCase();
+        return name.contains(val) || username.contains(val);
+      }).toList();
+    }
+    setState(() {});
   }
 
   void onGetInfoOnOpen() async {
@@ -113,30 +138,82 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
       body: SafeArea(
         child: isInitScreen
             ? const Center(child: CircularProgressIndicator())
-            : CustomScrollView(
-                slivers: [
-                  SliverToBoxAdapter(
-                    child: _buildMemberList(),
-                  ),
-                  if (ChatConnection.isChatHub &&
-                      isZalo == true &&
-                      listPendingInvite?.memberCount != 0)
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 5, vertical: 10),
-                        child: customDivider(
-                            '${AppLocalizations.text(LangKey.request_to_join_group)} (${listPendingInvite?.memberCount ?? listPendingInvite?.members?.length})'),
-                      ),
-                    ),
-                  SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) => _buildItemPending(),
-                      childCount: 1,
+            : Column(
+                children: [
+                  if (!ChatConnection.isChatHub) _buildSearchBar(),
+                  Expanded(
+                    child: CustomScrollView(
+                      slivers: [
+                        SliverToBoxAdapter(
+                          child: _buildMemberList(),
+                        ),
+                        if (ChatConnection.isChatHub &&
+                            isZalo == true &&
+                            listPendingInvite?.memberCount != 0)
+                          SliverToBoxAdapter(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 5, vertical: 10),
+                              child: customDivider(
+                                  '${AppLocalizations.text(LangKey.request_to_join_group)} (${listPendingInvite?.memberCount ?? listPendingInvite?.members?.length})'),
+                            ),
+                          ),
+                        SliverList(
+                          delegate: SliverChildBuilderDelegate(
+                            (context, index) => _buildItemPending(),
+                            childCount: 1,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
+      ),
+    );
+  }
+
+  Widget _buildSearchBar() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
+      child: Container(
+        height: 40,
+        decoration: BoxDecoration(
+          color: const Color(0xFFE7EAEF),
+          borderRadius: BorderRadius.circular(5),
+        ),
+        child: Row(
+          children: [
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              child: Icon(Icons.search),
+            ),
+            Expanded(
+              child: TextField(
+                controller: _searchController,
+                onChanged: _filterMembers,
+                decoration: InputDecoration.collapsed(
+                  hintText: AppLocalizations.text(LangKey.search),
+                ),
+              ),
+            ),
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(5),
+                onTap: () {
+                  _searchController.clear();
+                  _filterMembers('');
+                  FocusManager.instance.primaryFocus?.unfocus();
+                },
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  child: Icon(Icons.close),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -172,7 +249,9 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
                   builder: (context) => AddMemberGroupScreen(
                     // roomData: widget.chatMessage.room,
                     chanel_id: ChatConnection.isChatHub
-                        ? widget.chatMessage.room?.channel?.socialChanelId
+                        ? (widget.channelSocialId ??
+                            widget.chatMessage.room?.channel?.socialChanelId ??
+                            '')
                         : '',
                     chatMessage: widget.chatMessage,
                   ),
@@ -180,7 +259,9 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
                 if (ChatConnection.isChatHub) {
                   onGetInfoOnOpen();
                 } else {
-                  lengthPeople = widget.chatMessage.room?.people?.length ?? 0;
+                  _filteredMembers = List.from(widget.chatMessage.room?.people ?? []);
+                  lengthPeople = _filteredMembers.length;
+                  _searchController.clear();
                   setState(() {});
                 }
               },
@@ -264,11 +345,10 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
         );
       }
     } else {
-      final members = widget.chatMessage.room?.people ?? [];
       return ListView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        itemCount: members.length,
+        itemCount: _filteredMembers.length,
         itemBuilder: (context, index) => _itemChat(context, index),
       );
     }
@@ -365,7 +445,8 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
     bool value = await ChatConnection.leaveRoom(
         widget.chatMessage.room?.sId ?? '', people.sId);
     if (value) {
-      widget.chatMessage.room?.people?.remove(people);
+      widget.chatMessage.room?.people?.removeWhere((p) => p.sId == people.sId);
+      _filteredMembers.removeWhere((p) => p.sId == people.sId);
       lengthPeople = widget.chatMessage.room?.people?.length ?? 0;
       setState(() {});
     }
@@ -448,46 +529,20 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
   }
 
   Widget _itemChat(BuildContext context, int index) {
-    final data = widget.chatMessage.room?.people![index];
-    bool isLast = index == (widget.chatMessage.room?.people?.length ?? 1) - 1;
+    final data = _filteredMembers[index];
+    bool isLast = index == _filteredMembers.length - 1;
+    final currentUserId = ChatConnection.user!.id;
+    final ownerSId = widget.chatMessage.room?.owner?.sId ?? widget.chatMessage.room?.ownerId;
+    final isOwner = ownerSId == currentUserId;
+    final isCurrentUser = data.sId == ChatConnection.user!.id;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0),
       child: Column(
         children: [
-          // Text(data.toString()),
           InkWell(
             onTap: () {
-              if (data?.sId != ChatConnection.user!.id) {
-                showModalActionSheet<String>(
-                  context: context,
-                  actions: [
-                    SheetAction(
-                      icon: Icons.chat,
-                      label: AppLocalizations.text(LangKey.sendMessage),
-                      key: 'Chat',
-                    ),
-                    if (widget.chatMessage.room?.owner?.sId ==
-                            ChatConnection.user!.id &&
-                        widget.chatMessage.room?.isGroup == true)
-                      SheetAction(
-                        icon: Icons.delete,
-                        label: AppLocalizations.text(LangKey.removeFroumGroup),
-                        key: 'Delete',
-                      ),
-                    if (Platform.isAndroid)
-                      SheetAction(
-                          icon: Icons.cancel,
-                          label: AppLocalizations.text(LangKey.cancel),
-                          key: 'Cancel',
-                          isDestructiveAction: true),
-                  ],
-                ).then((value) {
-                  if (value == 'Chat') {
-                    sendMessage(data!);
-                  } else if (value == 'Delete') {
-                    removeMemberChat(data!);
-                  } else {}
-                });
+              if (!isCurrentUser) {
+                sendMessage(data);
               }
             },
             child: SizedBox(
@@ -509,29 +564,39 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
                         children: [
                           Expanded(
                             child: AutoSizeText(
-                                '${data?.firstName} ${data?.lastName}'),
+                                '${data.firstName} ${data.lastName}'),
                           ),
-                          Container(
-                            height: 5.0,
-                          ),
+                          Container(height: 5.0),
                           Expanded(
                               child: AutoSizeText(
-                            '@${data?.username}',
+                            '@${data.username}',
                             overflow: TextOverflow.ellipsis,
                           ))
                         ],
                       ),
-                    ))
+                    )),
+                    if (isOwner && !isCurrentUser && widget.chatMessage.room?.isGroup == true)
+                      InkWell(
+                        onTap: () async {
+                          await showInfoDialog(
+                            content: AppLocalizations.text(LangKey.removeFroumGroup),
+                            context,
+                            AppLocalizations.text(LangKey.notifications),
+                            () => removeMemberChat(data),
+                            onCancel: () {},
+                          );
+                        },
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 8.0),
+                          child: Icon(Icons.close, color: Colors.red, size: 22),
+                        ),
+                      ),
                   ],
                 ),
               ),
             ),
           ),
-          !isLast
-              ? Container(
-                  height: 5.0,
-                )
-              : Container(),
+          !isLast ? Container(height: 5.0) : Container(),
           !isLast
               ? Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10.0),
@@ -581,7 +646,7 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
       isLast: isLast,
       onTap: () {
         if (infoMemberZaloPersional?.room?.owner != ChatConnection.user!.id) {
-          removeMemberChathub(member.id!);
+          removeMemberChathub(member.userSocialId!);
         }
       },
     );

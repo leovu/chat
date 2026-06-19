@@ -53,11 +53,13 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
             : await _getContactsChat();
       }
       isInitScreen = false;
+      if (mounted) setState(() {});
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final roomSource = widget.chatMessage.room?.source ?? widget.chatMessage.room?.channel?.source;
     // TODO: implement build
     return Container(
       color: Colors.white,
@@ -86,8 +88,7 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                                 },
                                 child: SizedBox(
                                     width: 30.0,
-                                    child: Icon(
-                                        Icons.arrow_back_ios,
+                                    child: Icon(Icons.arrow_back_ios,
                                         color: Colors.black)),
                               ),
                             ],
@@ -128,9 +129,15 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                                 child: TextField(
                               focusNode: _focusSearch,
                               controller: _controllerSearch,
-                              onChanged: (_) {
+                              onChanged: (val) {
                                 setState(() {
-                                  _getContactsVisible();
+                                  if (!ChatConnection.isChatHub) {
+                                    _getContactsVisibleChat();
+                                  } else if (roomSource == 'zalo') {
+                                    _getContactsVisibleZaloOA();
+                                  } else if (roomSource == 'zalo_personal') {
+                                    _getContactsVisible();
+                                  }
                                 });
                               },
                               decoration: InputDecoration.collapsed(
@@ -162,8 +169,8 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                     )
                   ],
                 ),
-                ChatConnection.isChatHub
-                    ? widget.chatMessage.room?.channel?.source == 'zalo'
+                 ChatConnection.isChatHub
+                    ? roomSource == 'zalo'
                         ? Expanded(
                             child: isInitScreen
                                 ? Center(
@@ -309,11 +316,15 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                           child: MaterialButton(
                             color: const Color(0xFF5686E1),
                             onPressed: () async {
-                              ChatConnection.isChatHub
-                                  ? widget.chatMessage.room?.channel?.source == 'zalo'
-                                      ? addMemberZaloOA()
-                                      : addMember()
-                                  : addMemberChat();
+                              if (ChatConnection.isChatHub) {
+                                if (roomSource == 'zalo') {
+                                  addMemberZaloOA();
+                                } else if (roomSource == 'zalo_personal') {
+                                  addMember();
+                                }
+                              } else {
+                                addMemberChat();
+                              }
                             },
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10.0),
@@ -353,15 +364,23 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
   }
 
   _getContacts() async {
-    if (widget.chatMessage.room?.channel?.source == 'zalo') {
-      userZaloOAList = await ChatConnection.getListUserZaloOA(
-          source: widget.chatMessage.room?.source ?? 'zalo',
-          search: _controllerSearch.text);
-      _getContactsVisibleZaloOA();
-    } else {
-      contactsListData =
-          await ChatConnection.getListFriend(widget.chanel_id ?? '');
-      _getContactsVisible();
+    try {
+      final source = widget.chatMessage.room?.source ?? widget.chatMessage.room?.channel?.source;
+      print("ADD_MEMBER_GROUP_SCREEN: source = $source, chanel_id = ${widget.chanel_id}");
+      if (source == 'zalo') {
+        userZaloOAList = await ChatConnection.getListUserZaloOA(
+            source: widget.chatMessage.room?.source ?? 'zalo',
+            search: _controllerSearch.text);
+        _getContactsVisibleZaloOA();
+      } else if (source == 'zalo_personal') {
+        contactsListData =
+            await ChatConnection.getListFriend(widget.chanel_id ?? '');
+        print("ADD_MEMBER_GROUP_SCREEN: contactsListData loaded = ${contactsListData != null}, friends count = ${contactsListData?.friends?.length}");
+        _getContactsVisible();
+      }
+    } catch (e, s) {
+      print("ERROR in _getContacts: $e");
+      print(s);
     }
 
     setState(() {});
@@ -369,9 +388,10 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
 
   _getContactsVisibleZaloOA() {
     String val = _controllerSearch.value.text.toLowerCase().removeAccents();
+
     if (val != '') {
-      userZaloOAListVisible?.users =
-          userZaloOAListVisible!.users?.where((element) {
+      userZaloOAListVisible = r.UserZaloOAList();
+      userZaloOAListVisible?.users = userZaloOAList?.users?.where((element) {
         try {
           if (('${element.username} ' //${element.lastName}'
                   .toLowerCase()
@@ -397,9 +417,11 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
 
   _getContactsVisibleChat() {
     String val = _controllerSearch.value.text.toLowerCase().removeAccents();
+
     if (val != '') {
-      contactsListDataChatVisible!.users =
-          contactsListDataChatVisible!.users!.where((element) {
+      contactsListDataChatVisible = Contacts();
+      contactsListDataChatVisible?.users =
+          contactsListDataChat?.users?.where((element) {
         try {
           if (('${element.firstName} ${element.lastName}'
                   .toLowerCase()
@@ -426,9 +448,11 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
 
   _getContactsVisible() {
     String val = _controllerSearch.value.text.toLowerCase().removeAccents();
+
     if (val != '') {
+      contactsListVisible = FriendListResponse();
       contactsListVisible?.friends =
-          contactsListVisible!.friends?.where((element) {
+          contactsListData?.friends?.where((element) {
         try {
           if (('${element.username} ' //${element.lastName}'
                   .toLowerCase()
@@ -481,7 +505,7 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
       final result = await ChatConnection.inviteMember(
         widget.chatMessage.room?.oa_group_id,
         people,
-        widget.chatMessage.room?.channel?.id??'',
+        widget.chatMessage.room?.channel?.id ?? '',
       );
       if (result!.isSuccess) {
         Navigator.of(context).pop();
@@ -515,8 +539,8 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
 
   String _avatarNameFromDisplay(String displayName) {
     final parts = displayName.trim().split(RegExp(r'\s+'));
-    return getAvatarName(
-        parts.isNotEmpty ? parts.first : '', parts.length > 1 ? parts.last : '');
+    return getAvatarName(parts.isNotEmpty ? parts.first : '',
+        parts.length > 1 ? parts.last : '');
   }
 
   Widget _contactsZaloOA(UserZaloOA data, bool isLast) {
@@ -695,8 +719,8 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
         ),
       );
     } else {
-      bool result =
-          await ChatConnection.addMemberGroup(people, widget.chatMessage.room?.sId??'');
+      bool result = await ChatConnection.addMemberGroup(
+          people, widget.chatMessage.room?.sId ?? '');
       if (result) {
         try {
           contactsListDataChat?.users?.forEach((element) {

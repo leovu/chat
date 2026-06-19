@@ -7,7 +7,6 @@ import 'package:flutter/foundation.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 import 'package:chat/data_model/chat_message.dart' as c;
 
-
 class MyHttpOverrides extends HttpOverrides {
   @override
   HttpClient createHttpClient(SecurityContext? context) {
@@ -17,14 +16,15 @@ class MyHttpOverrides extends HttpOverrides {
   }
 }
 
-
 class StreamSocket {
   final _socketResponse = StreamController<String>.broadcast();
   void addResponse(String data) {
     if (!_socketResponse.isClosed) _socketResponse.sink.add(data);
   }
+
   Stream<String> get getResponse => _socketResponse.stream;
   io.Socket? socket;
+  final List<Function> _chatListeners = [];
 
   void dispose() {
     _socketResponse.close();
@@ -78,6 +78,14 @@ class StreamSocket {
     socket!.onDisconnect((reason) {
       debugPrint('[SOCKET] Disconnected: $reason');
     });
+
+    socket!.on('message-in', (data) {
+      debugPrint('[SOCKET] Received message-in: $data');
+      for (final cb in List.from(_chatListeners)) {
+        cb(data);
+      }
+      ChatConnection.notificationList();
+    });
   }
 
   bool checkConnected() {
@@ -101,11 +109,12 @@ class StreamSocket {
   }
 
   void listenChat(Function callback) {
-    debugPrint('[SOCKET] Registering listener for message-in');
-    socket!.on('message-in', (data) {
-      debugPrint('[SOCKET] Received message-in: $data');
-      callback(data);
-      ChatConnection.notificationList();
-    });
+    if (!_chatListeners.contains(callback)) {
+      _chatListeners.add(callback);
+    }
+  }
+
+  void removeListenChat(Function callback) {
+    _chatListeners.remove(callback);
   }
 }

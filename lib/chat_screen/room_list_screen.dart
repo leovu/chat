@@ -478,7 +478,7 @@ class _RoomListScreenState extends State<RoomListScreen>
                       ),
                   settings: const RouteSettings(name: 'chat_screen')),
             );
-            // _getRooms();
+            _getRooms();
           },
           child: Slidable(
               enabled: !ChatConnection.isChatHub,
@@ -568,10 +568,8 @@ class _RoomListScreenState extends State<RoomListScreen>
               child: () {
                 final room = roomListVisible?.rooms?[position];
                 if (room == null) return const SizedBox.shrink();
-                return _room(
-                    room,
-                    position ==
-                        ((roomListVisible?.rooms?.length ?? 0) - 1));
+                return _room(room,
+                    position == ((roomListVisible?.rooms?.length ?? 0) - 1));
               }())),
     );
   }

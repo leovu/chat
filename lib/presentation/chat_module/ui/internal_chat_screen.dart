@@ -112,9 +112,8 @@ class _InternalChatScreenState extends ChatScreenBaseState<InternalChatScreen> {
   // ── Internal-chat-only methods ─────────────────────────────────────────────
 
   void _addTaskInstance(String textMessage) {
-    ChatConnection.addOnModules!
-        .firstWhere((e) => e['key'] == 'create_jobs')['function'](
-            checkTag(textMessage, data?.room?.people));
+    ChatConnection.addOnModules!.firstWhere((e) => e['key'] == 'create_jobs')[
+        'function'](checkTag(textMessage, data?.room?.people));
   }
 
   bool _checkAddTaskInstanceAvailable() {
@@ -150,6 +149,7 @@ class _InternalChatScreenState extends ChatScreenBaseState<InternalChatScreen> {
               author: user,
               createdAt: DateTime.now().millisecondsSinceEpoch,
               id: message.id,
+              metadata: const {'recall': 1},
               text: AppLocalizations.text(LangKey.messageRecalled));
           messages[index] = textMessage;
         }
@@ -275,7 +275,8 @@ class _InternalChatScreenState extends ChatScreenBaseState<InternalChatScreen> {
                                 }()
                               : widget.data.room_name ??
                                   widget.data.title ??
-                                  'Group ${widget.data.owner?.firstName ?? ''} ${widget.data.owner?.lastName ?? ''}'.trim(),
+                                  'Group ${widget.data.owner?.firstName ?? ''} ${widget.data.owner?.lastName ?? ''}'
+                                      .trim(),
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
                           style: const TextStyle(
@@ -287,7 +288,7 @@ class _InternalChatScreenState extends ChatScreenBaseState<InternalChatScreen> {
                           Padding(
                             padding: const EdgeInsets.only(bottom: 3.0),
                             child: AutoSizeText(
-                              '${widget.data.people!.length} '
+                              '${data?.room?.people?.length ?? widget.data.people?.length ?? 0} '
                               '${AppLocalizations.text(LangKey.members).toLowerCase()}',
                               maxLines: 1,
                               style: const TextStyle(
@@ -317,15 +318,14 @@ class _InternalChatScreenState extends ChatScreenBaseState<InternalChatScreen> {
     double radius = width ?? 25.0;
     if (!widget.data.isGroup!) {
       final owner = extractOwner(widget.data);
-      final isPictureEmpty =
-          owner?.picture == null || owner?.picture == '';
+      final isPictureEmpty = owner?.picture == null || owner?.picture == '';
       return isPictureEmpty
           ? CircleAvatar(
               radius: radius,
               backgroundColor: getAvatarColor(owner?.sId),
               child: Text(
-                getAvatarName('${owner?.firstName ?? ''}',
-                    '${owner?.lastName ?? ''}'),
+                getAvatarName(
+                    '${owner?.firstName ?? ''}', '${owner?.lastName ?? ''}'),
                 style: const TextStyle(color: Colors.white),
               ),
             )

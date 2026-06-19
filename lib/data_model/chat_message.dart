@@ -66,6 +66,7 @@ class Room {
   String? roomName;
   String? roomAvatar;
   String? source;
+  String? ownerId;
 
   Room(
       {sId,
@@ -128,7 +129,13 @@ class Room {
     lastUpdate = json['lastUpdate'];
     lastAuthor = json['lastAuthor'];
     try {
-      owner = json['owner'] != null ? Owner.fromJson(json['owner']) : null;
+      final rawOwner = json['owner'];
+      if (rawOwner is String) {
+        ownerId = rawOwner;
+      } else if (rawOwner is Map) {
+        owner = Owner.fromJson(rawOwner as Map<String, dynamic>);
+        ownerId = owner?.sId;
+      }
     } catch (_) {}
     try {
       lastMessage = json['lastMessage'];
@@ -806,10 +813,15 @@ class Messages {
       data['author'] = {
         'firstName': staff!.fullName,
         'id': staff!.staffId ?? sId,
-        'imageUrl': staff!.staffAvatar?.isNotEmpty == true ? staff!.staffAvatar : null,
+        'imageUrl':
+            staff!.staffAvatar?.isNotEmpty == true ? staff!.staffAvatar : null,
       };
     } else {
-      data['author'] = {'id': sId ?? 'unknown', 'firstName': null, 'lastName': null};
+      data['author'] = {
+        'id': sId ?? 'unknown',
+        'firstName': null,
+        'lastName': null
+      };
     }
     if (staff != null) {
       data['staff'] = {
@@ -999,6 +1011,9 @@ class Messages {
       default:
         data['type'] = 'text';
         data['text'] = content;
+        if (recall == 1) {
+          metadata['recall'] = 1;
+        }
         break;
     }
 
@@ -1283,7 +1298,8 @@ T? _safeParse<T>(T Function() fn) {
 
 Author? _parseAuthor(dynamic value) {
   if (value == null) return null;
-  if (value is Map<String, dynamic>) return _safeParse(() => Author.fromJson(value));
+  if (value is Map<String, dynamic>)
+    return _safeParse(() => Author.fromJson(value));
   if (value is String && value.isNotEmpty) return Author()..sId = value;
   return null;
 }

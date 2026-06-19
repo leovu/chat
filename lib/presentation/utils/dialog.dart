@@ -1,4 +1,3 @@
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:chat/common/custom_navigator.dart';
 import 'package:chat/common/widges/widget.dart';
 import 'package:chat/localization/app_localizations.dart';
@@ -38,11 +37,9 @@ Future<void> showInfoDialog(
                     const BorderRadius.vertical(top: Radius.circular(10)),
               ),
               child: Center(
-                child: AutoSizeText(
+                child: Text(
                   title,
-                  minFontSize: 10,
-                  maxFontSize: 20,
-                  style: const TextStyle(color: Colors.white),
+                  style: const TextStyle(color: Colors.white, fontSize: 16),
                 ),
               ),
             ),
@@ -51,11 +48,9 @@ Future<void> showInfoDialog(
               width: double.infinity,
               color: Colors.white,
               padding: const EdgeInsets.all(16),
-              child: AutoSizeText(
+              child: Text(
                 content ?? '',
-                minFontSize: 10,
-                maxFontSize: 20,
-                style: const TextStyle(color: Colors.black),
+                style: const TextStyle(color: Colors.black, fontSize: 14),
               ),
             ),
             // Actions
@@ -68,10 +63,8 @@ Future<void> showInfoDialog(
                       Navigator.of(context).pop();
                       onCancel();
                     },
-                    child: AutoSizeText(
+                    child: Text(
                       AppLocalizations.text(LangKey.cancel),
-                      minFontSize: 10,
-                      maxFontSize: 20,
                       style: const TextStyle(color: Colors.black),
                     ),
                   ),
@@ -80,10 +73,8 @@ Future<void> showInfoDialog(
                     onOk();
                     Navigator.of(context).pop();
                   },
-                  child: AutoSizeText(
+                  child: Text(
                     'OK',
-                    minFontSize: 10,
-                    maxFontSize: 20,
                     style: TextStyle(color: headerColor),
                   ),
                 ),

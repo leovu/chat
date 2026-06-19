@@ -119,12 +119,18 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
                   builder: (context) => AddMemberGroupScreen(
                     // roomData: widget.roomData,
                     chanel_id: ChatConnection.isChatHub
-                        ? widget.roomData.channel?.socialChanelId
+                        ? (widget.roomData.channel?.socialChanelId ??
+                            widget.chatMessage.room?.channel?.socialChanelId ??
+                            '')
                         : '',
                     chatMessage: widget.chatMessage,
                   ),
                 ));
-                if (ChatConnection.isChatHub) onGetInfoOnOpen();
+                if (ChatConnection.isChatHub) {
+                  onGetInfoOnOpen();
+                } else {
+                  setState(() {});
+                }
               },
               child: Image.asset(
                 'assets/icon-edit.png',
@@ -426,7 +432,7 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
       isAdmin: ChatConnection.user?.id == infoMemberZaloPersional?.room?.owner,
       onTap: () {
         if (infoMemberZaloPersional?.room?.owner != ChatConnection.user!.id) {
-          removeMemberChathub(member.id!);
+          removeMemberChathub(member.userSocialId!);
         }
       },
     );

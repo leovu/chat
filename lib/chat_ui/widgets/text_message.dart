@@ -133,6 +133,19 @@ class TextMessage extends StatelessWidget {
     final color =
         getUserAvatarNameColor(message.author, theme.userAvatarNameColors);
     final name = getUserName(message.author);
+
+    if (message.metadata?['recall'] == 1) {
+      return Text(
+        message.text,
+        style: const TextStyle(
+          color: Colors.grey,
+          fontSize: 14,
+          fontStyle: FontStyle.italic,
+          height: 1.5,
+        ),
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

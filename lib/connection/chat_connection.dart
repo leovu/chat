@@ -53,8 +53,10 @@ class ChatConnection {
   static List<Map<String, dynamic>>? addOnModules;
   static bool isLoadMore = false;
   static Map<String, dynamic>? initialData;
-  static late Function(Map<String, dynamic> message) homeScreenNotificationHandler;
-  static late Function(Map<String, dynamic> message) chatScreenNotificationHandler;
+  static late Function(Map<String, dynamic> message)
+      homeScreenNotificationHandler;
+  static late Function(Map<String, dynamic> message)
+      chatScreenNotificationHandler;
   static ValueNotifier<String> notificationNotifier = ValueNotifier('0');
   static Function? searchProducts;
   static Function? searchOrders;
@@ -92,10 +94,13 @@ class ChatConnection {
 
   static Future<bool> register(String username, String email, String firstName,
           String lastName, String password, String repeatPassword) =>
-      AuthService.register(connection, username, email, firstName, lastName, password, repeatPassword);
+      AuthService.register(connection, username, email, firstName, lastName,
+          password, repeatPassword);
 
   static Future<bool> checkUserToken() => AuthService.checkUserToken(
-        connection, user!, brandCode,
+        connection,
+        user!,
+        brandCode,
         onResult: (m) => checkUserTokenResponseModel = m,
         onUserUpdated: (u) => user = u,
       );
@@ -104,7 +109,8 @@ class ChatConnection {
 
   static void reconnect() => AuthService.reconnect(streamSocket);
 
-  static void reAuthenticate() => AuthService.reAuthenticate(streamSocket, user);
+  static void reAuthenticate() =>
+      AuthService.reAuthenticate(streamSocket, user);
 
   static dispose({bool isDispose = false}) =>
       AuthService.dispose(streamSocket, isDispose: isDispose);
@@ -114,20 +120,38 @@ class ChatConnection {
       RoomService.createRoom(connection, counterpart);
 
   static Future<r.Room?> roomList({
-    String? source, String? channelId, String? status,
-    List<String?>? tagIds, int page = 1, r.Room? roomData,
-    String? link_status, String? startDate, String? endDate,
-    bool? isGroup, String? keyword,
-  }) => RoomService.roomList(connection,
-        isChatHub: isChatHub, source: source, channelId: channelId,
-        status: status, tagIds: tagIds, page: page, roomData: roomData,
-        link_status: link_status, startDate: startDate, endDate: endDate,
-        isGroup: isGroup, keyword: keyword);
+    String? source,
+    String? channelId,
+    String? status,
+    List<String?>? tagIds,
+    int page = 1,
+    r.Room? roomData,
+    String? link_status,
+    String? startDate,
+    String? endDate,
+    bool? isGroup,
+    String? keyword,
+  }) =>
+      RoomService.roomList(connection,
+          isChatHub: isChatHub,
+          source: source,
+          channelId: channelId,
+          status: status,
+          tagIds: tagIds,
+          page: page,
+          roomData: roomData,
+          link_status: link_status,
+          startDate: startDate,
+          endDate: endDate,
+          isGroup: isGroup,
+          keyword: keyword);
 
-  static Future<r.Room?> favoritesList() => RoomService.favoritesList(connection);
+  static Future<r.Room?> favoritesList() =>
+      RoomService.favoritesList(connection);
 
   static Future<c.ChatMessage?> joinRoom(String id, {bool refresh = false}) =>
-      RoomService.joinRoom(connection, streamSocket, isChatHub: isChatHub, id: id, refresh: refresh);
+      RoomService.joinRoom(connection, streamSocket,
+          isChatHub: isChatHub, id: id, refresh: refresh);
 
   static Future<bool> autoUpdateChatSeenWhenJoinRoom(String id) =>
       RoomService.autoUpdateChatSeenWhenJoinRoom(connection, id);
@@ -138,20 +162,26 @@ class ChatConnection {
   static Future<bool> updateRoomName(String roomId, String data) =>
       RoomService.updateRoomName(connection, roomId, data);
 
-  static Future<bool> removeRoom(String roomId) => RoomService.removeRoom(connection, roomId);
+  static Future<bool> removeRoom(String roomId) =>
+      RoomService.removeRoom(connection, roomId);
 
   static Future<bool> leaveRoom(String roomId, String? userId) =>
       RoomService.leaveRoom(connection, roomId, userId);
 
-  static Future<r.Rooms?> createGroup(String title, List<String> people, String owner) =>
+  static Future<r.Rooms?> createGroup(
+          String title, List<String> people, String owner) =>
       RoomService.createGroup(connection, title, people, owner);
 
-  static Future<List<c.Messages>?> loadMoreMessageRoom(String id, String firstMessageID, String firstMessageDate) =>
+  static Future<List<c.Messages>?> loadMoreMessageRoom(
+          String id, String firstMessageID, String firstMessageDate) =>
       RoomService.loadMoreMessageRoom(connection,
-          isChatHub: isChatHub, id: id,
-          firstMessageID: firstMessageID, firstMessageDate: firstMessageDate);
+          isChatHub: isChatHub,
+          id: id,
+          firstMessageID: firstMessageID,
+          firstMessageDate: firstMessageDate);
 
-  static Future<ct.Contacts?> contactsList() => RoomService.contactsList(connection);
+  static Future<ct.Contacts?> contactsList() =>
+      RoomService.contactsList(connection);
 
   static Future<ct.Contacts?> contactsSearch(String search, {int limit = 50}) =>
       RoomService.contactsSearch(connection, search, limit: limit);
@@ -160,22 +190,38 @@ class ChatConnection {
   static void listenChat(Function callback) =>
       MessageService.listenChat(streamSocket, callback);
 
-  static Future<String?> sendChat(c.ChatMessage? data, List<types.Message> listMessage,
-      String id, String? message, c.Room? room, String authorId,
-      {String? reppliedMessageId}) =>
+  static void removeListenChat(Function callback) =>
+      MessageService.removeListenChat(streamSocket, callback);
+
+  static Future<String?> sendChat(
+          c.ChatMessage? data,
+          List<types.Message> listMessage,
+          String id,
+          String? message,
+          c.Room? room,
+          String authorId,
+          {String? reppliedMessageId}) =>
       MessageService.sendChat(connection, streamSocket,
-          isChatHub: isChatHub, data: data, listMessage: listMessage,
-          id: id, message: message, room: room, authorId: authorId,
+          isChatHub: isChatHub,
+          data: data,
+          listMessage: listMessage,
+          id: id,
+          message: message,
+          room: room,
+          authorId: authorId,
           reppliedMessageId: reppliedMessageId);
 
   static Future<bool> forwardMessage(String? message, c.Room? room,
-      String authorId, String? reppliedMessageId) =>
+          String authorId, String? reppliedMessageId) =>
       MessageService.forwardMessage(connection, streamSocket,
-          isChatHub: isChatHub, message: message, room: room,
-          authorId: authorId, reppliedMessageId: reppliedMessageId);
+          isChatHub: isChatHub,
+          message: message,
+          room: room,
+          authorId: authorId,
+          reppliedMessageId: reppliedMessageId);
 
   static Future<void> updateChat(String data, String? messageId, c.Room? room,
-      {String? reppliedMessageId}) =>
+          {String? reppliedMessageId}) =>
       MessageService.updateChat(connection, streamSocket, data, messageId, room,
           reppliedMessageId: reppliedMessageId);
 
@@ -188,20 +234,43 @@ class ChatConnection {
   // ── Media ─────────────────────────────────────────────────────────────────
   static File convertToFile(XFile xFile) => MediaService.convertToFile(xFile);
 
-  static Future<String?> uploadImage(BuildContext context, c.ChatMessage? data,
-      List<types.Message> listMessage, String id, XFile image, c.Room? room, String authorId) =>
+  static Future<String?> uploadImage(
+          BuildContext context,
+          c.ChatMessage? data,
+          List<types.Message> listMessage,
+          String id,
+          XFile image,
+          c.Room? room,
+          String authorId) =>
       MediaService.uploadImage(connection, streamSocket,
-          isChatHub: isChatHub, brandCode: brandCode, context: context,
-          data: data, listMessage: listMessage, id: id, image: image,
-          room: room, authorId: authorId,
+          isChatHub: isChatHub,
+          brandCode: brandCode,
+          context: context,
+          data: data,
+          listMessage: listMessage,
+          id: id,
+          image: image,
+          room: room,
+          authorId: authorId,
           showError: (ctx, {content}) => showError(ctx, content: content));
 
-  static Future<String?> uploadFile(BuildContext context, c.ChatMessage? data,
-      List<types.Message> listMessage, String id, File file, c.Room? room, String authorId) =>
+  static Future<String?> uploadFile(
+          BuildContext context,
+          c.ChatMessage? data,
+          List<types.Message> listMessage,
+          String id,
+          File file,
+          c.Room? room,
+          String authorId) =>
       MediaService.uploadFile(connection, streamSocket,
-          isChatHub: isChatHub, context: context, data: data,
-          listMessage: listMessage, id: id, file: file,
-          room: room, authorId: authorId,
+          isChatHub: isChatHub,
+          context: context,
+          data: data,
+          listMessage: listMessage,
+          id: id,
+          file: file,
+          room: room,
+          authorId: authorId,
           showError: (ctx, {content}) => showError(ctx, content: content));
 
   // ── Notification ──────────────────────────────────────────────────────────
@@ -210,7 +279,8 @@ class ChatConnection {
           onCountUpdated: (v) => notificationNotifier.value = v);
 
   static Future<void> notificationCount() =>
-      NotificationService.notificationCount(connection, onResult: (all, client, fb, zalo, zaloP, wa) {
+      NotificationService.notificationCount(connection,
+          onResult: (all, client, fb, zalo, zaloP, wa) {
         notiChatHubAll = all;
         notiChatHubClient = client;
         notiChatHubFacebook = fb;
@@ -222,9 +292,12 @@ class ChatConnection {
   static Future<bool> readNotification(String notiId) =>
       NotificationService.readNotification(connection, notiId);
 
-  static void showNotification(String notificationTitle, String notificationDes,
-      Map<String, dynamic> message, String iconApp,
-      Function(Map<String, dynamic>) onMessageCallback) =>
+  static void showNotification(
+          String notificationTitle,
+          String notificationDes,
+          Map<String, dynamic> message,
+          String iconApp,
+          Function(Map<String, dynamic>) onMessageCallback) =>
       NotificationService.showNotification(notificationTitle, notificationDes,
           message, iconApp, onMessageCallback);
 
@@ -232,18 +305,22 @@ class ChatConnection {
       NotificationService.showError(context, content: content);
 
   // ── ChatHub ───────────────────────────────────────────────────────────────
-  static Future<ChathubChannel?> channelList() => ChatHubService.channelList(connection);
+  static Future<ChathubChannel?> channelList() =>
+      ChatHubService.channelList(connection);
 
   static Future<bool> changeStatusChatbot(String roomId, int status) =>
       ChatHubService.changeStatusChatbot(connection, roomId, status);
 
-  static Future<bool> clearChat(String roomId) => ChatHubService.clearChat(connection, roomId);
+  static Future<bool> clearChat(String roomId) =>
+      ChatHubService.clearChat(connection, roomId);
 
   static Future<c.Owner?> blockUser(String userId, bool isBlocked) =>
       ChatHubService.blockUser(connection, userId, isBlocked);
 
-  static Future<List<SessionModel>> getSession(String roomId, {int? limit = 5, int? offset = 0}) =>
-      ChatHubService.getSession(connection, roomId, limit: limit, offset: offset);
+  static Future<List<SessionModel>> getSession(String roomId,
+          {int? limit = 5, int? offset = 0}) =>
+      ChatHubService.getSession(connection, roomId,
+          limit: limit, offset: offset);
 
   static Future<ConversationSummaryModel?> getSummary(String session_id) =>
       ChatHubService.getSummary(connection, session_id);
@@ -271,18 +348,22 @@ class ChatConnection {
     String? customerLeadId = '',
   }) =>
       CustomerService.customerLink(connection, userId, customerId,
-          typeCustomer: typeCustomer, mappingId: mappingId,
-          source: source, socialId: socialId, customerLeadId: customerLeadId);
+          typeCustomer: typeCustomer,
+          mappingId: mappingId,
+          source: source,
+          socialId: socialId,
+          customerLeadId: customerLeadId);
 
   static Future<CustomerAccount?> customerUnlink(String userId, int? customerId,
-      {int? customerLeadId}) =>
+          {int? customerLeadId}) =>
       CustomerService.customerUnlink(connection, userId, customerId,
           customerLeadId: customerLeadId);
 
   static Future<List<CustomerAccount?>?> searchCustomer(String keyword) =>
       CustomerService.searchCustomer(connection, keyword);
 
-  static Future<bool> updateNameChatHub(String id, String typeCustomer, String fullName) =>
+  static Future<bool> updateNameChatHub(
+          String id, String typeCustomer, String fullName) =>
       CustomerService.updateNameChatHub(connection, id, typeCustomer, fullName);
 
   // ── Tag ───────────────────────────────────────────────────────────────────
@@ -307,7 +388,8 @@ class ChatConnection {
   static Future<bool> createNotes(String roomId, String content) =>
       NotesService.createNotes(connection, roomId, content);
 
-  static Future<bool> updateNotes(String roomId, String content, String noteId) =>
+  static Future<bool> updateNotes(
+          String roomId, String content, String noteId) =>
       NotesService.updateNotes(connection, roomId, content, noteId);
 
   static Future<bool> deleteNotes(String roomId, String noteId) =>
@@ -317,50 +399,67 @@ class ChatConnection {
   static Future<bool> addMemberGroup(List<String> people, String roomId) =>
       GroupService.addMemberGroup(connection, people, roomId);
 
-  static Future<ResponseData> addUserGroup(List<String> memberUserIds, String channelId, String groupId) =>
+  static Future<ResponseData> addUserGroup(
+          List<String> memberUserIds, String channelId, String groupId) =>
       GroupService.addUserGroup(connection, memberUserIds, channelId, groupId);
 
   static Future<MemberListData?> getMemberInfo(String channelId, String roomId,
-      {int? limit = 10, int? offset = 0}) =>
-      GroupService.getMemberInfo(connection, channelId, roomId, limit: limit, offset: offset);
+          {int? limit = 10, int? offset = 0}) =>
+      GroupService.getMemberInfo(connection, channelId, roomId,
+          limit: limit, offset: offset);
 
-  static Future<MemberListData?> getMemberPendingInvite(String channelId, String groupId) =>
+  static Future<MemberListData?> getMemberPendingInvite(
+          String channelId, String groupId) =>
       GroupService.getMemberPendingInvite(connection, channelId, groupId);
 
-  static Future<GroupInfoResponseZP?> getGroupInfo(String channelId, String groupId) =>
+  static Future<GroupInfoResponseZP?> getGroupInfo(
+          String channelId, String groupId) =>
       GroupService.getGroupInfo(connection, channelId, groupId,
           onCreatorId: (id) => creatorIdGroup = id);
 
-  static Future<bool> removeUserGroup(String channelId, String groupId, String memberUserId) =>
-      GroupService.removeUserGroup(connection, channelId, groupId, memberUserId);
+  static Future<bool> removeUserGroup(
+          String channelId, String groupId, String memberUserId) =>
+      GroupService.removeUserGroup(
+          connection, channelId, groupId, memberUserId);
 
-  static Future<ResponseData?> removeMember(String channelId, String groupId, List<String> memberUserIds) =>
+  static Future<ResponseData?> removeMember(
+          String channelId, String groupId, List<String> memberUserIds) =>
       GroupService.removeMember(connection, channelId, groupId, memberUserIds);
 
   static Future<FriendListResponse?> getListFriend(String channelId) =>
       GroupService.getListFriend(connection, channelId);
 
-  static Future<r.UserZaloOAList?> getListUserZaloOA({String source = 'zalo', String? search}) =>
-      GroupService.getListUserZaloOA(connection, source: source, search: search);
+  static Future<r.UserZaloOAList?> getListUserZaloOA(
+          {String source = 'zalo', String? search}) =>
+      GroupService.getListUserZaloOA(connection,
+          source: source, search: search);
 
-  static Future<ResponseData?> inviteMember(String? groupId, List<String> memberUserIds, String channelId) =>
+  static Future<ResponseData?> inviteMember(
+          String? groupId, List<String> memberUserIds, String channelId) =>
       GroupService.inviteMember(connection, groupId, memberUserIds, channelId);
 
-  static Future<bool?> updateUserInfo(String userId, String name, String phone) =>
+  static Future<bool?> updateUserInfo(
+          String userId, String name, String phone) =>
       GroupService.updateUserInfo(connection, userId, name, phone);
 
-  static Future<ResponseData?> acceptPendingInvite(String chanelId, String groupId, List<String> memberUserIds) =>
-      GroupService.acceptPendingInvite(connection, chanelId, groupId, memberUserIds);
+  static Future<ResponseData?> acceptPendingInvite(
+          String chanelId, String groupId, List<String> memberUserIds) =>
+      GroupService.acceptPendingInvite(
+          connection, chanelId, groupId, memberUserIds);
 
-  static Future<ResponseData?> rejectPendingInvite(String chanelId, String groupId, List<String> memberUserIds) =>
-      GroupService.rejectPendingInvite(connection, chanelId, groupId, memberUserIds);
+  static Future<ResponseData?> rejectPendingInvite(
+          String chanelId, String groupId, List<String> memberUserIds) =>
+      GroupService.rejectPendingInvite(
+          connection, chanelId, groupId, memberUserIds);
 
   static Future<ResponseData?> getContactWhatsapp(String phone) =>
       GroupService.getContactWhatsapp(connection, phone);
 
-  static Future<QuotaResponseModel?> getQuota(String socialChannelId, String userSocialId) =>
+  static Future<QuotaResponseModel?> getQuota(
+          String socialChannelId, String userSocialId) =>
       GroupService.getQuota(connection, socialChannelId, userSocialId);
 
-  static Future<bool> sendTransaction(String channelId, String type, String userSocialId) =>
+  static Future<bool> sendTransaction(
+          String channelId, String type, String userSocialId) =>
       GroupService.sendTransaction(connection, channelId, type, userSocialId);
 }

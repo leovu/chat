@@ -121,7 +121,7 @@ class BizPkg {
 
   factory BizPkg.fromJson(Map<String, dynamic> json) {
     return BizPkg(
-      label: json['label'],
+      label: json['label'] is String ? json['label'] : json['label']?.toString(),
       pkgId: json['pkgId'] ?? 0,
     );
   }

@@ -1,10 +1,12 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/chat_ui/util.dart';
+import 'package:chat/chat_ui/widgets/custom_room_avatar.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
+import 'package:chat/presentation/utils/ultility.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/data_model/chat_message.dart' as c;
@@ -29,6 +31,7 @@ class ForwardScreenState extends State<ForwardScreen> {
   Room? roomListData;
   bool _isSentCurrentChatRoom = false;
   List<String?> idSent = [];
+
   @override
   void initState() {
     super.initState();
@@ -41,6 +44,10 @@ class ForwardScreenState extends State<ForwardScreen> {
 
   @override
   void dispose() {
+    _controllerSearch.dispose();
+    _controllerContent.dispose();
+    _focusSearch.dispose();
+    _focusContent.dispose();
     super.dispose();
   }
 
@@ -59,22 +66,22 @@ class ForwardScreenState extends State<ForwardScreen> {
   }
 
   _getRoomVisible() {
-    String val = _controllerSearch.value.text.toLowerCase();
-    if (val != '') {
-      roomListVisible!.rooms = roomListVisible!.rooms!.where((element) {
-        try {
-          People p = element.people!
-              .firstWhere((e) => e.sId != ChatConnection.user!.id);
-          if (!element.isGroup!
-              ? ('${p.firstName} ${p.lastName}'.toLowerCase()).contains(val)
-              : element.title!.toLowerCase().contains(val)) {
-            return true;
-          }
-          return false;
-        } catch (e) {
-          return false;
-        }
-      }).toList();
+    final val = _controllerSearch.value.text.toLowerCase().trim();
+    if (val.isNotEmpty) {
+      roomListVisible = Room();
+      roomListVisible?.rooms = roomListData?.rooms?.where((element) {
+            try {
+              if (element.isGroup == true) {
+                return (element.title ?? '').toLowerCase().contains(val);
+              }
+              final p = element.people!
+                  .firstWhere((e) => e.sId != ChatConnection.user!.id);
+              return '${p.firstName} ${p.lastName}'.toLowerCase().contains(val);
+            } catch (_) {
+              return false;
+            }
+          }).toList() ??
+          [];
     } else {
       roomListVisible = Room();
       roomListVisible?.limit = roomListData?.limit;
@@ -89,437 +96,354 @@ class ForwardScreenState extends State<ForwardScreen> {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
-          appBar: AppBar(
-            title: AutoSizeText(
-              AppLocalizations.text(LangKey.forwardMessage),
-              style: const TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16),
-            ),
-            leading: InkWell(
-              child: Icon(Icons.arrow_back_ios,
-                  color: Colors.black),
-              onTap: () => Navigator.of(context).pop(_isSentCurrentChatRoom),
-            ),
-            backgroundColor: Colors.white,
-            iconTheme: const IconThemeData(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          elevation: 0,
+          backgroundColor: Colors.white,
+          surfaceTintColor: Colors.white,
+          leading: IconButton(
+            icon:
+                const Icon(Icons.arrow_back_ios, color: Colors.black, size: 20),
+            onPressed: () => Navigator.of(context).pop(_isSentCurrentChatRoom),
+          ),
+          title: Text(
+            AppLocalizations.text(LangKey.forwardMessage),
+            style: const TextStyle(
               color: Colors.black,
+              fontWeight: FontWeight.w600,
+              fontSize: 17,
             ),
           ),
-          body: SafeArea(
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Container(
-                    decoration: BoxDecoration(
-                        color: const Color(0xFFE7EAEF),
-                        borderRadius: BorderRadius.circular(5)),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            const Padding(
-                              padding: EdgeInsets.only(left: 5.0, right: 5.0),
-                              child: Icon(
-                                Icons.format_quote,
-                                color: Colors.black,
-                                size: 15.0,
-                              ),
-                            ),
-                            Expanded(
-                              child: Padding(
-                                padding: widget.message is types.TextMessage
-                                    ? const EdgeInsets.only(
-                                        right: 10.0, bottom: 10.0, top: 10.0)
-                                    : widget.message is types.FileMessage
-                                        ? const EdgeInsets.only(
-                                            right: 10.0,
-                                            bottom: 10.0,
-                                            top: 10.0,
-                                            left: 10.0)
-                                        : const EdgeInsets.only(
-                                            right: 10.0, bottom: 0.0, top: 0.0),
-                                child: widget.message is types.TextMessage
-                                    ? checkTag(
-                                        (widget.message as types.TextMessage)
-                                            .text)
-                                    : widget.message is types.ImageMessage
-                                        ? Row(
-                                            children: [
-                                              SizedBox(
-                                                width: MediaQuery.of(context)
-                                                        .size
-                                                        .width *
-                                                    0.15,
-                                                height: MediaQuery.of(context)
-                                                        .size
-                                                        .width *
-                                                    0.25,
-                                                child: CachedNetworkImage(
-                                                  imageUrl:
-                                                      '${(widget.message as types.ImageMessage).uri}/${ChatConnection.brandCode!}',
-                                                  httpHeaders: {
-                                                    'brand-code': ChatConnection
-                                                        .brandCode!
-                                                  },
-                                                  placeholder: (context, url) =>
-                                                      const CupertinoActivityIndicator(),
-                                                  errorWidget: (context, url,
-                                                          error) =>
-                                                      const Icon(Icons.error),
-                                                  fit: BoxFit.contain,
-                                                ),
-                                              ),
-                                              Expanded(child: Container())
-                                            ],
-                                          )
-                                        : Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Container(
-                                                decoration: BoxDecoration(
-                                                  color: Colors.grey
-                                                      .withValues(alpha: 0.2),
-                                                  borderRadius:
-                                                      BorderRadius.circular(21),
-                                                ),
-                                                height: 42,
-                                                width: 42,
-                                                child: Stack(
-                                                  alignment: Alignment.center,
-                                                  children: [
-                                                    Image.asset(
-                                                      'assets/icon-document.png',
-                                                      color: Colors.grey,
-                                                      package: 'chat',
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                              Flexible(
-                                                child: Container(
-                                                  margin:
-                                                      const EdgeInsetsDirectional
-                                                          .only(
-                                                    start: 16,
-                                                  ),
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Text(
-                                                        (widget.message as types
-                                                                .FileMessage)
-                                                            .name,
-                                                        textWidthBasis:
-                                                            TextWidthBasis
-                                                                .longestLine,
-                                                        style: const TextStyle(
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .w600),
-                                                      ),
-                                                      Container(
-                                                        margin: const EdgeInsets
-                                                            .only(
-                                                          top: 4,
-                                                        ),
-                                                        child: Text(
-                                                          formatBytes((widget
-                                                                      .message
-                                                                  as types
-                                                                  .FileMessage)
-                                                              .size
-                                                              .truncate()),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                              ),
-                            )
-                          ],
-                        ),
-                        Container(height: 1.0, color: Colors.grey.shade500),
-                        Padding(
-                          padding: const EdgeInsets.all(15.0),
-                          child: SizedBox(
-                            child: TextField(
-                              focusNode: _focusContent,
-                              controller: _controllerContent,
-                              keyboardType: TextInputType.multiline,
-                              maxLines: null,
-                              decoration: InputDecoration.collapsed(
-                                hintText: AppLocalizations.text(
-                                    LangKey.inputMessageOptional),
-                              ),
-                            ),
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 10.0, vertical: 10.0),
-                  child: Container(
-                    width: double.infinity,
-                    height: 40,
-                    decoration: BoxDecoration(
-                        color: const Color(0xFFE7EAEF),
-                        borderRadius: BorderRadius.circular(5)),
-                    child: Row(
-                      children: [
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 10),
-                          child: Center(
-                            child: Icon(
-                              Icons.search,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                            child: TextField(
-                          focusNode: _focusSearch,
-                          controller: _controllerSearch,
-                          onChanged: (_) {
-                            setState(() {
-                              _getRoomVisible();
-                            });
-                          },
-                          decoration: InputDecoration.collapsed(
-                            hintText: AppLocalizations.text(
-                                LangKey.searchUserAndGroup),
-                          ),
-                        )),
-                        Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(5),
-                            child: const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 10),
-                              child: Center(
-                                child: Icon(
-                                  Icons.close,
-                                ),
-                              ),
-                            ),
-                            onTap: () {
-                              _controllerSearch.text = '';
-                              FocusManager.instance.primaryFocus?.unfocus();
-                              _getRoomVisible();
-                            },
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-                Expanded(
-                    child: roomListVisible != null
-                        ? ListView.builder(
-                            keyboardDismissBehavior:
-                                ScrollViewKeyboardDismissBehavior.onDrag,
-                            itemCount: roomListVisible!.rooms?.length ?? 0,
-                            itemBuilder: (BuildContext context, int position) {
-                              return Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 5.0),
-                                  child: _room(
-                                      roomListVisible!.rooms![position],
-                                      position ==
-                                          roomListVisible!.rooms!.length - 1));
-                            })
-                        : Container())
-              ],
-            ),
-          )),
-    );
-  }
-
-  Widget checkTag(String message) {
-    Widget _widget;
-    List<InlineSpan> _arr = [];
-    List<String> contents = message.split(' ');
-    for (int i = 0; i < contents.length; i++) {
-      var element = contents[i];
-      if (element == '@all-all@') {
-        element = '@${AppLocalizations.text(LangKey.all)}';
-        _arr.add(TextSpan(
-            text: '$element ',
-            style: const TextStyle(
-                color: Colors.black, fontWeight: FontWeight.bold)));
-      } else {
-        try {
-          if (element[element.length - 1] == '@' && element.contains('-')) {
-            element = element.split('-').first;
-            _arr.add(TextSpan(
-                text: '$element ',
-                style: const TextStyle(
-                    color: Colors.black, fontWeight: FontWeight.bold)));
-          } else {
-            _arr.add(TextSpan(
-                text: i == contents.length - 1 ? element : '$element ',
-                style: TextStyle(
-                    color: Colors.grey.shade700,
-                    fontWeight: FontWeight.normal)));
-          }
-        } catch (_) {
-          _arr.add(TextSpan(
-              text: i == contents.length - 1 ? element : '$element ',
-              style: TextStyle(
-                  color: Colors.grey.shade700, fontWeight: FontWeight.normal)));
-        }
-      }
-    }
-    _widget = Text.rich(
-      TextSpan(
-        children: _arr,
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(1),
+            child: Container(height: 1, color: const Color(0xFFE7EAEF)),
+          ),
+        ),
+        body: SafeArea(
+          child: Column(
+            children: [
+              _buildMessagePreview(),
+              _buildSearchBar(),
+              Expanded(child: _buildRoomList()),
+            ],
+          ),
+        ),
       ),
     );
-    return _widget;
   }
 
-  Widget _room(Rooms data, bool isLast) {
-    People info = getPeople(data.people);
-    return Column(
-      children: [
-        SizedBox(
-          child: SizedBox(
-            height: 30.0,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  !data.isGroup!
-                      ? info.picture == null
-                          ? CircleAvatar(
-                              radius: 10.0,
-                              child: Text(
-                                info.getAvatarName(),
-                                style: const TextStyle(
-                                    color: Colors.white, fontSize: 8),
-                              ),
-                            )
-                          : CircleAvatar(
-                              radius: 10.0,
-                              backgroundImage: CachedNetworkImageProvider(
-                                  '${HTTPConnection.domain}api/images/${info.picture!.shieldedID}/256/${ChatConnection.brandCode!}',
-                                  headers: {
-                                    'brand-code': ChatConnection.brandCode!
-                                  }),
-                              backgroundColor: Colors.transparent,
-                            )
-                      : data.room_avatar == null
-                          ? CircleAvatar(
-                              radius: 10.0,
-                              child: Text(
-                                data.getAvatarGroupName(),
-                                style: const TextStyle(
-                                    color: Colors.white, fontSize: 8),
-                              ),
-                            )
-                          : CircleAvatar(
-                              radius: 10.0,
-                              backgroundImage: CachedNetworkImageProvider(
-                                  '${HTTPConnection.domain}api/images/${data.room_avatar!.shieldedID}/256/${ChatConnection.brandCode!}',
-                                  headers: {
-                                    'brand-code': ChatConnection.brandCode!
-                                  }),
-                              backgroundColor: Colors.transparent,
-                            ),
-                  Expanded(
-                      child: Container(
-                    padding: const EdgeInsets.only(
-                        top: 5.0, bottom: 5.0, left: 10.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                            child: Row(
-                          children: [
-                            Expanded(
-                              child: AutoSizeText(
-                                  !data.isGroup!
-                                      ? '${info.firstName} ${info.lastName}'
-                                      : data.title ??
-                                          '${AppLocalizations.text(LangKey.group)} ${info.firstName} ${info.lastName}',
-                                  overflow: TextOverflow.ellipsis),
-                            ),
-                            ButtonTheme(
-                              minWidth: 50.0,
-                              child: MaterialButton(
-                                  onPressed: () async {
-                                    if (!idSent.contains(data.sId)) {
-                                      bool result =
-                                          await ChatConnection.forwardMessage(
-                                              _controllerContent.text,
-                                              c.Room.fromJson(data.toJson()),
-                                              ChatConnection.user!.id,
-                                              widget.message.id);
-                                      if (result) {
-                                        idSent.add(data.sId);
-                                        if (data.sId == ChatConnection.roomId) {
-                                          _isSentCurrentChatRoom = true;
-                                        }
-                                        setState(() {});
-                                      }
-                                    }
-                                  },
-                                  color: idSent.contains(data.sId)
-                                      ? Colors.grey
-                                      : Colors.blue,
-                                  textColor: idSent.contains(data.sId)
-                                      ? Colors.black
-                                      : Colors.white,
-                                  child: AutoSizeText(idSent.contains(data.sId)
-                                      ? AppLocalizations.text(LangKey.sent)
-                                      : AppLocalizations.text(LangKey.send))),
-                            )
-                          ],
-                        )),
-                        Container(
-                          height: 5.0,
-                        ),
-                      ],
-                    ),
-                  ))
-                ],
+  Widget _buildMessagePreview() {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF5F6F8),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: const Color(0xFFE0E3E8)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildForwardedContent(),
+          const Divider(height: 1, color: Color(0xFFE0E3E8)),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            child: TextField(
+              focusNode: _focusContent,
+              controller: _controllerContent,
+              keyboardType: TextInputType.multiline,
+              maxLines: null,
+              style: const TextStyle(fontSize: 14),
+              decoration: InputDecoration.collapsed(
+                hintText: AppLocalizations.text(LangKey.inputMessageOptional),
+                hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildForwardedContent() {
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            width: 3,
+            decoration: const BoxDecoration(
+              color: Color(0xFF2196F3),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(10),
+                bottomLeft: Radius.circular(10),
+              ),
+            ),
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              child: _buildMessageContent(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMessageContent() {
+    final msg = widget.message;
+    if (msg is types.TextMessage) {
+      return Text(
+        msg.text,
+        maxLines: 3,
+        overflow: TextOverflow.ellipsis,
+        style: const TextStyle(fontSize: 14, color: Color(0xFF333333)),
+      );
+    }
+    if (msg is types.ImageMessage) {
+      return SizedBox(
+        height: 72,
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(6),
+              child: CachedNetworkImage(
+                imageUrl: '${msg.uri}/${ChatConnection.brandCode ?? ''}',
+                httpHeaders: {'brand-code': ChatConnection.brandCode ?? ''},
+                width: 72,
+                height: 72,
+                fit: BoxFit.cover,
+                placeholder: (_, __) => const CupertinoActivityIndicator(),
+                errorWidget: (_, __, ___) =>
+                    const Icon(Icons.broken_image, color: Colors.grey),
+              ),
+            ),
+          ],
         ),
-        !isLast
-            ? Container(
-                height: 5.0,
-              )
-            : Container(),
-        !isLast
-            ? Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                child: Container(
-                  height: 1.0,
-                  color: Colors.grey.shade300,
+      );
+    }
+    if (msg is types.FileMessage) {
+      return Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: Colors.grey.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(Icons.insert_drive_file,
+                color: Colors.grey, size: 22),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  msg.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w600, fontSize: 13),
                 ),
-              )
-            : Container()
-      ],
+                const SizedBox(height: 2),
+                Text(
+                  formatBytes(msg.size.truncate()),
+                  style: const TextStyle(color: Colors.grey, fontSize: 12),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
+    return const SizedBox.shrink();
+  }
+
+  Widget _buildSearchBar() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 12, 12, 4),
+      child: Container(
+        height: 40,
+        decoration: BoxDecoration(
+          color: const Color(0xFFF0F2F5),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          children: [
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              child: Icon(Icons.search, color: Colors.grey, size: 20),
+            ),
+            Expanded(
+              child: TextField(
+                focusNode: _focusSearch,
+                controller: _controllerSearch,
+                style: const TextStyle(fontSize: 14),
+                onChanged: (_) => setState(() => _getRoomVisible()),
+                decoration: InputDecoration.collapsed(
+                  hintText: AppLocalizations.text(LangKey.searchUserAndGroup),
+                  hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
+                ),
+              ),
+            ),
+            if (_controllerSearch.text.isNotEmpty)
+              GestureDetector(
+                onTap: () {
+                  _controllerSearch.clear();
+                  FocusManager.instance.primaryFocus?.unfocus();
+                  setState(() => _getRoomVisible());
+                },
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  child: Icon(Icons.close, color: Colors.grey, size: 18),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRoomList() {
+    final rooms = roomListVisible?.rooms;
+    if (rooms == null) {
+      return const Center(child: CupertinoActivityIndicator());
+    }
+    if (rooms.isEmpty) {
+      return Center(
+        child: Text(
+          AppLocalizations.text(LangKey.searchChats),
+          style: const TextStyle(color: Colors.grey),
+        ),
+      );
+    }
+    return ListView.separated(
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      itemCount: rooms.length,
+      separatorBuilder: (_, __) => const Divider(
+        height: 1,
+        indent: 62,
+        endIndent: 0,
+        color: Color(0xFFF0F2F5),
+      ),
+      itemBuilder: (context, index) => _buildRoomItem(rooms[index]),
+    );
+  }
+
+  Widget _buildRoomItem(Rooms data) {
+    final info = getPeople(data.people);
+    final sent = idSent.contains(data.sId);
+    final name = data.isGroup == true
+        ? data.title ??
+            '${AppLocalizations.text(LangKey.group)} ${info.firstName ?? ''} ${info.lastName ?? ''}'
+        : '${info.firstName ?? ''} ${info.lastName ?? ''}'.trim();
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      child: Row(
+        children: [
+          _buildAvatar(data, info),
+          const SizedBox(width: 12),
+          Expanded(
+            child: AutoSizeText(
+              name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF1A1A1A),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          _buildSendButton(data, sent),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAvatar(Rooms data, People info) {
+    const double radius = 22;
+    if (data.isGroup == true) {
+      return data.room_avatar != null
+          ? CircleAvatar(
+              radius: radius,
+              backgroundImage: CachedNetworkImageProvider(
+                '${HTTPConnection.domain}api/images/${data.room_avatar!.shieldedID}/256/${ChatConnection.brandCode ?? ''}',
+                headers: {'brand-code': ChatConnection.brandCode ?? ''},
+              ),
+              backgroundColor: Colors.transparent,
+            )
+          : ChatGroupAvatar(people: data.people, size: radius * 2);
+    }
+    if (info.picture != null) {
+      return CircleAvatar(
+        radius: radius,
+        backgroundImage: CachedNetworkImageProvider(
+          '${HTTPConnection.domain}api/images/${info.picture!.shieldedID}/256/${ChatConnection.brandCode ?? ''}',
+          headers: {'brand-code': ChatConnection.brandCode ?? ''},
+        ),
+        backgroundColor: Colors.transparent,
+      );
+    }
+    return CircleAvatar(
+      radius: radius,
+      backgroundColor: getAvatarColor(info.sId),
+      child: Text(
+        getAvatarName(info.firstName, info.lastName),
+        style: const TextStyle(color: Colors.white, fontSize: 14),
+      ),
+    );
+  }
+
+  Widget _buildSendButton(Rooms data, bool sent) {
+    return SizedBox(
+      height: 34,
+      child: OutlinedButton(
+        onPressed: sent
+            ? null
+            : () async {
+                final result = await ChatConnection.forwardMessage(
+                  _controllerContent.text,
+                  c.Room.fromJson(data.toJson()),
+                  ChatConnection.user!.id,
+                  widget.message.id,
+                );
+                if (result) {
+                  idSent.add(data.sId);
+                  if (data.sId == ChatConnection.roomId) {
+                    _isSentCurrentChatRoom = true;
+                  }
+                  setState(() {});
+                }
+              },
+        style: OutlinedButton.styleFrom(
+          foregroundColor: sent ? Colors.grey : const Color(0xFF2196F3),
+          side: BorderSide(
+            color: sent ? Colors.grey.shade300 : const Color(0xFF2196F3),
+          ),
+          backgroundColor: sent ? Colors.grey.shade100 : Colors.white,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(17)),
+          textStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+        ),
+        child: Text(
+          sent
+              ? AppLocalizations.text(LangKey.sent)
+              : AppLocalizations.text(LangKey.send),
+        ),
+      ),
     );
   }
 
   People getPeople(List<People>? people) {
-    return people!.first.sId != ChatConnection.user!.id
+    if (people == null || people.isEmpty) return People();
+    return people.first.sId != ChatConnection.user!.id
         ? people.first
         : people.last;
   }

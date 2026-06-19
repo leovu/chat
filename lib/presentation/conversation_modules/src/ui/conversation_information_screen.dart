@@ -717,12 +717,13 @@ class _ConversationInformationScreenState
                   color: Color(0xff5686E1),
                   size: 30,
                 ),
-                AppLocalizations.text(LangKey.viewMembers), () {
-              Navigator.of(context).push(MaterialPageRoute(
+                AppLocalizations.text(LangKey.viewMembers), () async {
+              await Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => ChatGroupMembersScreen(
                       chatMessage: widget.chatMessage!,
                       channelSocialId:
                           widget.roomData.channel?.socialChanelId)));
+              setState(() {});
             }),
           if (widget.roomData.isGroup!)
 
@@ -970,11 +971,7 @@ class _ConversationInformationScreenState
         // Group: đồng bộ cấu trúc avatar nhóm giống ChatHub
         displayName = roomData.title ??
             '${owner?.firstName ?? ''} ${owner?.lastName ?? ''}';
-        return ChatGroupAvatar(
-          people: roomData.people,
-          groupName: displayName,
-          size: 50,
-        );
+        return _buildGroupAvatarWithName(roomData, displayName);
       }
     } else {
       // ===== CHAT HUB (giống roomChatHubWidget trong room_list_screen.dart) =====
@@ -1005,12 +1002,7 @@ class _ConversationInformationScreenState
             roomData.title ??
             'Group ${roomData.owner?.firstName ?? ''} ${roomData.owner?.lastName ?? ''}';
 
-        // ChatHub group: đồng bộ cùng ChatGroupAvatar
-        return ChatGroupAvatar(
-          people: roomData.people,
-          groupName: displayName,
-          size: 50,
-        );
+        return _buildGroupAvatarWithName(roomData, displayName);
       }
     }
 
@@ -1527,12 +1519,13 @@ class _ConversationInformationScreenState
             Visibility(
               visible: ChatConnection.isChatHub,
               child: _actionButtonTile(
-                onTap: () {
-                  Navigator.of(context).push(MaterialPageRoute(
+                onTap: () async {
+                  await Navigator.of(context).push(MaterialPageRoute(
                       builder: (context) => ChatGroupMembersScreen(
                           chatMessage: widget.chatMessage!,
                           channelSocialId:
                               widget.roomData.channel?.socialChanelId)));
+                  setState(() {});
                 },
                 iconData: Icons.group,
                 iconColor: const Color(0xff5686E1),
@@ -1934,6 +1927,134 @@ class _ConversationInformationScreenState
             height: 10.0,
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildGroupAvatarWithName(r.Rooms roomData, String displayName) {
+    final isOwner = roomData.owner?.sId == ChatConnection.user?.id;
+    return Column(
+      children: [
+        ChatGroupAvatar(
+          people: roomData.people,
+          size: 50,
+        ),
+        // const SizedBox(height: 10),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Flexible(
+              child: Text(
+                displayName,
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            if (isOwner)
+              GestureDetector(
+                onTap: _showRenameGroupBottomSheet,
+                child: const Padding(
+                  padding: EdgeInsets.only(left: 8.0),
+                  child:
+                      Icon(Icons.edit_outlined, color: Colors.grey, size: 20),
+                ),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  void _showRenameGroupBottomSheet() {
+    final controller = TextEditingController(
+      text: widget.roomData.room_name ?? widget.roomData.title ?? '',
+    );
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.only(
+          left: 20,
+          right: 20,
+          top: 20,
+          bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Đổi tên nhóm',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            const SizedBox(height: 20),
+            TextField(
+              controller: controller,
+              autofocus: true,
+              style: const TextStyle(fontSize: 15),
+              decoration: InputDecoration(
+                hintText: 'Nhập tên nhóm',
+                hintStyle: TextStyle(color: Colors.grey.shade400),
+                filled: true,
+                fillColor: Colors.grey.shade100,
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide:
+                      const BorderSide(color: Color(0xff5686E1), width: 1.5),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: ElevatedButton(
+                onPressed: () async {
+                  final newName = controller.text.trim();
+                  if (newName.isEmpty) return;
+                  Navigator.of(ctx).pop();
+                  final result = await ChatConnection.updateRoomName(
+                      widget.roomData.sId!, newName);
+                  if (result && mounted) {
+                    setState(() {
+                      widget.roomData.title = newName;
+                      widget.roomData.room_name = newName;
+                    });
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xff5686E1),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                  elevation: 0,
+                ),
+                child: const Text('Lưu',
+                    style:
+                        TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
