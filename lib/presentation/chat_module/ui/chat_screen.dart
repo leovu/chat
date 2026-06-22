@@ -1076,75 +1076,86 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
     final pin = data?.room?.pinMessage;
     if (pin == null) return const SizedBox.shrink();
     final imgSize = MediaQuery.sizeOf(context).width * 0.15;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border:
-            Border(bottom: BorderSide(color: Colors.grey.shade300, width: 2)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
-        child: Row(
-          children: [
-            const Padding(
-              padding: EdgeInsets.only(right: 8.0),
-              child: Icon(Icons.chat_outlined, color: Color(0xff5686E1)),
-            ),
-            Expanded(
-              child: InkWell(
-                onTap: () {
-                  try {
-                    scroll(listIdMessages[pin.sId]!);
-                  } catch (_) {}
-                },
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    AutoSizeText(
-                      '${pin.author?.firstName} ${pin.author?.lastName}',
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xff5686E1)),
-                    ),
-                    if (pin.type == 'image')
-                      SizedBox(
-                        height: imgSize,
-                        width: imgSize,
-                        child: Padding(
-                          padding: const EdgeInsets.all(3.0),
-                          child: CachedNetworkImage(
-                            fit: BoxFit.cover,
-                            imageUrl:
-                                '${HTTPConnection.domain}api/images/${pin.content}/256/${ChatConnection.brandCode!}',
-                            httpHeaders: {
-                              'brand-code': ChatConnection.brandCode!
-                            },
-                            placeholder: (_, __) =>
-                                const CupertinoActivityIndicator(),
-                            errorWidget: (_, __, ___) =>
-                                const Icon(Icons.error),
-                          ),
-                        ),
-                      )
-                    else
-                      checkTagWidget(pin.content ?? ''),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(
-              height: 30,
-              width: 30,
-              child: IconButton(
-                icon: const Icon(Icons.close, color: Colors.grey, size: 20.0),
-                onPressed: () async {
-                  setState(() => data?.room?.pinMessage = null);
-                  await ChatConnection.pinMessage(null, data?.room);
-                },
-                padding: EdgeInsets.zero,
-              ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.12),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
             ),
           ],
+          // border:
+          //     Border(bottom: BorderSide(color: Colors.grey.shade300, width: 2)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
+          child: Row(
+            children: [
+              const Padding(
+                padding: EdgeInsets.only(right: 8.0),
+                child: Icon(Icons.chat_outlined, color: Color(0xff5686E1)),
+              ),
+              Expanded(
+                child: InkWell(
+                  onTap: () {
+                    try {
+                      scroll(listIdMessages[pin.sId]!);
+                    } catch (_) {}
+                  },
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AutoSizeText(
+                        '${pin.author?.firstName} ${pin.author?.lastName}',
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xff5686E1)),
+                      ),
+                      if (pin.type == 'image')
+                        SizedBox(
+                          height: imgSize,
+                          width: imgSize,
+                          child: Padding(
+                            padding: const EdgeInsets.all(3.0),
+                            child: CachedNetworkImage(
+                              fit: BoxFit.cover,
+                              imageUrl:
+                                  '${HTTPConnection.domain}api/images/${pin.content}/256/${ChatConnection.brandCode!}',
+                              httpHeaders: {
+                                'brand-code': ChatConnection.brandCode!
+                              },
+                              placeholder: (_, __) =>
+                                  const CupertinoActivityIndicator(),
+                              errorWidget: (_, __, ___) =>
+                                  const Icon(Icons.error),
+                            ),
+                          ),
+                        )
+                      else
+                        checkTagWidget(pin.content ?? ''),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 30,
+                width: 30,
+                child: IconButton(
+                  icon: const Icon(Icons.close, color: Colors.grey, size: 20.0),
+                  onPressed: () async {
+                    setState(() => data?.room?.pinMessage = null);
+                    await ChatConnection.pinMessage(null, data?.room);
+                  },
+                  padding: EdgeInsets.zero,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
