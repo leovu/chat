@@ -192,14 +192,13 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
               )
             : null,
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-        appBar: !_isSearchMessage ? buildDefaultAppBar() : _searchAppBar(),
+        appBar: _buildAppBarWithPinned(),
         body: SafeArea(
           bottom: false,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               buildTagArea(),
-              _pinnedMessageWidget(),
               Expanded(child: _messageListWidget()),
               _searchResultWidget(),
             ],
@@ -1071,6 +1070,19 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
   }
 
   // ── Widgets ────────────────────────────────────────────────────────────────
+
+  PreferredSizeWidget _buildAppBarWithPinned() {
+    final appBar = !_isSearchMessage ? buildDefaultAppBar() : _searchAppBar();
+    final pin = data?.room?.pinMessage;
+    if (pin == null) return appBar;
+    return PreferredSize(
+      preferredSize: Size.fromHeight(appBar.preferredSize.height + 72),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [appBar, _pinnedMessageWidget()],
+      ),
+    );
+  }
 
   Widget _pinnedMessageWidget() {
     final pin = data?.room?.pinMessage;
