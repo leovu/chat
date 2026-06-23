@@ -34,6 +34,7 @@ class LiquidGlassTabBar extends StatefulWidget {
   final MainAxisAlignment tabAlignment;
   final Widget Function(LiquidGlassTabItem item, bool isSelected)? itemBuilder;
   final bool expandItems;
+  final bool equalWidth;
 
   const LiquidGlassTabBar({
     super.key,
@@ -50,6 +51,7 @@ class LiquidGlassTabBar extends StatefulWidget {
     this.tabAlignment = MainAxisAlignment.spaceAround,
     this.itemBuilder,
     this.expandItems = false,
+    this.equalWidth = false,
   });
 
   @override
@@ -100,7 +102,8 @@ class _LiquidGlassTabBarState extends State<LiquidGlassTabBar>
   }
 
   void _updateIndicator() {
-    if (widget.selectedIndex < 0 || widget.selectedIndex >= _tabKeys.length) return;
+    if (widget.selectedIndex < 0 || widget.selectedIndex >= _tabKeys.length)
+      return;
     final key = _tabKeys[widget.selectedIndex];
     final renderBox = key.currentContext?.findRenderObject() as RenderBox?;
     if (renderBox == null) return;
@@ -109,23 +112,27 @@ class _LiquidGlassTabBarState extends State<LiquidGlassTabBar>
     final position = renderBox.localToGlobal(Offset.zero, ancestor: parentBox);
     final size = renderBox.size;
     setState(() {
-      _indicatorRect = Rect.fromLTWH(position.dx, position.dy, size.width, size.height);
+      _indicatorRect =
+          Rect.fromLTWH(position.dx, position.dy, size.width, size.height);
       _targetRect = _indicatorRect;
     });
   }
 
   void _animateToSelected() {
-    if (widget.selectedIndex < 0 || widget.selectedIndex >= _tabKeys.length) return;
+    if (widget.selectedIndex < 0 || widget.selectedIndex >= _tabKeys.length)
+      return;
     final key = _tabKeys[widget.selectedIndex];
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final renderBox = key.currentContext?.findRenderObject() as RenderBox?;
       if (renderBox == null) return;
       final parentBox = context.findRenderObject() as RenderBox?;
       if (parentBox == null) return;
-      final position = renderBox.localToGlobal(Offset.zero, ancestor: parentBox);
+      final position =
+          renderBox.localToGlobal(Offset.zero, ancestor: parentBox);
       final size = renderBox.size;
       setState(() {
-        _targetRect = Rect.fromLTWH(position.dx, position.dy, size.width, size.height);
+        _targetRect =
+            Rect.fromLTWH(position.dx, position.dy, size.width, size.height);
       });
       _slideController.forward(from: 0);
     });
@@ -141,7 +148,8 @@ class _LiquidGlassTabBarState extends State<LiquidGlassTabBar>
             builder: (context, child) {
               final t = Curves.easeOutCubic.transform(_slideController.value);
               final currentRect = Rect.lerp(_indicatorRect, _targetRect, t)!;
-              if (_slideController.isCompleted && _indicatorRect != _targetRect) {
+              if (_slideController.isCompleted &&
+                  _indicatorRect != _targetRect) {
                 WidgetsBinding.instance.addPostFrameCallback(
                     (_) => setState(() => _indicatorRect = _targetRect));
               }
@@ -180,7 +188,9 @@ class _LiquidGlassTabBarState extends State<LiquidGlassTabBar>
                   : _buildDefaultTabContent(item, isSelected),
             );
             return widget.expandItems
-                ? Expanded(flex: isSelected ? 2 : 1, child: tabButton)
+                ? Expanded(
+                    flex: widget.equalWidth ? 1 : (isSelected ? 2 : 1),
+                    child: tabButton)
                 : tabButton;
           }).toList(),
         ),
@@ -201,7 +211,9 @@ class _LiquidGlassTabBarState extends State<LiquidGlassTabBar>
     final unselectedColor = widget.unselectedColor ?? primaryColor;
     final badgeColor = widget.badgeColor ?? Colors.red;
     final displayTitle = item.title != null
-        ? (isSelected ? item.title! : _abbreviate(item.title!))
+        ? (isSelected || widget.equalWidth
+            ? item.title!
+            : _abbreviate(item.title!))
         : null;
 
     return Stack(
@@ -248,7 +260,8 @@ class _LiquidGlassTabBarState extends State<LiquidGlassTabBar>
                     color: isSelected ? selectedColor : Colors.black,
                     fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
                   ),
-                  child: Text(displayTitle, overflow: TextOverflow.ellipsis, maxLines: 1),
+                  child: Text(displayTitle,
+                      overflow: TextOverflow.ellipsis, maxLines: 1),
                 ),
               ),
             ],
@@ -266,7 +279,8 @@ class _LiquidGlassTabBarState extends State<LiquidGlassTabBar>
               builder: (context, value, child) =>
                   Transform.scale(scale: value, child: child),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
                 decoration: BoxDecoration(
                   color: badgeColor,
                   borderRadius: BorderRadius.circular(8.0),
@@ -302,8 +316,10 @@ class _LiquidGlassIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final stretchX = isAnimating ? 1.0 + (0.1 * (1 - (2 * progress - 1).abs())) : 1.0;
-    final stretchY = isAnimating ? 1.0 - (0.05 * (1 - (2 * progress - 1).abs())) : 1.0;
+    final stretchX =
+        isAnimating ? 1.0 + (0.1 * (1 - (2 * progress - 1).abs())) : 1.0;
+    final stretchY =
+        isAnimating ? 1.0 - (0.05 * (1 - (2 * progress - 1).abs())) : 1.0;
     return Transform(
       alignment: Alignment.center,
       transform: Matrix4.diagonal3Values(stretchX, stretchY, 1.0),

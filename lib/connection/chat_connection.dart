@@ -58,6 +58,8 @@ class ChatConnection {
   static late Function(Map<String, dynamic> message)
       chatScreenNotificationHandler;
   static ValueNotifier<String> notificationNotifier = ValueNotifier('0');
+  static final Set<String> onlineUserIds = {};
+  static final ValueNotifier<int> onlineUsersNotifier = ValueNotifier(0);
   static Function? searchProducts;
   static Function? searchOrders;
   static Function? createOrder;

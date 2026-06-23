@@ -86,6 +86,21 @@ class StreamSocket {
       }
       ChatConnection.notificationList();
     });
+
+    socket!.on('onlineUsers', (data) {
+      try {
+        final list = data as List<dynamic>;
+        ChatConnection.onlineUserIds.clear();
+        for (final item in list) {
+          final id = item['id'] as String?;
+          final status = item['status'] as String?;
+          if (id != null && status == 'online') {
+            ChatConnection.onlineUserIds.add(id);
+          }
+        }
+        ChatConnection.onlineUsersNotifier.value++;
+      } catch (_) {}
+    });
   }
 
   bool checkConnected() {

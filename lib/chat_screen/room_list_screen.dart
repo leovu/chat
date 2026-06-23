@@ -414,32 +414,37 @@ class _RoomListScreenState extends State<RoomListScreen>
                                 );
                               },
                             ),
-                            child: ListView.builder(
-                              controller: _listViewController,
-                              keyboardDismissBehavior:
-                                  ScrollViewKeyboardDismissBehavior.onDrag,
-                              itemCount: (ChatConnection.openChatGPT != null)
-                                  ? (roomListVisible?.rooms?.length ?? 0) + 1
-                                  : (roomListVisible?.rooms?.length ?? 0),
-                              itemBuilder: (BuildContext context, int index) {
-                                int position =
-                                    (ChatConnection.openChatGPT != null)
-                                        ? index - 1
-                                        : index;
-                                if (ChatConnection.openChatGPT != null &&
-                                    index == 0) {
-                                  return InkWell(
-                                    onTap: () {
-                                      ChatConnection.openChatGPT?.call();
-                                    },
-                                    child: _gptRoom(!(roomListVisible?.rooms !=
-                                            null &&
-                                        (roomListVisible?.rooms?.isNotEmpty ??
-                                            false))),
-                                  );
-                                }
-                                return parseRoom(position);
-                              },
+                            child: ValueListenableBuilder<int>(
+                              valueListenable:
+                                  ChatConnection.onlineUsersNotifier,
+                              builder: (context, _, __) => ListView.builder(
+                                controller: _listViewController,
+                                keyboardDismissBehavior:
+                                    ScrollViewKeyboardDismissBehavior.onDrag,
+                                itemCount: (ChatConnection.openChatGPT != null)
+                                    ? (roomListVisible?.rooms?.length ?? 0) + 1
+                                    : (roomListVisible?.rooms?.length ?? 0),
+                                itemBuilder: (BuildContext context, int index) {
+                                  int position =
+                                      (ChatConnection.openChatGPT != null)
+                                          ? index - 1
+                                          : index;
+                                  if (ChatConnection.openChatGPT != null &&
+                                      index == 0) {
+                                    return InkWell(
+                                      onTap: () {
+                                        ChatConnection.openChatGPT?.call();
+                                      },
+                                      child: _gptRoom(
+                                          !(roomListVisible?.rooms != null &&
+                                              (roomListVisible
+                                                      ?.rooms?.isNotEmpty ??
+                                                  false))),
+                                    );
+                                  }
+                                  return parseRoom(position);
+                                },
+                              ),
                             ),
                           )
                         : Container(),
@@ -830,6 +835,20 @@ class _RoomListScreenState extends State<RoomListScreen>
                               people: data.people,
                               size: 50,
                             ),
+                      if (!(data.isGroup ?? false) && _isOnline(people.sId))
+                        Positioned(
+                          right: 1,
+                          bottom: 1,
+                          child: Container(
+                            width: 15,
+                            height: 15,
+                            decoration: BoxDecoration(
+                              color: Colors.green,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 2),
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                   Expanded(
@@ -1263,6 +1282,11 @@ class _RoomListScreenState extends State<RoomListScreen>
     } catch (_) {
       return '';
     }
+  }
+
+  bool _isOnline(String? userId) {
+    if (userId == null) return false;
+    return ChatConnection.onlineUserIds.contains(userId);
   }
 
   @override

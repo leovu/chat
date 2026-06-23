@@ -92,7 +92,9 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
               ChatConnection.refreshNotifications = method;
             },
             homeCallback: () {
-              try { ChatConnection.refreshRoom.call(); } catch (_) {}
+              try {
+                ChatConnection.refreshRoom.call();
+              } catch (_) {}
             },
           ),
         ],
@@ -109,13 +111,15 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
           decoration: BoxDecoration(
             color: Colors.white.withValues(alpha: 0.12),
             border: Border(
-              top: BorderSide(color: Colors.white.withValues(alpha: 0.4), width: 0.5),
+              top: BorderSide(
+                  color: Colors.white.withValues(alpha: 0.4), width: 0.5),
             ),
           ),
           child: SafeArea(
             top: false,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
               child: ValueListenableBuilder<String>(
                 valueListenable: ChatConnection.notificationNotifier,
                 builder: (context, notifValue, _) {
@@ -123,9 +127,12 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
                   return LiquidGlassTabBar(
                     selectedIndex: _chatHubTabIndex,
                     expandItems: true,
+                    equalWidth: true,
                     onTabChanged: (index, item) {
                       if (index == 1) {
-                        try { ChatConnection.refreshNotifications.call(); } catch (_) {}
+                        try {
+                          ChatConnection.refreshNotifications.call();
+                        } catch (_) {}
                       }
                       setState(() => _chatHubTabIndex = index);
                     },
@@ -172,7 +179,9 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
               ChatConnection.refreshFavorites = method;
             },
             homeCallback: () {
-              try { ChatConnection.refreshRoom.call(); } catch (_) {}
+              try {
+                ChatConnection.refreshRoom.call();
+              } catch (_) {}
             },
           ),
           NotificationScreen(
@@ -180,7 +189,9 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
               ChatConnection.refreshNotifications = method;
             },
             homeCallback: () {
-              try { ChatConnection.refreshRoom.call(); } catch (_) {}
+              try {
+                ChatConnection.refreshRoom.call();
+              } catch (_) {}
             },
           ),
         ],
@@ -197,13 +208,15 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
           decoration: BoxDecoration(
             color: Colors.white.withValues(alpha: 0.12),
             border: Border(
-              top: BorderSide(color: Colors.white.withValues(alpha: 0.4), width: 0.5),
+              top: BorderSide(
+                  color: Colors.white.withValues(alpha: 0.4), width: 0.5),
             ),
           ),
           child: SafeArea(
             top: false,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
               child: ValueListenableBuilder<String>(
                 valueListenable: ChatConnection.notificationNotifier,
                 builder: (context, notifValue, _) {
@@ -213,7 +226,9 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
                     expandItems: true,
                     onTabChanged: (index, item) {
                       if (index == 3) {
-                        try { ChatConnection.refreshNotifications.call(); } catch (_) {}
+                        try {
+                          ChatConnection.refreshNotifications.call();
+                        } catch (_) {}
                       }
                       setState(() => _chatTabIndex = index);
                     },
