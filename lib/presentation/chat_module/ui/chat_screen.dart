@@ -199,7 +199,19 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               buildTagArea(),
-              Expanded(child: _messageListWidget()),
+              Expanded(
+                child: Stack(
+                  children: [
+                    _messageListWidget(),
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      child: _pinnedMessageWidget(),
+                    ),
+                  ],
+                ),
+              ),
               _searchResultWidget(),
             ],
           ),
@@ -1072,16 +1084,7 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
   // ── Widgets ────────────────────────────────────────────────────────────────
 
   PreferredSizeWidget _buildAppBarWithPinned() {
-    final appBar = !_isSearchMessage ? buildDefaultAppBar() : _searchAppBar();
-    final pin = data?.room?.pinMessage;
-    if (pin == null) return appBar;
-    return PreferredSize(
-      preferredSize: Size.fromHeight(appBar.preferredSize.height + 72),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [appBar, _pinnedMessageWidget()],
-      ),
-    );
+    return !_isSearchMessage ? buildDefaultAppBar() : _searchAppBar();
   }
 
   Widget _pinnedMessageWidget() {
