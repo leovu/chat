@@ -21,6 +21,7 @@ import 'package:chat/presentation/chat_module/ui/internal_chat_screen.dart';
 import 'package:chat/presentation/conversation_modules/src/ui/conversation_information_screen.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
@@ -29,6 +30,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:mime/mime.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../chat_ui/widgets/custom_message_builder.dart';
@@ -579,31 +581,42 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
 
   // ── Message interaction ────────────────────────────────────────────────────
 
-  void _handleMessageTap(
+  Future<void> _handleMessageTap(
       BuildContext cxt, types.Message message, bool isRepliedMessage) async {
-    if (isRepliedMessage) {
-      if (message is types.FileMessage) {
-        showLoading();
-        String? result = await download(
-            context, message.uri, '${message.createdAt}_${message.name}');
-        Navigator.of(context).pop();
-        openFile(result, context, message.name);
+    if (message is types.FileMessage) {
+      if (!isRepliedMessage &&
+          (message.status == Status.sending || message.status == Status.error))
+        return;
+      showLoading();
+      String? result = await download(
+          context, message.uri, '${message.createdAt}_${message.name}');
+      Navigator.of(context).pop();
+      openFile(result, context, message.name);
+    } else if (message is types.ImageMessage) {
+      openImage(context, message.uri, onResend: _resendEditedImage);
+    } else if (message is types.CustomMessage &&
+        message.metadata?['custom_type'] == 'link') {
+      final metadata = message.metadata ?? {};
+      final items = metadata['items'];
+      String? url;
+      if (items is List && items.isNotEmpty) {
+        url = items.first['href'] as String?;
       }
-      if (message is types.ImageMessage) {
-        openImage(context, message.uri, onResend: _resendEditedImage);
+      url ??= metadata['text'] as String?;
+      if (url != null) {
+        final uri = Uri.tryParse(url);
+        if (uri != null) {
+          try {
+            await launchUrl(uri, mode: LaunchMode.externalApplication);
+          } catch (_) {
+            try {
+              await launchUrl(uri, mode: LaunchMode.platformDefault);
+            } catch (_) {}
+          }
+        }
       }
-    } else {
-      if (message is types.FileMessage &&
-          message.status != Status.sending &&
-          message.status != Status.error) {
-        showLoading();
-        String? result = await download(
-            context, message.uri, '${message.createdAt}_${message.name}');
-        Navigator.of(context).pop();
-        openFile(result, context, message.name);
-      } else if (message is types.ImageMessage) {
-        openImage(context, message.uri, onResend: _resendEditedImage);
-      }
+    } else if (isRepliedMessage) {
+      await scrollToMessage(message.id);
     }
   }
 
@@ -1117,10 +1130,17 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
               ),
               Expanded(
                 child: InkWell(
-                  onTap: () {
-                    try {
-                      scroll(listIdMessages[pin.sId]!);
-                    } catch (_) {}
+                  onTap: () async {
+                    final originals = messages.where((m) => m.id == pin.sId);
+                    final original = originals.isEmpty ? null : originals.first;
+                    if (original != null) {
+                      await _handleMessageTap(context, original, true);
+                    } else if (pin.type == 'image' && pin.content != null) {
+                      openImage(context,
+                          '${HTTPConnection.domain}api/images/${pin.content}/256/${ChatConnection.brandCode!}');
+                    } else if (pin.sId != null) {
+                      await scrollToMessage(pin.sId!);
+                    }
                   },
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -1393,6 +1413,33 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
         curve: Curves.linear);
   }
 
+  Future<void> scrollToMessage(String messageId) async {
+    if (listIdMessages.containsKey(messageId)) {
+      scroll(listIdMessages[messageId]!);
+      return;
+    }
+    showLoading();
+    for (int i = 0; i < 3; i++) {
+      final countBefore = messages.length;
+      await loadMore();
+      await Future.delayed(const Duration(milliseconds: 300));
+      if (!mounted) return;
+      if (listIdMessages.containsKey(messageId)) {
+        Navigator.of(context).pop();
+        scroll(listIdMessages[messageId]!);
+        return;
+      }
+      if (messages.length == countBefore) break;
+    }
+    if (mounted) {
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Không tìm thấy tin nhắn'),
+        duration: Duration(seconds: 2),
+      ));
+    }
+  }
+
   void searchChat() {
     _listIdSearch = [];
     currentIndexSearch = 0;
@@ -1419,30 +1466,53 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
     List<String> contents = message.split(' ');
     for (int i = 0; i < contents.length; i++) {
       var element = contents[i];
+      final suffix = i == contents.length - 1 ? '' : ' ';
       if (element == '@all-all@') {
         element = '@${AppLocalizations.text(LangKey.all)}';
         arr.add(TextSpan(
-            text: '$element ',
+            text: '$element$suffix',
             style: const TextStyle(
                 color: Colors.black, fontWeight: FontWeight.bold)));
+      } else if (element.startsWith('http://') ||
+          element.startsWith('https://')) {
+        final url = element;
+        arr.add(TextSpan(
+          text: '$url$suffix',
+          style: const TextStyle(
+              color: Color(0xff5686E1),
+              decoration: TextDecoration.underline,
+              decorationColor: Color(0xff5686E1)),
+          recognizer: TapGestureRecognizer()
+            ..onTap = () async {
+              final uri = Uri.tryParse(url);
+              if (uri == null) return;
+              try {
+                await launchUrl(uri, mode: LaunchMode.externalApplication);
+              } catch (_) {
+                try {
+                  await launchUrl(uri, mode: LaunchMode.platformDefault);
+                } catch (_) {}
+              }
+            },
+        ));
       } else {
         try {
           if (element[element.length - 1] == '@' && element.contains('-')) {
             element = element.split('-').first;
             arr.add(TextSpan(
-                text: '$element ',
+                text: '$element$suffix',
                 style: const TextStyle(
                     color: Colors.black, fontWeight: FontWeight.bold)));
           } else {
             arr.add(TextSpan(
-                text: i == contents.length - 1 ? element : '$element ',
+                text: '$element$suffix',
                 style: TextStyle(
                     color: Colors.grey.shade700,
                     fontWeight: FontWeight.normal)));
           }
         } catch (_) {
           arr.add(TextSpan(
-              text: i == contents.length - 1 ? element : '$element ',
+              text: '$element$suffix',
               style: TextStyle(
                   color: Colors.grey.shade700, fontWeight: FontWeight.normal)));
         }

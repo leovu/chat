@@ -18,7 +18,8 @@
       "Bash(grep -E \"\\\\.\\(dart\\)$\")",
       "Bash(perl -0pi -e \"s/widget\\\\.search != '' && widget\\\\.search != null/_search != ''/g; s/widget\\\\.search!\\\\.toLowerCase\\\\\\(\\\\\\)/_search.toLowerCase\\(\\)/g; s/widget\\\\.search != '' && widget\\\\.search != null/_search != ''/g\" lib/chat_screen/by_sender_screen.dart)",
       "Bash(perl -0pi -e 's/widget\\\\.chatMessage/_chatMessage/g' lib/chat_screen/conversation_file_screen.dart)",
-      "Bash(grep -E \"error|warning|^$\")"
+      "Bash(grep -E \"error|warning|^$\")",
+      "Bash(grep -E \"\\\\.dart$\")"
     ]
   }
 }

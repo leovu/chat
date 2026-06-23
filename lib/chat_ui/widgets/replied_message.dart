@@ -56,8 +56,6 @@ class RepliedMessage extends StatelessWidget {
     bool _isVideo = false;
     bool _isCustome = false;
 
-    types.CustomMessage _customMessage;
-
     final bool _closable = isView ?? false; //onCancelReplyPressed != null;
     final bool _isCurrentUser =
         messageAuthorId == InheritedUser.of(context).user.id;
@@ -75,8 +73,6 @@ class RepliedMessage extends StatelessWidget {
     if (repliedMessage != null) {
       switch (repliedMessage!.type) {
         case types.MessageType.file:
-          final fileMessage = repliedMessage as types.FileMessage;
-          // _text = fileMessage.name;
           _isFile = true;
           break;
         case types.MessageType.image:
@@ -95,8 +91,6 @@ class RepliedMessage extends StatelessWidget {
           _isVideo = true;
           break;
         case types.MessageType.custom:
-          final customMessage = repliedMessage as types.CustomMessage;
-          _customMessage = customMessage;
           _isCustome = true;
           break;
         default:
@@ -189,7 +183,7 @@ class RepliedMessage extends StatelessWidget {
         fileName = fileMessage.name;
 
         // Format file size
-        if (fileMessage.size != null && fileMessage.size > 0) {
+        if (fileMessage.size > 0) {
           final sizeInBytes = fileMessage.size;
           if (sizeInBytes < 1024) {
             fileSize = '${sizeInBytes} B';
@@ -562,174 +556,6 @@ class RepliedMessage extends StatelessWidget {
       }
     }
 
-    Widget _buildDialogContent() {
-      final replyType = _getReplyType();
-
-      switch (replyType) {
-        case ReplyType.image:
-          // Show full image in dialog
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (_imageUri != null)
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.network(
-                    _imageUri!,
-                    fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        height: 200,
-                        alignment: Alignment.center,
-                        child: const Icon(
-                          Icons.broken_image,
-                          size: 50,
-                          color: Colors.grey,
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              const SizedBox(height: 12),
-              Text(
-                AppLocalizations.text(LangKey.photo),
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey.shade700,
-                ),
-              ),
-            ],
-          );
-
-        case ReplyType.file:
-          // Show file details
-          String fileName = _text;
-          String fileSize = '';
-
-          if (repliedMessage is types.FileMessage) {
-            final fileMessage = repliedMessage as types.FileMessage;
-            fileName = fileMessage.name;
-
-            if (fileMessage.size != null && fileMessage.size > 0) {
-              final sizeInBytes = fileMessage.size;
-              if (sizeInBytes < 1024) {
-                fileSize = '${sizeInBytes} B';
-              } else if (sizeInBytes < 1024 * 1024) {
-                fileSize = '${(sizeInBytes / 1024).toStringAsFixed(1)} KB';
-              } else {
-                fileSize =
-                    '${(sizeInBytes / (1024 * 1024)).toStringAsFixed(1)} MB';
-              }
-            }
-          }
-
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.blue.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(
-                      Icons.insert_drive_file,
-                      size: 48,
-                      color: Colors.blueAccent,
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            fileName,
-                            style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          if (fileSize.isNotEmpty)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 4),
-                              child: Text(
-                                fileSize,
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.grey.shade600,
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          );
-
-        case ReplyType.audio:
-          return Column(
-            children: [
-              Icon(
-                Icons.audiotrack,
-                size: 60,
-                color: Colors.blue.shade400,
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'Audio Message',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.grey.shade700,
-                ),
-              ),
-            ],
-          );
-
-        case ReplyType.video:
-          return Column(
-            children: [
-              Icon(
-                Icons.play_circle_outline,
-                size: 60,
-                color: Colors.red.shade400,
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'Video Message',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.grey.shade700,
-                ),
-              ),
-            ],
-          );
-
-        case ReplyType.custom:
-          // Show custom message content
-          return _buildCustom();
-
-        case ReplyType.none:
-        default:
-          // Show text message
-          return SelectableText(
-            _text,
-            style: const TextStyle(
-              fontSize: 15,
-              color: Colors.black87,
-              height: 1.5,
-            ),
-          );
-      }
-    }
-
     Widget _buildReplyInfoSection({
       required bool closable,
       required bool isCurrentUser,
@@ -814,64 +640,8 @@ class RepliedMessage extends StatelessWidget {
 
     return InkWell(
       onTap: () {
-        if ((_imageUri != null || _isFile) &&
-            repliedMessage != null &&
-            onMessageTap != null) {
-          if (isActive) {
-            onMessageTap!(context, repliedMessage!, true);
-          }
-        } else {
-          showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-              contentPadding: EdgeInsets.zero,
-              content: Container(
-                constraints: BoxConstraints(
-                  maxWidth: MediaQuery.of(context).size.width * 0.8,
-                  maxHeight: MediaQuery.of(context).size.height * 0.6,
-                ),
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Header with sender name
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.blue.shade50,
-                          borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(4),
-                          ),
-                        ),
-                        child: Text(
-                          '${repliedMessage?.author.firstName ?? ''} ${repliedMessage?.author.lastName ?? ''}'
-                              .trim(),
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black87,
-                          ),
-                        ),
-                      ),
-                      // Content based on message type
-                      Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: _buildDialogContent(),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Close'),
-                ),
-              ],
-            ),
-          );
+        if (repliedMessage != null && onMessageTap != null && isActive) {
+          onMessageTap!(context, repliedMessage!, true);
         }
       },
       child: Container(
@@ -880,7 +650,8 @@ class RepliedMessage extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: const BorderRadius.vertical(
                 top: Radius.circular(10.0), bottom: Radius.circular(10.0)),
-            color:Colors.grey.shade50,// _closable ? Colors.grey.shade50 : Colors.grey[50],
+            color: Colors.grey
+                .shade50, // _closable ? Colors.grey.shade50 : Colors.grey[50],
           ),
           child: Row(
             children: [
