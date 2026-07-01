@@ -87,6 +87,16 @@ class StreamSocket {
       ChatConnection.notificationList();
     });
 
+    // Portal (web) pushes room updates (e.g. message edits) over this
+    // channel instead of 'message-in'; the payload already carries the
+    // full updated room, so route it through the same chat listeners.
+    socket!.on('typing', (data) {
+      debugPrint('[SOCKET] Received typing: $data');
+      for (final cb in List.from(_chatListeners)) {
+        cb(data);
+      }
+    });
+
     socket!.on('onlineUsers', (data) {
       try {
         final list = data as List<dynamic>;

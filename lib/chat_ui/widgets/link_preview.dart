@@ -4,11 +4,16 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 
 class PreviewLink extends StatefulWidget {
   final String content;
-  const PreviewLink({Key? key, required this.content}) : super(key: key);
+  final bool transparentBackground;
+  const PreviewLink(
+      {Key? key, required this.content, this.transparentBackground = false})
+      : super(key: key);
   @override
   _PreviewLinkState createState() => _PreviewLinkState();
 }
-class _PreviewLinkState extends State<PreviewLink> with AutomaticKeepAliveClientMixin {
+
+class _PreviewLinkState extends State<PreviewLink>
+    with AutomaticKeepAliveClientMixin {
   types.PreviewData? previewData;
   @override
   Widget build(BuildContext context) {
@@ -17,9 +22,10 @@ class _PreviewLinkState extends State<PreviewLink> with AutomaticKeepAliveClient
       padding: const EdgeInsets.all(8.0),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.grey.shade200,
-          borderRadius: BorderRadius.circular(15)
-        ),
+            color: widget.transparentBackground
+                ? Colors.transparent
+                : Colors.grey.shade200,
+            borderRadius: BorderRadius.circular(15)),
         child: LinkPreview(
           enableAnimation: true,
           header: null,
@@ -31,6 +37,7 @@ class _PreviewLinkState extends State<PreviewLink> with AutomaticKeepAliveClient
       ),
     );
   }
+
   void _onPreviewDataFetched(types.PreviewData data) {
     if (previewData == null) {
       setState(() {
@@ -38,6 +45,7 @@ class _PreviewLinkState extends State<PreviewLink> with AutomaticKeepAliveClient
       });
     }
   }
+
   @override
   bool get wantKeepAlive => true;
 }

@@ -59,7 +59,6 @@ class ConversationInformationScreen extends StatefulWidget {
 class _ConversationInformationScreenState
     extends State<ConversationInformationScreen>
     with SingleTickerProviderStateMixin {
-  final TextEditingController _controller = TextEditingController();
   final TextEditingController _searchController = TextEditingController();
   bool isInitScreen = true;
   CustomerAccount? customerAccount;
@@ -281,116 +280,6 @@ class _ConversationInformationScreenState
               child: Text(AppLocalizations.text(LangKey.cancel))),
         ],
       ),
-    );
-  }
-
-  void editName() async {
-    if (ChatConnection.editCustomerLead != null &&
-        (customerAccount?.data?.type == 'customer' ||
-            customerAccount?.data?.type == 'customerLead')) {
-      await ChatConnection.editCustomerLead!(
-          customerAccount?.data?.type == 'customer'
-              ? customerAccount?.data?.customerCode
-              : customerAccount?.data?.customerLeadCode,
-          customerAccount?.data?.type,
-          customerAccount?.data?.customerId);
-      _loadAccount();
-    } else {
-      final FocusNode _focusNode = FocusNode();
-
-      await showEditNameDialog(
-        context: context,
-        controller: _controller,
-        focusNode: _focusNode,
-        apiCall: (newName) async {
-          if (ChatConnection.isChatHub) {
-            return await ChatConnection.updateUserInfo(
-                  widget.chatMessage?.room?.owner?.sId ?? '',
-                  newName,
-                  '',
-                ) ??
-                false;
-          } else {
-            return await ChatConnection.updateRoomName(
-              widget.roomData.sId!,
-              newName,
-            );
-          }
-        },
-        isChatHub: ChatConnection.isChatHub,
-        onSuccess: () {
-          if (ChatConnection.isChatHub) {
-            customerAccount?.data?.fullName = _controller.value.text;
-          } else {
-            widget.roomData.title = _controller.value.text;
-          }
-          reload();
-        },
-        onError: () {
-          errorDialog(
-            content: ChatConnection.isChatHub
-                ? LangKey.getFileError
-                : AppLocalizations.text(LangKey.changeGroupNameError),
-          );
-        },
-      );
-    }
-  }
-
-  Future<void> showEditNameDialog({
-    required BuildContext context,
-    required TextEditingController controller,
-    required FocusNode focusNode,
-    required Future<bool> Function(String newName) apiCall, // Hàm gọi API
-    required bool isChatHub, // Điều kiện true/false
-    required VoidCallback onSuccess, // Hàm callback khi thành công
-    required VoidCallback onError, // Hàm callback khi thất bại
-  }) async {
-    controller.text = controller.text.isNotEmpty ? controller.text : '';
-    focusNode.requestFocus();
-
-    await showDialog<bool>(
-      context: context,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (BuildContext cxtx, StateSetter setState) {
-            return CupertinoAlertDialog(
-              title: Text(AppLocalizations.text(LangKey.members)),
-              content: Card(
-                color: Colors.transparent,
-                elevation: 0.0,
-                child: Column(
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0, bottom: 3.0),
-                      child: CupertinoTextField(
-                        controller: controller,
-                        focusNode: focusNode,
-                        placeholder: AppLocalizations.text(LangKey.members),
-                      ),
-                    ),
-                    CupertinoButton(
-                      child: Text(AppLocalizations.text(LangKey.accept)),
-                      onPressed: () async {
-                        FocusManager.instance.primaryFocus?.unfocus();
-                        Navigator.of(context).pop();
-
-                        bool result = await apiCall(controller.value.text);
-
-                        if (result) {
-                          onSuccess(); // Gọi callback khi thành công
-                        } else {
-                          onError(); // Gọi callback khi thất bại
-                        }
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
     );
   }
 
@@ -2087,35 +1976,20 @@ class _ConversationInformationScreenState
         Container(
           height: 10.0,
         ),
-        InkWell(
-          child: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Flexible(
-                    child: Text(
-                  name,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 20.0),
-                )),
-                // if (customerAccount?.data?.type == 'customer')
-                if (!widget.roomData.isGroup!)
-                  const Padding(
-                    padding: EdgeInsets.only(left: 10.0),
-                    child: Icon(
-                      Icons.edit_outlined,
-                      color: Colors.grey,
-                      size: 20.0,
-                    ),
-                  )
-              ],
-            ),
+        Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(
+                  child: Text(
+                name,
+                style: const TextStyle(
+                    fontWeight: FontWeight.bold, fontSize: 20.0),
+              )),
+            ],
           ),
-          onTap: () {
-            editName();
-          },
-        )
+        ),
       ],
     );
   }

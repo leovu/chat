@@ -303,6 +303,7 @@ class _InputState extends State<Input> {
       widget.onSendPressed(_partialText,
           repliedMessage: InheritedRepliedMessage.of(context).repliedMessage,
           isEdit: editContent);
+      editContent = null;
       _textController.clear();
     }
     setState(() {

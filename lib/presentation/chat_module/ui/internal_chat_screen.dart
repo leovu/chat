@@ -142,16 +142,18 @@ class _InternalChatScreenState extends ChatScreenBaseState<InternalChatScreen> {
         if (message is types.ImageMessage) {
           data?.room?.messages?.remove(value);
           messages.remove(message);
-        } else if (message is types.TextMessage) {
+        } else {
           value?.content = AppLocalizations.text(LangKey.messageRecalled);
-          int index = messages.indexOf(message);
-          final textMessage = types.TextMessage(
-              author: user,
-              createdAt: DateTime.now().millisecondsSinceEpoch,
-              id: message.id,
-              metadata: const {'recall': 1},
-              text: AppLocalizations.text(LangKey.messageRecalled));
-          messages[index] = textMessage;
+          int index = messages.indexWhere((e) => e.id == message.id);
+          if (index != -1) {
+            final textMessage = types.TextMessage(
+                author: user,
+                createdAt: DateTime.now().millisecondsSinceEpoch,
+                id: message.id,
+                metadata: const {'recall': 1},
+                text: AppLocalizations.text(LangKey.messageRecalled));
+            messages[index] = textMessage;
+          }
         }
       });
     }

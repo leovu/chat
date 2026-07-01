@@ -282,6 +282,9 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
           repliedMessage: isEdit.repliedMessage ?? ms.repliedMessage);
       int index = messages.indexOf(ms);
       messages[index] = textMessage;
+      if (data?.room?.pinMessage?.sId == ms.id) {
+        data?.room?.pinMessage?.content = textMessage.text;
+      }
       if (mounted) {
         setState(() {});
         int? idx = listIdMessages[ms.id]!;
@@ -1024,10 +1027,12 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
       if (rawMessages != null) {
         List<types.Message> values = [];
         for (var e in rawMessages) {
-          Map<String, dynamic> result =
-              e.toMessageJson(messageSeen: data?.room?.messageSeen);
           if (e.author?.sId != null && e.sId != null) {
-            values.add(types.Message.fromJson(result));
+            final result = Map<String, dynamic>.from(
+                e.toMessageJson(messageSeen: data?.room?.messageSeen));
+            try {
+              values.add(types.Message.fromJson(result));
+            } catch (_) {}
           }
         }
         if (mounted) {
@@ -1044,11 +1049,15 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
     }
     Map<String, dynamic> notificationData =
         json.decode(json.encode(cData)) as Map<String, dynamic>;
-    if (ChatConnection.roomId != null &&
-        ChatConnection.roomId != notificationData['room']['_id']) {
+    final eventRoomId = notificationData['room']?['_id'] as String?;
+    final eventMessageContent = notificationData['message']?['content'];
+    if (eventRoomId != null &&
+        eventMessageContent != null &&
+        ChatConnection.roomId != null &&
+        ChatConnection.roomId != eventRoomId) {
       ChatConnection.showNotification(
           NotificationService.buildTitle(notificationData),
-          checkTag(notificationData['message']['content'], null),
+          checkTag(eventMessageContent, null),
           notificationData,
           ChatConnection.appIcon,
           _notificationHandler);

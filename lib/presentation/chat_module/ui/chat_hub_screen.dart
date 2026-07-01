@@ -170,9 +170,7 @@ class _ChatHubScreenState extends ChatScreenBaseState<ChatHubScreen> {
                         AutoSizeText(
                           !widget.data.isGroup!
                               ? '${data?.room?.owner?.firstName ?? ''} ${data?.room?.owner?.lastName ?? ''}'
-                              : widget.data.title ??
-                                  data?.room?.roomName ??
-                                  '',
+                              : widget.data.title ?? data?.room?.roomName ?? '',
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
                           style: const TextStyle(
@@ -222,7 +220,8 @@ class _ChatHubScreenState extends ChatScreenBaseState<ChatHubScreen> {
           backgroundColor: Colors.transparent,
         );
       }
-      if (widget.data.owner?.picture == null || widget.data.owner?.picture == '') {
+      if (widget.data.owner?.picture == null ||
+          widget.data.owner?.picture == '') {
         if (widget.data.owner?.avatar?.isNotEmpty == true) {
           return CircleAvatar(
             radius: radius,
@@ -291,6 +290,7 @@ class _ChatHubScreenState extends ChatScreenBaseState<ChatHubScreen> {
   Widget buildTagArea() {
     if (tagByUser == null ||
         tagByUser?.data == null ||
+        !tagByUser!.data!.any((e) => e.isActive == true) ||
         widget.data.isGroup != false) {
       return const SizedBox.shrink();
     }

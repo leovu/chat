@@ -5,10 +5,10 @@ import 'package:chat/chat_ui/widgets/custom_message_generic.dart';
 import 'package:chat/chat_ui/widgets/custom_message_oa_list.dart';
 import 'package:chat/chat_ui/widgets/custom_message_template_card.dart';
 import 'package:chat/chat_ui/widgets/custom_message_template_video.dart';
+import 'package:chat/chat_ui/widgets/link_preview.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:chat/presentation/utils/parse_html.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:url_launcher/url_launcher.dart';
@@ -270,60 +270,12 @@ Widget buildImageUrlWidget(types.CustomMessage message, int messageWidth) {
   );
 }
 
-/// WIDGET CON: Hiển thị link
+/// WIDGET CON: Hiển thị link (kèm thumbnail/preview trang nếu có)
 Widget buildLinkWidget(types.CustomMessage message, int messageWidth) {
   final text = message.metadata?['text'] as String? ?? '';
   if (text.isEmpty) return const SizedBox.shrink();
 
-  final links = extractAllUrls(text);
-  final spans = <TextSpan>[];
-
-  if (links.isEmpty) {
-    spans.add(TextSpan(text: text));
-  } else {
-    int lastIndex = 0;
-    for (final match in links) {
-      final start = match.start;
-      final end = match.end;
-      if (start > lastIndex) {
-        spans.add(TextSpan(text: text.substring(lastIndex, start)));
-      }
-      final linkText = text.substring(start, end);
-      spans.add(
-        TextSpan(
-          text: linkText,
-          style: const TextStyle(
-            color: Colors.blue,
-            decoration: TextDecoration.underline,
-          ),
-          recognizer: TapGestureRecognizer()
-            ..onTap = () async {
-              var url = linkText;
-              if (!url.startsWith('http')) url = 'https://$url';
-              final uri = Uri.tryParse(url);
-              if (uri != null) {
-                await launchUrl(uri, mode: LaunchMode.externalApplication);
-              }
-            },
-        ),
-      );
-      lastIndex = end;
-    }
-    if (lastIndex < text.length) {
-      spans.add(TextSpan(text: text.substring(lastIndex)));
-    }
-  }
-
-  return Container(
-    padding: const EdgeInsets.all(10),
-    decoration: BoxDecoration(),
-    child: RichText(
-      text: TextSpan(
-        style: const TextStyle(color: Colors.black, fontSize: 15),
-        children: spans,
-      ),
-    ),
-  );
+  return PreviewLink(content: text, transparentBackground: true);
 }
 
 /// WIDGET CON: Hiển thị template html css
@@ -357,13 +309,4 @@ Widget buildCustomMessageWidget(types.CustomMessage message, int messageWidth) {
     videoUrl: videoUrl,
     // messageWidth: double.tryParse(messageWidth.toString()),
   );
-}
-
-List<RegExpMatch> extractAllUrls(String text) {
-  final urlPattern = RegExp(
-    r'((?:https?|ftp):\/\/[a-zA-Z0-9\-_~%+.:@#?&//=]+)',
-    caseSensitive: false,
-  );
-
-  return urlPattern.allMatches(text).toList();
 }
