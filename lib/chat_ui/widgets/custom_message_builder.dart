@@ -22,8 +22,12 @@ String _ensureFullUrl(String? url) {
   return '${HTTPConnection.domain}$url';
 }
 
-Widget customMessageBuilder(types.CustomMessage message,
-    {required int messageWidth}) {
+Widget customMessageBuilder(
+  types.CustomMessage message, {
+  required int messageWidth,
+  Map<String, types.PreviewData>? previewDataCache,
+  void Function(String url, types.PreviewData data)? onLinkPreviewFetched,
+}) {
   final customType = message.metadata?['custom_type'] as String?;
 
   switch (customType) {
@@ -52,7 +56,9 @@ Widget customMessageBuilder(types.CustomMessage message,
       return buildZpListWidget(message, messageWidth);
 
     case 'link':
-      return buildLinkWidget(message, messageWidth);
+      return buildLinkWidget(message, messageWidth,
+          previewDataCache: previewDataCache,
+          onLinkPreviewFetched: onLinkPreviewFetched);
 
     case 'template':
       return buildTemplateWidget(message, messageWidth);
@@ -271,11 +277,23 @@ Widget buildImageUrlWidget(types.CustomMessage message, int messageWidth) {
 }
 
 /// WIDGET CON: Hiển thị link (kèm thumbnail/preview trang nếu có)
-Widget buildLinkWidget(types.CustomMessage message, int messageWidth) {
+Widget buildLinkWidget(
+  types.CustomMessage message,
+  int messageWidth, {
+  Map<String, types.PreviewData>? previewDataCache,
+  void Function(String url, types.PreviewData data)? onLinkPreviewFetched,
+}) {
   final text = message.metadata?['text'] as String? ?? '';
   if (text.isEmpty) return const SizedBox.shrink();
 
-  return PreviewLink(content: text, transparentBackground: true);
+  final url = message.metadata?['url'] as String? ?? text;
+
+  return PreviewLink(
+    content: text,
+    transparentBackground: true,
+    previewData: previewDataCache?[url],
+    onPreviewDataFetched: (data) => onLinkPreviewFetched?.call(url, data),
+  );
 }
 
 /// WIDGET CON: Hiển thị template html css

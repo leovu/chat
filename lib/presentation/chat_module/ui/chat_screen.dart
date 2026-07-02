@@ -122,6 +122,7 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
   Owner? groupOwner1;
   Map<String, List<types.ImageMessage>> _imageGroups = {};
   Set<String> _hiddenImageIds = {};
+  final Map<String, types.PreviewData> _linkPreviewCache = {};
 
   // ── Abstract interface ─────────────────────────────────────────────────────
 
@@ -231,7 +232,7 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
 
   // ── Image grouping ─────────────────────────────────────────────────────────
 
-  void _groupConsecutiveImages() {
+  void groupConsecutiveImages() {
     _imageGroups.clear();
     _hiddenImageIds.clear();
 
@@ -282,6 +283,10 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
           repliedMessage: isEdit.repliedMessage ?? ms.repliedMessage);
       int index = messages.indexOf(ms);
       messages[index] = textMessage;
+      final rawMessage = data?.room?.messages
+          ?.cast<c.Messages?>()
+          .firstWhere((e) => e?.sId == ms.id, orElse: () => null);
+      rawMessage?.content = textMessage.text;
       if (data?.room?.pinMessage?.sId == ms.id) {
         data?.room?.pinMessage?.content = textMessage.text;
       }
@@ -309,7 +314,7 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
     }
 
     if (mounted) {
-      _groupConsecutiveImages();
+      groupConsecutiveImages();
       setState(() {});
     }
   }
@@ -507,7 +512,7 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
         } catch (_) {}
       }
       if (mounted) {
-        _groupConsecutiveImages();
+        groupConsecutiveImages();
         setState(() {});
       }
     });
@@ -702,8 +707,16 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
     }
   }
 
+  String? _extractLinkUrl(String text) {
+    final match = RegExp(r'(?:https?://)?\S+\.\S+\.\S+', caseSensitive: false)
+        .firstMatch(text);
+    return match?.group(0);
+  }
+
   void _handlePreviewDataFetched(
       types.TextMessage message, types.PreviewData previewData) {
+    final url = _extractLinkUrl(message.text);
+    if (url != null) _linkPreviewCache[url] = previewData;
     final index = messages.indexWhere((element) => element.id == message.id);
     final updatedMessage = (messages[index] as types.TextMessage)
         .copyWith(previewData: previewData);
@@ -762,7 +775,7 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
         } catch (_) {}
       }
       if (mounted) {
-        _groupConsecutiveImages();
+        groupConsecutiveImages();
         setState(() {});
       }
     });
@@ -984,6 +997,15 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
 
   // ── Load / refresh ─────────────────────────────────────────────────────────
 
+  types.Message _applyCachedPreviewData(types.Message message) {
+    if (message is types.TextMessage && message.previewData == null) {
+      final url = _extractLinkUrl(message.text);
+      final cached = url != null ? _linkPreviewCache[url] : null;
+      if (cached != null) return message.copyWith(previewData: cached);
+    }
+    return message;
+  }
+
   Future<void> loadMessages() async {
     ChatConnection.roomId = widget.data.sId!;
     data = await ChatConnection.joinRoom(widget.data.sId!);
@@ -999,12 +1021,13 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
             final result = Map<String, dynamic>.from(
                 e.toMessageJson(messageSeen: data?.room?.messageSeen));
             try {
-              values.add(types.Message.fromJson(result));
+              values
+                  .add(_applyCachedPreviewData(types.Message.fromJson(result)));
             } catch (_) {}
           }
         }
         messages = values;
-        _groupConsecutiveImages();
+        groupConsecutiveImages();
       }
     }
 
@@ -1031,14 +1054,15 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
             final result = Map<String, dynamic>.from(
                 e.toMessageJson(messageSeen: data?.room?.messageSeen));
             try {
-              values.add(types.Message.fromJson(result));
+              values
+                  .add(_applyCachedPreviewData(types.Message.fromJson(result)));
             } catch (_) {}
           }
         }
         if (mounted) {
           setState(() {
             messages = values;
-            _groupConsecutiveImages();
+            groupConsecutiveImages();
           });
         }
       }
@@ -1235,7 +1259,14 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
       avatar: chatAvatar,
       imageMessageBuilder: _buildImageMessageWidget,
       fileMessageBuilder: buildFileWidget,
-      customMessageBuilder: customMessageBuilder,
+      customMessageBuilder: (msg, {required messageWidth}) =>
+          customMessageBuilder(
+        msg,
+        messageWidth: messageWidth,
+        previewDataCache: _linkPreviewCache,
+        onLinkPreviewFetched: (url, previewData) =>
+            _linkPreviewCache[url] = previewData,
+      ),
       onStickerPressed: _onStickerPressed,
       showUserAvatars: true,
       showUserNames: true,

@@ -139,22 +139,18 @@ class _InternalChatScreenState extends ChatScreenBaseState<InternalChatScreen> {
     bool result = await ChatConnection.recall(value, data?.room);
     if (result) {
       setState(() {
-        if (message is types.ImageMessage) {
-          data?.room?.messages?.remove(value);
-          messages.remove(message);
-        } else {
-          value?.content = AppLocalizations.text(LangKey.messageRecalled);
-          int index = messages.indexWhere((e) => e.id == message.id);
-          if (index != -1) {
-            final textMessage = types.TextMessage(
-                author: user,
-                createdAt: DateTime.now().millisecondsSinceEpoch,
-                id: message.id,
-                metadata: const {'recall': 1},
-                text: AppLocalizations.text(LangKey.messageRecalled));
-            messages[index] = textMessage;
-          }
+        value?.content = AppLocalizations.text(LangKey.messageRecalled);
+        int index = messages.indexWhere((e) => e.id == message.id);
+        if (index != -1) {
+          final textMessage = types.TextMessage(
+              author: user,
+              createdAt: DateTime.now().millisecondsSinceEpoch,
+              id: message.id,
+              metadata: const {'recall': 1},
+              text: AppLocalizations.text(LangKey.messageRecalled));
+          messages[index] = textMessage;
         }
+        groupConsecutiveImages();
       });
     }
   }

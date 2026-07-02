@@ -42,15 +42,18 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
   UserZaloOAList? userZaloOAList;
   UserZaloOAList? userZaloOAListVisible;
   bool isInitScreen = true;
+  late final String? roomSource = widget.chatMessage.room?.source ??
+      widget.chatMessage.room?.channel?.source;
+  bool get _isZaloGroup =>
+      ChatConnection.isChatHub &&
+      (roomSource == 'zalo' || roomSource == 'zalo_personal');
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (mounted) {
-        ChatConnection.isChatHub
-            ? await _getContacts()
-            : await _getContactsChat();
+        _isZaloGroup ? await _getContacts() : await _getContactsChat();
       }
       isInitScreen = false;
       if (mounted) setState(() {});
@@ -59,7 +62,6 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final roomSource = widget.chatMessage.room?.source ?? widget.chatMessage.room?.channel?.source;
     // TODO: implement build
     return Container(
       color: Colors.white,
@@ -130,15 +132,15 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                               focusNode: _focusSearch,
                               controller: _controllerSearch,
                               onChanged: (val) {
-                                setState(() {
-                                  if (!ChatConnection.isChatHub) {
-                                    _getContactsVisibleChat();
-                                  } else if (roomSource == 'zalo') {
-                                    _getContactsVisibleZaloOA();
-                                  } else if (roomSource == 'zalo_personal') {
-                                    _getContactsVisible();
-                                  }
-                                });
+                                if (roomSource == 'zalo' &&
+                                    ChatConnection.isChatHub) {
+                                  setState(_getContactsVisibleZaloOA);
+                                } else if (roomSource == 'zalo_personal' &&
+                                    ChatConnection.isChatHub) {
+                                  setState(_getContactsVisible);
+                                } else {
+                                  _getContactsVisibleChat();
+                                }
                               },
                               decoration: InputDecoration.collapsed(
                                 hintText: AppLocalizations.text(LangKey.search),
@@ -159,7 +161,15 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                                 onTap: () {
                                   _controllerSearch.text = '';
                                   FocusManager.instance.primaryFocus?.unfocus();
-                                  _getContactsVisible();
+                                  if (roomSource == 'zalo' &&
+                                      ChatConnection.isChatHub) {
+                                    setState(_getContactsVisibleZaloOA);
+                                  } else if (roomSource == 'zalo_personal' &&
+                                      ChatConnection.isChatHub) {
+                                    setState(_getContactsVisible);
+                                  } else {
+                                    _getContactsVisibleChat();
+                                  }
                                 },
                               ),
                             )
@@ -169,46 +179,46 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                     )
                   ],
                 ),
-                 ChatConnection.isChatHub
-                    ? roomSource == 'zalo'
-                        ? Expanded(
-                            child: isInitScreen
-                                ? Center(
-                                    child: Platform.isAndroid
-                                        ? const CircularProgressIndicator()
-                                        : const CupertinoActivityIndicator())
-                                : userZaloOAListVisible != null
-                                    ? ListView.builder(
-                                        keyboardDismissBehavior:
-                                            ScrollViewKeyboardDismissBehavior
-                                                .onDrag,
-                                        itemCount: userZaloOAListVisible!
-                                                .users?.length ??
+                ChatConnection.isChatHub && roomSource == 'zalo'
+                    ? Expanded(
+                        child: isInitScreen
+                            ? Center(
+                                child: Platform.isAndroid
+                                    ? const CircularProgressIndicator()
+                                    : const CupertinoActivityIndicator())
+                            : userZaloOAListVisible != null
+                                ? ListView.builder(
+                                    keyboardDismissBehavior:
+                                        ScrollViewKeyboardDismissBehavior
+                                            .onDrag,
+                                    itemCount:
+                                        userZaloOAListVisible!.users?.length ??
                                             0,
-                                        itemBuilder: (BuildContext context,
-                                            int position) {
-                                          return InkWell(
-                                              onTap: () async {
-                                                userZaloOAListVisible!
-                                                        .users![position]
-                                                        .isSelected =
-                                                    !userZaloOAListVisible!
-                                                        .users![position]
-                                                        .isSelected;
+                                    itemBuilder:
+                                        (BuildContext context, int position) {
+                                      return InkWell(
+                                          onTap: () async {
+                                            userZaloOAListVisible!
+                                                    .users![position]
+                                                    .isSelected =
+                                                !userZaloOAListVisible!
+                                                    .users![position]
+                                                    .isSelected;
 
-                                                setState(() {});
-                                              },
-                                              child: _contactsZaloOA(
+                                            setState(() {});
+                                          },
+                                          child: _contactsZaloOA(
+                                              userZaloOAListVisible!
+                                                  .users![position],
+                                              position ==
                                                   userZaloOAListVisible!
-                                                      .users![position],
-                                                  position ==
-                                                      userZaloOAListVisible!
-                                                              .users!.length -
-                                                          1));
-                                        })
-                                    : Container(),
-                          )
-                        : Expanded(
+                                                          .users!.length -
+                                                      1));
+                                    })
+                                : Container(),
+                      )
+                    : ChatConnection.isChatHub && roomSource == 'zalo_personal'
+                        ? Expanded(
                             child: isInitScreen
                                 ? Center(
                                     child: Platform.isAndroid
@@ -254,52 +264,52 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                                         })
                                     : Container(),
                           )
-                    : Expanded(
-                        child: isInitScreen
-                            ? Center(
-                                child: Platform.isAndroid
-                                    ? const CircularProgressIndicator()
-                                    : const CupertinoActivityIndicator())
-                            : contactsListDataChatVisible != null
-                                ? ListView.builder(
-                                    keyboardDismissBehavior:
-                                        ScrollViewKeyboardDismissBehavior
-                                            .onDrag,
-                                    itemCount: contactsListDataChatVisible!
-                                            .users?.length ??
-                                        0,
-                                    itemBuilder:
-                                        (BuildContext context, int position) {
-                                      return InkWell(
-                                          onTap: () async {
-                                            setState(() {
-                                              if (contactsListDataChatVisible!
-                                                      .users![position]
-                                                      .isSelected !=
-                                                  null) {
-                                                contactsListDataChatVisible!
+                        : Expanded(
+                            child: isInitScreen
+                                ? Center(
+                                    child: Platform.isAndroid
+                                        ? const CircularProgressIndicator()
+                                        : const CupertinoActivityIndicator())
+                                : contactsListDataChatVisible != null
+                                    ? ListView.builder(
+                                        keyboardDismissBehavior:
+                                            ScrollViewKeyboardDismissBehavior
+                                                .onDrag,
+                                        itemCount: contactsListDataChatVisible!
+                                                .users?.length ??
+                                            0,
+                                        itemBuilder: (BuildContext context,
+                                            int position) {
+                                          return InkWell(
+                                              onTap: () async {
+                                                setState(() {
+                                                  if (contactsListDataChatVisible!
+                                                          .users![position]
+                                                          .isSelected !=
+                                                      null) {
+                                                    contactsListDataChatVisible!
+                                                            .users![position]
+                                                            .isSelected =
+                                                        !contactsListDataChatVisible!
+                                                            .users![position]
+                                                            .isSelected!;
+                                                  } else {
+                                                    contactsListDataChatVisible!
                                                         .users![position]
-                                                        .isSelected =
-                                                    !contactsListDataChatVisible!
-                                                        .users![position]
-                                                        .isSelected!;
-                                              } else {
-                                                contactsListDataChatVisible!
-                                                    .users![position]
-                                                    .isSelected = true;
-                                              }
-                                            });
-                                          },
-                                          child: _contactChat(
-                                              contactsListDataChatVisible!
-                                                  .users![position],
-                                              position ==
+                                                        .isSelected = true;
+                                                  }
+                                                });
+                                              },
+                                              child: _contactChat(
                                                   contactsListDataChatVisible!
-                                                          .users!.length -
-                                                      1));
-                                    })
-                                : Container(),
-                      ),
+                                                      .users![position],
+                                                  position ==
+                                                      contactsListDataChatVisible!
+                                                              .users!.length -
+                                                          1));
+                                        })
+                                    : Container(),
+                          ),
                 ((contactsListVisible != null &&
                             isSelectedMember(contactsListVisible?.friends)) ||
                         (contactsListDataChatVisible != null &&
@@ -316,12 +326,12 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                           child: MaterialButton(
                             color: const Color(0xFF5686E1),
                             onPressed: () async {
-                              if (ChatConnection.isChatHub) {
-                                if (roomSource == 'zalo') {
-                                  addMemberZaloOA();
-                                } else if (roomSource == 'zalo_personal') {
-                                  addMember();
-                                }
+                              if (ChatConnection.isChatHub &&
+                                  roomSource == 'zalo') {
+                                addMemberZaloOA();
+                              } else if (ChatConnection.isChatHub &&
+                                  roomSource == 'zalo_personal') {
+                                addMember();
                               } else {
                                 addMemberChat();
                               }
@@ -359,14 +369,14 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
         }
       } catch (_) {}
     });
-    _getContactsVisibleChat();
+    await _getContactsVisibleChat();
     setState(() {});
   }
 
   _getContacts() async {
     try {
-      final source = widget.chatMessage.room?.source ?? widget.chatMessage.room?.channel?.source;
-      print("ADD_MEMBER_GROUP_SCREEN: source = $source, chanel_id = ${widget.chanel_id}");
+      final source = widget.chatMessage.room?.source ??
+          widget.chatMessage.room?.channel?.source;
       if (source == 'zalo') {
         userZaloOAList = await ChatConnection.getListUserZaloOA(
             source: widget.chatMessage.room?.source ?? 'zalo',
@@ -375,11 +385,9 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
       } else if (source == 'zalo_personal') {
         contactsListData =
             await ChatConnection.getListFriend(widget.chanel_id ?? '');
-        print("ADD_MEMBER_GROUP_SCREEN: contactsListData loaded = ${contactsListData != null}, friends count = ${contactsListData?.friends?.length}");
-        _getContactsVisible();
+              _getContactsVisible();
       }
     } catch (e, s) {
-      print("ERROR in _getContacts: $e");
       print(s);
     }
 
@@ -393,9 +401,7 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
       userZaloOAListVisible = r.UserZaloOAList();
       userZaloOAListVisible?.users = userZaloOAList?.users?.where((element) {
         try {
-          if (('${element.username} ' //${element.lastName}'
-                  .toLowerCase()
-                  .removeAccents())
+          if (('${element.fullName} '.toLowerCase().removeAccents())
               .contains(val)) {
             return true;
           }
@@ -415,35 +421,25 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
     }
   }
 
-  _getContactsVisibleChat() {
-    String val = _controllerSearch.value.text.toLowerCase().removeAccents();
+  Future<void> _getContactsVisibleChat() async {
+    final val = _controllerSearch.value.text.trim();
 
-    if (val != '') {
-      contactsListDataChatVisible = Contacts();
-      contactsListDataChatVisible?.users =
-          contactsListDataChat?.users?.where((element) {
-        try {
-          if (('${element.firstName} ${element.lastName}'
-                  .toLowerCase()
-                  .removeAccents())
-              .contains(val)) {
-            return true;
-          }
-          return false;
-        } catch (e) {
-          return false;
-        }
-      }).toList();
-    } else {
-      contactsListDataChatVisible = Contacts();
-      contactsListDataChatVisible?.limit = contactsListDataChat?.limit;
-      contactsListDataChatVisible?.search = contactsListDataChat?.search;
-      try {
-        contactsListDataChatVisible?.users = <r.People>[
-          ...contactsListDataChat!.users!.toList()
-        ];
-      } catch (_) {}
+    if (val.isNotEmpty) {
+      final result = await ChatConnection.contactsSearch(val);
+      contactsListDataChatVisible = result ?? Contacts();
+      if (mounted) setState(() {});
+      return;
     }
+
+    contactsListDataChatVisible = Contacts();
+    contactsListDataChatVisible?.limit = contactsListDataChat?.limit;
+    contactsListDataChatVisible?.search = contactsListDataChat?.search;
+    try {
+      contactsListDataChatVisible?.users = <r.People>[
+        ...contactsListDataChat!.users!.toList()
+      ];
+    } catch (_) {}
+    if (mounted) setState(() {});
   }
 
   _getContactsVisible() {
@@ -454,9 +450,7 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
       contactsListVisible?.friends =
           contactsListData?.friends?.where((element) {
         try {
-          if (('${element.username} ' //${element.lastName}'
-                  .toLowerCase()
-                  .removeAccents())
+          if (('${element.displayName} '.toLowerCase().removeAccents())
               .contains(val)) {
             return true;
           }
@@ -507,14 +501,15 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
         people,
         widget.chatMessage.room?.channel?.id ?? '',
       );
-      if (result!.isSuccess) {
+      if (result != null && result.isSuccess) {
         Navigator.of(context).pop();
       } else {
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
             title: Text(AppLocalizations.text(LangKey.warning)),
-            content: Text(result.message),
+            content: Text(result?.message ??
+                AppLocalizations.text(LangKey.addMemberFailed)),
             actions: [
               ElevatedButton(
                   onPressed: () {

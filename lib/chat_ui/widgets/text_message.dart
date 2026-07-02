@@ -1,11 +1,9 @@
+import 'package:chat/chat_ui/widgets/link_preview.dart';
 import 'package:chat/chat_ui/widgets/replied_message.dart';
 import 'package:chat/localization/check_tag.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-import 'package:flutter_link_previewer/flutter_link_previewer.dart'
-    show LinkPreview;
-import 'package:url_launcher/url_launcher.dart';
 import '../../data_model/room.dart' as r;
 import '../models/emoji_enlargement_behavior.dart';
 import '../util.dart';
@@ -70,7 +68,6 @@ class TextMessage extends StatelessWidget {
 
   Widget _linkPreview(
     types.User user,
-    double width,
     BuildContext context,
   ) {
     final bodyLinkTextStyle = user.id == message.author.id
@@ -96,31 +93,25 @@ class TextMessage extends StatelessWidget {
         InheritedChatTheme.of(context).theme.userAvatarNameColors);
     final name = getUserName(message.author);
 
-    return LinkPreview(
-      enableAnimation: true,
-      header: showName ? name : '',
+    return PreviewLink(
+      transparentBackground: true,
+      header: showName ? name : null,
       headerStyle: InheritedChatTheme.of(context)
           .theme
           .userNameTextStyle
           .copyWith(color: color),
       linkStyle: bodyLinkTextStyle ?? bodyTextStyle,
-      metadataTextStyle: linkDescriptionTextStyle,
-      metadataTitleStyle: linkTitleTextStyle,
-      onPreviewDataFetched: _onPreviewDataFetched,
-      padding: EdgeInsets.symmetric(
-        horizontal:
-            InheritedChatTheme.of(context).theme.messageInsetsHorizontal,
-        vertical: InheritedChatTheme.of(context).theme.messageInsetsVertical,
-      ),
+      descriptionStyle: linkDescriptionTextStyle,
+      titleStyle: linkTitleTextStyle,
+      onPreviewDataFetched: (previewData) => _onPreviewDataFetched(previewData),
       previewData: message.previewData,
-      text: checkTag(message.text, people),
+      content: checkTag(message.text, people),
       textWidget: Text.rich(
         TextSpan(
           children: contentMessages(message.text, user, context, color, false),
         ),
       ),
       textStyle: bodyTextStyle,
-      width: width,
     );
   }
 
@@ -240,7 +231,7 @@ class TextMessage extends StatelessWidget {
                   text: element,
                   recognizer: TapGestureRecognizer()
                     ..onTap = () {
-                      launchUrl(Uri.parse(element));
+                      openLinkSafely(element);
                     },
                   style: const TextStyle(
                     color: Color(0xff0F2BE6),
@@ -269,9 +260,7 @@ class TextMessage extends StatelessWidget {
     if (message.repliedMessage != null) {
       _enlargeEmojis = false;
     }
-    final _theme = InheritedChatTheme.of(context).theme;
     final _user = InheritedUser.of(context).user;
-    final _width = MediaQuery.of(context).size.width;
 
     if (usePreviewData && onPreviewDataFetched != null) {
       const regexLink = r'(?:https?://)?\S+\.\S+\.\S+';
@@ -279,7 +268,7 @@ class TextMessage extends StatelessWidget {
       final matches = urlRegexp.allMatches(message.text);
 
       if (matches.isNotEmpty) {
-        return _linkPreview(_user, _width, context);
+        return _linkPreview(_user, context);
       }
     }
 
