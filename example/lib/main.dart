@@ -157,14 +157,13 @@ class _MyAppState extends State<MyApp> {
                       'Waosupport@2025',
                       'assets/icon-app.png',
                       const Locale(LangKey.langVi, 'VI'),
-                      domain: 'https://chat.epoints.vn/',
+                      // domain: 'https://chat.epoints.vn/',
 
-                      // domain: 'https://chathub.epoints.vn/',
+                      domain: 'https://chathub.epoints.vn/',
                       brandCode: 'sale',
-                      isChatHub: false,
-                      token:
-                          "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3dvcmtzcGFjZS5lcG9pbnRzLnZuL3YyL3VzZXIvbG9naW4iLCJpYXQiOjE3ODI5NjMzOTksImV4cCI6MTc4Mjk4NDk5OSwibmJmIjoxNzgyOTYzMzk5LCJqdGkiOiJoVkd4UXZqUUl6YnVNYTMwIiwic3ViIjoxLCJwcnYiOiJhMGYzZTc0YmVkZjUxMmM0Nzc4Mjk3ZGU1ZjkyMDg2ZGFkMzljYTlmIiwic2lkIjoiYWRtaW5AcGlvYXBwcy52biIsImJyYW5kX2NvZGUiOiJzYWxlIn0.v8Fc7xemh4HeaRecTjoF5G5-njcyGgv1zPdU-NlF38U"
-                      // token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyZmQwMjA0ZDcwMzNlMjRkYTc5YzYwNiIsInVpZCI6ODgsInNpZCI6ImFkbWluIiwiZW1haWwiOiJ2dUBwaW9hcHBzLnZuIiwibGV2ZWwiOiJyb290IiwiZmlyc3ROYW1lIjoiQWRtaW4iLCJsYXN0TmFtZSI6IlVzZXIiLCJ1c2VybmFtZSI6ImFkbWluIiwiYnJhbmRfY29kZSI6InNhbGUiLCJpYXQiOjE3ODI5NjU5ODksImV4cCI6MTc4ODE0OTk4OX0.UzR-NVDP6lwtzq6hvQoLCvO39M94rRGMGjDdvlUO8CM'
+                      isChatHub: true,
+                      // token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3dvcmtzcGFjZS5lcG9pbnRzLnZuL3YyL3VzZXIvbG9naW4iLCJpYXQiOjE3ODI5NjMzOTksImV4cCI6MTc4Mjk4NDk5OSwibmJmIjoxNzgyOTYzMzk5LCJqdGkiOiJoVkd4UXZqUUl6YnVNYTMwIiwic3ViIjoxLCJwcnYiOiJhMGYzZTc0YmVkZjUxMmM0Nzc4Mjk3ZGU1ZjkyMDg2ZGFkMzljYTlmIiwic2lkIjoiYWRtaW5AcGlvYXBwcy52biIsImJyYW5kX2NvZGUiOiJzYWxlIn0.v8Fc7xemh4HeaRecTjoF5G5-njcyGgv1zPdU-NlF38U"
+                      token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyZmQwMjA0ZDcwMzNlMjRkYTc5YzYwNiIsInVpZCI6MSwic2lkIjoiYWRtaW4iLCJlbWFpbCI6InZ1QHBpb2FwcHMudm4iLCJsZXZlbCI6InJvb3QiLCJmaXJzdE5hbWUiOiJBZG1pbiIsImxhc3ROYW1lIjoiVXNlciIsInVzZXJuYW1lIjoiYWRtaW4iLCJicmFuZF9jb2RlIjoic2FsZSIsImlhdCI6MTc4MzM5MjU3NCwiZXhwIjoxNzg4NTc2NTc0fQ.BqFYbytW0uWatRR0L-lNXKbBtB6i2l8alu6X-wxxMaM'
 
                       // roomId: '632a88f7dd01b42c37330585'
                       );

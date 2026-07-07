@@ -34,6 +34,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../chat_ui/widgets/custom_message_builder.dart';
+import '../../../chat_ui/widgets/inherited_chat_theme.dart';
 import '../../../data_model/room.dart';
 
 // ── Routing widget (public API unchanged) ────────────────────────────────────
@@ -793,7 +794,70 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
     return _buildSingleImage(message, messageWidth);
   }
 
+  bool _isReadableCaption(String text) {
+    if (text.trim().isEmpty) return false;
+    if (RegExp(r'^[a-zA-Z0-9]{30,}$').hasMatch(text)) return false;
+    final letters = RegExp(r'[a-zA-ZÀ-ỹ ]').allMatches(text).length;
+    return letters / text.length > 0.4;
+  }
+
+  Widget? _buildImageCaption(String? content, bool isMe) {
+    if (content == null || !_isReadableCaption(content)) return null;
+    return Builder(
+      builder: (context) {
+        final theme = InheritedChatTheme.of(context).theme;
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(8, 4, 8, 8),
+          child: Text(
+            content,
+            style: isMe
+                ? theme.sentMessageBodyTextStyle
+                : theme.receivedMessageBodyTextStyle,
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _wrapImageWithCaptionBackground(
+      {required bool isMe,
+      required Widget imageWidget,
+      required Widget caption}) {
+    return Builder(
+      builder: (context) {
+        final theme = InheritedChatTheme.of(context).theme;
+        return Container(
+          decoration: BoxDecoration(
+            color: isMe ? theme.primaryColor : theme.secondaryColor,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(4),
+                child: imageWidget,
+              ),
+              caption,
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildSingleImage(types.ImageMessage message, int messageWidth) {
+    final isMe = message.author.id == user.id;
+    final caption =
+        _buildImageCaption(message.metadata?['content'] as String?, isMe);
+    final imageWidget = _buildSingleImageWidget(message, messageWidth);
+    if (caption == null) return imageWidget;
+    return _wrapImageWithCaptionBackground(
+        isMe: isMe, imageWidget: imageWidget, caption: caption);
+  }
+
+  Widget _buildSingleImageWidget(types.ImageMessage message, int messageWidth) {
     final isLocalFile = !message.uri.startsWith('http://') &&
         !message.uri.startsWith('https://');
 
@@ -865,8 +929,13 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
       imageSize = (maxWidth - spacing * 2) / 3;
     }
     final imageUrls = images.map((img) => img.uri).toList();
+    final caption = _buildImageCaption(
+        images.map((img) => img.metadata?['content'] as String?).firstWhere(
+            (c) => c != null && _isReadableCaption(c),
+            orElse: () => null),
+        images.first.author.id == user.id);
 
-    return Container(
+    final grid = Container(
       constraints: BoxConstraints(maxWidth: maxWidth),
       child: Wrap(
         spacing: spacing,
@@ -924,6 +993,12 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
         }).toList(),
       ),
     );
+
+    if (caption == null) return grid;
+    return _wrapImageWithCaptionBackground(
+        isMe: images.first.author.id == user.id,
+        imageWidget: grid,
+        caption: caption);
   }
 
   // ── Message send handlers ──────────────────────────────────────────────────
