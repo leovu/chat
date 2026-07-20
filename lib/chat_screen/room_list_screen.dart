@@ -73,6 +73,19 @@ class _RoomListScreenState extends State<RoomListScreen>
   Timer? _debounce;
   Room? roomListSearch;
 
+  // Đánh dấu phòng đã xem cục bộ: roomId -> id tin nhắn cuối lúc mở phòng.
+  // Sống sót qua các lần _getRooms; tự hết hiệu lực khi lastMessage đổi (có tin mới).
+  final Map<String, String?> _seenRoomLastMsg = {};
+
+  bool _isRoomSeen(Rooms data) {
+    if (!_seenRoomLastMsg.containsKey(data.sId)) return false;
+    return _seenRoomLastMsg[data.sId] == data.lastMessage?.sId;
+  }
+
+  String _unreadCount(Rooms data) => _isRoomSeen(data)
+      ? '0'
+      : findUnread(data.messagesReceived, data.messageUnSeen);
+
   @override
   void initState() {
     super.initState();
@@ -268,7 +281,8 @@ class _RoomListScreenState extends State<RoomListScreen>
                             },
                             child: const SizedBox(
                                 width: 30.0,
-                                child: Icon(Icons.arrow_back_ios, color: Colors.black)),
+                                child: Icon(Icons.arrow_back_ios,
+                                    color: Colors.black)),
                           ),
                         ],
                       ),
@@ -392,7 +406,8 @@ class _RoomListScreenState extends State<RoomListScreen>
                                 Widget body;
                                 if (mode == LoadStatus.failed) {
                                   body = const Text(LangKey.load_more_failed);
-                                } else if (mode == LoadStatus.noMore || mode == LoadStatus.idle) {
+                                } else if (mode == LoadStatus.noMore ||
+                                    mode == LoadStatus.idle) {
                                   body = const SizedBox.shrink();
                                 } else {
                                   body = Platform.isAndroid
@@ -453,9 +468,9 @@ class _RoomListScreenState extends State<RoomListScreen>
           onTap: () async {
             if (ChatConnection.isChatHub) {
               ChatbotService()
-                  .setRoomId(roomListVisible?.rooms?[position].sId??'');
+                  .setRoomId(roomListVisible?.rooms?[position].sId ?? '');
               ChatbotService()
-                  .setStatus(roomListVisible?.rooms?[position].enable_bot??0);
+                  .setStatus(roomListVisible?.rooms?[position].enable_bot ?? 0);
             }
             final groupOwner = extractOwner(roomListVisible!.rooms![position]);
             await Navigator.of(context, rootNavigator: true).push(
@@ -475,7 +490,20 @@ class _RoomListScreenState extends State<RoomListScreen>
                       ),
                   settings: const RouteSettings(name: 'chat_screen')),
             );
-            // _getRooms();
+            final seenRoomId = roomListVisible?.rooms?[position].sId;
+            // Nạp lại danh sách để lấy tin nhắn mới nhất đến trong lúc ở màn chat
+            // (socket bị màn chat chiếm handler nên danh sách không nhận realtime).
+            await _getRooms();
+            // Đánh dấu phòng vừa xem theo tin nhắn cuối MỚI NHẤT sau khi nạp lại,
+            // để badge chưa xem không hiện lại dù server trả về trạng thái cũ.
+            if (seenRoomId != null) {
+              try {
+                final refreshed =
+                    roomListData?.rooms?.firstWhere((e) => e.sId == seenRoomId);
+                _seenRoomLastMsg[seenRoomId] = refreshed?.lastMessage?.sId;
+              } catch (_) {}
+            }
+            if (mounted) setState(() {});
           },
           child: Slidable(
               enabled: !ChatConnection.isChatHub,
@@ -846,10 +874,7 @@ class _RoomListScreenState extends State<RoomListScreen>
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
                                 style: TextStyle(
-                                    fontWeight: findUnread(
-                                                data.messagesReceived,
-                                                data.messageUnSeen) !=
-                                            '0'
+                                    fontWeight: _unreadCount(data) != '0'
                                         ? FontWeight.bold
                                         : FontWeight.normal),
                               ),
@@ -883,14 +908,11 @@ class _RoomListScreenState extends State<RoomListScreen>
                                 return Container();
                               },
                             )),
-                            if (findUnread(data.messagesReceived,
-                                    data.messageUnSeen) !=
-                                '0')
+                            if (_unreadCount(data) != '0')
                               CircleAvatar(
                                 radius: 18.0,
                                 child: Text(
-                                  findUnread(data.messagesReceived,
-                                      data.messageUnSeen),
+                                  _unreadCount(data),
                                   style: const TextStyle(
                                       color: Colors.white, fontSize: 12),
                                 ),
@@ -953,7 +975,8 @@ class _RoomListScreenState extends State<RoomListScreen>
                                     )
                                   : CircleAvatar(
                                       radius: 25.0,
-                                      backgroundColor: getAvatarColor(data.owner?.sId),
+                                      backgroundColor:
+                                          getAvatarColor(data.owner?.sId),
                                       child: Text(
                                         data.owner!.getAvatarName(),
                                         style: const TextStyle(
@@ -974,7 +997,8 @@ class _RoomListScreenState extends State<RoomListScreen>
                                     )
                                   : CircleAvatar(
                                       radius: 25.0,
-                                      backgroundColor: getAvatarColor(data.owner?.sId),
+                                      backgroundColor:
+                                          getAvatarColor(data.owner?.sId),
                                       child: Text(
                                         data.owner!.getAvatarName(),
                                         style: const TextStyle(
@@ -1049,10 +1073,7 @@ class _RoomListScreenState extends State<RoomListScreen>
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
                                 style: TextStyle(
-                                    fontWeight: findUnread(
-                                                data.messagesReceived,
-                                                data.messageUnSeen) !=
-                                            '0'
+                                    fontWeight: _unreadCount(data) != '0'
                                         ? FontWeight.bold
                                         : FontWeight.normal),
                               ),
@@ -1086,14 +1107,11 @@ class _RoomListScreenState extends State<RoomListScreen>
                                 return Container();
                               },
                             )),
-                            if (findUnread(data.messagesReceived,
-                                    data.messageUnSeen) !=
-                                '0')
+                            if (_unreadCount(data) != '0')
                               CircleAvatar(
                                 radius: 18.0,
                                 child: Text(
-                                  findUnread(data.messagesReceived,
-                                      data.messageUnSeen),
+                                  _unreadCount(data),
                                   style: const TextStyle(
                                       color: Colors.white, fontSize: 12),
                                 ),

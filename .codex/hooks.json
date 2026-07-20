@@ -1,0 +1,23 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash '/Users/mwang/WAO/Chat/chat_matthew/.codex/hooks/dart-format.sh'"
+          },
+          {
+            "type": "command",
+            "command": "bash '/Users/mwang/WAO/Chat/chat_matthew/.codex/hooks/flutter-analyze.sh'"
+          },
+          {
+            "type": "command",
+            "command": "bash '/Users/mwang/WAO/Chat/chat_matthew/.codex/hooks/flutter-test.sh'"
+          }
+        ]
+      }
+    ]
+  }
+}

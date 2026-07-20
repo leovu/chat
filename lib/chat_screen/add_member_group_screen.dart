@@ -132,7 +132,7 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                               controller: _controllerSearch,
                               onChanged: (_) {
                                 setState(() {
-                                  _getContactsVisible();
+                                  _applySearch();
                                 });
                               },
                               decoration: InputDecoration.collapsed(
@@ -154,7 +154,9 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                                 onTap: () {
                                   _controllerSearch.text = '';
                                   FocusManager.instance.primaryFocus?.unfocus();
-                                  _getContactsVisible();
+                                  setState(() {
+                                    _applySearch();
+                                  });
                                 },
                               ),
                             )
@@ -312,7 +314,8 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                             color: const Color(0xFF5686E1),
                             onPressed: () async {
                               ChatConnection.isChatHub
-                                  ? widget.chatMessage.room?.channel?.source == 'zalo'
+                                  ? widget.chatMessage.room?.channel?.source ==
+                                          'zalo'
                                       ? addMemberZaloOA()
                                       : addMember()
                                   : addMemberChat();
@@ -369,89 +372,82 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
     setState(() {});
   }
 
+  // Gọi đúng hàm lọc theo loại danh sách đang hiển thị.
+  void _applySearch() {
+    if (ChatConnection.isChatHub) {
+      if (widget.chatMessage.room?.channel?.source == 'zalo') {
+        _getContactsVisibleZaloOA();
+      } else {
+        _getContactsVisible();
+      }
+    } else {
+      _getContactsVisibleChat();
+    }
+  }
+
   _getContactsVisibleZaloOA() {
     String val = _controllerSearch.value.text.toLowerCase().removeAccents();
+    final source = userZaloOAList?.users ?? <UserZaloOA>[];
+    final visible = r.UserZaloOAList();
     if (val != '') {
-      userZaloOAListVisible?.users =
-          userZaloOAListVisible!.users?.where((element) {
+      visible.users = source.where((element) {
         try {
-          if (('${element.username} ' //${element.lastName}'
-                  .toLowerCase()
-                  .removeAccents())
-              .contains(val)) {
-            return true;
-          }
-          return false;
-        } catch (e) {
+          return ('${element.fullName} ${element.username}')
+              .toLowerCase()
+              .removeAccents()
+              .contains(val);
+        } catch (_) {
           return false;
         }
       }).toList();
     } else {
-      userZaloOAListVisible = r.UserZaloOAList();
-      userZaloOAListVisible = userZaloOAList;
-      try {
-        userZaloOAListVisible?.users = <UserZaloOA>[
-          ...userZaloOAListVisible!.users!.toList()
-        ];
-      } catch (_) {}
+      visible.users = <UserZaloOA>[...source];
     }
+    userZaloOAListVisible = visible;
   }
 
   _getContactsVisibleChat() {
     String val = _controllerSearch.value.text.toLowerCase().removeAccents();
+    final source = contactsListDataChat?.users ?? <r.People>[];
+    final visible = Contacts();
+    visible.limit = contactsListDataChat?.limit;
+    visible.search = contactsListDataChat?.search;
     if (val != '') {
-      contactsListDataChatVisible!.users =
-          contactsListDataChatVisible!.users!.where((element) {
+      visible.users = source.where((element) {
         try {
-          if (('${element.firstName} ${element.lastName}'
-                  .toLowerCase()
-                  .removeAccents())
-              .contains(val)) {
-            return true;
-          }
-          return false;
-        } catch (e) {
+          return ('${element.firstName} ${element.lastName} ${element.username}')
+              .toLowerCase()
+              .removeAccents()
+              .contains(val);
+        } catch (_) {
           return false;
         }
       }).toList();
     } else {
-      contactsListDataChatVisible = Contacts();
-      contactsListDataChatVisible?.limit = contactsListDataChat?.limit;
-      contactsListDataChatVisible?.search = contactsListDataChat?.search;
-      try {
-        contactsListDataChatVisible?.users = <r.People>[
-          ...contactsListDataChat!.users!.toList()
-        ];
-      } catch (_) {}
+      visible.users = <r.People>[...source];
     }
+    contactsListDataChatVisible = visible;
   }
 
   _getContactsVisible() {
     String val = _controllerSearch.value.text.toLowerCase().removeAccents();
+    final source = contactsListData?.friends ?? <FriendModel>[];
+    final visible = FriendListResponse();
     if (val != '') {
-      contactsListVisible?.friends =
-          contactsListVisible!.friends?.where((element) {
+      visible.friends = source.where((element) {
         try {
-          if (('${element.username} ' //${element.lastName}'
-                  .toLowerCase()
-                  .removeAccents())
-              .contains(val)) {
-            return true;
-          }
-          return false;
-        } catch (e) {
+          return ('${element.displayName} ${element.username}')
+              .toLowerCase()
+              .removeAccents()
+              .contains(val);
+        } catch (_) {
           return false;
         }
       }).toList();
     } else {
-      contactsListVisible = FriendListResponse();
-      contactsListVisible = contactsListData;
-      try {
-        contactsListVisible?.friends = <FriendModel>[
-          ...contactsListData!.friends!.toList()
-        ];
-      } catch (_) {}
+      visible.friends = <FriendModel>[...source];
     }
+    contactsListVisible = visible;
   }
 
   void addMemberZaloOA() async {
@@ -483,7 +479,7 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
       final result = await ChatConnection.inviteMember(
         widget.chatMessage.room?.oa_group_id,
         people,
-        widget.chatMessage.room?.channel?.id??'',
+        widget.chatMessage.room?.channel?.id ?? '',
       );
       if (result!.isSuccess) {
         Navigator.of(context).pop();
@@ -693,8 +689,8 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
         ),
       );
     } else {
-      bool result =
-          await ChatConnection.addMemberGroup(people, widget.chatMessage.room?.sId??'');
+      bool result = await ChatConnection.addMemberGroup(
+          people, widget.chatMessage.room?.sId ?? '');
       if (result) {
         try {
           contactsListDataChat?.users?.forEach((element) {
@@ -772,9 +768,9 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                           )
                         : CircleAvatar(
                             radius: 25.0,
-                            backgroundImage:
-                                CachedNetworkImageProvider(data.avatar,
-                                    headers: {
+                            backgroundImage: CachedNetworkImageProvider(
+                                data.avatar,
+                                headers: {
                                   'brand-code': ChatConnection.brandCode!
                                 }),
                             backgroundColor: Colors.transparent,

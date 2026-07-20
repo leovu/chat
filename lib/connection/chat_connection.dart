@@ -172,10 +172,8 @@ class ChatConnection {
 
     json['limit'] = 15;
     if (tagIds != null && tagIds.isNotEmpty) {
-      final parsedTagIds = tagIds
-          .where((e) => e != null) 
-          .map((e) => e!) 
-          .toList();
+      final parsedTagIds =
+          tagIds.where((e) => e != null).map((e) => e!).toList();
 
       if (parsedTagIds.isNotEmpty) {
         json['tag_ids'] = parsedTagIds;
@@ -274,7 +272,6 @@ class ChatConnection {
     }
     return null;
   }
-
 
   static Future<bool> autoUpdateChatSeenWhenJoinRoom(String id) async {
     ResponseData responseData =
@@ -421,40 +418,85 @@ class ChatConnection {
 
     final targetIndex = index != -1 ? index : listMessage.length;
 
-    final messageJson = responseData.data['data']?['message'];
+    // Non-ChatHub trả về data['message']; ChatHub trả về data['data']['message'].
+    dynamic messageJson;
+    if (ChatConnection.isChatHub) {
+      final inner = responseData.data['data'];
+      messageJson = inner is Map ? inner['message'] : null;
+    } else {
+      messageJson = responseData.data['message'];
+    }
     if (messageJson == null) return null;
 
     final valueResponse = c.Messages.fromJson(messageJson);
 
     final oldMessage = index != -1 ? listMessage[index] : val;
-    listMessage.length <= targetIndex
-        ? listMessage.add(types.TextMessage(
-            author: oldMessage.author,
-            createdAt: oldMessage.createdAt,
-            id: valueResponse.sId ?? 'default-id',
-            text: (oldMessage as types.TextMessage).text,
-            repliedMessage: oldMessage.repliedMessage,
-            status:
-                (responseData.data['error'] == 0) ? null : types.Status.error,
-            metadata: responseData.data['message'] != null
-                ? {'error_message': responseData.data['message']}
-                : null,
-          ))
-        : listMessage[targetIndex] = types.TextMessage(
-            author: oldMessage.author,
-            createdAt: oldMessage.createdAt,
-            id: valueResponse.sId ?? 'default-id',
-            text: (oldMessage as types.TextMessage).text,
-            repliedMessage: oldMessage.repliedMessage,
-            status:
-                (responseData.data['error'] == 0) ? null : types.Status.error,
-            metadata: responseData.data['message'] != null
-                ? {'error_message': responseData.data['message']}
-                : null,
-          );
+    // Đến đây là gửi thành công; chỉ báo lỗi khi BE trả error == 1
+    // (non-ChatHub không có key 'error' nên không hiện icon chấm than thừa).
+    final bool isErr = responseData.data['error'] == 1;
 
-    // Thêm message vào room
-    data?.room?.messages?.insert(0, valueResponse);
+    // Dựng message hiển thị từ chính dữ liệu server trả về (valueResponse) để
+    // render đúng loại (link/custom/text...) ngay khi gửi, giống lúc tải lại.
+    Map<String, dynamic> result;
+    try {
+      result = valueResponse.toMessageJson(roomOwner: data?.room?.owner);
+    } catch (_) {
+      result = <String, dynamic>{};
+    }
+    result['id'] = valueResponse.sId ?? 'default-id';
+    result['createdAt'] ??= oldMessage.createdAt;
+    if (result['author'] == null) {
+      final a = oldMessage.author;
+      result['author'] = {
+        'id': a.id,
+        'firstName': a.firstName,
+        'lastName': a.lastName,
+        'imageUrl': a.imageUrl,
+      };
+    }
+    // Giữ nội dung/replied cục bộ nếu server không trả (fallback về text).
+    if ((result['type'] == null || result['type'] == 'text') &&
+        (result['text'] == null || '${result['text']}'.isEmpty) &&
+        oldMessage is types.TextMessage) {
+      result['type'] = 'text';
+      result['text'] = oldMessage.text;
+    }
+    if (isErr) {
+      result['status'] = 'error';
+      if (responseData.data['message'] is String) {
+        result['metadata'] = {
+          ...((result['metadata'] as Map?)?.cast<String, dynamic>() ?? {}),
+          'error_message': responseData.data['message'],
+        };
+      }
+    }
+
+    types.Message newMessage;
+    try {
+      newMessage = types.Message.fromJson(result);
+    } catch (_) {
+      // Dự phòng: nếu parse lỗi thì vẫn hiển thị dạng text như cũ.
+      newMessage = types.TextMessage(
+        author: oldMessage.author,
+        createdAt: oldMessage.createdAt,
+        id: valueResponse.sId ?? 'default-id',
+        text: oldMessage is types.TextMessage ? oldMessage.text : '',
+        repliedMessage: oldMessage.repliedMessage,
+        status: isErr ? types.Status.error : null,
+      );
+    }
+    if (index != -1) {
+      listMessage[targetIndex] = newMessage;
+    } else {
+      listMessage.add(newMessage);
+    }
+
+    // Thêm message vào room (đảm bảo list tồn tại để id server được lưu lại,
+    // phục vụ ghim/sửa/thu hồi tin vừa gửi).
+    if (data?.room != null) {
+      data!.room!.messages ??= <c.Messages>[];
+      data.room!.messages!.insert(0, valueResponse);
+    }
 
     // Xử lý quota
     final quota = responseData.data['data']?['quota'];
@@ -581,7 +623,10 @@ class ChatConnection {
                 '${HTTPConnection.domain}api/images/${valueResponse.content}/${ChatConnection.brandCode}',
             width: (listMessage[index] as types.ImageMessage).width,
             repliedMessage: listMessage[index].repliedMessage);
-        data?.room?.messages?.insert(0, valueResponse);
+        if (data?.room != null) {
+          data!.room!.messages ??= <c.Messages>[];
+          data.room!.messages!.insert(0, valueResponse);
+        }
         return valueResponse.sId!;
       }
     }
@@ -635,7 +680,10 @@ class ChatConnection {
             showStatus: true,
             status: s,
             repliedMessage: listMessage[index].repliedMessage);
-        data?.room?.messages?.insert(0, valueResponse);
+        if (data?.room != null) {
+          data!.room!.messages ??= <c.Messages>[];
+          data.room!.messages!.insert(0, valueResponse);
+        }
         return valueResponse.sId!;
       }
     }
@@ -658,6 +706,25 @@ class ChatConnection {
     ResponseData responseData = await connection.post('api/group/update',
         {'data': userId, 'type': 'remove-people', 'roomId': roomId});
     return responseData.isSuccess;
+  }
+
+  // Chủ nhóm xóa 1 thành viên khỏi nhóm. Trả về danh sách người còn lại từ response.
+  static Future<List<r.People>?> removePeopleFromGroup(
+      String roomId, String memberId) async {
+    ResponseData responseData = await connection.post('api/group/update',
+        {'type': 'remove-people', 'roomId': roomId, 'data': memberId});
+    if (responseData.isSuccess) {
+      try {
+        final people = responseData.data['people'];
+        if (people is List) {
+          return people
+              .map((e) => r.People.fromJson(e as Map<String, dynamic>))
+              .toList();
+        }
+      } catch (_) {}
+      return <r.People>[];
+    }
+    return null;
   }
 
   static Future<r.Rooms?> createGroup(

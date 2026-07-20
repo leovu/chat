@@ -131,7 +131,15 @@ class Room {
     lastUpdate = json['lastUpdate'];
     lastAuthor = json['lastAuthor'];
     try {
-      owner = json['owner'] != null ? Owner.fromJson(json['owner']) : null;
+      final o = json['owner'];
+      if (o is Map<String, dynamic>) {
+        owner = Owner.fromJson(o);
+      } else if (o is String) {
+        // Một số API trả owner là id (string) -> chỉ lấy sId để so khớp chủ nhóm.
+        owner = Owner(sId: o);
+      } else {
+        owner = null;
+      }
     } catch (_) {}
     try {
       lastMessage = json['lastMessage'];
@@ -152,11 +160,10 @@ class Room {
       textMessages = <Messages>[];
 
       json['messages'].forEach((v) {
-        if (v['content'] == 'Message recalled' && v['type'] == 'image') {
-          return;
-        }
-
         final type = v['type'];
+        // Mọi tin thu hồi (text/ảnh/file/link...) đều được giữ lại để hiển thị
+        // placeholder "Message recalled" màu xám (xử lý ở toMessageJson).
+
         final msg = Messages.fromJson(v);
 
         messages!.add(msg);
@@ -220,10 +227,45 @@ class Room {
       links = <Images>[];
       json['links'].forEach((v) {
         if (v['content'] != 'Message recalled') {
-          files?.add(Images.fromJson(v));
+          links?.add(Images.fromJson(v));
         }
       });
     }
+
+    // Bổ sung image/file/link từ 'messages' (nguồn luôn cập nhật) và gộp với
+    // mảng tổng hợp của server (có thể trễ hoặc thiếu) để đồng bộ tin vừa gửi.
+    images ??= <Images>[];
+    files ??= <Images>[];
+    links ??= <Images>[];
+    if (json['messages'] != null) {
+      final imageIds = images!.map((e) => e.sId).toSet();
+      final fileIds = files!.map((e) => e.sId).toSet();
+      final linkIds = links!.map((e) => e.sId).toSet();
+      for (final v in json['messages']) {
+        if (v is! Map) continue;
+        if (v['content'] == 'Message recalled') continue;
+        final id = v['_id'];
+        final item = Images.fromJson(Map<String, dynamic>.from(v));
+        switch (v['type']) {
+          case 'image':
+            if (id != null && imageIds.add(id)) images!.add(item);
+            break;
+          case 'file':
+            if (id != null && fileIds.add(id)) files!.add(item);
+            break;
+          case 'link':
+            if (id != null && linkIds.add(id)) links!.add(item);
+            break;
+        }
+      }
+    }
+    // Sắp xếp mới nhất lên đầu theo ngày (ISO 8601 so sánh chuỗi được).
+    int byDateDesc(Images a, Images b) =>
+        (b.date ?? '').compareTo(a.date ?? '');
+    images!.sort(byDateDesc);
+    files!.sort(byDateDesc);
+    links!.sort(byDateDesc);
+
     try {
       pinMessage = json['pinMessage'] != null
           ? PinMessage.fromJson(json['pinMessage'])
@@ -771,7 +813,8 @@ class Messages {
     };
   }
 
-  Map<String, dynamic> toMessageJson({List<MessageSeen>? messageSeen, Owner? roomOwner}) {
+  Map<String, dynamic> toMessageJson(
+      {List<MessageSeen>? messageSeen, Owner? roomOwner}) {
     final Map<String, dynamic> data = <String, dynamic>{};
 
     final Map<String, dynamic> metadata = {};
@@ -827,6 +870,16 @@ class Messages {
       }
     }
     data['id'] = sId;
+    final bool isRecalled = recall == 1 ||
+        content == 'Message recalled' ||
+        content == AppLocalizations.text(LangKey.messageRecalled);
+    if (isRecalled) {
+      // Mọi tin thu hồi (text/ảnh/file/link...) -> hiển thị placeholder xám.
+      data['type'] = 'custom';
+      metadata['custom_type'] = 'recalled';
+      if (metadata.isNotEmpty) data['metadata'] = metadata;
+      return data;
+    }
     switch (type) {
       case 'text':
         data['type'] = 'text';

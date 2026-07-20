@@ -152,7 +152,15 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
                     chatMessage: widget.chatMessage,
                   ),
                 ));
-                if (ChatConnection.isChatHub) onGetInfoOnOpen();
+                if (ChatConnection.isChatHub) {
+                  onGetInfoOnOpen();
+                } else if (mounted) {
+                  // Cập nhật lại số lượng thành viên sau khi thêm (list đã đọc từ
+                  // chatMessage.room.people nên chỉ cần rebuild + tính lại đầu đề).
+                  setState(() {
+                    lengthPeople = widget.chatMessage.room?.people?.length ?? 0;
+                  });
+                }
               },
               child: Image.asset(
                 'assets/icon-edit.png',
@@ -197,8 +205,8 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
             final memberZP = members[index];
             if (memberZP.level == 'root') return Container();
             final isLast = index == members.length - 1;
-            return buildMemberZPItem(context, memberZP, isLast, memberZP.id ?? '',
-                widget.chatMessage.room?.isGroup == true);
+            return buildMemberZPItem(context, memberZP, isLast,
+                memberZP.id ?? '', widget.chatMessage.room?.isGroup == true);
           },
         );
       }
@@ -287,7 +295,7 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
         context: context,
         builder: (cxxt) => AlertDialog(
           title: Text(AppLocalizations.text(LangKey.notifications)),
-          content: Text(AppLocalizations.text(LangKey.leaveError)),
+          content: Center(child: Text(AppLocalizations.text(LangKey.leaveError))),
           actions: [
             ElevatedButton(
                 onPressed: () {
@@ -300,13 +308,44 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
     }
   }
 
+  // Chỉ chủ nhóm mới được xóa thành viên.
+  bool get _isOwner =>
+      widget.chatMessage.room?.owner?.sId == ChatConnection.user?.id;
+
   void removeMemberChat(r.People people) async {
-    bool value = await ChatConnection.leaveRoom(
-        widget.chatMessage.room?.sId ?? '', people.sId);
-    if (value) {
-      widget.chatMessage.room?.people?.remove(people);
-      setState(() {});
+    if (!_isOwner) return;
+    await showInfoDialog(
+      content: AppLocalizations.text(LangKey.removeFroumGroup),
+      context,
+      AppLocalizations.text(LangKey.notifications),
+      () => _doRemoveMemberChat(people),
+      onCancel: () {},
+    );
+  }
+
+  void _doRemoveMemberChat(r.People people) async {
+    final List<r.People>? updated = await ChatConnection.removePeopleFromGroup(
+        widget.chatMessage.room?.sId ?? '', people.sId ?? '');
+    if (updated == null) return;
+    final list = widget.chatMessage.room?.people;
+    if (list != null) {
+      if (updated.isNotEmpty) {
+        list
+          ..clear()
+          ..addAll(updated);
+      } else {
+        list.remove(people);
+      }
     }
+    if (mounted) {
+      setState(() {
+        lengthPeople = widget.chatMessage.room?.people?.length ?? 0;
+      });
+    }
+    try {
+      ChatConnection.refreshRoom.call();
+      ChatConnection.refreshFavorites.call();
+    } catch (_) {}
   }
 
   Widget _buildItemPending() {
@@ -357,9 +396,7 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
                       label: AppLocalizations.text(LangKey.sendMessage),
                       key: 'Chat',
                     ),
-                    if (widget.chatMessage.room?.owner?.sId ==
-                            ChatConnection.user!.id &&
-                        widget.chatMessage.room?.isGroup == true)
+                    if (_isOwner && widget.chatMessage.room?.isGroup == true)
                       SheetAction(
                         icon: Icons.delete,
                         label: AppLocalizations.text(LangKey.removeFroumGroup),
@@ -439,7 +476,18 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
                           ))
                         ],
                       ),
-                    ))
+                    )),
+                    // Icon xóa: chỉ chủ nhóm mới thấy, và không xóa được chính mình.
+                    if (_isOwner &&
+                        widget.chatMessage.room?.isGroup == true &&
+                        data?.sId != ChatConnection.user?.id)
+                      InkWell(
+                        onTap: () => removeMemberChat(data!),
+                        child: const Padding(
+                          padding: EdgeInsets.only(left: 8.0),
+                          child: Icon(Icons.delete_outline, color: Colors.red),
+                        ),
+                      ),
                   ],
                 ),
               ),

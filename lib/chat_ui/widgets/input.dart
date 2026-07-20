@@ -294,6 +294,8 @@ class _InputState extends State<Input> {
           repliedMessage: InheritedRepliedMessage.of(context).repliedMessage,
           isEdit: editContent);
       _textController.clear();
+      // Reset trạng thái chỉnh sửa để lần gửi sau là tin nhắn mới, không phải edit.
+      editContent = null;
     }
     setState(() {
       _taggingSuggestList = null;

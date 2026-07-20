@@ -124,7 +124,16 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
                     chatMessage: widget.chatMessage,
                   ),
                 ));
-                if (ChatConnection.isChatHub) onGetInfoOnOpen();
+                if (ChatConnection.isChatHub) {
+                  onGetInfoOnOpen();
+                } else if (mounted) {
+                  // addMemberChat cập nhật chatMessage.room.people -> đồng bộ sang
+                  // roomData (nguồn hiển thị) rồi rebuild để cập nhật số lượng.
+                  setState(() {
+                    widget.roomData.people = widget.chatMessage.room?.people ??
+                        widget.roomData.people;
+                  });
+                }
               },
               child: Image.asset(
                 'assets/icon-edit.png',

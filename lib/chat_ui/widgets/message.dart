@@ -204,7 +204,8 @@ class Message extends StatelessWidget {
   bool get _isMediaMessage {
     if (message.type == types.MessageType.image) return true;
     if (message.type == types.MessageType.custom) {
-      final customType = (message as types.CustomMessage).metadata?['custom_type'];
+      final customType =
+          (message as types.CustomMessage).metadata?['custom_type'];
       return customType == 'sticker' || customType == 'image_url';
     }
     return false;
@@ -233,8 +234,7 @@ class Message extends StatelessWidget {
             : Container(
                 key: key,
                 decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    color: color),
+                    borderRadius: BorderRadius.circular(12), color: color),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   child: _messageBuilder(color, currentUserIsAuthor),
@@ -404,7 +404,12 @@ class Message extends StatelessWidget {
           isElevated: false,
           color: InheritedChatTheme.of(context).theme.backgroundColor,
           swipeThreshold: 0.3,
-          direction: replySwipeDirection,
+          // Tin đã thu hồi -> không cho vuốt để trả lời.
+          direction: (message is types.CustomMessage &&
+                  (message as types.CustomMessage).metadata?['custom_type'] ==
+                      'recalled')
+              ? SwipeDirection.none
+              : replySwipeDirection,
           onSwiped: (_) {
             onMessageReply(context, message);
             focusSearch();
@@ -524,7 +529,10 @@ class Message extends StatelessWidget {
                         ? CrossAxisAlignment.end
                         : CrossAxisAlignment.start,
                     children: [
-                      if (!_currentUserIsAuthor && roundBorder && showUserAvatars && message.type != types.MessageType.text)
+                      if (!_currentUserIsAuthor &&
+                          roundBorder &&
+                          showUserAvatars &&
+                          message.type != types.MessageType.text)
                         Padding(
                           padding: const EdgeInsets.only(
                             bottom: 4.0,
@@ -532,7 +540,8 @@ class Message extends StatelessWidget {
                             right: 12.0,
                           ),
                           child: Text(
-                            '${message.author.firstName ?? ''} ${message.author.lastName ?? ''}'.trim(),
+                            '${message.author.firstName ?? ''} ${message.author.lastName ?? ''}'
+                                .trim(),
                             style: TextStyle(
                               fontSize: 12,
                               color: Colors.grey.shade600,

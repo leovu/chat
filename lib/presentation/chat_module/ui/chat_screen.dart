@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
-import 'package:chat/chat_ui/widgets/custom_room_avatar.dart' show ChatGroupAvatar;
+import 'package:chat/chat_ui/widgets/custom_room_avatar.dart'
+    show ChatGroupAvatar;
 import 'package:chat/presentation/utils/ultility.dart' show getAvatarColor;
 
 import 'package:adaptive_dialog/adaptive_dialog.dart';
@@ -139,7 +140,8 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   }
 
   Future<void> _getTagList() async {
-    if (ChatConnection.isChatHub && widget.data.isGroup == true) return;
+    // API tags/list-by-user chỉ chạy trên ChatHub (non-group); non-ChatHub trả 404.
+    if (!ChatConnection.isChatHub || widget.data.isGroup == true) return;
     tagByUser =
         await ChatConnection.getTagListByUser(widget.data.owner?.sId ?? '');
     setState(() {});
@@ -157,9 +159,20 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
           createdAt: ms.createdAt,
           id: ms.id,
           text: (message as types.TextMessage).text,
+          // remoteId == '1' -> hiển thị icon "đã chỉnh sửa" ngay lập tức.
+          remoteId: '1',
           repliedMessage: isEdit.repliedMessage ?? ms.repliedMessage);
       int index = _messages.indexOf(ms);
       _messages[index] = textMessage;
+      // Cập nhật nội dung gốc + đánh dấu đã sửa để hiển thị realtime, không phải vào lại.
+      try {
+        final orig = data?.room?.messages?.firstWhere((e) => e.sId == ms.id);
+        orig?.content = message.text;
+        orig?.edit = 1;
+      } catch (_) {}
+      if (data?.room?.pinMessage?.sId == ms.id) {
+        data?.room?.pinMessage?.content = message.text;
+      }
       if (mounted) {
         setState(() {});
         int? index = listIdMessages[ms.id]!;
@@ -499,16 +512,9 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   void _handleMessageTap(
       BuildContext cxt, types.Message message, bool isRepliedMessage) async {
     if (isRepliedMessage) {
-      if (message is types.FileMessage) {
-        showLoading();
-        String? result = await download(
-            context, message.uri, '${message.createdAt}_${message.name}');
-        Navigator.of(context).pop();
-        openFile(result, context, message.name);
-      }
-      if (message is types.ImageMessage) {
-        openImage(context, message.uri);
-      }
+      // Tap tin được trả lời -> scroll tới tin đó; nếu chưa có trong danh sách
+      // thì tải thêm tối đa 2 lần; vẫn không thấy -> hiển thị popup.
+      await _scrollToRepliedMessage(message);
     } else {
       if (message is types.FileMessage &&
           message.status != Status.sending &&
@@ -522,14 +528,59 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     }
   }
 
+  // Tìm c.Messages tương ứng với message trên UI. Với tin vừa gửi (chưa có
+  // trong data.room.messages) -> dựng tạm để menu sửa/thu hồi/ghim vẫn hoạt động.
+  c.Messages? _resolveMess(types.Message message) {
+    c.Messages? mess;
+    try {
+      mess = data?.room?.messages?.firstWhere((e) => e.sId == message.id);
+    } catch (_) {}
+    if (mess != null) return mess;
+
+    final bool isMine = message.author.id == _user.id;
+    final user = ChatConnection.checkUserTokenResponseModel?.user;
+    String content = '';
+    if (message is types.TextMessage) {
+      content = message.text;
+    } else if (message is types.CustomMessage) {
+      content = (message.metadata?['text'] ?? '').toString();
+    }
+    String typeName = 'text';
+    if (message is types.ImageMessage) {
+      typeName = 'image';
+    } else if (message is types.FileMessage) {
+      typeName = 'file';
+    } else if (message is types.CustomMessage) {
+      typeName = (message.metadata?['custom_type'] ?? 'text').toString();
+    }
+    return c.Messages(
+      sId: message.id,
+      author: c.Author.fromJson({
+        '_id': message.author.id,
+        'firstName': isMine
+            ? (user?.firstName ?? message.author.firstName)
+            : message.author.firstName,
+        'lastName': isMine
+            ? (user?.lastName ?? message.author.lastName)
+            : message.author.lastName,
+      }),
+      content: content,
+      type: typeName,
+    );
+  }
+
   void _handleMessageLongPress(
       BuildContext context, types.Message message) async {
+    // Tin nhắn đã thu hồi -> không mở menu.
     if (message is types.TextMessage &&
         message.text == AppLocalizations.text(LangKey.messageRecalled)) {
       return;
     }
-    c.Messages? mess =
-        data?.room?.messages?.firstWhere((e) => e.sId == message.id);
+    if (message is types.CustomMessage &&
+        message.metadata?['custom_type'] == 'recalled') {
+      return;
+    }
+    c.Messages? mess = _resolveMess(message);
     showModalActionSheet<String>(
       context: context,
       actions: [
@@ -665,22 +716,27 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
 
   void recall(types.Message message, c.Messages? value) async {
     bool result = await ChatConnection.recall(value, data?.room);
-    if (result) {
-      setState(() {
-        if (message is types.ImageMessage) {
-          data?.room?.messages?.remove(value);
-          _messages.remove(message);
-        } else if (message is types.TextMessage) {
-          value?.content = AppLocalizations.text(LangKey.messageRecalled);
-          int index = _messages.indexOf(message);
-          final textMessage = types.TextMessage(
-              author: _user,
-              createdAt: DateTime.now().millisecondsSinceEpoch,
-              id: message.id,
-              text: AppLocalizations.text(LangKey.messageRecalled));
-          _messages[index] = textMessage;
-        }
-      });
+    if (!result || !mounted) return;
+    // Nếu tin bị thu hồi đang được ghim -> bỏ ghim (cả local lẫn server).
+    final bool wasPinned = data?.room?.pinMessage?.sId == value?.sId;
+    setState(() {
+      value?.recall = 1;
+      value?.content = AppLocalizations.text(LangKey.messageRecalled);
+      if (wasPinned) {
+        data?.room?.pinMessage = null;
+      }
+      // Mọi loại (text/ảnh/file/link) -> thay bằng placeholder "Message recalled" xám.
+      final int index = _messages.indexOf(message);
+      final recalledMsg = types.CustomMessage(
+        author: message.author,
+        createdAt: message.createdAt,
+        id: message.id,
+        metadata: const {'custom_type': 'recalled'},
+      );
+      if (index != -1) _messages[index] = recalledMsg;
+    });
+    if (wasPinned) {
+      await ChatConnection.pinMessage(null, data?.room);
     }
   }
 
@@ -764,7 +820,8 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   }
 
   // Custom image message builder using CachedNetworkImage
-  Widget _buildImageMessageWidget(types.ImageMessage message, {required int messageWidth}) {
+  Widget _buildImageMessageWidget(types.ImageMessage message,
+      {required int messageWidth}) {
     // Helper function to ensure URL has a host
     String ensureFullUrl(String? url) {
       if (url == null || url.isEmpty) return '';
@@ -858,13 +915,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
     if (mounted) {
       setState(() {});
     }
-    ChatConnection.uploadFile(
-            context,
-            data,
-            _messages,
-            id,
-            file,
-            data?.room,
+    ChatConnection.uploadFile(context, data, _messages, id, file, data?.room,
             ChatConnection.checkUserTokenResponseModel?.user?.sId ?? '')
         .then((r) {
       if (r == 'limit') {
@@ -894,7 +945,9 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         for (var e in messages) {
           if (e.author?.sId != null && e.sId != null) {
             final result = Map<String, dynamic>.from(
-              e.toMessageJson(messageSeen: data?.room?.messageSeen, roomOwner: data?.room?.owner),
+              e.toMessageJson(
+                  messageSeen: data?.room?.messageSeen,
+                  roomOwner: data?.room?.owner),
             );
             try {
               final msg = types.Message.fromJson(result);
@@ -928,8 +981,9 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         if (messages != null) {
           List<types.Message> values = [];
           for (var e in messages) {
-            Map<String, dynamic> result =
-                e.toMessageJson(messageSeen: data?.room?.messageSeen, roomOwner: data?.room?.owner);
+            Map<String, dynamic> result = e.toMessageJson(
+                messageSeen: data?.room?.messageSeen,
+                roomOwner: data?.room?.owner);
             if (e.author?.sId != null && e.sId != null) {
               values.add(types.Message.fromJson(result));
             }
@@ -1059,8 +1113,20 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _tagListWidget(),
-              _pinnedMessageWidget(),
-              Expanded(child: _messageListWidget()),
+              // Ghim tin nhắn nổi lên trên danh sách để nền trong suốt thấy được tin phía sau.
+              Expanded(
+                child: Stack(
+                  children: [
+                    _messageListWidget(),
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      child: _pinnedMessageWidget(),
+                    ),
+                  ],
+                ),
+              ),
               _searchResultWidget(),
             ],
           ),
@@ -1077,8 +1143,9 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   }
 
   Widget _tagListWidget() {
-    if (tagByUser == null ||
-        tagByUser?.data == null ||
+    final bool hasActiveTag =
+        tagByUser?.data?.any((e) => e.isActive == true) ?? false;
+    if (!hasActiveTag ||
         !(ChatConnection.isChatHub && widget.data.isGroup == false)) {
       return const SizedBox.shrink();
     }
@@ -1122,93 +1189,118 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   }
 
   Widget _pinnedMessageWidget() {
-    if (data?.room?.pinMessage == null) return const SizedBox.shrink();
-    return Column(
-      children: [
-        Container(
-            color: Colors.white,
-            padding:
-                const EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
-            child: Row(
-              children: [
-                const Padding(
-                  padding: EdgeInsets.only(right: 8.0),
-                  child: Icon(
-                    Icons.chat_outlined,
-                    color: Color(0xff5686E1),
+    final pin = data?.room?.pinMessage;
+    if (pin == null) return const SizedBox.shrink();
+    // Tin ghim đã bị thu hồi -> không hiển thị khung ghim.
+    if (pin.recall == 1 ||
+        pin.content == 'Message recalled' ||
+        pin.content == AppLocalizations.text(LangKey.messageRecalled)) {
+      return const SizedBox.shrink();
+    }
+    // Vùng quanh bong bóng trong suốt để thấy nội dung phía sau.
+    return Container(
+      width: double.infinity,
+      color: Colors.transparent,
+      padding:
+          const EdgeInsets.only(left: 12.0, right: 12.0, top: 8.0, bottom: 8.0),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8.0),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.12),
+              blurRadius: 8.0,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            const Padding(
+              padding: EdgeInsets.only(right: 8.0),
+              child: Icon(
+                Icons.push_pin_outlined,
+                color: Color(0xff5686E1),
+                size: 20.0,
+              ),
+            ),
+            Expanded(
+                child: InkWell(
+              onTap: () {
+                try {
+                  int? index = listIdMessages[data?.room?.pinMessage?.sId]!;
+                  scroll(index);
+                } catch (_) {}
+              },
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AutoSizeText(
+                    '${data?.room?.pinMessage?.author?.firstName} ${data?.room?.pinMessage?.author?.lastName}',
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w600, color: Color(0xff5686E1)),
                   ),
-                ),
-                Expanded(
-                    child: InkWell(
-                  onTap: () {
-                    try {
-                      int? index = listIdMessages[data?.room?.pinMessage?.sId]!;
-                      scroll(index);
-                    } catch (_) {}
-                  },
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      AutoSizeText(
-                        '${data?.room?.pinMessage?.author?.firstName} ${data?.room?.pinMessage?.author?.lastName}',
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xff5686E1)),
-                      ),
-                      data?.room?.pinMessage?.type == 'image'
-                          ? SizedBox(
-                              height: MediaQuery.of(context).size.width * 0.15,
-                              width: MediaQuery.of(context).size.width * 0.15,
-                              child: Padding(
-                                padding: const EdgeInsets.all(3.0),
-                                child: CachedNetworkImage(
-                                  fit: BoxFit.cover,
-                                  imageUrl:
-                                      '${HTTPConnection.domain}api/images/${data?.room?.pinMessage?.content}/256/${ChatConnection.brandCode!}',
-                                  httpHeaders: {
-                                    'brand-code': ChatConnection.brandCode!
-                                  },
-                                  placeholder: (context, url) =>
-                                      const CupertinoActivityIndicator(),
-                                  errorWidget: (context, url, error) =>
-                                      const Icon(Icons.error),
-                                ),
+                  data?.room?.pinMessage?.type == 'image'
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(8.0),
+                          child: SizedBox(
+                            height: MediaQuery.of(context).size.width * 0.15,
+                            width: MediaQuery.of(context).size.width * 0.15,
+                            child: CachedNetworkImage(
+                              fit: BoxFit.cover,
+                              imageUrl:
+                                  '${HTTPConnection.domain}api/images/${data?.room?.pinMessage?.content}/256/${ChatConnection.brandCode!}',
+                              httpHeaders: {
+                                'brand-code': ChatConnection.brandCode!
+                              },
+                              placeholder: (context, url) =>
+                                  const CupertinoActivityIndicator(),
+                              errorWidget: (context, url, error) =>
+                                  const Icon(Icons.error),
+                            ),
+                          ),
+                        )
+                      : data?.room?.pinMessage?.type == 'link'
+                          // Pin là link: hiển thị dạng link (xanh gạch chân), KHÔNG review.
+                          ? Text(
+                              data?.room?.pinMessage?.content ?? '',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: Colors.blue,
+                                decoration: TextDecoration.underline,
                               ),
                             )
                           : checkTagWidget(
                               data?.room?.pinMessage?.content ?? ''),
-                    ],
-                  ),
-                )),
-                Container(
-                  margin: const EdgeInsets.only(left: 16),
-                  height: 30,
-                  width: 30,
-                  child: IconButton(
-                    icon: const Icon(
-                      Icons.close,
-                      color: Colors.grey,
-                      size: 20.0,
-                    ),
-                    onPressed: () async {
-                      setState(() {
-                        data?.room?.pinMessage = null;
-                      });
-                      await ChatConnection.pinMessage(null, data?.room);
-                    },
-                    padding: EdgeInsets.zero,
-                  ),
-                )
-              ],
+                ],
+              ),
             )),
-        Container(
-          height: 2.0,
-          color: Colors.grey.shade300,
+            SizedBox(
+              height: 28,
+              width: 28,
+              child: IconButton(
+                icon: const Icon(
+                  Icons.close,
+                  color: Colors.grey,
+                  size: 18.0,
+                ),
+                onPressed: () async {
+                  setState(() {
+                    data?.room?.pinMessage = null;
+                  });
+                  await ChatConnection.pinMessage(null, data?.room);
+                },
+                padding: EdgeInsets.zero,
+              ),
+            )
+          ],
         ),
-      ],
+      ),
     );
   }
-
 
   Widget _messageListWidget() {
     if (isInitScreen) {
@@ -1469,6 +1561,135 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         curve: Curves.linear);
   }
 
+  // Scroll tới tin được trả lời. Nếu chưa có -> tải thêm tối đa 2 lần rồi thử lại.
+  // Vẫn không thấy -> hiển thị popup nội dung tin.
+  Future<void> _scrollToRepliedMessage(types.Message replied) async {
+    if (_tryScrollToMessage(replied.id)) return;
+    for (int attempt = 0; attempt < 2; attempt++) {
+      final bool loaded = await _loadOlderMessages();
+      // Chờ khung hình rebuild để listIdMessages cập nhật index mới.
+      await WidgetsBinding.instance.endOfFrame;
+      if (_tryScrollToMessage(replied.id)) return;
+      if (!loaded) break;
+    }
+    _showRepliedMessagePopup(replied);
+  }
+
+  bool _tryScrollToMessage(String id) {
+    final int? index = listIdMessages[id];
+    if (index != null) {
+      scroll(index);
+      return true;
+    }
+    return false;
+  }
+
+  // Tải thêm 1 trang tin cũ hơn. Trả về true nếu có tin mới được nạp.
+  Future<bool> _loadOlderMessages() async {
+    try {
+      if (_messages.isEmpty ||
+          data?.room?.messages == null ||
+          data!.room!.messages!.isEmpty) {
+        return false;
+      }
+      final List<c.Messages>? value = await ChatConnection.loadMoreMessageRoom(
+          ChatConnection.roomId!,
+          _messages.last.id,
+          data!.room!.messages!.last.date!);
+      if (value == null || value.isEmpty) return false;
+      data?.room?.messages?.addAll(value);
+      final List<types.Message> values = [];
+      for (var e in value) {
+        final result = e.toMessageJson(
+            messageSeen: data?.room?.messageSeen, roomOwner: data?.room?.owner);
+        if (e.author?.sId != null && e.sId != null) {
+          values.add(types.Message.fromJson(result));
+        }
+      }
+      if (values.isEmpty) return false;
+      if (mounted) {
+        setState(() {
+          _messages.addAll(values);
+        });
+      }
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  // Popup hiện đại: bo góc, cấu trúc giống tin nhắn (tên + nội dung), không tách title/content.
+  void _showRepliedMessagePopup(types.Message replied) {
+    if (!mounted) return;
+    final String name =
+        '${replied.author.firstName ?? ''} ${replied.author.lastName ?? ''}'
+            .trim();
+    String content = '';
+    String? imageUri;
+    if (replied is types.TextMessage) {
+      content = replied.text;
+    } else if (replied is types.CustomMessage) {
+      content = (replied.metadata?['text'] ?? '').toString();
+    } else if (replied is types.ImageMessage) {
+      imageUri = replied.uri;
+    } else if (replied is types.FileMessage) {
+      content = replied.name;
+    }
+    showDialog(
+      context: context,
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.white,
+        elevation: 6,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Container(
+          constraints: BoxConstraints(
+            maxWidth: MediaQuery.of(ctx).size.width * 0.8,
+            maxHeight: MediaQuery.of(ctx).size.height * 0.6,
+          ),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (name.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Text(
+                    name,
+                    style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xff5686E1)),
+                  ),
+                ),
+              Flexible(
+                child: SingleChildScrollView(
+                  child: imageUri != null
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: CachedNetworkImage(
+                            imageUrl: imageUri,
+                            fit: BoxFit.contain,
+                            placeholder: (c, u) =>
+                                const CupertinoActivityIndicator(),
+                            errorWidget: (c, u, e) =>
+                                const Icon(Icons.broken_image, size: 48),
+                          ),
+                        )
+                      : Text(
+                          content,
+                          style: const TextStyle(
+                              fontSize: 15, color: Colors.black87, height: 1.4),
+                        ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   searchChat() {
     _listIdSearch = [];
     currentIndexSearch = 0;
@@ -1622,7 +1843,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                             padding: const EdgeInsets.only(bottom: 3.0),
                             child: !ChatConnection.isChatHub
                                 ? AutoSizeText(
-                                    '${widget.data.people!.length} '
+                                    '${data?.room?.people?.length ?? widget.data.people!.length} '
                                     '${AppLocalizations.text(LangKey.members).toLowerCase()}',
                                     maxLines: 1,
                                     style: const TextStyle(
@@ -1834,25 +2055,24 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   Widget _tagChip(Data e) {
     if (e.isActive == false) {
       return Container();
-    } else {
-      return Padding(
-        padding: const EdgeInsets.only(left: 5.0, right: 5.0, bottom: 5.0),
-        child: Container(
-          height: 30.0,
-          decoration: BoxDecoration(
-              color: HexColor.fromHex(
-                  (e.color != null && e.color != 'null') ? e.color : '#0067AC'),
-              borderRadius: BorderRadius.circular(10.0)),
-          child: Padding(
-            padding: const EdgeInsets.only(top: 5.0, left: 5.0, right: 5.0),
-            child: AutoSizeText(
-              e.name ?? '',
-              style: const TextStyle(color: Colors.white),
-            ),
+    }
+    return Padding(
+      padding: const EdgeInsets.only(left: 5.0, right: 5.0, bottom: 5.0),
+      child: Container(
+        height: 30.0,
+        decoration: BoxDecoration(
+            color: HexColor.fromHex(
+                (e.color != null && e.color != 'null') ? e.color : '#0067AC'),
+            borderRadius: BorderRadius.circular(10.0)),
+        child: Padding(
+          padding: const EdgeInsets.only(top: 5.0, left: 5.0, right: 5.0),
+          child: AutoSizeText(
+            e.name ?? '',
+            style: const TextStyle(color: Colors.white),
           ),
         ),
-      );
-    }
+      ),
+    );
   }
 
   loadMore() async {
@@ -1866,8 +2086,9 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         data?.room?.messages?.addAll(messages);
         List<types.Message> values = [];
         for (var e in messages) {
-          Map<String, dynamic> result =
-              e.toMessageJson(messageSeen: data?.room?.messageSeen, roomOwner: data?.room?.owner);
+          Map<String, dynamic> result = e.toMessageJson(
+              messageSeen: data?.room?.messageSeen,
+              roomOwner: data?.room?.owner);
           if (e.author?.sId != null && e.sId != null) {
             values.add(types.Message.fromJson(result));
           }

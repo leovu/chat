@@ -11,7 +11,8 @@
       "Bash(rtk wc *)",
       "Bash(rtk find *)",
       "Bash(rtk ls *)",
-      "Bash(grep -v \"^$\")"
+      "Bash(grep -v \"^$\")",
+      "Bash(rtk read *)"
     ]
   }
 }

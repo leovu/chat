@@ -1,4 +1,3 @@
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:chat/common/custom_navigator.dart';
 import 'package:chat/common/widges/widget.dart';
 import 'package:chat/localization/app_localizations.dart';
@@ -23,7 +22,7 @@ Future<void> showInfoDialog(
         backgroundColor: Colors.white,
         contentPadding: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(12),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -38,11 +37,10 @@ Future<void> showInfoDialog(
                     const BorderRadius.vertical(top: Radius.circular(10)),
               ),
               child: Center(
-                child: AutoSizeText(
+                child: Text(
                   title,
-                  minFontSize: 10,
-                  maxFontSize: 20,
-                  style: const TextStyle(color: Colors.white),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
                 ),
               ),
             ),
@@ -50,12 +48,12 @@ Future<void> showInfoDialog(
             Container(
               width: double.infinity,
               color: Colors.white,
-              padding: const EdgeInsets.all(16),
-              child: AutoSizeText(
-                content ?? '',
-                minFontSize: 10,
-                maxFontSize: 20,
-                style: const TextStyle(color: Colors.black),
+              padding: const EdgeInsets.all(12),
+              child: Center(
+                child: Text(
+                  content ?? '',
+                  style: const TextStyle(color: Colors.black),
+                ),
               ),
             ),
             // Actions
@@ -68,10 +66,8 @@ Future<void> showInfoDialog(
                       Navigator.of(context).pop();
                       onCancel();
                     },
-                    child: AutoSizeText(
+                    child: Text(
                       AppLocalizations.text(LangKey.cancel),
-                      minFontSize: 10,
-                      maxFontSize: 20,
                       style: const TextStyle(color: Colors.black),
                     ),
                   ),
@@ -80,10 +76,8 @@ Future<void> showInfoDialog(
                     onOk();
                     Navigator.of(context).pop();
                   },
-                  child: AutoSizeText(
+                  child: Text(
                     'OK',
-                    minFontSize: 10,
-                    maxFontSize: 20,
                     style: TextStyle(color: headerColor),
                   ),
                 ),
@@ -106,7 +100,6 @@ void showSnackBarError(String message, BuildContext context) {
     ),
   );
 }
-
 
 class CustomDialogWidget extends StatelessWidget {
   final Widget screen;
@@ -136,10 +129,9 @@ class CustomDialogWidget extends StatelessWidget {
                 children: <Widget>[
                   Container(
                     constraints: BoxConstraints(
-                      maxWidth:  MediaQuery.sizeOf(context).height,
+                      maxWidth: MediaQuery.sizeOf(context).height,
                     ),
-                    margin:
-                        EdgeInsets.symmetric(horizontal: 16),
+                    margin: EdgeInsets.symmetric(horizontal: 16),
                     child: screen,
                   )
                 ],
@@ -151,33 +143,30 @@ class CustomDialogWidget extends StatelessWidget {
     );
   }
 }
-class CustomPopupDialog extends StatelessWidget {
 
+class CustomPopupDialog extends StatelessWidget {
   final Widget child;
   final bool isExpanded;
 
-  CustomPopupDialog({
-    required this.child,
-    this.isExpanded = false
-  });
+  CustomPopupDialog({required this.child, this.isExpanded = false});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      child: isExpanded?Container(
-        decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.all(Radius.circular(20.0))
-        ),
-        height: MediaQuery.of(context).size.height * 0.5,
-        child: child,
-      ):Container(
-        decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.all(Radius.circular(20.0))
-        ),
-        child: child,
-      ),
+      child: isExpanded
+          ? Container(
+              decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.all(Radius.circular(20.0))),
+              height: MediaQuery.of(context).size.height * 0.5,
+              child: child,
+            )
+          : Container(
+              decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.all(Radius.circular(20.0))),
+              child: child,
+            ),
       onTap: () {
         FocusManager.instance.primaryFocus?.unfocus();
       },

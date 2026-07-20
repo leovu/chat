@@ -5,7 +5,9 @@ import 'package:chat/chat_ui/widgets/custom_message_generic.dart';
 import 'package:chat/chat_ui/widgets/custom_message_oa_list.dart';
 import 'package:chat/chat_ui/widgets/custom_message_template_card.dart';
 import 'package:chat/chat_ui/widgets/custom_message_template_video.dart';
+import 'package:chat/chat_ui/widgets/link_preview.dart';
 import 'package:chat/connection/http_connection.dart';
+import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:chat/presentation/utils/parse_html.dart';
 import 'package:flutter/gestures.dart';
@@ -60,9 +62,27 @@ Widget customMessageBuilder(types.CustomMessage message,
     case 'video':
       return buildCustomMessageWidget(message, messageWidth);
 
+    case 'recalled':
+      return buildRecalledWidget();
+
     default:
       return const SizedBox.shrink();
   }
+}
+
+/// WIDGET CON: Tin nhắn đã thu hồi (màu xám nhạt)
+Widget buildRecalledWidget() {
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+    child: Text(
+      AppLocalizations.text(LangKey.messageRecalled),
+      style: TextStyle(
+        color: Colors.grey.shade500,
+        fontStyle: FontStyle.italic,
+        fontSize: 14,
+      ),
+    ),
+  );
 }
 
 /// WIDGET CON: Hiển thị Sticker
@@ -314,14 +334,38 @@ Widget buildLinkWidget(types.CustomMessage message, int messageWidth) {
     }
   }
 
+  // URL đầu tiên để review.
+  final String? firstUrl = (message.metadata?['url'] as String?) ??
+      (links.isNotEmpty
+          ? text.substring(links.first.start, links.first.end)
+          : null);
+
   return Container(
     padding: const EdgeInsets.all(10),
-    decoration: BoxDecoration(),
-    child: RichText(
-      text: TextSpan(
-        style: const TextStyle(color: Colors.black, fontSize: 15),
-        children: spans,
-      ),
+    decoration: const BoxDecoration(),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        RichText(
+          text: TextSpan(
+            style: const TextStyle(color: Colors.black, fontSize: 15),
+            children: spans,
+          ),
+        ),
+        // Widget review link (tự fallback về text nếu không lấy được preview).
+        if (firstUrl != null)
+          ConstrainedBox(
+            constraints:
+                BoxConstraints(maxWidth: messageWidth.toDouble() * 0.9),
+            child: PreviewLink(
+              content: firstUrl,
+              showText: false,
+              showBackground: false,
+              compact: true,
+            ),
+          ),
+      ],
     ),
   );
 }

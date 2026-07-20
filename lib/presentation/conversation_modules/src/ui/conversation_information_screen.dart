@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:chat/chat_ui/widgets/custom_room_avatar.dart' show ChatGroupAvatar;
+import 'package:chat/chat_ui/widgets/custom_room_avatar.dart'
+    show ChatGroupAvatar;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/chat_screen/action_list_user_chathub_screen.dart';
 import 'package:chat/chat_ui/hex_color.dart';
@@ -129,51 +130,137 @@ class _ConversationInformationScreenState
     );
   }
 
-  void _leaveRoom(String roomId) {
-    showDialog(
+  // Bottomsheet sửa tên nhóm (non-ChatHub) -> gọi API type 'title'.
+  void _showEditGroupNameSheet(String currentName) {
+    final controller = TextEditingController(text: currentName);
+    final focusNode = FocusNode();
+    showModalBottomSheet(
       context: context,
-      builder: (cxt) => AlertDialog(
-        title: Text(AppLocalizations.text(LangKey.leaveConversation)),
-        content: Text(AppLocalizations.text(LangKey.leaveConfirm)),
-        actions: [
-          ElevatedButton(
-              onPressed: () async {
-                bool value = await ChatConnection.leaveRoom(
-                    roomId, ChatConnection.user?.id);
-                Navigator.of(cxt).pop();
-                if (value) {
-                  try {
-                    ChatConnection.refreshRoom.call();
-                    ChatConnection.refreshFavorites.call();
-                  } catch (_) {}
-                  Navigator.of(context).popUntil(
-                      (route) => route.settings.name == "chat_screen");
-                  Navigator.of(context).pop();
-                } else {
-                  showDialog(
-                    context: context,
-                    builder: (cxxt) => AlertDialog(
-                      title: Text(AppLocalizations.text(LangKey.warning)),
-                      content: Text(AppLocalizations.text(LangKey.leaveError)),
-                      actions: [
-                        ElevatedButton(
-                            onPressed: () {
-                              Navigator.pop(cxxt);
-                            },
-                            child: Text(AppLocalizations.text(LangKey.accept)))
-                      ],
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return Padding(
+          padding:
+              EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+          child: Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+            ),
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    margin: const EdgeInsets.only(bottom: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(2),
                     ),
-                  );
-                }
-              },
-              child: Text(AppLocalizations.text(LangKey.leave))),
-          ElevatedButton(
-              onPressed: () {
-                Navigator.pop(cxt);
-              },
-              child: Text(AppLocalizations.text(LangKey.cancel))),
-        ],
-      ),
+                  ),
+                ),
+                Text(
+                  AppLocalizations.text(LangKey.groupName),
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 10),
+                Container(
+                  height: 44,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.grey, width: 1.0),
+                  ),
+                  child: Center(
+                    child: TextField(
+                      controller: controller,
+                      focusNode: focusNode,
+                      autofocus: true,
+                      decoration: InputDecoration.collapsed(
+                        hintText: AppLocalizations.text(LangKey.groupName),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: MaterialButton(
+                    color: const Color(0xFF5686E1),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    onPressed: () {
+                      final name = controller.text.trim();
+                      if (name.isEmpty) return;
+                      Navigator.of(ctx).pop();
+                      _updateGroupName(name);
+                    },
+                    child: Text(
+                      AppLocalizations.text(LangKey.accept),
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _updateGroupName(String name) async {
+    final ok =
+        await ChatConnection.updateRoomName(widget.roomData.sId ?? '', name);
+    if (!ok || !mounted) return;
+    setState(() {
+      widget.roomData.title = name;
+    });
+    try {
+      ChatConnection.refreshRoom.call();
+      ChatConnection.refreshFavorites.call();
+    } catch (_) {}
+  }
+
+  void _leaveRoom(String roomId) {
+    // Dùng chung showInfoDialog để đồng bộ với dialog xác nhận xóa thành viên.
+    showInfoDialog(
+      context,
+      AppLocalizations.text(LangKey.leaveConversation),
+      () async {
+        bool value =
+            await ChatConnection.leaveRoom(roomId, ChatConnection.user?.id);
+        if (!mounted) return;
+        if (value) {
+          try {
+            ChatConnection.refreshRoom.call();
+            ChatConnection.refreshFavorites.call();
+          } catch (_) {}
+          Navigator.of(context)
+              .popUntil((route) => route.settings.name == "chat_screen");
+          Navigator.of(context).pop();
+        } else {
+          showInfoDialog(
+            context,
+            AppLocalizations.text(LangKey.warning),
+            () {},
+            content: AppLocalizations.text(LangKey.leaveError),
+            isError: true,
+          );
+        }
+      },
+      content: AppLocalizations.text(LangKey.leaveConfirm),
+      onCancel: () {},
     );
   }
 
@@ -664,6 +751,7 @@ class _ConversationInformationScreenState
       child: ListView(
         physics: const ClampingScrollPhysics(),
         children: [
+          //File
           _section(
               const Icon(
                 Icons.folder,
@@ -975,11 +1063,38 @@ class _ConversationInformationScreenState
             ? null
             : '${domain}api/images/${owner!.picture}/256/$brandCode';
       } else {
-        // Group non-chathub: dùng ChatGroupAvatar
+        // Group non-chathub: avatar + tên nhóm kèm icon sửa.
         displayName = roomData.title ??
             '${owner?.firstName ?? ''} ${owner?.lastName ?? ''}';
         final people = roomData.people;
-        return ChatGroupAvatar(people: people, size: 80, groupName: displayName);
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ChatGroupAvatar(people: people, size: 80),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Flexible(
+                  child: Text(
+                    displayName,
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 20.0),
+                  ),
+                ),
+                const SizedBox(width: 6),
+                InkWell(
+                  onTap: () => _showEditGroupNameSheet(displayName),
+                  child: const Icon(Icons.edit,
+                      size: 20, color: Color(0xff5686E1)),
+                ),
+              ],
+            ),
+          ],
+        );
       }
     } else {
       // ===== CHAT HUB (giống roomChatHubWidget trong room_list_screen.dart) =====
@@ -1005,7 +1120,8 @@ class _ConversationInformationScreenState
             roomData.title ??
             'Group ${roomData.owner?.firstName ?? ''} ${roomData.owner?.lastName ?? ''}';
         final people = roomData.people;
-        return ChatGroupAvatar(people: people, size: 80, groupName: displayName);
+        return ChatGroupAvatar(
+            people: people, size: 80, groupName: displayName);
       }
     }
 
@@ -1623,8 +1739,8 @@ class _ConversationInformationScreenState
             _actionButtonTile(
               onTap: () async {
                 try {
-                  r.People? info = getPeople(
-                      widget.chatMessage?.room?.people ?? widget.roomData.people);
+                  r.People? info = getPeople(widget.chatMessage?.room?.people ??
+                      widget.roomData.people);
                   if (info == null) {
                     final owner = widget.roomData.owner;
                     if (owner == null) return;
@@ -1987,7 +2103,8 @@ class _ConversationInformationScreenState
     );
   }
 
-  Widget _buildAvatar(String name, String avatarName, String? url, {String? id}) {
+  Widget _buildAvatar(String name, String avatarName, String? url,
+      {String? id}) {
     Widget child;
     double radius = MediaQuery.of(context).size.width * 0.125;
     if (url != null && url != '') {
