@@ -50,7 +50,8 @@ class _PreviewLinkState extends State<PreviewLink>
       onPreviewDataFetched: _onPreviewDataFetched,
       previewData: previewData,
       text: widget.content,
-      width: MediaQuery.of(context).size.width,
+      // Bề rộng nhỏ khi compact -> ảnh không bị đẩy cao (maxHeight ảnh = width).
+      width: widget.compact ? 240 : MediaQuery.of(context).size.width,
       textWidget: widget.showText ? null : const SizedBox.shrink(),
       padding: widget.showBackground ? null : EdgeInsets.zero,
       metadataTitleStyle: widget.compact
@@ -60,12 +61,16 @@ class _PreviewLinkState extends State<PreviewLink>
       imageBuilder: widget.compact
           ? (url) => ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: Image.network(
-                  url,
-                  height: 300,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                child: ConstrainedBox(
+                  // Giới hạn chiều cao, contain để KHÔNG cắt ảnh (hiện đủ ảnh).
+                  constraints: const BoxConstraints(maxHeight: 140),
+                  child: Image.network(
+                    url,
+                    width: double.infinity,
+                    fit: BoxFit.contain,
+                    alignment: Alignment.centerLeft,
+                    errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                  ),
                 ),
               )
           : null,
