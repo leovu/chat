@@ -12,7 +12,11 @@
       "Bash(rtk find *)",
       "Bash(rtk ls *)",
       "Bash(grep -v \"^$\")",
-      "Bash(rtk read *)"
+      "Bash(rtk read *)",
+      "Bash(rtk git *)",
+      "Bash(python3 *)",
+      "Bash(bash .claude/hooks/flutter-analyze.sh)",
+      "Bash(echo \"exit=$?\")"
     ]
   }
 }

@@ -65,6 +65,7 @@ class _RoomListScreenState extends State<RoomListScreen>
   Map<String, dynamic> colorAppName = {};
   late ScrollController _listViewController;
   int _currentPage = 1;
+  bool _isLoadingMore = false;
 
   String? link_status;
   String? startDay;
@@ -108,8 +109,10 @@ class _RoomListScreenState extends State<RoomListScreen>
       RefreshController(initialRefresh: false);
 
   void _scrollListener() async {
+    if (_isLoadingMore) return;
     if (_listViewController.position.maxScrollExtent ==
         _listViewController.offset) {
+      _isLoadingMore = true;
       final prevCount = roomListData?.rooms?.length ?? 0;
       await _getRooms(page: _currentPage + 1);
       final newCount = roomListData?.rooms?.length ?? 0;
@@ -118,23 +121,33 @@ class _RoomListScreenState extends State<RoomListScreen>
       } else {
         _refreshController.loadNoData();
       }
+      _isLoadingMore = false;
     }
   }
 
   _onRefresh() async {
     _controllerSearch.text = '';
+    _isLoadingMore = false;
     await _getRooms();
     _refreshController.refreshCompleted();
-    setState(() {
-      _currentPage = 1;
-    });
+    _refreshController.resetNoData();
   }
 
   _onLoading() async {
-    if (_currentPage == 1) {
-      await _getRooms(page: _currentPage + 1);
+    if (_isLoadingMore) {
+      _refreshController.loadComplete();
+      return;
     }
-    _refreshController.loadComplete();
+    _isLoadingMore = true;
+    final prevCount = roomListData?.rooms?.length ?? 0;
+    await _getRooms(page: _currentPage + 1);
+    final newCount = roomListData?.rooms?.length ?? 0;
+    _isLoadingMore = false;
+    if (newCount > prevCount) {
+      _refreshController.loadComplete();
+    } else {
+      _refreshController.loadNoData();
+    }
   }
 
   checkUserToken() async {
@@ -142,57 +155,76 @@ class _RoomListScreenState extends State<RoomListScreen>
   }
 
   _getRooms({int page = 1}) async {
-    if (mounted) {
-      roomListData = await ChatConnection.roomList(
-        source: widget.source,
-        channelId: channel,
-        status: status,
-        tagIds: tagIds,
-        page: page,
-        roomData: roomListData,
-        link_status: link_status,
-        isGroup: isGroup,
-        endDate: endDay,
-        startDate: startDay,
-      );
-      _getRoomVisible();
-      isInitScreen = false;
-      if (ChatConnection.isChatHub) {
-        if (widget.refreshTabNoti != null) {
-          widget.refreshTabNoti!();
+    // Reset con trỏ trang mỗi khi tải lại từ đầu để tránh lệch trang
+    // (thoát phòng gọi _getRooms() page=1 nhưng _currentPage vẫn ở trang cao
+    // -> lần scroll kế tiếp nhảy trang, bỏ sót phòng).
+    if (page == 1) _currentPage = 1;
+    final data = await ChatConnection.roomList(
+      source: widget.source,
+      channelId: channel,
+      status: status,
+      tagIds: tagIds,
+      page: page,
+      roomData: roomListData,
+      link_status: link_status,
+      isGroup: isGroup,
+      endDate: endDay,
+      startDate: startDay,
+    );
+    // Chỉ ghi đè khi có dữ liệu để lỗi API không xóa trắng danh sách hiện có.
+    if (data != null) {
+      roomListData = data;
+      if (page != 1) _currentPage = page;
+    }
+    await _getRoomVisible();
+    isInitScreen = false;
+    if (ChatConnection.isChatHub && widget.refreshTabNoti != null) {
+      widget.refreshTabNoti!();
+    }
+    if (mounted) setState(() {});
+  }
+
+  // Nạp lại trang đầu rồi hợp nhất vào danh sách hiện có, GIỮ NGUYÊN các trang
+  // đã cuộn và _currentPage. Dùng khi quay lại từ màn chat để không bị reset
+  // danh sách về page 1 (mất toàn bộ phòng đã tải ở các trang sau).
+  Future<void> _refreshKeepingPages() async {
+    final fresh = await ChatConnection.roomList(
+      source: widget.source,
+      channelId: channel,
+      status: status,
+      tagIds: tagIds,
+      page: 1,
+      link_status: link_status,
+      isGroup: isGroup,
+      endDate: endDay,
+      startDate: startDay,
+    );
+    final freshRooms = fresh?.rooms;
+    if (freshRooms == null || freshRooms.isEmpty) return;
+    if (roomListData == null) {
+      roomListData = fresh;
+    } else {
+      final existing = roomListData!.rooms ??= <Rooms>[];
+      final indexById = <String?, int>{
+        for (int i = 0; i < existing.length; i++) existing[i].sId: i
+      };
+      // Cập nhật tại chỗ phòng đã có (không đảo vị trí -> giữ scroll offset),
+      // chèn phòng mới lên đầu.
+      for (int i = freshRooms.length - 1; i >= 0; i--) {
+        final room = freshRooms[i];
+        final idx = indexById[room.sId];
+        if (idx != null) {
+          existing[idx] = room;
+        } else {
+          existing.insert(0, room);
         }
       }
-
-      setState(() {});
-    } else {
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        roomListData = await ChatConnection.roomList(
-            source: widget.source,
-            channelId: channel,
-            status: status,
-            tagIds: tagIds,
-            page: page,
-            keyword: _controllerSearch.value.text,
-            roomData: roomListData,
-            link_status: link_status,
-            isGroup: isGroup,
-            endDate: endDay,
-            startDate: startDay);
-        _getRoomVisible();
-        isInitScreen = false;
-        if (ChatConnection.isChatHub) {
-          if (widget.refreshTabNoti != null) {
-            widget.refreshTabNoti!();
-          }
-        }
-
-        setState(() {});
-      });
     }
-    if (page != 1)
-      setState(() {
-        _currentPage++;
-      });
+    await _getRoomVisible();
+    if (ChatConnection.isChatHub && widget.refreshTabNoti != null) {
+      widget.refreshTabNoti!();
+    }
+    if (mounted) setState(() {});
   }
 
   _getRoomVisible() async {
@@ -211,14 +243,14 @@ class _RoomListScreenState extends State<RoomListScreen>
           endDate: endDay,
           startDate: startDay);
       roomListVisible = roomListSearch;
-      setState(() {});
+      if (mounted) setState(() {});
     } else {
       roomListVisible = Room();
       roomListVisible?.limit = roomListData?.limit;
       try {
         roomListVisible?.rooms = <Rooms>[...roomListData!.rooms!.toList()];
       } catch (_) {}
-      setState(() {});
+      if (mounted) setState(() {});
     }
 
     isInitScreen = false;
@@ -491,9 +523,9 @@ class _RoomListScreenState extends State<RoomListScreen>
                   settings: const RouteSettings(name: 'chat_screen')),
             );
             final seenRoomId = roomListVisible?.rooms?[position].sId;
-            // Nạp lại danh sách để lấy tin nhắn mới nhất đến trong lúc ở màn chat
-            // (socket bị màn chat chiếm handler nên danh sách không nhận realtime).
-            await _getRooms();
+            // Nạp lại tin nhắn mới nhất đến trong lúc ở màn chat NHƯNG giữ nguyên
+            // danh sách đã cuộn (không reset về page 1 làm mất các trang sau).
+            await _refreshKeepingPages();
             // Đánh dấu phòng vừa xem theo tin nhắn cuối MỚI NHẤT sau khi nạp lại,
             // để badge chưa xem không hiện lại dù server trả về trạng thái cũ.
             if (seenRoomId != null) {
@@ -590,7 +622,7 @@ class _RoomListScreenState extends State<RoomListScreen>
     );
   }
 
-  void _leaveRoom(String roomId) {
+  _leaveRoom(String roomId) {
     showDialog(
       context: context,
       builder: (cxt) => AlertDialog(
@@ -636,7 +668,7 @@ class _RoomListScreenState extends State<RoomListScreen>
     );
   }
 
-  void _removeLeaveRoom(String roomId) {
+  _removeLeaveRoom(String roomId) {
     showDialog(
       context: context,
       builder: (cxt) => AlertDialog(
@@ -681,7 +713,7 @@ class _RoomListScreenState extends State<RoomListScreen>
     );
   }
 
-  void _removeRoom(String roomId) {
+  _removeRoom(String roomId) {
     showDialog(
       context: context,
       builder: (cxt) => AlertDialog(

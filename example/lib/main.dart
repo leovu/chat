@@ -157,12 +157,12 @@ class _MyAppState extends State<MyApp> {
                       'matthews@2026',
                       'assets/icon-app.png',
                       const Locale(LangKey.langEn, 'EN'),
-                      // domain: 'https://chathub.matthewsliquor.com.au/',
-                      domain: 'https://chat.matthewsliquor.com.au/',
+                      domain: 'https://chathub.matthewsliquor.com.au/',
+                      // domain: 'https://chat.matthewsliquor.com.au/',
                       brandCode: 'matthewsliquor',
-                      isChatHub: false,
+                      isChatHub: true,
                       token:
-                          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyN2JkMDc5NDhhNTUxMDUzZWFkMGFiNyIsInNpZCI6ImFkbWluQG1hdHRoZXdzbGlxdW9yLmNvbSIsImVtYWlsIjoidnVAcGlvYXBwcy52biIsImxldmVsIjoicm9vdCIsImZpcnN0TmFtZSI6IkFkbWluIiwibGFzdE5hbWUiOiJVc2VyIiwidXNlcm5hbWUiOiJhZG1pbkBtYXR0aGV3c2xpcXVvci5jb20iLCJicmFuZCI6Im1hdHRoZXdzbGlxdW9yIiwiaWF0IjoxNzg0NTE1MTkwLCJleHAiOjE3ODk2OTkxOTB9.Fio3sznGjT6USEZdlp9hOHQU2mf2dGYzkolegKjKBcg"
+                          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyN2JkMDc5NDhhNTUxMDUzZWFkMGFiNyIsInVpZCI6IiIsInNpZCI6ImFkbWluIiwiZW1haWwiOiJhZG1pbkBtYXR0aGV3c2xpcXVvci5jb20iLCJsZXZlbCI6InJvb3QiLCJmaXJzdE5hbWUiOiJBZG1pbiIsImxhc3ROYW1lIjoiIiwidXNlcm5hbWUiOiJhZG1pbiIsImJyYW5kX2NvZGUiOiJtYXR0aGV3c2xpcXVvciIsImlhdCI6MTc4NDU5ODE1NSwiZXhwIjoxNzg5NzgyMTU1fQ.d0cyEFd4CVfNdmVFcnRKUMt0gTCDTy4Me-u572DxP1E"
                       // roomId: '632a88f7dd01b42c37330585'
                       );
 
