@@ -861,7 +861,8 @@ class _RoomListScreenState extends State<RoomListScreen>
                                   backgroundColor: getAvatarColor(people.sId),
                                   child: Text(
                                     people.getAvatarName(),
-                                    style: const TextStyle(color: Colors.white),
+                                    style: TextStyle(
+                                        color: getAvatarTextColor(people.sId)),
                                   ),
                                 )
                               : CircleAvatar(
@@ -1011,8 +1012,9 @@ class _RoomListScreenState extends State<RoomListScreen>
                                           getAvatarColor(data.owner?.sId),
                                       child: Text(
                                         data.owner!.getAvatarName(),
-                                        style: const TextStyle(
-                                            color: Colors.white),
+                                        style: TextStyle(
+                                            color: getAvatarTextColor(
+                                                data.owner?.sId)),
                                       ),
                                     )
                               : (data.shieldedID != null &&
@@ -1033,8 +1035,9 @@ class _RoomListScreenState extends State<RoomListScreen>
                                           getAvatarColor(data.owner?.sId),
                                       child: Text(
                                         data.owner!.getAvatarName(),
-                                        style: const TextStyle(
-                                            color: Colors.white),
+                                        style: TextStyle(
+                                            color: getAvatarTextColor(
+                                                data.owner?.sId)),
                                       ),
                                     )
                           : ChatGroupAvatar(people: data.people, size: 50),

@@ -22,7 +22,10 @@ class ChatGroupAvatar extends StatelessWidget {
       child: Stack(
         clipBehavior: Clip.none,
         children: [
-          Positioned(bottom: 0, left: (size - avatarSize) / 2, child: _member(0, avatarSize)),
+          Positioned(
+              bottom: 0,
+              left: (size - avatarSize) / 2,
+              child: _member(0, avatarSize)),
           Positioned(top: 0, left: 0, child: _member(1, avatarSize)),
           Positioned(top: 0, right: 0, child: _member(2, avatarSize)),
         ],
@@ -45,20 +48,23 @@ class ChatGroupAvatar extends StatelessWidget {
   }
 
   Widget _member(int index, double s) {
-    final People? p = (people != null && people!.length > index) ? people![index] : null;
+    final People? p =
+        (people != null && people!.length > index) ? people![index] : null;
     final double radius = s / 2;
     final Widget fallback = CircleAvatar(
       radius: radius,
       backgroundColor: getAvatarColor(p?.sId),
       child: Text(
         p?.getAvatarName() ?? '*',
-        style: TextStyle(color: Colors.white, fontSize: radius * 0.8),
+        style: TextStyle(
+            color: getAvatarTextColor(p?.sId), fontSize: radius * 0.8),
       ),
     );
 
     String? url;
     if (p?.picture?.shieldedID?.isNotEmpty == true) {
-      url = '${HTTPConnection.domain}api/images/${p!.picture!.shieldedID}/256/${ChatConnection.brandCode ?? ''}';
+      url =
+          '${HTTPConnection.domain}api/images/${p!.picture!.shieldedID}/256/${ChatConnection.brandCode ?? ''}';
     } else if (p?.avatar?.isNotEmpty == true) {
       url = p!.avatar;
     }
@@ -69,7 +75,8 @@ class ChatGroupAvatar extends StatelessWidget {
       backgroundColor: Colors.transparent,
       child: ClipOval(
         child: Image(
-          image: CachedNetworkImageProvider(url, headers: {'brand-code': ChatConnection.brandCode ?? ''}),
+          image: CachedNetworkImageProvider(url,
+              headers: {'brand-code': ChatConnection.brandCode ?? ''}),
           fit: BoxFit.cover,
           width: s,
           height: s,
@@ -108,21 +115,21 @@ class GroupAvatar extends StatelessWidget {
           Positioned(
             bottom: 0,
             left: (size - avatarSize) / 2,
-            child: _buildCircleAvatar(img1??'', avatarSize),
+            child: _buildCircleAvatar(img1 ?? '', avatarSize),
           ),
 
           // Ảnh 2 (góc trái dưới)
           Positioned(
             top: 0,
             left: 0,
-            child: _buildCircleAvatar(img2??'', avatarSize),
+            child: _buildCircleAvatar(img2 ?? '', avatarSize),
           ),
 
           // Ảnh 3 (góc phải dưới)
           Positioned(
             top: 0,
             right: 0,
-            child: _buildCircleAvatar(img3??'', avatarSize),
+            child: _buildCircleAvatar(img3 ?? '', avatarSize),
           ),
         ],
       ),

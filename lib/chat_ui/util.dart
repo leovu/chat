@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'dart:ui';
+import 'package:chat/common/avatar_style.dart' as avatar;
 import 'package:chat/chat_ui/models/date_header.dart';
 import 'package:chat/chat_ui/models/emoji_enlargement_behavior.dart';
 import 'package:chat/chat_ui/models/message_spacer.dart';
@@ -19,7 +20,6 @@ enum ReplySwipeDirection {
   startToEnd,
 }
 
-
 /// Returns text representation of a provided bytes value (e.g. 1kB, 1GB)
 String formatBytes(int size, [int fractionDigits = 2]) {
   if (size <= 0) return '0 B';
@@ -29,24 +29,18 @@ String formatBytes(int size, [int fractionDigits = 2]) {
       ['B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'][multiple];
 }
 
-/// Returns user avatar and name color based on the ID
+/// Màu tên/chữ avatar theo id — lấy từ nguồn đồng bộ duy nhất (avatar_style.dart).
+/// Tham số [colors] giữ lại cho tương thích chữ ký cũ nhưng không còn dùng.
 Color getUserAvatarNameColor(types.User user, List<Color> colors) =>
-    colors[user.id.hashCode % colors.length];
+    avatar.getAvatarTextColor(user.id);
 
-/// Returns user initials (can have only first letter of firstName/lastName or both)
-String getUserInitials(types.User user) {
-  String initials = '';
+/// Màu nền avatar theo id (nền pastel) — nguồn đồng bộ duy nhất.
+Color getUserAvatarBackgroundColor(types.User user) =>
+    avatar.getAvatarColor(user.id);
 
-  if ((user.firstName ?? '').isNotEmpty) {
-    initials += user.firstName![0].toUpperCase();
-  }
-
-  if ((user.lastName ?? '').isNotEmpty) {
-    initials += user.lastName![0].toUpperCase();
-  }
-
-  return initials.trim();
-}
+/// Chữ viết tắt avatar — nguồn đồng bộ duy nhất.
+String getUserInitials(types.User user) =>
+    avatar.getAvatarInitials(user.firstName, user.lastName);
 
 /// Returns user name as joined firstName and lastName
 String getUserName(types.User user) =>
@@ -99,16 +93,14 @@ bool isConsistsOfEmojis(
 /// Parses provided messages to chat messages (with headers and spacers) and
 /// returns them with a gallery
 List<Object> calculateChatMessages(
-  List<types.Message> messages,
-  types.User user, {
-  String Function(DateTime)? customDateHeaderText,
-  DateFormat? dateFormat,
-  required int dateHeaderThreshold,
-  String? dateLocale,
-  required int groupMessagesThreshold,
-  required bool showUserNames,
-  DateFormat? timeFormat
-}) {
+    List<types.Message> messages, types.User user,
+    {String Function(DateTime)? customDateHeaderText,
+    DateFormat? dateFormat,
+    required int dateHeaderThreshold,
+    String? dateLocale,
+    required int groupMessagesThreshold,
+    required bool showUserNames,
+    DateFormat? timeFormat}) {
   final chatMessages = <Object>[];
   final gallery = <PreviewImage>[];
 
@@ -187,7 +179,7 @@ List<Object> calculateChatMessages(
     chatMessages.insert(0, {
       'message': message,
       'nextMessageInGroup': nextMessageInGroup,
-      'isFirstInGroup' : isFirstInGroup,
+      'isFirstInGroup': isFirstInGroup,
       'showName': notMyMessage &&
           showUserNames &&
           showName &&

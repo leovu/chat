@@ -2119,7 +2119,7 @@ class _ConversationInformationScreenState
         radius: radius,
         backgroundColor: getAvatarColor(id ?? name),
         child: Text(avatarName,
-            style: const TextStyle(color: Colors.white),
+            style: TextStyle(color: getAvatarTextColor(id ?? name)),
             maxLines: 1,
             textScaler: TextScaler.linear(1.75)),
       );

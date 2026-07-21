@@ -10,6 +10,8 @@ import 'package:swipeable_tile/swipeable_tile.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import '../models/emoji_enlargement_behavior.dart';
 import '../util.dart';
+import 'package:chat/common/avatar_style.dart'
+    show getAvatarColor, getAvatarTextColor;
 import 'file_message.dart';
 import 'image_message.dart';
 import 'inherited_chat_theme.dart';
@@ -164,7 +166,9 @@ class Message extends StatelessWidget {
   final List<r.People>? people;
 
   Widget _avatarBuilder(BuildContext context) {
-    final color = getUserAvatarNameColor(
+    // Màu nền (pastel) + màu chữ (đậm) lấy từ nguồn đồng bộ duy nhất.
+    final bgColor = getUserAvatarBackgroundColor(message.author);
+    final textColor = getUserAvatarNameColor(
       message.author,
       InheritedChatTheme.of(context).theme.userAvatarNameColors,
     );
@@ -180,7 +184,7 @@ class Message extends StatelessWidget {
                     ? InheritedChatTheme.of(context)
                         .theme
                         .userAvatarImageBackgroundColor
-                    : color,
+                    : bgColor,
                 backgroundImage: hasImage
                     ? CachedNetworkImageProvider(message.author.imageUrl!,
                         headers: {'brand-code': ChatConnection.brandCode!})
@@ -192,7 +196,7 @@ class Message extends StatelessWidget {
                         style: InheritedChatTheme.of(context)
                             .theme
                             .userAvatarTextStyle
-                            .copyWith(fontSize: 10),
+                            .copyWith(fontSize: 10, color: textColor),
                       )
                     : null,
               ),
@@ -707,10 +711,11 @@ class Message extends StatelessWidget {
           padding: const EdgeInsets.only(right: 1.0),
           child: CircleAvatar(
             radius: 8.0,
+            backgroundColor: getAvatarColor(e!.sId),
             child: Center(
                 child: Text(
-              e!.getAvatarName(),
-              style: const TextStyle(color: Colors.white, fontSize: 6),
+              e.getAvatarName(),
+              style: TextStyle(color: getAvatarTextColor(e.sId), fontSize: 6),
             )),
           ),
         ));

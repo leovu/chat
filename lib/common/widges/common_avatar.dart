@@ -19,7 +19,8 @@ class CommonAvatar extends StatelessWidget {
                     backgroundColor: getAvatarColor(data.owner?.sId),
                     child: Text(
                       data.owner!.getAvatarName(),
-                      style: const TextStyle(color: Colors.white),
+                      style:
+                          TextStyle(color: getAvatarTextColor(data.owner?.sId)),
                     ),
                   )
                 : CircleAvatar(
@@ -35,7 +36,7 @@ class CommonAvatar extends StatelessWidget {
                     backgroundColor: getAvatarColor(data.sId),
                     child: Text(
                       data.getAvatarGroupName(),
-                      style: const TextStyle(color: Colors.white),
+                      style: TextStyle(color: getAvatarTextColor(data.sId)),
                     ),
                   )
                 : CircleAvatar(

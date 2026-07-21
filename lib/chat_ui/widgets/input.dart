@@ -1,7 +1,8 @@
 import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:chat/presentation/utils/ultility.dart' show getAvatarColor;
+import 'package:chat/presentation/utils/ultility.dart'
+    show getAvatarColor, getAvatarTextColor;
 import 'package:chat/chat_ui/models/send_button_visibility_mode.dart';
 import 'package:chat/chat_ui/widgets/sticker.dart';
 import 'package:chat/common/assets.dart';
@@ -1161,8 +1162,8 @@ class _InputState extends State<Input> {
                       backgroundColor: getAvatarColor(e.sId),
                       child: AutoSizeText(
                         e.getAvatarName(),
-                        style:
-                            const TextStyle(color: Colors.white, fontSize: 8),
+                        style: TextStyle(
+                            color: getAvatarTextColor(e.sId), fontSize: 8),
                       ),
                     )
                   : CircleAvatar(

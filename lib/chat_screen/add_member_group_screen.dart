@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:chat/presentation/utils/ultility.dart' show getAvatarColor;
+import 'package:chat/presentation/utils/ultility.dart'
+    show getAvatarColor, getAvatarTextColor;
 import 'package:chat/chat_ui/vietnamese_text.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';
@@ -533,7 +534,8 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                               data.fullName.isNotEmpty
                                   ? data.fullName[0].toUpperCase()
                                   : '?',
-                              style: const TextStyle(color: Colors.white),
+                              style: TextStyle(
+                                  color: getAvatarTextColor(data.userSocialId)),
                             ),
                           )
                         : CircleAvatar(
@@ -763,7 +765,8 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                               data.displayName.isNotEmpty
                                   ? data.displayName[0].toUpperCase()
                                   : '?',
-                              style: const TextStyle(color: Colors.white),
+                              style: TextStyle(
+                                  color: getAvatarTextColor(data.userId)),
                             ),
                           )
                         : CircleAvatar(
@@ -853,7 +856,8 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                             backgroundColor: getAvatarColor(data.sId),
                             child: Text(
                               data.getAvatarName(),
-                              style: const TextStyle(color: Colors.white),
+                              style: TextStyle(
+                                  color: getAvatarTextColor(data.sId)),
                             ),
                           )
                         : CircleAvatar(

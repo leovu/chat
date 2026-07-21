@@ -3,7 +3,8 @@ import 'dart:io';
 import 'dart:math';
 import 'package:chat/chat_ui/widgets/custom_room_avatar.dart'
     show ChatGroupAvatar;
-import 'package:chat/presentation/utils/ultility.dart' show getAvatarColor;
+import 'package:chat/presentation/utils/ultility.dart'
+    show getAvatarColor, getAvatarTextColor;
 
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:auto_size_text/auto_size_text.dart';
@@ -1621,6 +1622,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
   // Popup hiện đại: bo góc, cấu trúc giống tin nhắn (tên + nội dung), không tách title/content.
   void _showRepliedMessagePopup(types.Message replied) {
     if (!mounted) return;
+    // Tin forward vẫn giữ author gốc -> luôn hiển thị đầy đủ HỌ và TÊN.
     final String name =
         '${replied.author.firstName ?? ''} ${replied.author.lastName ?? ''}'
             .trim();
@@ -1676,10 +1678,18 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                                 const Icon(Icons.broken_image, size: 48),
                           ),
                         )
-                      : Text(
-                          content,
-                          style: const TextStyle(
-                              fontSize: 15, color: Colors.black87, height: 1.4),
+                      : InkWell(
+                          // Nhấn/giữ vào nội dung -> sao chép tin nhắn.
+                          onTap: () => _copyPopupContent(ctx, content),
+                          onLongPress: () => _copyPopupContent(ctx, content),
+                          borderRadius: BorderRadius.circular(8),
+                          child: Text(
+                            content,
+                            style: const TextStyle(
+                                fontSize: 15,
+                                color: Colors.black87,
+                                height: 1.4),
+                          ),
                         ),
                 ),
               ),
@@ -1688,6 +1698,25 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
         ),
       ),
     );
+  }
+
+  // Sao chép nội dung tin trong popup + thông báo, rồi đóng popup.
+  void _copyPopupContent(BuildContext dialogContext, String content) {
+    final String copyText = checkTag(content, data?.room?.people);
+    if (copyText.isEmpty) return;
+    try {
+      Clipboard.setData(ClipboardData(text: copyText)).then((_) {
+        if (Navigator.of(dialogContext).canPop()) {
+          Navigator.of(dialogContext).pop();
+        }
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(AppLocalizations.text(LangKey.copyAlert)),
+            duration: const Duration(seconds: 2),
+          ));
+        }
+      });
+    } catch (_) {}
   }
 
   searchChat() {
@@ -1889,7 +1918,7 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                 backgroundColor: getAvatarColor(owner?.sId),
                 child: Text(
                   owner?.getAvatarName() ?? '',
-                  style: const TextStyle(color: Colors.white),
+                  style: TextStyle(color: getAvatarTextColor(owner?.sId)),
                 ),
               )
             : CircleAvatar(
@@ -1931,7 +1960,8 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
               backgroundColor: getAvatarColor(widget.data.owner?.sId),
               child: Text(
                 widget.data.owner?.getAvatarName() ?? '',
-                style: const TextStyle(color: Colors.white),
+                style: TextStyle(
+                    color: getAvatarTextColor(widget.data.owner?.sId)),
               ),
             );
           }
@@ -1951,7 +1981,8 @@ class _ChatScreenState extends AppLifeCycle<ChatScreen> {
                   backgroundColor: getAvatarColor(widget.data.owner?.sId),
                   child: Text(
                     widget.data.owner?.getAvatarName() ?? '',
-                    style: const TextStyle(color: Colors.white),
+                    style: TextStyle(
+                        color: getAvatarTextColor(widget.data.owner?.sId)),
                   ),
                 );
         }

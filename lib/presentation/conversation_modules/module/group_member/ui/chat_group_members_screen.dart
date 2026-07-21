@@ -19,7 +19,8 @@ import 'package:flutter/material.dart';
 
 import '../../../../../data_model/response/group_info_response.dart';
 import '../../../../utils/dialog.dart';
-import '../../../../utils/ultility.dart' show getAvatarColor;
+import '../../../../utils/ultility.dart'
+    show getAvatarColor, getAvatarTextColor;
 
 class ChatGroupMembersScreen extends StatefulWidget {
   // final r.Rooms roomData;
@@ -295,7 +296,8 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
         context: context,
         builder: (cxxt) => AlertDialog(
           title: Text(AppLocalizations.text(LangKey.notifications)),
-          content: Center(child: Text(AppLocalizations.text(LangKey.leaveError))),
+          content:
+              Center(child: Text(AppLocalizations.text(LangKey.leaveError))),
           actions: [
             ElevatedButton(
                 onPressed: () {
@@ -441,7 +443,8 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
                                 backgroundColor: getAvatarColor(data?.sId),
                                 child: Text(
                                     '${data?.firstName} ${data?.lastName}',
-                                    style: const TextStyle(color: Colors.white),
+                                    style: TextStyle(
+                                        color: getAvatarTextColor(data?.sId)),
                                     maxLines: 1,
                                     textScaler: TextScaler.linear(1.75)),
                               )
@@ -581,7 +584,8 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
                             backgroundColor: getAvatarColor(id),
                             child: Text(
                                 displayName.isNotEmpty ? displayName[0] : '?',
-                                style: const TextStyle(color: Colors.white)))
+                                style:
+                                    TextStyle(color: getAvatarTextColor(id))))
                         : CircleAvatar(
                             radius: 25.0,
                             backgroundImage: CachedNetworkImageProvider(

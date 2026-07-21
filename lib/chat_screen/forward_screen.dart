@@ -6,7 +6,8 @@ import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
-import 'package:chat/presentation/utils/ultility.dart' show getAvatarColor;
+import 'package:chat/presentation/utils/ultility.dart'
+    show getAvatarColor, getAvatarTextColor;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/data_model/chat_message.dart' as c;
@@ -238,26 +239,54 @@ class ForwardScreenState extends State<ForwardScreen> {
     );
   }
 
+  // Họ + tên người gửi gốc của tin đang forward (ưu tiên data server c.Messages).
+  String _senderName() {
+    final a = widget.value?.author;
+    final first = a?.firstName ?? widget.message.author.firstName ?? '';
+    final last = a?.lastName ?? widget.message.author.lastName ?? '';
+    return '$first $last'.trim();
+  }
+
   // Chọn preview theo đúng kiểu message, KHÔNG cast mù sang FileMessage.
   // (CustomMessage: sticker/video/link/system/products... trước đây bị ép kiểu -> crash)
   Widget _buildMessagePreview(BuildContext context) {
     final message = widget.message;
+    Widget content;
     if (message is types.TextMessage) {
-      return checkTag(message.text);
-    }
-    if (message is types.ImageMessage) {
-      return _imagePreview(message.uri);
-    }
-    if (message is types.FileMessage) {
-      return _filePreview(
+      content = checkTag(message.text);
+    } else if (message is types.ImageMessage) {
+      content = _imagePreview(message.uri);
+    } else if (message is types.FileMessage) {
+      content = _filePreview(
         message.name,
         formatBytes(message.size.truncate()),
       );
+    } else if (message is types.CustomMessage) {
+      content = _customPreview(message);
+    } else {
+      content = _filePreview(AppLocalizations.text(LangKey.file), null);
     }
-    if (message is types.CustomMessage) {
-      return _customPreview(message);
-    }
-    return _filePreview(AppLocalizations.text(LangKey.file), null);
+
+    final name = _senderName();
+    if (name.isEmpty) return content;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          name,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: Color(0xff5686E1),
+          ),
+        ),
+        const SizedBox(height: 4),
+        content,
+      ],
+    );
   }
 
   Widget _imagePreview(String uri) {
@@ -398,6 +427,8 @@ class ForwardScreenState extends State<ForwardScreen> {
       TextSpan(
         children: _arr,
       ),
+      maxLines: 3,
+      overflow: TextOverflow.ellipsis,
     );
     return _widget;
   }
@@ -422,8 +453,9 @@ class ForwardScreenState extends State<ForwardScreen> {
                               backgroundColor: getAvatarColor(info.sId),
                               child: Text(
                                 info.getAvatarName(),
-                                style: const TextStyle(
-                                    color: Colors.white, fontSize: 12),
+                                style: TextStyle(
+                                    color: getAvatarTextColor(info.sId),
+                                    fontSize: 12),
                               ),
                             )
                           : CircleAvatar(
@@ -441,8 +473,9 @@ class ForwardScreenState extends State<ForwardScreen> {
                               backgroundColor: getAvatarColor(data.sId),
                               child: Text(
                                 data.getAvatarGroupName(),
-                                style: const TextStyle(
-                                    color: Colors.white, fontSize: 12),
+                                style: TextStyle(
+                                    color: getAvatarTextColor(data.sId),
+                                    fontSize: 12),
                               ),
                             )
                           : CircleAvatar(

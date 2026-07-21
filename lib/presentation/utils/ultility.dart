@@ -1,28 +1,17 @@
 import 'dart:io';
 
-import 'package:chat/chat_ui/chat_theme.dart' show avatarColors;
+import 'package:chat/common/avatar_style.dart';
 import 'package:chat/data_model/room.dart' show Owner;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 
-Color getAvatarColor(String? id) {
-  if (id == null || id.isEmpty) return avatarColors[0];
-  int hash = 0;
-  for (final c in id.codeUnits) {
-    hash = (hash * 31 + c) & 0x7FFFFFFF;
-  }
-  return avatarColors[hash % avatarColors.length];
-}
+// Màu + chữ viết tắt avatar lấy từ nguồn đồng bộ duy nhất (avatar_style.dart).
+export 'package:chat/common/avatar_style.dart'
+    show getAvatarColor, getAvatarTextColor, getAvatarInitials, avatarColors;
 
-String getAvatarName(String firstName, String lastName) {
-  final f = firstName.trim();
-  final l = lastName.trim();
-  if (f.isEmpty && l.isEmpty) return '?';
-  if (l.isEmpty) return f[0].toUpperCase();
-  if (f.isEmpty) return l[0].toUpperCase();
-  return '${f[0]}${l[0]}'.toUpperCase();
-}
+String getAvatarName(String firstName, String lastName) =>
+    getAvatarInitials(firstName, lastName);
 
 configKeyboardActions(List<KeyboardActionsItem> actions) {
   return KeyboardActionsConfig(
@@ -30,20 +19,22 @@ configKeyboardActions(List<KeyboardActionsItem> actions) {
       keyboardBarColor: Colors.grey[200],
       actions: actions);
 }
-  String? checkCustomerTypeChatHub(Owner owner) {
-    String? result;
-    try {
-      if (owner.customerId != null) {
-        result = 'customer';
-      } else {
-        if (owner.cpoCustomerId != null) {
-          result = 'cpo';
-        }
+
+String? checkCustomerTypeChatHub(Owner owner) {
+  String? result;
+  try {
+    if (owner.customerId != null) {
+      result = 'customer';
+    } else {
+      if (owner.cpoCustomerId != null) {
+        result = 'cpo';
       }
-    } catch (_) {}
-    return result;
-  }
-  Future showLoading(BuildContext context) async {
+    }
+  } catch (_) {}
+  return result;
+}
+
+Future showLoading(BuildContext context) async {
   return await showDialog(
       context: context,
       barrierDismissible: false,
