@@ -17,13 +17,14 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 class NotificationScreen extends StatefulWidget {
   final Function? homeCallback;
   final RefreshBuilder builder;
-  const NotificationScreen({Key? key,  required this.builder, this.homeCallback}) : super(key: key);
+  const NotificationScreen({Key? key, required this.builder, this.homeCallback})
+      : super(key: key);
   @override
   _NotificationScreenState createState() => _NotificationScreenState();
 }
 
-class _NotificationScreenState extends State<NotificationScreen> with AutomaticKeepAliveClientMixin {
-
+class _NotificationScreenState extends State<NotificationScreen>
+    with AutomaticKeepAliveClientMixin {
   n.Notifications? notificationListData;
   bool isInitScreen = true;
 
@@ -32,30 +33,32 @@ class _NotificationScreenState extends State<NotificationScreen> with AutomaticK
     super.initState();
     _getNotifications();
   }
-  final RefreshController _refreshController = RefreshController(initialRefresh: false);
 
-  void _onRefresh() async{
+  final RefreshController _refreshController =
+      RefreshController(initialRefresh: false);
+
+  void _onRefresh() async {
     await Future.delayed(const Duration(milliseconds: 1000));
     await _getNotifications();
     _refreshController.refreshCompleted();
   }
 
-  void _onLoading() async{
+  void _onLoading() async {
     await Future.delayed(const Duration(milliseconds: 1000));
     await _getNotifications();
     _refreshController.loadComplete();
   }
+
   _getNotifications() async {
-    if(mounted) {
+    if (mounted) {
       notificationListData = await ChatConnection.notificationList();
       isInitScreen = false;
       setState(() {});
-    }
-    else {
+    } else {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         notificationListData = await ChatConnection.notificationList();
         isInitScreen = false;
-        if(mounted) {
+        if (mounted) {
           setState(() {});
         }
       });
@@ -68,73 +71,121 @@ class _NotificationScreenState extends State<NotificationScreen> with AutomaticK
     super.build(context);
     return Scaffold(
       body: SafeArea(
-        child: Column(children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                height: 30.0,
-                margin: const EdgeInsets.symmetric(horizontal: 10.0,vertical: 5.0),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        Navigator.of(ChatConnection.buildContext).pop();
-                      },
-                      child: SizedBox(
-                          width:30.0,
-                          child: Icon(Icons.arrow_back_ios, color: Colors.black)),
-                    ),
-                  ],
+        child: Column(
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  height: 30.0,
+                  margin: const EdgeInsets.symmetric(
+                      horizontal: 10.0, vertical: 5.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      InkWell(
+                        onTap: () {
+                          Navigator.of(ChatConnection.buildContext).pop();
+                        },
+                        child: SizedBox(
+                            width: 30.0,
+                            child: Icon(Icons.arrow_back_ios,
+                                color: Colors.black)),
+                      ),
+                    ],
+                  ),
                 ),
+                Padding(
+                  padding: const EdgeInsets.only(
+                      bottom: 3.0, left: 10.0, right: 10.0),
+                  child: Text(AppLocalizations.text(LangKey.notifications),
+                      style:
+                          const TextStyle(fontSize: 25.0, color: Colors.black)),
+                ),
+              ],
+            ),
+            Expanded(
+              child: isInitScreen
+                  ? Center(
+                      child: Platform.isAndroid
+                          ? const CircularProgressIndicator()
+                          : const CupertinoActivityIndicator())
+                  : notificationListData?.notifications != null
+                      ? SmartRefresher(
+                          enablePullDown: true,
+                          enablePullUp: false,
+                          controller: _refreshController,
+                          onRefresh: _onRefresh,
+                          onLoading: _onLoading,
+                          header: const WaterDropHeader(),
+                          child: ListView.builder(
+                              keyboardDismissBehavior:
+                                  ScrollViewKeyboardDismissBehavior.onDrag,
+                              itemCount:
+                                  notificationListData!.notifications?.length ??
+                                      0,
+                              itemBuilder:
+                                  (BuildContext context, int position) {
+                                return Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 5.0),
+                                  child: InkWell(
+                                      onTap: () async {
+                                        ChatConnection.readNotification(
+                                            notificationListData!
+                                                .notifications![position].sId!);
+                                        try {
+                                          Room? room =
+                                              await ChatConnection.roomList();
+                                          Rooms? rooms = room?.rooms
+                                              ?.firstWhere((element) =>
+                                                  element.sId ==
+                                                  notificationListData!
+                                                      .notifications![position]
+                                                      .actionParams!
+                                                      .message!
+                                                      .room);
+                                          await Navigator.of(context,
+                                                  rootNavigator: true)
+                                              .push(
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    ChatScreen(
+                                                        data: rooms!,
+                                                        source: rooms.source),
+                                                settings: const RouteSettings(
+                                                    name: 'chat_screen')),
+                                          );
+                                        } catch (_) {}
+                                        if (widget.homeCallback != null) {
+                                          widget.homeCallback!();
+                                        }
+                                        _getNotifications();
+                                      },
+                                      child: _notification(
+                                          notificationListData!
+                                              .notifications![position],
+                                          position ==
+                                              notificationListData!
+                                                      .notifications!.length -
+                                                  1)),
+                                );
+                              }),
+                        )
+                      : Container(),
+            ),
+            if (ChatConnection.isChatHub)
+              Container(
+                height: 3.0,
+                color: Colors.grey.shade200,
               ),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 3.0,left: 10.0,right: 10.0),
-                child: Text(AppLocalizations.text(LangKey.notifications),style: const TextStyle(fontSize: 25.0,color: Colors.black)),
-              ),
-            ],
-          ),
-          Expanded(
-            child:
-            isInitScreen ? Center(child: Platform.isAndroid ? const CircularProgressIndicator() : const CupertinoActivityIndicator()) :
-            notificationListData?.notifications != null ? SmartRefresher(
-              enablePullDown: true,
-              enablePullUp: false,
-              controller: _refreshController,
-              onRefresh: _onRefresh,
-              onLoading: _onLoading,
-              header: const WaterDropHeader(),
-              child: ListView.builder(
-                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                  itemCount: notificationListData!.notifications?.length ?? 0,
-                  itemBuilder: (BuildContext context, int position) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 5.0),
-                      child: InkWell(
-                          onTap: () async {
-                            ChatConnection.readNotification(notificationListData!.notifications![position].sId!);
-                            try{
-                              Room? room = await ChatConnection.roomList();
-                              Rooms? rooms = room?.rooms?.firstWhere((element) => element.sId == notificationListData!.notifications![position].actionParams!.message!.room);
-                              await Navigator.of(context,rootNavigator: true).push(MaterialPageRoute(builder: (context) => ChatScreen(data: rooms!,source: rooms.source),settings:const RouteSettings(name: 'chat_screen')),);
-                            }catch(_) {}
-                            if(widget.homeCallback != null) {
-                              widget.homeCallback!();
-                            }
-                            _getNotifications();
-                          },
-                          child: _notification(notificationListData!.notifications![position], position == notificationListData!.notifications!.length-1)),
-                    );
-                  }),
-            ) : Container(),
-          ),
-          if (ChatConnection.isChatHub) Container(height: 3.0,color: Colors.grey.shade200,),
-        ],),
+          ],
+        ),
       ),
     );
   }
+
   Widget _notification(n.Notification data, bool isLast) {
     return Column(
       children: [
@@ -146,39 +197,47 @@ class _NotificationScreenState extends State<NotificationScreen> with AutomaticK
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                data.createdBy?.picture == null ? CircleAvatar(
-                  radius: 20.0,
-                  backgroundColor: getAvatarColor(data.createdBy?.sId),
-                  child: Text(data.createdBy!.getAvatarName(),
-                      style: const TextStyle(color: Colors.white)),
-                ) : CircleAvatar(
-                  radius: 20.0,
-                  backgroundImage:
-                  CachedNetworkImageProvider('${HTTPConnection.domain}api/images/${data.createdBy!.picture!.shieldedID}/256/${ChatConnection.brandCode!}',headers: {'brand-code':ChatConnection.brandCode!}),
-                  backgroundColor: Colors.transparent,
-                ),
-                Expanded(child: Container(
+                data.createdBy?.picture == null
+                    ? CircleAvatar(
+                        radius: 20.0,
+                        backgroundColor: getAvatarColor(data.createdBy?.sId),
+                        child: Text(data.createdBy!.getAvatarName(),
+                            style: const TextStyle(color: Colors.white)),
+                      )
+                    : CircleAvatar(
+                        radius: 20.0,
+                        backgroundImage: CachedNetworkImageProvider(
+                            '${HTTPConnection.domain}api/images/${data.createdBy!.picture!.shieldedID}/256/${ChatConnection.brandCode!}',
+                            headers: {'brand-code': ChatConnection.brandCode!}),
+                        backgroundColor: Colors.transparent,
+                      ),
+                Expanded(
+                    child: Container(
                   padding: const EdgeInsets.only(left: 10.0),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
-                        child:
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(child: Opacity(
-                                opacity: data.isRead == 0 ? 1.0 : 0.3,
-                                child: dataMessage(data.messageData ?? ''))),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 5.0),
-                              child: AutoSizeText(data.createMessageDate(),style: const TextStyle(fontSize: 11,color: Colors.grey),),
+                          child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                              child: Opacity(
+                                  opacity: data.isRead == 0 ? 1.0 : 0.3,
+                                  child: dataMessage(data))),
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 5.0),
+                            child: AutoSizeText(
+                              data.createMessageDate(),
+                              style: const TextStyle(
+                                  fontSize: 11, color: Colors.grey),
                             ),
-                          ],
-                        )
-                      ),
+                          ),
+                        ],
+                      )),
                     ],
                   ),
                 ))
@@ -186,80 +245,50 @@ class _NotificationScreenState extends State<NotificationScreen> with AutomaticK
             ),
           ),
         ),
-        !isLast ? Container(height: 5.0,) : Container(),
-        !isLast ?  Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0),
-          child: Container(height: 1.0,color: Colors.grey.shade300,),
-        ) : Container(),
+        !isLast
+            ? Container(
+                height: 5.0,
+              )
+            : Container(),
+        !isLast
+            ? Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                child: Container(
+                  height: 1.0,
+                  color: Colors.grey.shade300,
+                ),
+              )
+            : Container(),
       ],
     );
   }
-  Widget dataMessage(String value) {
-    Widget _widget;
-    if(value.contains('@mentioned')) {
-      List<InlineSpan> _arr = [];
-      List<String> contents = value.split('@mentioned');
-      for (int i = 0; i < contents.length; i++) {
-        var element = contents[i];
-        _arr.add(TextSpan(
-            text: element,
-            style:
-            TextStyle(
-              color: Colors.black,
-              fontWeight:
-              i == 0 ? FontWeight.bold : FontWeight.w500
-            )));
-        if(i != contents.length-1) {
-          _arr.add(const TextSpan(
-              text: 'mentioned',
-              style:
-              TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.w500
-              )));
-        }
-      }
-      _widget = Text.rich(
-        TextSpan(
-          children: _arr,
-        ),
-      );
-      return _widget;
+
+  Widget dataMessage(n.Notification data) {
+    String value = data.messageData ?? '';
+    String name = data.createdBy?.getName() ?? '';
+    List<InlineSpan> _arr = [];
+    if (name.isNotEmpty && value.startsWith(name)) {
+      _arr.add(TextSpan(
+          text: name,
+          style: const TextStyle(
+              color: Colors.black, fontWeight: FontWeight.bold)));
+      _arr.add(TextSpan(
+          text: value.substring(name.length),
+          style: const TextStyle(
+              color: Colors.black, fontWeight: FontWeight.w500)));
+    } else {
+      _arr.add(TextSpan(
+          text: value,
+          style: const TextStyle(
+              color: Colors.black, fontWeight: FontWeight.w500)));
     }
-    if(value.contains('replied')) {
-      List<InlineSpan> _arr = [];
-      List<String> contents = value.split('replied');
-      for (int i = 0; i < contents.length; i++) {
-        var element = contents[i];
-        _arr.add(TextSpan(
-            text: element,
-            style:
-            TextStyle(
-                color: Colors.black,
-                fontWeight:
-                i == 0 ? FontWeight.bold : FontWeight.w500
-            )));
-        if(i != contents.length-1) {
-          _arr.add(const TextSpan(
-              text: 'replied',
-              style:
-              TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.w500
-              )));
-        }
-      }
-      _widget = Text.rich(
-        TextSpan(
-          children: _arr,
-        ),
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
-      );
-      return _widget;
-    }
-    return Container();
+    return Text.rich(
+      TextSpan(children: _arr),
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
+    );
   }
+
   @override
   bool get wantKeepAlive => true;
 }
