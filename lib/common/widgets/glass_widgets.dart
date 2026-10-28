@@ -19,7 +19,7 @@ AppBar glassAppBar({
     title: title,
     leading: leading,
     actions: actions,
-    centerTitle: centerTitle,
+    centerTitle: centerTitle ?? true,
     bottom: bottom,
     automaticallyImplyLeading: automaticallyImplyLeading,
     leadingWidth: leadingWidth,

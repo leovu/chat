@@ -21,6 +21,7 @@ import 'package:chat/presentation/utils/ultility.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:chat/common/theme.dart';
 import 'package:chat/common/widgets/glass_widgets.dart';
+import 'package:chat/common/widgets/scroll_hide.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -253,207 +254,225 @@ class _RoomListScreenState extends State<RoomListScreen>
         backgroundColor: AppColors.surfaceColor,
         body: GlassBackground(
           child: SafeArea(
-          top: ChatConnection.isChatHub,
-          bottom: false,
-          child: Column(
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (!ChatConnection.isChatHub)
-                    Container(
-                      width: double.infinity,
-                      height: 44.0 + MediaQuery.paddingOf(context).top + 10.0,
-                      decoration: AppGlass.header(),
-                      padding: EdgeInsets.fromLTRB(10.0,
-                          MediaQuery.paddingOf(context).top + 5.0, 10.0, 5.0),
-                      child: Row(
-                        children: [
-                          InkWell(
-                            onTap: () {
-                              Navigator.of(ChatConnection.buildContext).pop();
-                            },
-                            child: const SizedBox(
-                                width: 30.0,
-                                child: Icon(Icons.arrow_back_ios,
-                                    color: AppColors.white)),
-                          ),
-                          Expanded(
-                            child: Text(AppLocalizations.text(LangKey.chats),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                    color: AppColors.white,
-                                    fontSize: 17.0,
-                                    fontWeight: FontWeight.w600)),
-                          ),
-                          GlassHeaderIconButton(
-                            onTap: () async {
-                              if (widget.openCreateChatRoom != null) {
-                                widget.openCreateChatRoom?.call();
-                              }
-                            },
-                            icon: Image.asset(
-                              'assets/icon-edit.png',
-                              package: 'chat',
-                              width: 18.0,
-                              height: 18.0,
-                              color: AppColors.white,
+            top: ChatConnection.isChatHub,
+            bottom: false,
+            child: Column(
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (!ChatConnection.isChatHub)
+                      Container(
+                        width: double.infinity,
+                        height: 44.0 + MediaQuery.paddingOf(context).top + 10.0,
+                        decoration: AppGlass.header(),
+                        padding: EdgeInsets.fromLTRB(10.0,
+                            MediaQuery.paddingOf(context).top + 5.0, 10.0, 5.0),
+                        child: Row(
+                          children: [
+                            InkWell(
+                              onTap: () {
+                                Navigator.of(ChatConnection.buildContext).pop();
+                              },
+                              child: const SizedBox(
+                                  width: 36.0,
+                                  child: Icon(Icons.arrow_back_ios,
+                                      color: AppColors.white)),
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 6.0),
-                    child: Container(
-                      width: double.infinity,
-                      height: 40,
-                      decoration: AppGlass.pill(),
-                      child: Row(
-                        children: [
-                          const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 10),
-                            child: Center(
-                              child: Icon(
-                                Icons.search,
-                                color: AppColors.textMutedColor,
+                            Expanded(
+                              child: Text(AppLocalizations.text(LangKey.chats),
+                                  maxLines: 1,
+                                  textAlign: TextAlign.center,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                      color: AppColors.white,
+                                      fontSize: 17.0,
+                                      fontWeight: FontWeight.w600)),
+                            ),
+                            GlassHeaderIconButton(
+                              onTap: () async {
+                                if (widget.openCreateChatRoom != null) {
+                                  widget.openCreateChatRoom?.call();
+                                }
+                              },
+                              icon: Image.asset(
+                                'assets/icon-edit.png',
+                                package: 'chat',
+                                width: 18.0,
+                                height: 18.0,
+                                color: AppColors.white,
                               ),
                             ),
-                          ),
-                          Expanded(
-                              child: TextField(
-                            focusNode: _focusSearch,
-                            controller: _controllerSearch,
-                            onChanged: (_) {
-                              if (_debounce?.isActive ?? false)
-                                _debounce?.cancel();
-                              _debounce =
-                                  Timer(const Duration(milliseconds: 300), () {
-                                setState(() {
-                                  isInitScreen = true;
-                                  _getRoomVisible();
-                                });
-                              });
-                            },
-                            decoration: InputDecoration.collapsed(
-                              hintText:
-                                  AppLocalizations.text(LangKey.searchChats),
-                              hintStyle: const TextStyle(
-                                  color: AppColors.textMutedColor),
-                            ),
-                          )),
-                          Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(AppRadius.pill),
-                              child: const Padding(
+                          ],
+                        ),
+                      ),
+                    ScrollHideCollapse(
+                      child: Padding(
+                        padding:
+                            const EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 6.0),
+                        child: Container(
+                          width: double.infinity,
+                          height: 40,
+                          decoration: AppGlass.pill(),
+                          child: Row(
+                            children: [
+                              const Padding(
                                 padding: EdgeInsets.symmetric(horizontal: 10),
                                 child: Center(
                                   child: Icon(
-                                    Icons.close,
+                                    Icons.search,
                                     color: AppColors.textMutedColor,
                                   ),
                                 ),
                               ),
-                              onTap: () {
-                                _controllerSearch.text = '';
-                                FocusManager.instance.primaryFocus?.unfocus();
-                                setState(() {
-                                  isInitScreen = true;
-                                  _getRoomVisible();
-                                });
-                              },
-                            ),
-                          )
-                        ],
+                              Expanded(
+                                  child: TextField(
+                                focusNode: _focusSearch,
+                                controller: _controllerSearch,
+                                onChanged: (_) {
+                                  if (_debounce?.isActive ?? false)
+                                    _debounce?.cancel();
+                                  _debounce = Timer(
+                                      const Duration(milliseconds: 300), () {
+                                    setState(() {
+                                      isInitScreen = true;
+                                      _getRoomVisible();
+                                    });
+                                  });
+                                },
+                                decoration: InputDecoration.collapsed(
+                                  hintText: AppLocalizations.text(
+                                      LangKey.searchChats),
+                                  hintStyle: const TextStyle(
+                                      color: AppColors.textMutedColor),
+                                ),
+                              )),
+                              Material(
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  borderRadius:
+                                      BorderRadius.circular(AppRadius.pill),
+                                  child: const Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 10),
+                                    child: Center(
+                                      child: Icon(
+                                        Icons.close,
+                                        color: AppColors.textMutedColor,
+                                      ),
+                                    ),
+                                  ),
+                                  onTap: () {
+                                    _controllerSearch.text = '';
+                                    FocusManager.instance.primaryFocus
+                                        ?.unfocus();
+                                    setState(() {
+                                      isInitScreen = true;
+                                      _getRoomVisible();
+                                    });
+                                  },
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
                       ),
-                    ),
-                  )
-                ],
-              ),
-              Expanded(
-                child: isInitScreen
-                    ? Center(
-                        child: Platform.isAndroid
-                            ? const CircularProgressIndicator()
-                            : const CupertinoActivityIndicator())
-                    : roomListVisible?.rooms != null
-                        ? SmartRefresher(
-                            enablePullDown: true,
-                            enablePullUp: true,
-                            controller: _refreshController,
-                            onRefresh: _onRefresh,
-                            onLoading: _onLoading,
-                            header: const WaterDropHeader(),
-                            footer: CustomFooter(
-                              builder:
-                                  (BuildContext context, LoadStatus? mode) {
-                                Widget body;
-                                if (mode == LoadStatus.failed) {
-                                  body = const Text(LangKey.load_more_failed);
-                                } else if (mode == LoadStatus.noMore ||
-                                    mode == LoadStatus.idle) {
-                                  body = const SizedBox.shrink();
-                                } else {
-                                  body = Platform.isAndroid
-                                      ? const SizedBox(
-                                          width: 24,
-                                          height: 24,
-                                          child: CircularProgressIndicator(
-                                              strokeWidth: 3),
-                                        )
-                                      : const CupertinoActivityIndicator();
-                                }
-                                return SizedBox(
-                                  height: 60,
-                                  child: Center(child: body),
-                                );
-                              },
-                            ),
-                            child: ValueListenableBuilder<int>(
-                              valueListenable:
-                                  ChatConnection.onlineUsersNotifier,
-                              builder: (context, _, __) => ListView.builder(
-                                controller: _listViewController,
-                                padding: EdgeInsets.only(
-                                    top: 2.0,
-                                    bottom:
-                                        MediaQuery.paddingOf(context).bottom +
-                                            12.0),
-                                keyboardDismissBehavior:
-                                    ScrollViewKeyboardDismissBehavior.onDrag,
-                                itemCount: (ChatConnection.openChatGPT != null)
-                                    ? (roomListVisible?.rooms?.length ?? 0) + 1
-                                    : (roomListVisible?.rooms?.length ?? 0),
-                                itemBuilder: (BuildContext context, int index) {
-                                  int position =
-                                      (ChatConnection.openChatGPT != null)
-                                          ? index - 1
-                                          : index;
-                                  if (ChatConnection.openChatGPT != null &&
-                                      index == 0) {
-                                    return InkWell(
-                                      onTap: () {
-                                        ChatConnection.openChatGPT?.call();
-                                      },
-                                      child: _gptRoom(
-                                          !(roomListVisible?.rooms != null &&
-                                              (roomListVisible
-                                                      ?.rooms?.isNotEmpty ??
-                                                  false))),
-                                    );
+                    )
+                  ],
+                ),
+                Expanded(
+                  child: isInitScreen
+                      ? Center(
+                          child: Platform.isAndroid
+                              ? const CircularProgressIndicator()
+                              : const CupertinoActivityIndicator())
+                      : roomListVisible?.rooms != null
+                          ? SmartRefresher(
+                              enablePullDown: true,
+                              enablePullUp: true,
+                              controller: _refreshController,
+                              onRefresh: _onRefresh,
+                              onLoading: _onLoading,
+                              header: const WaterDropHeader(),
+                              footer: CustomFooter(
+                                builder:
+                                    (BuildContext context, LoadStatus? mode) {
+                                  Widget body;
+                                  if (mode == LoadStatus.failed) {
+                                    body = const Text(LangKey.load_more_failed);
+                                  } else if (mode == LoadStatus.noMore ||
+                                      mode == LoadStatus.idle) {
+                                    body = const SizedBox.shrink();
+                                  } else {
+                                    body = Platform.isAndroid
+                                        ? const SizedBox(
+                                            width: 24,
+                                            height: 24,
+                                            child: CircularProgressIndicator(
+                                                strokeWidth: 3),
+                                          )
+                                        : const CupertinoActivityIndicator();
                                   }
-                                  return parseRoom(position);
+                                  return SizedBox(
+                                    height: 60,
+                                    child: Center(child: body),
+                                  );
                                 },
                               ),
-                            ),
-                          )
-                        : Container(),
-              ),
-            ],
+                              child:
+                                  NotificationListener<UserScrollNotification>(
+                                onNotification:
+                                    ScrollHideController.onNotification,
+                                child: ValueListenableBuilder<int>(
+                                  valueListenable:
+                                      ChatConnection.onlineUsersNotifier,
+                                  builder: (context, _, __) => ListView.builder(
+                                    controller: _listViewController,
+                                    padding: EdgeInsets.only(
+                                        top: 2.0,
+                                        bottom: MediaQuery.paddingOf(context)
+                                                .bottom +
+                                            12.0),
+                                    keyboardDismissBehavior:
+                                        ScrollViewKeyboardDismissBehavior
+                                            .onDrag,
+                                    itemCount: (ChatConnection.openChatGPT !=
+                                            null)
+                                        ? (roomListVisible?.rooms?.length ??
+                                                0) +
+                                            1
+                                        : (roomListVisible?.rooms?.length ?? 0),
+                                    itemBuilder:
+                                        (BuildContext context, int index) {
+                                      int position =
+                                          (ChatConnection.openChatGPT != null)
+                                              ? index - 1
+                                              : index;
+                                      if (ChatConnection.openChatGPT != null &&
+                                          index == 0) {
+                                        return InkWell(
+                                          onTap: () {
+                                            ChatConnection.openChatGPT?.call();
+                                          },
+                                          child: _gptRoom(
+                                              !(roomListVisible?.rooms !=
+                                                      null &&
+                                                  (roomListVisible
+                                                          ?.rooms?.isNotEmpty ??
+                                                      false))),
+                                        );
+                                      }
+                                      return parseRoom(position);
+                                    },
+                                  ),
+                                ),
+                              ),
+                            )
+                          : Container(),
+                ),
+              ],
+            ),
           ),
-        ),
         ),
       ),
     );
@@ -630,7 +649,8 @@ class _RoomListScreenState extends State<RoomListScreen>
                                 foregroundColor: AppColors.white,
                                 elevation: 0,
                                 shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(AppRadius.md))),
+                                    borderRadius:
+                                        BorderRadius.circular(AppRadius.md))),
                             onPressed: () {
                               Navigator.pop(cxxt);
                             },
@@ -685,7 +705,8 @@ class _RoomListScreenState extends State<RoomListScreen>
                       context: context,
                       builder: (cxxt) => AlertDialog(
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(AppRadius.card)),
+                            borderRadius:
+                                BorderRadius.circular(AppRadius.card)),
                         backgroundColor: AppColors.white,
                         title: Text(AppLocalizations.text(LangKey.warning)),
                         content:
@@ -697,7 +718,8 @@ class _RoomListScreenState extends State<RoomListScreen>
                                   foregroundColor: AppColors.white,
                                   elevation: 0,
                                   shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(AppRadius.md))),
+                                      borderRadius:
+                                          BorderRadius.circular(AppRadius.md))),
                               onPressed: () {
                                 Navigator.pop(cxxt);
                               },
@@ -753,7 +775,8 @@ class _RoomListScreenState extends State<RoomListScreen>
                       context: context,
                       builder: (cxxt) => AlertDialog(
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(AppRadius.card)),
+                            borderRadius:
+                                BorderRadius.circular(AppRadius.card)),
                         backgroundColor: AppColors.white,
                         title: Text(AppLocalizations.text(LangKey.warning)),
                         content:
@@ -765,7 +788,8 @@ class _RoomListScreenState extends State<RoomListScreen>
                                   foregroundColor: AppColors.white,
                                   elevation: 0,
                                   shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(AppRadius.md))),
+                                      borderRadius:
+                                          BorderRadius.circular(AppRadius.md))),
                               onPressed: () {
                                 Navigator.pop(cxxt);
                               },
@@ -800,39 +824,39 @@ class _RoomListScreenState extends State<RoomListScreen>
       padding: const EdgeInsets.symmetric(vertical: 10.0),
       decoration: AppGlass.card(),
       child: Column(
-      children: [
-        SizedBox(
-          child: SizedBox(
-            height: ChatConnection.isChatHub ? 80.0 : 56.0,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const CircleAvatar(
-                    radius: 25.0,
-                    backgroundImage:
-                        AssetImage('assets/icon-chat-gpt.png', package: 'chat'),
-                    backgroundColor: Colors.transparent,
-                  ),
-                  Expanded(
-                      child: Container(
-                    padding: const EdgeInsets.only(
-                        top: 5.0, bottom: 5.0, left: 10.0),
-                    child: const Text(
-                      'ChatGPT',
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.successColor),
+        children: [
+          SizedBox(
+            child: SizedBox(
+              height: ChatConnection.isChatHub ? 80.0 : 56.0,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const CircleAvatar(
+                      radius: 25.0,
+                      backgroundImage: AssetImage('assets/icon-chat-gpt.png',
+                          package: 'chat'),
+                      backgroundColor: Colors.transparent,
                     ),
-                  ))
-                ],
+                    Expanded(
+                        child: Container(
+                      padding: const EdgeInsets.only(
+                          top: 5.0, bottom: 5.0, left: 10.0),
+                      child: const Text(
+                        'ChatGPT',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.successColor),
+                      ),
+                    ))
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
       ),
     );
   }

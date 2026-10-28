@@ -4,6 +4,7 @@ import 'package:chat/common/global.dart';
 import 'package:chat/common/theme.dart';
 import 'package:chat/common/shared_prefs/shared_prefs_key.dart';
 import 'package:chat/common/widgets/liquid_glass_tab_bar.dart';
+import 'package:chat/common/widgets/scroll_hide.dart';
 import 'package:chat/presentation/chat_module/ui/chat_screen.dart';
 import 'package:chat/chat_screen/chathub_room_list_screen.dart';
 import 'package:chat/chat_screen/contacts_screen.dart';
@@ -38,6 +39,7 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    ScrollHideController.show();
 
     /// SET LANGUAGE
     try {
@@ -100,7 +102,7 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: _buildChatHubTabBar(),
+      bottomNavigationBar: ScrollHideSlide(child: _buildChatHubTabBar()),
     );
   }
 
@@ -137,6 +139,7 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
                           ChatConnection.refreshNotifications.call();
                         } catch (_) {}
                       }
+                      ScrollHideController.show();
                       setState(() => _chatHubTabIndex = index);
                     },
                     items: [
@@ -199,7 +202,7 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: _buildChatTabBar(),
+      bottomNavigationBar: ScrollHideSlide(child: _buildChatTabBar()),
     );
   }
 
@@ -235,6 +238,7 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
                           ChatConnection.refreshNotifications.call();
                         } catch (_) {}
                       }
+                      ScrollHideController.show();
                       setState(() => _chatTabIndex = index);
                     },
                     items: [
