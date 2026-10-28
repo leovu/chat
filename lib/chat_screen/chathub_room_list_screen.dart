@@ -1,4 +1,3 @@
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:chat/chat_screen/home_screen.dart';
 import 'package:chat/chat_screen/room_list_screen.dart';
 import 'package:chat/connection/chat_connection.dart';
@@ -131,12 +130,9 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen>
               backgroundColor: Colors.transparent,
               appBar: PreferredSize(
                 preferredSize: const Size.fromHeight(48),
-                child: AppBar(
-                  backgroundColor: Colors.transparent,
-                  surfaceTintColor: Colors.transparent,
-                  scrolledUnderElevation: 0.0,
-                  elevation: 0.0,
-                  bottom: TabBar(
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 4.0),
+                  child: TabBar(
                     tabAlignment: TabAlignment.start,
                     isScrollable: true,
                     controller: _tabController,
@@ -145,7 +141,7 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen>
                     dividerHeight: 0,
                     indicatorSize: TabBarIndicatorSize.tab,
                     indicatorPadding:
-                        const EdgeInsets.symmetric(vertical: 6.0),
+                        const EdgeInsets.symmetric(vertical: 4.0),
                     indicator: BoxDecoration(
                       color: AppGlass.surface,
                       borderRadius: BorderRadius.circular(AppRadius.pill),
@@ -156,208 +152,21 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen>
                     ),
                     labelPadding: const EdgeInsets.symmetric(horizontal: 4),
                     tabs: [
-                      SizedBox(
-                        width: 70,
-                        child: Tab(
-                            icon: Row(
-                          children: [
-                            Image.asset(
-                              'assets/icon_chat_all.png',
-                              package: 'chat',
-                              width: 30.0,
-                              height: 30.0,
-                            ),
-                            Expanded(
-                                child: AutoSizeText.rich(
-                              TextSpan(children: [
-                                TextSpan(
-                                    text:
-                                        '  ${AppLocalizations.text(LangKey.all)}',
-                                    style:
-                                        const TextStyle(color: AppColors.textStrongColor)),
-                                if ((ChatConnection.notiChatHubAll ?? 0) > 0)
-                                  TextSpan(
-                                      text:
-                                          ' (${ChatConnection.notiChatHubAll})',
-                                      style: const TextStyle(
-                                          color: AppColors.dangerColor,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold)),
-                              ]),
-                              maxLines: 1,
-                            ))
-                          ],
-                        )),
-                      ),
-                      SizedBox(
-                        width: 70,
-                        child: Tab(
-                            icon: Row(
-                          children: [
-                            Image.asset(
-                              'assets/icon_chat_client.png',
-                              package: 'chat',
-                              width: 20.0,
-                              height: 20.0,
-                            ),
-                            Expanded(
-                                child: AutoSizeText.rich(
-                                    TextSpan(children: [
-                                      TextSpan(
-                                          text:
-                                              '  ${AppLocalizations.text(LangKey.client)}',
-                                          style: const TextStyle(
-                                              color: AppColors.textTitleColor)),
-                                      if ((ChatConnection.notiChatHubClient ??
-                                              0) >
-                                          0)
-                                        TextSpan(
-                                            text:
-                                                ' (${ChatConnection.notiChatHubClient})',
-                                            style: const TextStyle(
-                                                color: AppColors.dangerColor,
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.bold))
-                                    ]),
-                                    maxLines: 1))
-                          ],
-                        )),
-                      ),
-                      SizedBox(
-                        width: 80,
-                        child: Tab(
-                            icon: Row(
-                          children: [
-                            Image.asset(
-                              'assets/icon-facebook-main.png',
-                              package: 'chat',
-                              width: 20.0,
-                              height: 20.0,
-                            ),
-                            Expanded(
-                                child: AutoSizeText.rich(
-                                    TextSpan(children: [
-                                      const TextSpan(
-                                          text: '  Facebook',
-                                          style: TextStyle(
-                                            color: AppColors.textStrongColor,
-                                          )),
-                                      if ((ChatConnection.notiChatHubFacebook ??
-                                              0) >
-                                          0)
-                                        TextSpan(
-                                            text:
-                                                ' (${ChatConnection.notiChatHubFacebook})',
-                                            style: const TextStyle(
-                                                color: AppColors.dangerColor,
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.bold))
-                                    ]),
-                                    maxLines: 1))
-                          ],
-                        )),
-                      ),
-                      SizedBox(
-                        width: 70,
-                        child: Tab(
-                            icon: Row(
-                          children: [
-                            Image.asset(
-                              'assets/icon-zalo.png',
-                              package: 'chat',
-                              width: 20.0,
-                              height: 20.0,
-                            ),
-                            Expanded(
-                                child: AutoSizeText.rich(
-                                    TextSpan(children: [
-                                      const TextSpan(
-                                          text: '  Zalo',
-                                          style:
-                                              TextStyle(color: AppColors.textStrongColor)),
-                                      if ((ChatConnection.notiChatHubZalo ??
-                                              0) >
-                                          0)
-                                        TextSpan(
-                                            text:
-                                                ' (${ChatConnection.notiChatHubZalo})',
-                                            style: const TextStyle(
-                                                color: AppColors.dangerColor,
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.bold))
-                                    ]),
-                                    maxLines: 1))
-                          ],
-                        )),
-                      ),
-                      SizedBox(
-                        width: 70,
-                        child: Tab(
-                            icon: Row(
-                          children: [
-                            Image.asset(
-                              'assets/icon_zalo_personal.png',
-                              package: 'chat',
-                              width: 20.0,
-                              height: 20.0,
-                            ),
-                            Expanded(
-                                child: AutoSizeText.rich(
-                                    TextSpan(children: [
-                                      const TextSpan(
-                                          text: '  Zalo',
-                                          style:
-                                              TextStyle(color: AppColors.textStrongColor)),
-                                      if ((ChatConnection
-                                                  .notiChatHubZaloPersonal ??
-                                              0) >
-                                          0)
-                                        TextSpan(
-                                            text:
-                                                ' (${ChatConnection.notiChatHubZaloPersonal})',
-                                            style: const TextStyle(
-                                                color: AppColors.dangerColor,
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.bold))
-                                    ]),
-                                    maxLines: 1))
-                          ],
-                        )),
-                      ),
-                      //Whatsapp
-                      SizedBox(
-                        width: 90,
-                        child: Tab(
-                            icon: Row(
-                          children: [
-                            Image.asset(
-                              'assets/icon_whatsapp.png',
-                              package: 'chat',
-                              width: 20.0,
-                              height: 20.0,
-                            ),
-                            Expanded(
-                                child: AutoSizeText.rich(
-                                    TextSpan(children: [
-                                      const TextSpan(
-                                          text: '  WhatsApp',
-                                          style:
-                                              TextStyle(color: AppColors.textStrongColor)),
-                                      if ((ChatConnection.notiChatHubWhatsApp ??
-                                              0) >
-                                          0)
-                                        TextSpan(
-                                            text:
-                                                ' (${ChatConnection.notiChatHubWhatsApp})',
-                                            style: const TextStyle(
-                                                color: AppColors.dangerColor,
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.bold))
-                                    ]),
-                                    maxLines: 1))
-                          ],
-                        )),
-                      ),
+                      _buildTab('assets/icon_chat_all.png',
+                          AppLocalizations.text(LangKey.all),
+                          ChatConnection.notiChatHubAll,
+                          iconSize: 26.0),
+                      _buildTab('assets/icon_chat_client.png',
+                          AppLocalizations.text(LangKey.client),
+                          ChatConnection.notiChatHubClient),
+                      _buildTab('assets/icon-facebook-main.png', 'Facebook',
+                          ChatConnection.notiChatHubFacebook),
+                      _buildTab('assets/icon-zalo.png', 'Zalo',
+                          ChatConnection.notiChatHubZalo),
+                      _buildTab('assets/icon_zalo_personal.png', 'Zalo',
+                          ChatConnection.notiChatHubZaloPersonal),
+                      _buildTab('assets/icon_whatsapp.png', 'WhatsApp',
+                          ChatConnection.notiChatHubWhatsApp),
                     ],
                   ),
                 ),
@@ -453,6 +262,43 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen>
             ),
           )
         ])),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTab(String icon, String? label, int? count,
+      {double iconSize = 20.0}) {
+    return Tab(
+      height: 40.0,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset(icon,
+                package: 'chat', width: iconSize, height: iconSize),
+            const SizedBox(width: 6.0),
+            Text.rich(
+              TextSpan(children: [
+                TextSpan(
+                    text: label ?? '',
+                    style: const TextStyle(
+                        color: AppColors.textStrongColor,
+                        fontSize: 14.0,
+                        fontWeight: FontWeight.w500)),
+                if ((count ?? 0) > 0)
+                  TextSpan(
+                      text: ' ($count)',
+                      style: const TextStyle(
+                          color: AppColors.dangerColor,
+                          fontSize: 12.0,
+                          fontWeight: FontWeight.bold)),
+              ]),
+              maxLines: 1,
+              softWrap: false,
+            ),
+          ],
         ),
       ),
     );

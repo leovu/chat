@@ -254,6 +254,7 @@ class _RoomListScreenState extends State<RoomListScreen>
         body: GlassBackground(
           child: SafeArea(
           top: ChatConnection.isChatHub,
+          bottom: false,
           child: Column(
             children: [
               Column(
@@ -262,72 +263,49 @@ class _RoomListScreenState extends State<RoomListScreen>
                   if (!ChatConnection.isChatHub)
                     Container(
                       width: double.infinity,
+                      height: 44.0 + MediaQuery.paddingOf(context).top + 10.0,
                       decoration: AppGlass.header(),
-                      padding: EdgeInsets.only(
-                          top: MediaQuery.paddingOf(context).top,
-                          bottom: 12.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                    Container(
-                      height: 30.0,
-                      margin: const EdgeInsets.symmetric(
-                          horizontal: 10.0, vertical: 5.0),
+                      padding: EdgeInsets.fromLTRB(10.0,
+                          MediaQuery.paddingOf(context).top + 5.0, 10.0, 5.0),
                       child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           InkWell(
                             onTap: () {
                               Navigator.of(ChatConnection.buildContext).pop();
                             },
-                            child: SizedBox(
+                            child: const SizedBox(
                                 width: 30.0,
                                 child: Icon(Icons.arrow_back_ios,
                                     color: AppColors.white)),
                           ),
-                        ],
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        Padding(
-                          padding:
-                              const EdgeInsets.only(bottom: 3.0, left: 10.0),
-                          child: Text(AppLocalizations.text(LangKey.chats),
-                              style: const TextStyle(
-                                  fontSize: 25.0,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.white)),
-                        ),
-                        Expanded(child: Container()),
-                        if (!ChatConnection.isChatHub)
-                          Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 20.0),
-                            child: GlassHeaderIconButton(
-                              onTap: () async {
-                                if (widget.openCreateChatRoom != null) {
-                                  widget.openCreateChatRoom?.call();
-                                }
-                              },
-                              icon: Image.asset(
-                                'assets/icon-edit.png',
-                                package: 'chat',
-                                width: 18.0,
-                                height: 18.0,
-                                color: AppColors.white,
-                              ),
+                          Expanded(
+                            child: Text(AppLocalizations.text(LangKey.chats),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                    color: AppColors.white,
+                                    fontSize: 17.0,
+                                    fontWeight: FontWeight.w600)),
+                          ),
+                          GlassHeaderIconButton(
+                            onTap: () async {
+                              if (widget.openCreateChatRoom != null) {
+                                widget.openCreateChatRoom?.call();
+                              }
+                            },
+                            icon: Image.asset(
+                              'assets/icon-edit.png',
+                              package: 'chat',
+                              width: 18.0,
+                              height: 18.0,
+                              color: AppColors.white,
                             ),
-                          )
-                      ],
-                    ),
+                          ),
                         ],
                       ),
                     ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10.0, vertical: 10.0),
+                    padding: const EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 6.0),
                     child: Container(
                       width: double.infinity,
                       height: 40,
@@ -438,6 +416,11 @@ class _RoomListScreenState extends State<RoomListScreen>
                                   ChatConnection.onlineUsersNotifier,
                               builder: (context, _, __) => ListView.builder(
                                 controller: _listViewController,
+                                padding: EdgeInsets.only(
+                                    top: 2.0,
+                                    bottom:
+                                        MediaQuery.paddingOf(context).bottom +
+                                            12.0),
                                 keyboardDismissBehavior:
                                     ScrollViewKeyboardDismissBehavior.onDrag,
                                 itemCount: (ChatConnection.openChatGPT != null)
@@ -820,7 +803,7 @@ class _RoomListScreenState extends State<RoomListScreen>
       children: [
         SizedBox(
           child: SizedBox(
-            height: ChatConnection.isChatHub ? 80.0 : 50.0,
+            height: ChatConnection.isChatHub ? 80.0 : 56.0,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10.0),
               child: Row(
@@ -891,7 +874,7 @@ class _RoomListScreenState extends State<RoomListScreen>
       children: [
         SizedBox(
           child: SizedBox(
-            height: ChatConnection.isChatHub ? 80.0 : 50.0,
+            height: ChatConnection.isChatHub ? 80.0 : 56.0,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10.0),
               child: Row(
@@ -1220,7 +1203,7 @@ class _RoomListScreenState extends State<RoomListScreen>
   // ---------------------------------------------------------------------------
   Widget _buildChannelBadge(Rooms data) {
     return Padding(
-      padding: const EdgeInsets.only(top: 5.0),
+      padding: const EdgeInsets.only(top: 6.0),
       child: Align(
         alignment: Alignment.centerLeft,
         child: Container(
@@ -1228,12 +1211,15 @@ class _RoomListScreenState extends State<RoomListScreen>
             color: colorAppName[data.channel?.nameApp ?? ''],
             borderRadius: BorderRadius.circular(AppRadius.pill),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
-          child: AutoSizeText(
+          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 3.0),
+          child: Text(
             data.channel?.nameApp ?? '',
-            textAlign: TextAlign.center,
-            style: const TextStyle(color: Colors.white),
-            textScaleFactor: 0.85,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12.0,
+                fontWeight: FontWeight.w500),
           ),
         ),
       ),
@@ -1248,8 +1234,8 @@ class _RoomListScreenState extends State<RoomListScreen>
 
     return Column(
       children: [
-        SizedBox(
-          height: ChatConnection.isChatHub ? 80.0 : 50.0,
+        ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 56.0),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10.0),
             child: Row(
@@ -1269,17 +1255,17 @@ class _RoomListScreenState extends State<RoomListScreen>
                 // ── Room info ────────────────────────────────────────────────
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.only(
-                        top: 5.0, bottom: 5.0, left: 10.0),
+                    padding: const EdgeInsets.only(left: 10.0),
                     child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(child: _buildNameRow(data)),
-                        const SizedBox(height: 5.0),
-                        Expanded(child: _buildPreviewRow(data, author)),
+                        _buildNameRow(data),
+                        const SizedBox(height: 4.0),
+                        _buildPreviewRow(data, author),
                         if (data.channel != null && ChatConnection.isChatHub)
-                          Expanded(flex: 2, child: _buildChannelBadge(data)),
+                          _buildChannelBadge(data),
                       ],
                     ),
                   ),

@@ -113,6 +113,7 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen>
         body: GlassBackground(
           child: SafeArea(
           top: false,
+          bottom: false,
           child: Column(
             children: [
               Column(
@@ -236,6 +237,9 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen>
                             onLoading: _onLoading,
                             header: const WaterDropHeader(),
                             child: ListView.builder(
+                                padding: EdgeInsets.only(
+                                    top: 2.0,
+                                    bottom: MediaQuery.paddingOf(context).bottom + 12.0),
                                 keyboardDismissBehavior:
                                     ScrollViewKeyboardDismissBehavior.onDrag,
                                 itemCount: roomListVisible!.rooms?.length ?? 0,
