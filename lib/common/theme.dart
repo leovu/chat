@@ -21,7 +21,7 @@ class AppColors {
   static const successColor = Color(0xFF34C759);
   static const warningColor = Color(0xFFFFB020);
   static const dangerColor = Color(0xFFFF3B30);
-  static const surfaceColor = Color(0xFFF2F7FB);
+  static const surfaceColor = Color(0xFFF5F7F9);
   static const textTitleColor = Color(0xFF1E293B);
   static const textStrongColor = Color(0xFF334155);
   static const textBodyColor = Color(0xFF475569);
@@ -48,7 +48,7 @@ class AppColors {
   static const colorLine = Color(0xFFF1F1F1);
   static const colorLineImage = Color(0xFFE4E4E4);
   static const headerColorBackground = Color(0xFF3398DC);
-  static const headerColorLinearTop = Color(0xFFE3F0FA);
+  static const headerColorLinearTop = Color(0xFFEDF2F6);
   static const headerColorLinearBottom = Color(0xFFE1F0FA);
   static const colorSelectedService = Color(0xFFE1F0FA);
   static const colorUnSelectedService = Color(0xFFF4F6F8);
@@ -145,7 +145,7 @@ class AppGlass {
   static const LinearGradient backgroundGradient = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    colors: [Color(0xFFE3F0FA), AppColors.surfaceColor, Color(0xFFEDF3F8)],
+    colors: [Color(0xFFEDF2F6), AppColors.surfaceColor, Color(0xFFF2F4F6)],
     stops: [0.0, 0.45, 1.0],
   );
 
@@ -154,7 +154,7 @@ class AppGlass {
         end: Alignment.bottomCenter,
         colors: [
           const Color(0xFFFDFEFF),
-          Color.lerp(Colors.white, AppColors.primaryColor, 0.03)!,
+          Color.lerp(Colors.white, AppColors.primaryColor, 0.012)!,
           AppColors.surfaceColor,
         ],
         stops: const [0.0, 0.3, 1.0],
@@ -229,7 +229,7 @@ class AppGlass {
         end: Alignment.bottomRight,
         colors: [
           Colors.white.withValues(alpha: 0.92),
-          Color.lerp(Colors.white, AppColors.primaryColor, 0.05)!
+          Color.lerp(Colors.white, AppColors.primaryColor, 0.02)!
               .withValues(alpha: 0.74),
         ],
       );
