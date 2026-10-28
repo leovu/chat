@@ -194,6 +194,7 @@
 //     );
 //   }
 // }
+import 'package:chat/common/theme.dart';
 import 'package:flutter/material.dart';
 
 class SearchableDropdown extends StatefulWidget {
@@ -300,14 +301,12 @@ class _SearchableDropdownState extends State<SearchableDropdown> {
           link: _layerLink,
           showWhenUnlinked: false,
           child: Material(
-            elevation: 4,
-            borderRadius: BorderRadius.circular(8),
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(AppRadius.md),
             child: Container(
               constraints: const BoxConstraints(maxHeight: 250),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-              ),
+              decoration: AppGlass.card(
+                  radius: AppRadius.md, color: AppColors.white),
               child: Column(
                 children: [
                   Padding(
@@ -322,9 +321,16 @@ class _SearchableDropdownState extends State<SearchableDropdown> {
                               hintText: "Nhập để tìm hoặc thêm...",
                               contentPadding:
                                   const EdgeInsets.symmetric(horizontal: 12),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
+                              hintStyle: const TextStyle(
+                                  color: AppColors.textMutedColor),
+                              filled: true,
+                              fillColor: AppColors.surfaceColor,
+                              border: AppGlass.inputBorder(
+                                  color: AppColors.primaryColorMix),
+                              enabledBorder: AppGlass.inputBorder(
+                                  color: AppColors.primaryColorMix),
+                              focusedBorder: AppGlass.inputBorder(
+                                  color: AppColors.primaryColor),
                             ),
                             onSubmitted: (_) =>
                                 _submitItem(), // Submit khi nhấn Enter
@@ -339,7 +345,7 @@ class _SearchableDropdownState extends State<SearchableDropdown> {
                       ],
                     ),
                   ),
-                  const Divider(height: 0),
+                  const Divider(height: 0, color: AppColors.primaryColorMix),
                   Expanded(
                     child: _filteredItems.isEmpty
                         ? const Padding(
@@ -399,10 +405,7 @@ class _SearchableDropdownState extends State<SearchableDropdown> {
         },
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey.shade400),
-            borderRadius: BorderRadius.circular(8),
-          ),
+          decoration: AppGlass.tile(),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -410,7 +413,7 @@ class _SearchableDropdownState extends State<SearchableDropdown> {
                 child: Text(
                   _selectedValue ?? widget.hintText,
                   style: TextStyle(
-                    color: _selectedValue == null ? Colors.grey : Colors.black,
+                    color: _selectedValue == null ? AppColors.textSecondaryColor : AppColors.textTitleColor,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),

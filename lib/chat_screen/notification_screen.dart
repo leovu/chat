@@ -11,6 +11,8 @@ import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:chat/presentation/utils/ultility.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:chat/common/theme.dart';
+import 'package:chat/common/widgets/glass_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
@@ -70,12 +72,23 @@ class _NotificationScreenState extends State<NotificationScreen>
     widget.builder.call(context, _getNotifications);
     super.build(context);
     return Scaffold(
-      body: SafeArea(
+      backgroundColor: AppColors.surfaceColor,
+      body: GlassBackground(
+        child: SafeArea(
+        top: false,
         child: Column(
           children: [
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Container(
+                  width: double.infinity,
+                  decoration: AppGlass.header(),
+                  padding: EdgeInsets.only(
+                      top: MediaQuery.paddingOf(context).top, bottom: 12.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                 Container(
                   height: 30.0,
                   margin: const EdgeInsets.symmetric(
@@ -91,7 +104,7 @@ class _NotificationScreenState extends State<NotificationScreen>
                         child: SizedBox(
                             width: 30.0,
                             child: Icon(Icons.arrow_back_ios,
-                                color: Colors.black)),
+                                color: AppColors.white)),
                       ),
                     ],
                   ),
@@ -100,8 +113,13 @@ class _NotificationScreenState extends State<NotificationScreen>
                   padding: const EdgeInsets.only(
                       bottom: 3.0, left: 10.0, right: 10.0),
                   child: Text(AppLocalizations.text(LangKey.notifications),
-                      style:
-                          const TextStyle(fontSize: 25.0, color: Colors.black)),
+                      style: const TextStyle(
+                          fontSize: 25.0,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.white)),
+                ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -178,10 +196,11 @@ class _NotificationScreenState extends State<NotificationScreen>
             if (ChatConnection.isChatHub)
               Container(
                 height: 3.0,
-                color: Colors.grey.shade200,
+                color: AppColors.primaryColorMix,
               ),
           ],
         ),
+      ),
       ),
     );
   }
@@ -233,7 +252,7 @@ class _NotificationScreenState extends State<NotificationScreen>
                             child: AutoSizeText(
                               data.createMessageDate(),
                               style: const TextStyle(
-                                  fontSize: 11, color: Colors.grey),
+                                  fontSize: 11, color: AppColors.textSecondaryColor),
                             ),
                           ),
                         ],
@@ -255,7 +274,7 @@ class _NotificationScreenState extends State<NotificationScreen>
                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
                 child: Container(
                   height: 1.0,
-                  color: Colors.grey.shade300,
+                  color: AppColors.primaryColorMix,
                 ),
               )
             : Container(),
@@ -271,16 +290,16 @@ class _NotificationScreenState extends State<NotificationScreen>
       _arr.add(TextSpan(
           text: name,
           style: const TextStyle(
-              color: Colors.black, fontWeight: FontWeight.bold)));
+              color: AppColors.textTitleColor, fontWeight: FontWeight.bold)));
       _arr.add(TextSpan(
           text: value.substring(name.length),
           style: const TextStyle(
-              color: Colors.black, fontWeight: FontWeight.w500)));
+              color: AppColors.textTitleColor, fontWeight: FontWeight.w500)));
     } else {
       _arr.add(TextSpan(
           text: value,
           style: const TextStyle(
-              color: Colors.black, fontWeight: FontWeight.w500)));
+              color: AppColors.textTitleColor, fontWeight: FontWeight.w500)));
     }
     return Text.rich(
       TextSpan(children: _arr),

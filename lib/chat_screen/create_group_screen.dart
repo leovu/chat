@@ -9,6 +9,8 @@ import 'package:chat/data_model/room.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:chat/common/theme.dart';
+import 'package:chat/common/widgets/glass_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/data_model/room.dart' as r;
 import 'package:auto_size_text/auto_size_text.dart';
@@ -88,17 +90,26 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
   Widget build(BuildContext context) {
     // TODO: implement build
     return Container(
-        color: Colors.white,
+        color: AppColors.surfaceColor,
         child: GestureDetector(
           onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
           child: Scaffold(
-            body: SafeArea(
+            backgroundColor: AppColors.surfaceColor,
+            body: GlassBackground(
+              child: SafeArea(
+              top: false,
               child: Column(
                 children: [
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Stack(
+                      Container(
+                        width: double.infinity,
+                        decoration: AppGlass.header(),
+                        padding: EdgeInsets.only(
+                            top: MediaQuery.paddingOf(context).top,
+                            bottom: 10.0),
+                        child: Stack(
                         children: [
                           Container(
                             height: 30.0,
@@ -115,7 +126,7 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
                                   child: SizedBox(
                                       width: 30.0,
                                       child: Icon(Icons.arrow_back_ios,
-                                          color: Colors.black)),
+                                          color: AppColors.white)),
                                 ),
                               ],
                             ),
@@ -130,10 +141,13 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
                               child: Text(
                                   AppLocalizations.text(LangKey.newGroupChat),
                                   style: const TextStyle(
-                                      fontSize: 22.0, color: Colors.black)),
+                                      fontSize: 22.0,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.white)),
                             ),
                           )
                         ],
+                      ),
                       ),
                       Padding(
                         padding: const EdgeInsets.only(
@@ -141,10 +155,7 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
                         child: Container(
                           width: double.infinity,
                           height: 40,
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(5),
-                              border:
-                                  Border.all(color: Colors.grey, width: 1.0)),
+                          decoration: AppGlass.tile(),
                           child: Row(
                             children: [
                               const Padding(
@@ -157,6 +168,8 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
                                 decoration: InputDecoration.collapsed(
                                   hintText:
                                       AppLocalizations.text(LangKey.groupName),
+                                  hintStyle: const TextStyle(
+                                      color: AppColors.textMutedColor),
                                 ),
                               )),
                             ],
@@ -169,9 +182,7 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
                         child: Container(
                           width: double.infinity,
                           height: 40,
-                          decoration: BoxDecoration(
-                              color: const Color(0xFFE7EAEF),
-                              borderRadius: BorderRadius.circular(5)),
+                          decoration: AppGlass.pill(),
                           child: Row(
                             children: [
                               const Padding(
@@ -179,6 +190,7 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
                                 child: Center(
                                   child: Icon(
                                     Icons.search,
+                                    color: AppColors.textMutedColor,
                                   ),
                                 ),
                               ),
@@ -205,18 +217,21 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
                                 decoration: InputDecoration.collapsed(
                                   hintText:
                                       AppLocalizations.text(LangKey.search),
+                                  hintStyle: const TextStyle(
+                                      color: AppColors.textMutedColor),
                                 ),
                               )),
                               Material(
                                 color: Colors.transparent,
                                 child: InkWell(
-                                  borderRadius: BorderRadius.circular(5),
+                                  borderRadius: BorderRadius.circular(AppRadius.pill),
                                   child: const Padding(
                                     padding:
                                         EdgeInsets.symmetric(horizontal: 10),
                                     child: Center(
                                       child: Icon(
                                         Icons.close,
+                                        color: AppColors.textMutedColor,
                                       ),
                                     ),
                                   ),
@@ -279,14 +294,21 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
                           child: SizedBox(
                             height: 49.0,
                             width: MediaQuery.of(context).size.width * 0.85,
-                            child: MaterialButton(
-                              color: const Color(0xFF5686E1),
+                            child: DecoratedBox(
+                              decoration: AppGlass.button(),
+                              child: MaterialButton(
+                              color: Colors.transparent,
+                              elevation: 0,
+                              highlightElevation: 0,
                               onPressed: () async {
                                 List<String> people = _selectedIds.toList();
                                 if (people.isEmpty) {
                                   showDialog(
                                     context: context,
                                     builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.card)),
+        backgroundColor: AppColors.white,
                                       title: Text(AppLocalizations.text(
                                           LangKey.warning)),
                                       content: Text(AppLocalizations.text(
@@ -306,6 +328,9 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
                                   showDialog(
                                     context: context,
                                     builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.card)),
+        backgroundColor: AppColors.white,
                                       title: Text(AppLocalizations.text(
                                           LangKey.warning)),
                                       content: Text(AppLocalizations.text(
@@ -343,7 +368,7 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
                                 }
                               },
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10.0),
+                                borderRadius: BorderRadius.circular(AppRadius.md),
                               ),
                               child: Text(
                                 AppLocalizations.text(LangKey.createGroup),
@@ -353,11 +378,13 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
                                     fontWeight: FontWeight.w600),
                               ),
                             ),
+                            ),
                           ),
                         )
                       : Container()
                 ],
               ),
+            ),
             ),
           ),
         ));
@@ -381,7 +408,9 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
                     data.picture == null
                         ? CircleAvatar(
                             radius: 25.0,
-                            child: Text(data.getAvatarName()),
+                            backgroundColor: AppColors.primaryColorMix,
+                            child: Text(data.getAvatarName(),
+                                style: const TextStyle(color: AppColors.primaryColor)),
                           )
                         : CircleAvatar(
                             radius: 25.0,
@@ -402,7 +431,10 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
                         children: [
                           Expanded(
                             child: AutoSizeText(
-                                '${data.firstName} ${data.lastName}'),
+                                '${data.firstName} ${data.lastName}',
+                                style: const TextStyle(
+                                    color: AppColors.textTitleColor,
+                                    fontWeight: FontWeight.w600)),
                           ),
                           Container(
                             height: 5.0,
@@ -410,6 +442,8 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
                           Expanded(
                               child: AutoSizeText(
                             '@${data.username}',
+                            style: const TextStyle(
+                                color: AppColors.textSecondaryColor),
                             overflow: TextOverflow.ellipsis,
                           ))
                         ],
@@ -420,9 +454,9 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
                       width: 30.0,
                       child: _selectedIds.contains(data.sId)
                           ? const Icon(Icons.radio_button_checked,
-                              size: 25.0, color: Color(0xff0021F5))
+                              size: 25.0, color: AppColors.primaryColor)
                           : const Icon(Icons.radio_button_off,
-                              size: 25.0, color: Color(0xff0021F5)),
+                              size: 25.0, color: AppColors.primaryColor),
                     )
                   ],
                 ),
@@ -439,7 +473,7 @@ class _CreateGroupScreenState extends AppLifeCycle<CreateGroupScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 10.0),
                   child: Container(
                     height: 1.0,
-                    color: Colors.grey.shade300,
+                    color: AppColors.primaryColorMix,
                   ),
                 )
               : Container(),

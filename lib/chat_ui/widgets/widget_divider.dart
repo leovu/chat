@@ -9,7 +9,7 @@ Widget customDivider(String text, {TextStyle? textStyle}) {
       children: [
         Expanded(
             child: Divider(
-          color: AppColors.colorDot,
+          color: AppColors.primaryColorMix,
         )),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 5),
@@ -20,12 +20,15 @@ Widget customDivider(String text, {TextStyle? textStyle}) {
             maxLines: 1,
             style: textStyle != null
                 ? textStyle
-                : TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                : TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 15,
+                    color: AppColors.textSecondaryColor),
           ),
         ),
         Expanded(
             child: Divider(
-          color: AppColors.grey,
+          color: AppColors.primaryColorMix,
         )),
       ],
     ),

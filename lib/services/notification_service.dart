@@ -3,6 +3,7 @@ import 'package:chat/connection/http_connection.dart';
 import 'package:chat/data_model/notifications.dart' as n;
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
+import 'package:chat/common/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:overlay_support/overlay_support.dart';
 
@@ -88,6 +89,9 @@ class NotificationService {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.card)),
+        backgroundColor: AppColors.white,
         title: Text(AppLocalizations.text(LangKey.warning)),
         content: Text(content ?? AppLocalizations.text(LangKey.limitSizeUpload)),
         actions: [

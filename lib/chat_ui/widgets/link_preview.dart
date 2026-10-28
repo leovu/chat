@@ -1,3 +1,4 @@
+import 'package:chat/common/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_link_previewer/flutter_link_previewer.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
@@ -70,8 +71,8 @@ class _PreviewLinkState extends State<PreviewLink>
         decoration: BoxDecoration(
             color: widget.transparentBackground
                 ? Colors.transparent
-                : Colors.grey.shade200,
-            borderRadius: BorderRadius.circular(15)),
+                : AppColors.primaryColorMix,
+            borderRadius: BorderRadius.circular(AppRadius.card)),
         child: LinkPreview(
           enableAnimation: true,
           header: widget.header,

@@ -4,6 +4,8 @@ import 'package:chat/chat_screen/room_list_screen.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
+import 'package:chat/common/theme.dart';
+import 'package:chat/common/widgets/glass_widgets.dart';
 import 'package:flutter/material.dart';
 
 class RoomListChathubScreen extends StatefulWidget {
@@ -63,18 +65,21 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen>
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
-        backgroundColor: Colors.white,
-        body: SafeArea(
+        backgroundColor: AppColors.surfaceColor,
+        body: GlassBackground(
+          child: SafeArea(
+            top: false,
             child: Column(children: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                height: 30.0,
-                margin:
-                    const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+                height: 44.0 + MediaQuery.paddingOf(context).top + 10.0,
+                decoration: AppGlass.header(),
+                padding: EdgeInsets.fromLTRB(
+                    10.0, MediaQuery.paddingOf(context).top + 5.0, 10.0, 5.0),
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     InkWell(
@@ -85,12 +90,17 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen>
                           width: 30.0,
                           child: Icon(
                               Icons.arrow_back_ios,
-                              color: Colors.black)),
+                              color: AppColors.white)),
                     ),
+                    Text(AppLocalizations.text(LangKey.chats),
+                        style: const TextStyle(
+                            color: AppColors.white,
+                            fontSize: 17.0,
+                            fontWeight: FontWeight.w600)),
                     Expanded(
                       child: Container(),
                     ),
-                    InkWell(
+                    GlassHeaderIconButton(
                       onTap: () {
                         if (_activeTabIndex == 0) {
                           filterAll.call();
@@ -106,9 +116,7 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen>
                           filterWhatsApp.call();
                         }
                       },
-                      child: const SizedBox(
-                          width: 30.0,
-                          child: Icon(Icons.filter_list, color: Colors.black)),
+                      icon: const Icon(Icons.filter_list),
                     ),
                   ],
                 ),
@@ -117,18 +125,32 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen>
           ),
           Expanded(
             child: Scaffold(
+              backgroundColor: Colors.transparent,
               appBar: PreferredSize(
                 preferredSize: const Size.fromHeight(48),
                 child: AppBar(
-                  backgroundColor: Colors.white,
+                  backgroundColor: Colors.transparent,
+                  surfaceTintColor: Colors.transparent,
+                  scrolledUnderElevation: 0.0,
                   elevation: 0.0,
                   bottom: TabBar(
                     tabAlignment: TabAlignment.start,
                     isScrollable: true,
                     controller: _tabController,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    indicatorSize: TabBarIndicatorSize.label,
-                    indicatorPadding: EdgeInsets.zero,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    dividerColor: Colors.transparent,
+                    dividerHeight: 0,
+                    indicatorSize: TabBarIndicatorSize.tab,
+                    indicatorPadding:
+                        const EdgeInsets.symmetric(vertical: 6.0),
+                    indicator: BoxDecoration(
+                      color: AppGlass.surface,
+                      borderRadius: BorderRadius.circular(AppRadius.pill),
+                      border: Border.all(
+                          color: AppColors.primaryColor.withValues(alpha: 0.4),
+                          width: 1.0),
+                      boxShadow: AppGlass.shadow,
+                    ),
                     labelPadding: const EdgeInsets.symmetric(horizontal: 4),
                     tabs: [
                       SizedBox(
@@ -149,13 +171,13 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen>
                                     text:
                                         '  ${AppLocalizations.text(LangKey.all)}',
                                     style:
-                                        const TextStyle(color: Colors.black)),
+                                        const TextStyle(color: AppColors.textStrongColor)),
                                 if ((ChatConnection.notiChatHubAll ?? 0) > 0)
                                   TextSpan(
                                       text:
                                           ' (${ChatConnection.notiChatHubAll})',
                                       style: const TextStyle(
-                                          color: Colors.red,
+                                          color: AppColors.dangerColor,
                                           fontSize: 12,
                                           fontWeight: FontWeight.bold)),
                               ]),
@@ -182,7 +204,7 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen>
                                           text:
                                               '  ${AppLocalizations.text(LangKey.client)}',
                                           style: const TextStyle(
-                                              color: Colors.black)),
+                                              color: AppColors.textTitleColor)),
                                       if ((ChatConnection.notiChatHubClient ??
                                               0) >
                                           0)
@@ -190,7 +212,7 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen>
                                             text:
                                                 ' (${ChatConnection.notiChatHubClient})',
                                             style: const TextStyle(
-                                                color: Colors.red,
+                                                color: AppColors.dangerColor,
                                                 fontSize: 12,
                                                 fontWeight: FontWeight.bold))
                                     ]),
@@ -215,7 +237,7 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen>
                                       const TextSpan(
                                           text: '  Facebook',
                                           style: TextStyle(
-                                            color: Colors.black,
+                                            color: AppColors.textStrongColor,
                                           )),
                                       if ((ChatConnection.notiChatHubFacebook ??
                                               0) >
@@ -224,7 +246,7 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen>
                                             text:
                                                 ' (${ChatConnection.notiChatHubFacebook})',
                                             style: const TextStyle(
-                                                color: Colors.red,
+                                                color: AppColors.dangerColor,
                                                 fontSize: 12,
                                                 fontWeight: FontWeight.bold))
                                     ]),
@@ -249,7 +271,7 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen>
                                       const TextSpan(
                                           text: '  Zalo',
                                           style:
-                                              TextStyle(color: Colors.black)),
+                                              TextStyle(color: AppColors.textStrongColor)),
                                       if ((ChatConnection.notiChatHubZalo ??
                                               0) >
                                           0)
@@ -257,7 +279,7 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen>
                                             text:
                                                 ' (${ChatConnection.notiChatHubZalo})',
                                             style: const TextStyle(
-                                                color: Colors.red,
+                                                color: AppColors.dangerColor,
                                                 fontSize: 12,
                                                 fontWeight: FontWeight.bold))
                                     ]),
@@ -282,7 +304,7 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen>
                                       const TextSpan(
                                           text: '  Zalo',
                                           style:
-                                              TextStyle(color: Colors.black)),
+                                              TextStyle(color: AppColors.textStrongColor)),
                                       if ((ChatConnection
                                                   .notiChatHubZaloPersonal ??
                                               0) >
@@ -291,7 +313,7 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen>
                                             text:
                                                 ' (${ChatConnection.notiChatHubZaloPersonal})',
                                             style: const TextStyle(
-                                                color: Colors.red,
+                                                color: AppColors.dangerColor,
                                                 fontSize: 12,
                                                 fontWeight: FontWeight.bold))
                                     ]),
@@ -317,7 +339,7 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen>
                                       const TextSpan(
                                           text: '  WhatsApp',
                                           style:
-                                              TextStyle(color: Colors.black)),
+                                              TextStyle(color: AppColors.textStrongColor)),
                                       if ((ChatConnection.notiChatHubWhatsApp ??
                                               0) >
                                           0)
@@ -325,7 +347,7 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen>
                                             text:
                                                 ' (${ChatConnection.notiChatHubWhatsApp})',
                                             style: const TextStyle(
-                                                color: Colors.red,
+                                                color: AppColors.dangerColor,
                                                 fontSize: 12,
                                                 fontWeight: FontWeight.bold))
                                     ]),
@@ -340,10 +362,7 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen>
               body: Column(
                 children: [
                   if (ChatConnection.isChatHub)
-                    Container(
-                      height: 3.0,
-                      color: Colors.grey.shade200,
-                    ),
+                    const SizedBox(height: 3.0),
                   Expanded(
                       child: TabBarView(controller: _tabController, children: [
                     ///Chathub all
@@ -424,15 +443,13 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen>
                     )
                   ])),
                   if (ChatConnection.isChatHub)
-                    Container(
-                      height: 3.0,
-                      color: Colors.grey.shade200,
-                    ),
+                    const SizedBox(height: 3.0),
                 ],
               ),
             ),
           )
         ])),
+        ),
       ),
     );
   }

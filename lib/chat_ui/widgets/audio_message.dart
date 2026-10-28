@@ -243,7 +243,7 @@ class _WaveAnimationState extends State<WaveAnimation>
               margin: const EdgeInsets.symmetric(horizontal: 2),
               decoration: BoxDecoration(
                 color: widget.color,
-                borderRadius: BorderRadius.circular(4),
+                borderRadius: BorderRadius.circular(AppRadius.xs),
               ),
             );
           },

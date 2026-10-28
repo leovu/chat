@@ -44,7 +44,7 @@ class GenericTemplateWidget extends StatelessWidget {
               InkWell(
                 onTap: () => _openUrl(imageUrl),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(AppRadius.md),
                   child: Image.network(
                     imageUrl!,
                     width: double.infinity,
@@ -53,11 +53,11 @@ class GenericTemplateWidget extends StatelessWidget {
                     errorBuilder: (_, __, ___) => Container(
                       width: double.infinity,
                       height: 150,
-                      color: Colors.grey[100],
+                      color: AppColors.surfaceColor,
                       child: const Icon(
                         Icons.broken_image,
                         size: 80,
-                        color: Colors.grey,
+                        color: AppColors.textSecondaryColor,
                       ),
                     ),
                   ),
@@ -90,7 +90,6 @@ class GenericTemplateWidget extends StatelessWidget {
                     child: InkWell(
                       onTap: () => _openUrl(btnUrl),
                       child: CustomButton(
-                        backgroundColor: AppColors.blueColor,
                         text: btnTitle,
                       ),
                     ),
@@ -132,7 +131,7 @@ class GenericElementCardReply extends StatelessWidget {
               children: [
                 if (hasImage)
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(AppRadius.md),
                     child: Image.network(
                       imageUrl!,
                       width: 40,
@@ -141,10 +140,10 @@ class GenericElementCardReply extends StatelessWidget {
                       errorBuilder: (_, __, ___) => Container(
                         width: 40,
                         height: 40,
-                        color: Colors.grey[300],
+                        color: AppColors.primaryColorMix,
                         child: const Icon(
                           Icons.broken_image,
-                          color: Colors.grey,
+                          color: AppColors.textSecondaryColor,
                         ),
                       ),
                     ),
@@ -168,7 +167,7 @@ class GenericElementCardReply extends StatelessWidget {
                 children: [
                   if (hasImage)
                     ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(AppRadius.md),
                       child: Image.network(
                         imageUrl!,
                         width: double.infinity,
@@ -177,11 +176,11 @@ class GenericElementCardReply extends StatelessWidget {
                         errorBuilder: (_, __, ___) => Container(
                           width: double.infinity,
                           height: 150,
-                          color: Colors.grey[300],
+                          color: AppColors.primaryColorMix,
                           child: const Icon(
                             Icons.broken_image,
                             size: 40,
-                            color: Colors.grey,
+                            color: AppColors.textSecondaryColor,
                           ),
                         ),
                       ),

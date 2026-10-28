@@ -1,3 +1,4 @@
+import 'package:chat/common/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -40,7 +41,7 @@ class OaListCard extends StatelessWidget {
             children: [
               if (imageUrl != null && imageUrl!.isNotEmpty)
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(AppRadius.md),
                   child: Image.network(
                     imageUrl!,
                     width: double.infinity,

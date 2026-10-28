@@ -1,3 +1,4 @@
+import 'package:chat/common/theme.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 
@@ -76,7 +77,7 @@ class _PlayAudioState extends State<PlayAudio> with TickerProviderStateMixin{
             },
             child: ClipOval(
               child: Container(
-                color: Colors.black,
+                color: AppColors.textTitleColor,
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: AnimatedIcon(
@@ -90,9 +91,9 @@ class _PlayAudioState extends State<PlayAudio> with TickerProviderStateMixin{
             ),
           ),
           Slider(
-            activeColor: Colors.black,
-            inactiveColor: Colors.grey,
-            thumbColor: Colors.black,
+            activeColor: AppColors.textTitleColor,
+            inactiveColor: AppColors.textSecondaryColor,
+            thumbColor: AppColors.textTitleColor,
             value: _position.inSeconds.toDouble(),
             min: 0.0,
             max: _duration.inSeconds.toDouble(),

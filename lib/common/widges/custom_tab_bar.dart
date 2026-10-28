@@ -44,7 +44,7 @@ class CustomTabBar extends StatelessWidget {
                   decoration: const BoxDecoration(
                     border: Border(
                       bottom: BorderSide(
-                        color: AppColors.lineCardColor,
+                        color: AppColors.primaryColorMix,
                         width: 2.0,
                       ),
                     ),
@@ -52,8 +52,8 @@ class CustomTabBar extends StatelessWidget {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: AppSizes.maxPadding),
             child: TabBar(
-              labelColor: AppColors.dark,
-              unselectedLabelColor: AppColors.grey600,
+              labelColor: AppColors.primaryColor,
+              unselectedLabelColor: AppColors.textSecondaryColor,
               indicatorWeight: 2.0,
               indicatorSize: TabBarIndicatorSize.label,
               indicatorColor: AppColors.primaryColor,
@@ -63,8 +63,9 @@ class CustomTabBar extends StatelessWidget {
               tabAlignment: TabAlignment.start,
               onTap: onTap,
               unselectedLabelStyle: AppTextStyles.style14PrimaryWeight400
-                  .copyWith(color: AppColors.grey500Color),
-              labelStyle: AppTextStyles.style14BlackBold,
+                  .copyWith(color: AppColors.textSecondaryColor),
+              labelStyle: AppTextStyles.style14BlackBold
+                  .copyWith(color: AppColors.primaryColor),
               labelPadding: EdgeInsets.symmetric(
                   horizontal: isExpanded ? 0.0 : AppSizes.minPadding / 2),
               tabs: (tabs ?? []).map((model) {
@@ -91,29 +92,35 @@ class CustomTabBar extends StatelessWidget {
         ],
       );
     }
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: AppSizes.maxPadding),
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: AppSizes.maxPadding),
+      padding: const EdgeInsets.all(3.0),
+      decoration: AppGlass.pill(color: AppGlass.surfaceLight),
       child: TabBar(
-        labelColor: AppColors.dark,
-        unselectedLabelColor: AppColors.grey600,
-        indicatorWeight: 3.0,
-        indicatorSize: TabBarIndicatorSize.label,
-        indicatorColor: AppColors.primaryColor,
+        labelColor: AppColors.white,
+        unselectedLabelColor: AppColors.textSecondaryColor,
+        indicator: BoxDecoration(
+          gradient: AppGlass.activeGradient,
+          borderRadius: BorderRadius.circular(AppRadius.pill),
+          boxShadow: AppGlass.buttonShadow,
+        ),
+        indicatorSize: TabBarIndicatorSize.tab,
         isScrollable: true,
         dividerColor: Colors.transparent,
         dividerHeight: 0,
         tabAlignment: TabAlignment.start,
         onTap: onTap,
         unselectedLabelStyle: AppTextStyles.style14Black50Weight400
-            .copyWith(color: AppColors.grey500Color),
-        labelStyle: AppTextStyles.style14BlackBold,
+            .copyWith(color: AppColors.textSecondaryColor),
+        labelStyle: AppTextStyles.style14WhiteWeight600,
         labelPadding: EdgeInsets.symmetric(
             horizontal: isExpanded ? 0.0 : AppSizes.minPadding / 2),
         tabs: (tabs ?? []).map((model) {
           return Tab(
+              height: 38.0,
               child: SizedBox(
                 width: isExpanded
-                    ? (AppSizes.maxWidth - AppSizes.maxPadding * 2) /
+                    ? (AppSizes.maxWidth - AppSizes.maxPadding * 2 - 6.0) /
                     (tabs ?? []).length
                     : null,
                 child: Row(

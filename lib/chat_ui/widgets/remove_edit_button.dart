@@ -1,3 +1,4 @@
+import 'package:chat/common/theme.dart';
 import 'package:flutter/material.dart';
 import 'inherited_chat_theme.dart';
 import 'inherited_l10n.dart';
@@ -22,7 +23,7 @@ class RemoveEditButton extends StatelessWidget {
       width: 24,
       child: IconButton(
         icon: InheritedChatTheme.of(context).theme.sendButtonIcon ??
-            const Icon(Icons.close,color: Colors.black,size: 20.0,),
+            const Icon(Icons.close,color: AppColors.textTitleColor,size: 20.0,),
         onPressed: onPressed,
         padding: EdgeInsets.zero,
         tooltip: InheritedL10n.of(context).l10n.sendButtonAccessibilityLabel,

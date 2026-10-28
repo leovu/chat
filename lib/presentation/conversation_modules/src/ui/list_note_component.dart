@@ -4,7 +4,6 @@
 */
 import 'package:chat/common/custom_navigator.dart';
 import 'package:chat/common/theme.dart';
-import 'package:chat/common/widges/widget.dart';
 import 'package:chat/data_model/response/notes_response_model.dart';
 import 'package:chat/data_model/room.dart';
 import 'package:chat/localization/app_localizations.dart';
@@ -41,6 +40,10 @@ class _State extends State<ListNoteComponent> {
                           top: 20.0, left: 20.0, bottom: 10.0),
                       child: Text(
                         AppLocalizations.text(LangKey.note),
+                        style: const TextStyle(
+                            color: AppColors.textStrongColor,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600),
                       ),
                     ),
                     Column(
@@ -55,17 +58,19 @@ class _State extends State<ListNoteComponent> {
   Widget noteItem(Note note) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 20.0, vertical: 5.0),
+      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10.0),
+      decoration: AppGlass.tile(),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CustomLine(),
-          Container(
-            height: 10.0,
-          ),
           Row(
             children: [
-              Expanded(child: Text(note.createdAt ?? "")),
+              Expanded(
+                  child: Text(note.createdAt ?? "",
+                      style: const TextStyle(
+                          color: AppColors.textSecondaryColor,
+                          fontSize: 12))),
               InkWell(
                 onTap: () async {
                   await Navigator.of(context).push(MaterialPageRoute(
@@ -83,7 +88,7 @@ class _State extends State<ListNoteComponent> {
                   width: 30.0,
                   child: const Icon(
                     Icons.edit_note_outlined,
-                    color: AppColors.grayBackGround,
+                    color: AppColors.primaryColor,
                   ),
                 ),
               ),
@@ -108,7 +113,7 @@ class _State extends State<ListNoteComponent> {
                   width: 30.0,
                   child: const Icon(
                     Icons.delete_forever,
-                    color: AppColors.redColor,
+                    color: AppColors.dangerColor,
                   ),
                 ),
               )
@@ -117,6 +122,7 @@ class _State extends State<ListNoteComponent> {
           Container(
             child: Text(
               note.content ?? "",
+              style: const TextStyle(color: AppColors.textBodyColor),
             ),
           )
         ],

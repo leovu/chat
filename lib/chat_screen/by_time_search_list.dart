@@ -8,6 +8,7 @@ import 'package:chat/connection/http_connection.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:chat/common/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/data_model/chat_message.dart' as c;
 import 'package:chat/data_model/room.dart' as r;
@@ -45,15 +46,20 @@ class _State extends State<ByTimeResultScreen>
         title: AutoSizeText(
           widget.title ?? AppLocalizations.text(LangKey.byTime),
           style: const TextStyle(
-              color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
+              color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16),
         ),
         leading: InkWell(
-          child: Icon(Icons.arrow_back_ios, color: Colors.black),
+          child: Icon(Icons.arrow_back_ios, color: Colors.white),
           onTap: () => Navigator.of(context).pop(),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        shape: AppGlass.headerShape,
+        flexibleSpace: AppGlass.headerBackground(),
         iconTheme: const IconThemeData(
-          color: Colors.black,
+          color: Colors.white,
         ),
       ),
       body: SafeArea(
@@ -314,8 +320,8 @@ class _State extends State<ByTimeResultScreen>
                 width: 45.0,
                 height: 45.0,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(5),
-                  color: Colors.blue,
+                  borderRadius: BorderRadius.circular(AppRadius.xs),
+                  color: AppColors.primaryColor,
                 ),
                 child: Image.asset(
                   'assets/icon-document.png',
@@ -335,7 +341,7 @@ class _State extends State<ByTimeResultScreen>
             padding: const EdgeInsets.only(top: 8.0),
             child: Container(
               height: 1.0,
-              color: Colors.grey.shade200,
+              color: AppColors.primaryColorMix,
             ),
           )
         ],

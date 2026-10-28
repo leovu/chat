@@ -1,3 +1,4 @@
+import 'package:chat/common/theme.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
@@ -38,20 +39,13 @@ class BannerNotificationState extends State<BannerNotification> {
       child: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.all(Radius.circular(12.0)),
-            boxShadow: [
-              BoxShadow(
-                color: Color(0xFFDEE7F1),
-                blurRadius: 3.0,
-                spreadRadius: 0.5,
-              ),
-            ],
-          ),
+          decoration: AppGlass.card(color: AppColors.white),
           child: Card(
             margin: EdgeInsets.zero,
-            color: Colors.white,
+            color: Colors.transparent,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppRadius.card)),
             child: ListTile(
               onTap: () {
                   widget.onReplay();
@@ -86,7 +80,7 @@ class BannerNotificationState extends State<BannerNotification> {
                               widget.notificationTitle,
                               maxLines: 1,
                               style: const TextStyle(
-                                  color: Colors.black,
+                                  color: AppColors.textTitleColor,
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold),
                               textAlign: TextAlign.left,
@@ -100,7 +94,7 @@ class BannerNotificationState extends State<BannerNotification> {
                             widget.notificationDescription,
                                 maxLines: 2,
                                 style: const TextStyle(
-                                    color: Colors.black, fontSize: 12),
+                                    color: AppColors.textBodyColor, fontSize: 12),
                                 textAlign: TextAlign.left),
                           )
                         ],
@@ -130,8 +124,8 @@ class BannerNotificationState extends State<BannerNotification> {
                   height: 5,
                   width: 50,
                   decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(2.5)),
-                      color: Color(0xffE2E4EC)),
+                      borderRadius: BorderRadius.all(Radius.circular(AppRadius.pill)),
+                      color: AppColors.primaryColorMix),
                 ),
               ),
             ),

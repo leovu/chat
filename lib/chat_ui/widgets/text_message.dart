@@ -1,3 +1,4 @@
+import 'package:chat/common/theme.dart';
 import 'package:chat/chat_ui/widgets/link_preview.dart';
 import 'package:chat/chat_ui/widgets/replied_message.dart';
 import 'package:chat/localization/check_tag.dart';
@@ -129,7 +130,7 @@ class TextMessage extends StatelessWidget {
       return Text(
         message.text,
         style: const TextStyle(
-          color: Colors.grey,
+          color: AppColors.textSecondaryColor,
           fontSize: 14,
           fontStyle: FontStyle.italic,
           height: 1.5,
@@ -206,11 +207,11 @@ class TextMessage extends StatelessWidget {
       return TextSpan(
           text: element,
           style: TextStyle(
-            color: isTag ? const Color(0xffffffff) : Colors.blueAccent,
+            color: isTag ? const Color(0xffffffff) : AppColors.primaryColor,
             fontSize: 16,
             fontWeight: isTag ? FontWeight.bold : FontWeight.w500,
             height: 1.5,
-            background: Paint()..color = Colors.redAccent,
+            background: Paint()..color = AppColors.dangerColor,
           ));
     } else {
       return isTag
@@ -218,8 +219,8 @@ class TextMessage extends StatelessWidget {
               text: element,
               style: TextStyle(
                 color: user.id != message.author.id
-                    ? Colors.blueAccent
-                    : Colors.black,
+                    ? AppColors.primaryColor
+                    : AppColors.textTitleColor,
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
                 decoration:
@@ -234,7 +235,7 @@ class TextMessage extends StatelessWidget {
                       openLinkSafely(element);
                     },
                   style: const TextStyle(
-                    color: Color(0xff0F2BE6),
+                    color: AppColors.primaryDarkColor,
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
                     decoration: TextDecoration.underline,

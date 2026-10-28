@@ -15,7 +15,7 @@ class CustomDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     // TODO: implement build
     return CustomScaffold(
-      backgroundColor: Colors.black.withValues(alpha: 0.3),
+      backgroundColor: AppColors.textTitleColor.withValues(alpha: 0.3),
       allowPop: cancelable,
       body: SingleChildScrollView(
         controller: ScrollController(),
@@ -35,7 +35,10 @@ class CustomDialog extends StatelessWidget {
                     width: MediaQuery.sizeOf(context).width - (10.0 * 2),
                     margin:
                     EdgeInsets.symmetric(horizontal: 20.0),
-                    child: screen,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(AppRadius.card),
+                      child: screen,
+                    ),
                   )
                 ],
               )

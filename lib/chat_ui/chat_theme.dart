@@ -1,3 +1,4 @@
+import 'package:chat/common/theme.dart';
 import 'package:flutter/material.dart';
 
 // For internal usage only. Use values from theme itself.
@@ -67,7 +68,7 @@ const secondary = Color(0xffe6eaf0);
 const secondaryDark = Color(0xff2b2250);
 
 /// Link Preview
-const linkPreview = Color(0xff0F2BE6);
+const linkPreview = AppColors.primaryDarkColor;
 
 /// Base chat theme containing all required properties to make a theme.
 /// Extend this class if you want to create a custom theme.
@@ -315,12 +316,12 @@ class DefaultChatTheme extends ChatTheme {
   /// which extends [ChatTheme]
   const DefaultChatTheme({
     Widget? attachmentButtonIcon,
-    Color backgroundColor = neutral7,
+    Color backgroundColor = Colors.transparent,
     Decoration closableRepliedMessageBoxDecoration = const BoxDecoration(
       borderRadius: BorderRadius.all(
-        Radius.circular(8),
+        Radius.circular(AppRadius.md),
       ),
-      color: neutral2WithOpacity,
+      color: AppColors.primaryColorMix,
     ),
     EdgeInsets closableRepliedMessageImageMargin =
         const EdgeInsets.only(left: 16),
@@ -331,7 +332,7 @@ class DefaultChatTheme extends ChatTheme {
       top: 8,
     ),
     TextStyle dateDividerTextStyle = const TextStyle(
-      color: neutral2,
+      color: AppColors.textMutedColor,
       fontSize: 12,
       fontWeight: FontWeight.w800,
       height: 1.333,
@@ -339,21 +340,21 @@ class DefaultChatTheme extends ChatTheme {
     Widget? deliveredIcon,
     Widget? documentIcon,
     TextStyle emptyChatPlaceholderTextStyle = const TextStyle(
-      color: neutral2,
+      color: AppColors.textMutedColor,
       fontSize: 16,
       fontWeight: FontWeight.w500,
       height: 1.5,
     ),
-    Color errorColor = error,
+    Color errorColor = AppColors.dangerColor,
     Widget? errorIcon,
-    Color inputBackgroundColor = neutral0,
+    Color inputBackgroundColor = AppColors.white,
     BorderRadius inputBorderRadius = const BorderRadius.vertical(
-      top: Radius.circular(20),
+      top: Radius.circular(AppRadius.sheet),
     ),
     Decoration? inputContainerDecoration,
     EdgeInsetsGeometry inputPadding = const EdgeInsets.fromLTRB(24, 20, 24, 20),
     EdgeInsetsGeometry inputMargin = EdgeInsets.zero,
-    Color inputTextColor = neutral7,
+    Color inputTextColor = AppColors.textTitleColor,
     Color? inputTextCursorColor,
     InputDecoration inputTextDecoration = const InputDecoration(
       border: InputBorder.none,
@@ -365,33 +366,33 @@ class DefaultChatTheme extends ChatTheme {
       fontWeight: FontWeight.w500,
       height: 1.5,
     ),
-    double messageBorderRadius = 20,
+    double messageBorderRadius = AppRadius.card,
     double messageInsetsHorizontal = 20,
     double messageInsetsVertical = 16,
-    Color primaryColor = primary,
+    Color primaryColor = AppColors.primaryColorMix,
     TextStyle receivedEmojiMessageTextStyle = const TextStyle(fontSize: 40),
     TextStyle? receivedMessageBodyLinkTextStyle,
     TextStyle receivedMessageBodyTextStyle = const TextStyle(
-      color: neutral0,
+      color: AppColors.textTitleColor,
       fontSize: 16,
       fontWeight: FontWeight.w500,
       height: 1.5,
     ),
     TextStyle receivedMessageCaptionTextStyle = const TextStyle(
-      color: neutral2,
+      color: AppColors.textMutedColor,
       fontSize: 12,
       fontWeight: FontWeight.w500,
       height: 1.333,
     ),
-    Color receivedMessageDocumentIconColor = primary,
+    Color receivedMessageDocumentIconColor = AppColors.primaryColor,
     TextStyle receivedMessageLinkDescriptionTextStyle = const TextStyle(
-      color: neutral0,
+      color: AppColors.textBodyColor,
       fontSize: 14,
       fontWeight: FontWeight.w400,
       height: 1.428,
     ),
     TextStyle receivedMessageLinkTitleTextStyle = const TextStyle(
-      color: neutral0,
+      color: AppColors.textTitleColor,
       fontSize: 16,
       fontWeight: FontWeight.w800,
       height: 1.375,
@@ -402,7 +403,7 @@ class DefaultChatTheme extends ChatTheme {
       border: Border(
         left: BorderSide(
           width: 2,
-          color: primary,
+          color: AppColors.primaryColor,
         ),
       ),
     ),
@@ -410,12 +411,12 @@ class DefaultChatTheme extends ChatTheme {
       border: Border(
         left: BorderSide(
           width: 2,
-          color: neutral7,
+          color: AppColors.primaryDarkColor,
         ),
       ),
     ),
     Widget? replyIcon,
-    Color secondaryColor = secondary,
+    Color secondaryColor = AppColors.white,
     Widget? seenIcon,
     Widget? sendButtonIcon,
     EdgeInsetsGeometry? sendButtonMargin,
@@ -423,26 +424,26 @@ class DefaultChatTheme extends ChatTheme {
     TextStyle sentEmojiMessageTextStyle = const TextStyle(fontSize: 40),
     TextStyle? sentMessageBodyLinkTextStyle,
     TextStyle sentMessageBodyTextStyle = const TextStyle(
-      color: neutral0,
+      color: AppColors.textTitleColor,
       fontSize: 16,
       fontWeight: FontWeight.w500,
       height: 1.5,
     ),
     TextStyle sentMessageCaptionTextStyle = const TextStyle(
-      color: neutral7WithOpacity,
+      color: AppColors.textSecondaryColor,
       fontSize: 12,
       fontWeight: FontWeight.w500,
       height: 1.333,
     ),
-    Color sentMessageDocumentIconColor = neutral0,
+    Color sentMessageDocumentIconColor = AppColors.primaryColor,
     TextStyle sentMessageLinkDescriptionTextStyle = const TextStyle(
-      color: neutral0,
+      color: AppColors.textBodyColor,
       fontSize: 14,
       fontWeight: FontWeight.w400,
       height: 1.428,
     ),
     TextStyle sentMessageLinkTitleTextStyle = const TextStyle(
-      color: neutral0,
+      color: AppColors.textTitleColor,
       fontSize: 16,
       fontWeight: FontWeight.w800,
       height: 1.375,
@@ -535,7 +536,7 @@ class DarkChatTheme extends ChatTheme {
     Color backgroundColor = dark,
     Decoration closableRepliedMessageBoxDecoration = const BoxDecoration(
       borderRadius: BorderRadius.all(
-        Radius.circular(8),
+        Radius.circular(AppRadius.sm),
       ),
       color: neutral2WithOpacity,
     ),

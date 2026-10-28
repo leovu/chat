@@ -1,5 +1,4 @@
-import 'dart:ui';
-import 'package:chat/chat_ui/chat_theme.dart';
+import 'package:chat/common/theme.dart';
 import 'package:flutter/material.dart';
 
 class LiquidGlassTabItem {
@@ -45,7 +44,7 @@ class LiquidGlassTabBar extends StatefulWidget {
     this.selectedColor,
     this.unselectedColor,
     this.badgeColor,
-    this.indicatorRadius = 20.0,
+    this.indicatorRadius = AppRadius.pill,
     this.animationDuration = 400,
     this.tabPadding,
     this.tabAlignment = MainAxisAlignment.spaceAround,
@@ -207,9 +206,10 @@ class _LiquidGlassTabBarState extends State<LiquidGlassTabBar>
   }
 
   Widget _buildDefaultTabContent(LiquidGlassTabItem item, bool isSelected) {
-    final selectedColor = widget.selectedColor ?? primaryColor;
-    final unselectedColor = widget.unselectedColor ?? primaryColor;
-    final badgeColor = widget.badgeColor ?? Colors.red;
+    final selectedColor = widget.selectedColor ?? AppColors.white;
+    final unselectedColor =
+        widget.unselectedColor ?? AppColors.textSecondaryColor;
+    final badgeColor = widget.badgeColor ?? AppColors.dangerColor;
     final displayTitle = item.title != null
         ? (isSelected || widget.equalWidth
             ? item.title!
@@ -257,8 +257,8 @@ class _LiquidGlassTabBarState extends State<LiquidGlassTabBar>
                   curve: Curves.easeOutCubic,
                   style: TextStyle(
                     fontSize: 14,
-                    color: isSelected ? selectedColor : Colors.black,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                    color: isSelected ? selectedColor : unselectedColor,
+                    fontWeight: FontWeight.w600,
                   ),
                   child: Text(displayTitle,
                       overflow: TextOverflow.ellipsis, maxLines: 1),
@@ -283,7 +283,8 @@ class _LiquidGlassTabBarState extends State<LiquidGlassTabBar>
                     const EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
                 decoration: BoxDecoration(
                   color: badgeColor,
-                  borderRadius: BorderRadius.circular(8.0),
+                  borderRadius: BorderRadius.circular(AppRadius.pill),
+                  border: Border.all(color: AppColors.white, width: 1.0),
                 ),
                 child: Text(
                   '${(item.badgeCount ?? 0) > 999 ? '999+' : item.badgeCount}',
@@ -323,22 +324,16 @@ class _LiquidGlassIndicator extends StatelessWidget {
     return Transform(
       alignment: Alignment.center,
       transform: Matrix4.diagonal3Values(stretchX, stretchY, 1.0),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(borderRadius),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-          child: Container(
-            decoration: BoxDecoration(
-              color: color != Colors.transparent
-                  ? color.withValues(alpha: 0.85)
-                  : Colors.white.withValues(alpha: 0.25),
-              borderRadius: BorderRadius.circular(borderRadius),
-              border: Border.all(
-                color: primaryColor.withValues(alpha: 0.4),
-                width: 1.2,
-              ),
-            ),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: color != Colors.transparent ? null : AppGlass.activeGradient,
+          color: color != Colors.transparent ? color : null,
+          borderRadius: BorderRadius.circular(borderRadius),
+          border: Border.all(
+            color: AppColors.white.withValues(alpha: 0.6),
+            width: 1.0,
           ),
+          boxShadow: AppGlass.buttonShadow,
         ),
       ),
     );

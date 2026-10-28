@@ -1,3 +1,4 @@
+import 'package:chat/common/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'package:url_launcher/url_launcher.dart'; // Import thư viện để mở link
@@ -34,27 +35,27 @@ class VideoMessageWidget extends StatelessWidget {
       child: Container(
         width: MediaQuery.of(context).size.width * 0.6,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppRadius.md),
           color: Colors.black,
         ),
         child: Stack(
           alignment: Alignment.center,
           children: [
             ClipRRect(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(AppRadius.md),
               child: thumbUrl != null
                   ? Image.network(
                       thumbUrl!,
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) => Container(
                         height: 150,
-                        color: Colors.grey[800],
+                        color: AppColors.textBodyColor,
                         child: const Icon(Icons.video_camera_back, color: Colors.white, size: 50),
                       ),
                     )
                   : Container(
                       height: 150,
-                      color: Colors.grey[800],
+                      color: AppColors.textBodyColor,
                       child: const Icon(Icons.video_camera_back, color: Colors.white, size: 50),
                     ),
             ),
@@ -142,7 +143,11 @@ class _FullScreenVideoViewerState extends State<FullScreenVideoViewer> {
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
         elevation: 0,
+        scrolledUnderElevation: 0,
+        shape: AppGlass.headerShape,
+        flexibleSpace: AppGlass.headerBackground(),
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           // *** THAY ĐỔI Ở ĐÂY: Nút bấm luôn là icon download và gọi hàm _openInBrowser ***
@@ -166,7 +171,7 @@ class _FullScreenVideoViewerState extends State<FullScreenVideoViewer> {
                       allowScrubbing: true,
                       padding: const EdgeInsets.all(10.0),
                       colors: const VideoProgressColors(
-                        playedColor: Colors.red,
+                        playedColor: AppColors.primaryColor,
                         bufferedColor: Colors.white54,
                         backgroundColor: Colors.black38,
                       ),

@@ -39,7 +39,7 @@ class CustomButton extends StatelessWidget {
         this.marginVertical = 0.0,
         this.heightIcon = 20.0,
         this.widthIcon = 20.0,
-        this.radius=8.0});
+        this.radius = AppRadius.md});
 
   @override
   Widget build(BuildContext context) {
@@ -50,11 +50,21 @@ class CustomButton extends StatelessWidget {
           margin: EdgeInsets.symmetric(
               horizontal: marginHorizontal??0.0, vertical: marginVertical??0.0),
           decoration: BoxDecoration(
-              color: (enable??true)
-                  ? (backgroundColor ?? AppColors.primaryColor)
-                  : (backgroundColor ?? AppColors.primaryColor)
-                  .withValues(alpha: 0.3),
-              borderRadius: BorderRadius.all(Radius.circular(radius??8.0)),
+              gradient: backgroundColor == null && (enable ?? true)
+                  ? AppGlass.activeGradient
+                  : null,
+              color: backgroundColor == null
+                  ? ((enable ?? true)
+                      ? null
+                      : AppColors.primaryColor.withValues(alpha: 0.3))
+                  : ((enable ?? true)
+                      ? backgroundColor
+                      : backgroundColor!.withValues(alpha: 0.3)),
+              boxShadow: backgroundColor == null && (enable ?? true)
+                  ? AppGlass.buttonShadow
+                  : null,
+              borderRadius:
+                  BorderRadius.all(Radius.circular(radius ?? AppRadius.md)),
               border: (borderColor == null)
                   ? null
                   : Border.all(
@@ -87,8 +97,9 @@ class CustomButton extends StatelessWidget {
                   child: AutoSizeText(
                     text??"",
                     style: style ??
-                        AppTextStyles.style15WhiteNormal
-                            .copyWith(color: AppColors.white),
+                        AppTextStyles.style15WhiteNormal.copyWith(
+                            color: AppColors.white,
+                            fontWeight: FontWeight.w600),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     minFontSize: 1,
@@ -96,8 +107,8 @@ class CustomButton extends StatelessWidget {
                   : Text(
                 text??"",
                 style: style ??
-                    AppTextStyles.style15WhiteNormal
-                        .copyWith(color: AppColors.white),)
+                    AppTextStyles.style15WhiteNormal.copyWith(
+                        color: AppColors.white, fontWeight: FontWeight.w600),)
             ],
           ),
         ));

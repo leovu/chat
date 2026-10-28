@@ -1,3 +1,4 @@
+import 'package:chat/common/theme.dart';
 import 'dart:io';
 import 'package:chat/chat_screen/media_screen.dart';
 import 'package:chat/chat_ui/widgets/photo_view.dart';
@@ -132,8 +133,8 @@ void _showErrorSnackBar(String message) {
               vertical: 14,
             ),
             decoration: BoxDecoration(
-              color: Colors.red.shade600,
-              borderRadius: BorderRadius.circular(12),
+              color: AppColors.dangerColor,
+              borderRadius: BorderRadius.circular(AppRadius.md),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.15),

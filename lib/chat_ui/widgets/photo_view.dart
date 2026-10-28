@@ -1,3 +1,4 @@
+import 'package:chat/common/theme.dart';
 import 'dart:io';
 import 'package:chat/chat_screen/image_annotation_screen.dart';
 import 'package:chat/connection/chat_connection.dart';
@@ -101,6 +102,8 @@ class _PhotoScreenState extends State<PhotoScreen> {
             top: 0,
             child: CloseButton(
               color: Colors.white,
+              style: IconButton.styleFrom(
+                  backgroundColor: AppGlass.headerIconBackground),
               onPressed: _onCloseGalleryPressed,
             ),
           ),
@@ -110,6 +113,8 @@ class _PhotoScreenState extends State<PhotoScreen> {
             child: IconButton(
               icon: const Icon(Icons.download_rounded),
               color: Colors.white,
+              style: IconButton.styleFrom(
+                  backgroundColor: AppGlass.headerIconBackground),
               tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
               onPressed: () async {
                 final currentImageUrl = _imageList[_currentIndex];
@@ -136,6 +141,8 @@ class _PhotoScreenState extends State<PhotoScreen> {
               child: IconButton(
                 icon: const Icon(Icons.edit),
                 color: Colors.white,
+                style: IconButton.styleFrom(
+                    backgroundColor: AppGlass.headerIconBackground),
                 onPressed: () {
                   Navigator.of(context).push(MaterialPageRoute(
                     builder: (_) => ImageAnnotationScreen(
@@ -155,8 +162,10 @@ class _PhotoScreenState extends State<PhotoScreen> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.6),
-                    borderRadius: BorderRadius.circular(16),
+                    color: Colors.black.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(AppRadius.pill),
+                    border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.2), width: 1.0),
                   ),
                   child: Text(
                     '${_currentIndex + 1} / ${_imageList.length}',

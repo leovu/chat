@@ -8,6 +8,7 @@ import 'package:chat/data_model/tag.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:chat/common/widgets/glass_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../presentation/utils/formatter.dart';
@@ -123,7 +124,7 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content:
                 Text(AppLocalizations.text(LangKey.start_date_after_end_date)),
-            backgroundColor: Colors.redAccent,
+            backgroundColor: AppColors.dangerColor,
             behavior: SnackBarBehavior.floating,
             duration: const Duration(seconds: 2),
           ));
@@ -136,7 +137,7 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
         content: Text(
           AppLocalizations.text(LangKey.missing_date),
         ),
-        backgroundColor: Colors.redAccent,
+        backgroundColor: AppColors.dangerColor,
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 2),
       ));
@@ -149,24 +150,22 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
-          appBar: AppBar(
+          backgroundColor: AppColors.surfaceColor,
+          appBar: glassAppBar(
             title: AutoSizeText(
               AppLocalizations.text(LangKey.filter),
               style: const TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
+                  color: AppColors.white,
+                  fontWeight: FontWeight.w600,
                   fontSize: 16),
             ),
             leading: InkWell(
-              child: Icon(Icons.arrow_back_ios, color: Colors.black),
+              child: Icon(Icons.arrow_back_ios, color: AppColors.white),
               onTap: () => Navigator.of(context).pop(),
             ),
-            backgroundColor: Colors.white,
-            iconTheme: const IconThemeData(
-              color: Colors.black,
-            ),
           ),
-          body: SafeArea(
+          body: GlassBackground(
+            child: SafeArea(
               child: isInitScreen
                   ? Center(
                       child: Platform.isAndroid
@@ -202,7 +201,7 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
                                       Container(
                                         width: 16,
                                         height: 2,
-                                        color: AppColors.black,
+                                        color: AppColors.textMutedColor,
                                       ),
                                       datePickerDropdown(
                                         hintText: AppLocalizations.text(
@@ -227,11 +226,15 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
                                     AutoSizeText(
                                       AppLocalizations.text(LangKey.byGroup),
                                       style: const TextStyle(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.bold,
+                                          color: AppColors.textTitleColor,
+                                          fontWeight: FontWeight.w600,
                                           fontSize: 16),
                                     ),
                                     Checkbox(
+                                      activeColor: AppColors.primaryColor,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                              AppRadius.xs)),
                                       value: _isGroup,
                                       onChanged: (bool? value) {
                                         setState(() {
@@ -250,8 +253,8 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
                               AutoSizeText(
                                 AppLocalizations.text(LangKey.byChannel),
                                 style: const TextStyle(
-                                    color: Colors.blueAccent,
-                                    fontWeight: FontWeight.bold),
+                                    color: AppColors.textTitleColor,
+                                    fontWeight: FontWeight.w600),
                                 textScaleFactor: 1.15,
                               ),
                               Container(
@@ -270,8 +273,8 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
                               AutoSizeText(
                                 AppLocalizations.text(LangKey.byStatus),
                                 style: const TextStyle(
-                                    color: Colors.blueAccent,
-                                    fontWeight: FontWeight.bold),
+                                    color: AppColors.textTitleColor,
+                                    fontWeight: FontWeight.w600),
                                 textScaleFactor: 1.15,
                               ),
                               Container(
@@ -290,8 +293,8 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
                               AutoSizeText(
                                 AppLocalizations.text(LangKey.byLabel),
                                 style: const TextStyle(
-                                    color: Colors.blueAccent,
-                                    fontWeight: FontWeight.bold),
+                                    color: AppColors.textTitleColor,
+                                    fontWeight: FontWeight.w600),
                                 textScaleFactor: 1.15,
                               ),
                               Container(
@@ -309,8 +312,8 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
                               AutoSizeText(
                                 AppLocalizations.text(LangKey.byLinkStatus),
                                 style: const TextStyle(
-                                    color: Colors.blueAccent,
-                                    fontWeight: FontWeight.bold),
+                                    color: AppColors.textTitleColor,
+                                    fontWeight: FontWeight.w600),
                                 textScaleFactor: 1.15,
                               ),
                               Container(
@@ -334,7 +337,9 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
                                 height: 41.0,
                                 width: MediaQuery.of(context).size.width * 0.45,
                                 child: MaterialButton(
-                                  color: Colors.white,
+                                  color: AppGlass.surface,
+                                  elevation: 0,
+                                  highlightElevation: 0,
                                   onPressed: () {
                                     setState(() {
                                       status = null;
@@ -348,28 +353,34 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
                                     _submitFilter();
                                   },
                                   shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10.0),
-                                      side: const BorderSide(
-                                          color: Color(0xFF5686E1))),
+                                      borderRadius:
+                                          BorderRadius.circular(AppRadius.md),
+                                      side: BorderSide(
+                                          color: AppColors.primaryColor
+                                              .withValues(alpha: 0.4))),
                                   child: Text(
                                     AppLocalizations.text(LangKey.delete),
                                     style: const TextStyle(
-                                        color: Color(0xFF5686E1),
+                                        color: AppColors.primaryColor,
                                         fontSize: 16,
                                         fontWeight: FontWeight.w600),
                                   ),
                                 ),
                               ),
-                              SizedBox(
+                              Container(
                                 height: 41.0,
                                 width: MediaQuery.of(context).size.width * 0.45,
+                                decoration: AppGlass.button(),
                                 child: MaterialButton(
-                                  color: const Color(0xFF5686E1),
+                                  color: Colors.transparent,
+                                  elevation: 0,
+                                  highlightElevation: 0,
                                   onPressed: () {
                                     _handleDateValidation(context);
                                   },
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10.0),
+                                    borderRadius:
+                                        BorderRadius.circular(AppRadius.md),
                                   ),
                                   child: Text(
                                     AppLocalizations.text(LangKey.accept),
@@ -385,6 +396,7 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
                         )
                       ],
                     ))),
+          ),
     );
   }
 
@@ -395,7 +407,7 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
           (e) => Padding(
             padding: const EdgeInsets.only(right: 8.0, bottom: 8.0),
             child: InkWell(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(AppRadius.pill),
               onTap: () {
                 if (arrLabel.contains(e.sId)) {
                   arrLabel.remove(e.sId);
@@ -414,7 +426,7 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
         Padding(
           padding: const EdgeInsets.only(right: 8.0, bottom: 8.0),
           child: InkWell(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(AppRadius.pill),
             onTap: () {
               setState(() {
                 arrLabel.clear();
@@ -433,7 +445,7 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
           (e) => Padding(
             padding: const EdgeInsets.only(right: 8.0, bottom: 8.0),
             child: InkWell(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(AppRadius.pill),
               onTap: () {
                 setState(() {
                   status = e;
@@ -449,7 +461,7 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
         Padding(
           padding: const EdgeInsets.only(right: 8.0, bottom: 8.0),
           child: InkWell(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(AppRadius.pill),
             onTap: () {
               setState(() {
                 status = null;
@@ -467,7 +479,7 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
       return Padding(
         padding: const EdgeInsets.only(right: 8.0, bottom: 8.0),
         child: InkWell(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(AppRadius.pill),
           onTap: () {
             setState(() {
               link_status = value;
@@ -486,7 +498,7 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
           (e) => Padding(
             padding: const EdgeInsets.only(right: 8.0, bottom: 8.0),
             child: InkWell(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(AppRadius.pill),
               onTap: () {
                 setState(() {
                   channel = e.sId ?? '';
@@ -502,7 +514,7 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
         Padding(
           padding: const EdgeInsets.only(right: 8.0, bottom: 8.0),
           child: InkWell(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(AppRadius.pill),
             onTap: () {
               setState(() {
                 channel = null;
@@ -516,19 +528,21 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
 
   Widget _chipWidget(String label, bool isSelected) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: isSelected ? Colors.white : Colors.grey.shade200,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: isSelected ? Colors.blueAccent : Colors.grey,
-        ),
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: isSelected
+          ? BoxDecoration(
+              gradient: AppGlass.activeGradient,
+              borderRadius: BorderRadius.circular(AppRadius.pill),
+              border: Border.all(color: AppGlass.borderColor),
+              boxShadow: AppGlass.buttonShadow,
+            )
+          : AppGlass.pill(),
       child: Text(
         label,
         style: TextStyle(
-          color: isSelected ? Colors.blueAccent : Colors.grey,
-          fontSize: 14,
+          color: isSelected ? AppColors.white : AppColors.textStrongColor,
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );
@@ -555,23 +569,27 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
           context: context,
           builder: (_) => Container(
             height: 280,
-            color: Colors.white,
+            decoration: AppGlass.sheet(),
             child: Column(
               children: [
+                const GlassGrabber(),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     CupertinoButton(
                       child: Text(
                         AppLocalizations.text(LangKey.cancel),
-                        style: const TextStyle(color: Colors.grey),
+                        style: const TextStyle(
+                            color: AppColors.textSecondaryColor),
                       ),
                       onPressed: () => Navigator.pop(context),
                     ),
                     CupertinoButton(
                       child: Text(
                         AppLocalizations.text(LangKey.accept),
-                        style: const TextStyle(color: Colors.blueAccent),
+                        style: const TextStyle(
+                            color: AppColors.primaryColor,
+                            fontWeight: FontWeight.w600),
                       ),
                       onPressed: () {
                         final formatted =
@@ -603,14 +621,19 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
         height: 30,
         padding: EdgeInsets.zero,
         decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey),
-            borderRadius: BorderRadius.circular(8),
-            color: AppColors.white),
+            border: Border.all(
+                color: selectedDate != null
+                    ? AppColors.primaryColor
+                    : AppGlass.borderColor),
+            borderRadius: BorderRadius.circular(AppRadius.md),
+            color: AppGlass.surface),
         child: Center(
           child: Text(
             formatDate(parseDate(selectedDate), fallback: hintText),
             style: TextStyle(
-                color: selectedDate != null ? Colors.blueAccent : Colors.grey,
+                color: selectedDate != null
+                    ? AppColors.primaryColor
+                    : AppColors.textMutedColor,
                 fontSize: 14,
                 fontWeight:
                     selectedDate != null ? FontWeight.w600 : null),

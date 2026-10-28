@@ -1,3 +1,4 @@
+import 'package:chat/common/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -38,7 +39,7 @@ class FileMessageCard extends StatelessWidget {
             const Icon(
               Icons.insert_drive_file,
               size: 30,
-              color: Colors.blueAccent,
+              color: AppColors.primaryColor,
             ),
             const SizedBox(width: 10),
             Expanded(
@@ -50,14 +51,14 @@ class FileMessageCard extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
-                        fontWeight: FontWeight.bold, color: Colors.black),
+                        fontWeight: FontWeight.bold, color: AppColors.textTitleColor),
                   ),
                   Text(
                     fileSizeText,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      color: Colors.black.withValues(alpha: 0.6),
+                      color: AppColors.textMutedColor,
                       fontSize: 12,
                     ),
                   ),

@@ -1,3 +1,4 @@
+import 'package:chat/common/theme.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';
@@ -154,7 +155,7 @@ class GroupAvatar extends StatelessWidget {
           url,
           fit: BoxFit.cover,
           errorBuilder: (_, __, ___) => Container(
-            color: Colors.grey.shade300,
+            color: AppColors.primaryColorMix,
             child: const Icon(Icons.person, color: Colors.white),
           ),
         ),
@@ -243,7 +244,7 @@ class GroupAvatarWithName extends StatelessWidget {
           url,
           fit: BoxFit.cover,
           errorBuilder: (_, __, ___) => Container(
-            color: Colors.grey,
+            color: AppColors.textSecondaryColor,
             child: const Icon(Icons.person, color: Colors.white),
           ),
         ),

@@ -1,3 +1,4 @@
+import 'package:chat/common/theme.dart';
 import 'dart:io';
 
 import 'package:chat/chat_ui/chat_theme.dart' show avatarColors;
@@ -13,7 +14,7 @@ Color getAvatarColor(String? id) =>
 configKeyboardActions(List<KeyboardActionsItem> actions) {
   return KeyboardActionsConfig(
       keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-      keyboardBarColor: Colors.grey[200],
+      keyboardBarColor: AppColors.primaryColorMix,
       actions: actions);
 }
 

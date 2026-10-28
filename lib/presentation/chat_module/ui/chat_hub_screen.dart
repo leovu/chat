@@ -1,6 +1,8 @@
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:chat/common/theme.dart';
+import 'package:chat/common/widgets/glass_widgets.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:chat/data_model/chat_message.dart' as c;
@@ -106,13 +108,26 @@ class _ChatHubScreenState extends ChatScreenBaseState<ChatHubScreen> {
 
   @override
   AppBar buildDefaultAppBar() {
-    return AppBar(
+    return glassAppBar(
         actions: <Widget>[
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 5),
             child: InkWell(
-              child: Icon(Icons.block,
-                  color: isBlock == false ? Colors.grey : Colors.red),
+              customBorder: const CircleBorder(),
+              child: Container(
+                padding: const EdgeInsets.all(6.0),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: isBlock == false
+                      ? AppGlass.headerIconBackground
+                      : AppColors.white,
+                ),
+                child: Icon(Icons.block,
+                    size: 20.0,
+                    color: isBlock == false
+                        ? AppColors.white
+                        : AppColors.dangerColor),
+              ),
               onTap: () => _handleBlockUser(),
             ),
           ),
@@ -120,7 +135,7 @@ class _ChatHubScreenState extends ChatScreenBaseState<ChatHubScreen> {
             visualDensity:
                 const VisualDensity(horizontal: -4.0, vertical: -4.0),
             padding: EdgeInsets.zero,
-            icon: const Icon(Icons.format_list_bulleted, color: Colors.black),
+            icon: const Icon(Icons.format_list_bulleted, color: Colors.white),
             onPressed: () async {
               this.showLoading();
               Navigator.of(context).pop();
@@ -145,7 +160,7 @@ class _ChatHubScreenState extends ChatScreenBaseState<ChatHubScreen> {
               Padding(
                 padding: const EdgeInsets.only(left: 8.0),
                 child: InkWell(
-                  child: const Icon(Icons.arrow_back_ios, color: Colors.black),
+                  child: const Icon(Icons.arrow_back_ios, color: Colors.white),
                   onTap: () => Navigator.of(context).pop(),
                 ),
               ),
@@ -174,8 +189,8 @@ class _ChatHubScreenState extends ChatScreenBaseState<ChatHubScreen> {
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
                           style: const TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
                               fontSize: 16),
                         ),
                         if (widget.data.isGroup!)
@@ -185,8 +200,9 @@ class _ChatHubScreenState extends ChatScreenBaseState<ChatHubScreen> {
                               '${peopleLength != null ? peopleLength! - 1 : ''} '
                               '${AppLocalizations.text(LangKey.members).toLowerCase()}',
                               maxLines: 1,
-                              style: const TextStyle(
-                                  color: Colors.black, fontSize: 12),
+                              style: TextStyle(
+                                  color: AppColors.white.withValues(alpha: 0.9),
+                                  fontSize: 12),
                             ),
                           ),
                       ],
@@ -198,8 +214,6 @@ class _ChatHubScreenState extends ChatScreenBaseState<ChatHubScreen> {
           ),
         ),
         leading: Container(),
-        backgroundColor: Colors.white,
-        iconTheme: const IconThemeData(color: Colors.black),
         centerTitle: false,
         titleSpacing: 0,
         leadingWidth: 0);
@@ -296,7 +310,7 @@ class _ChatHubScreenState extends ChatScreenBaseState<ChatHubScreen> {
     }
     return Container(
       width: MediaQuery.of(context).size.width,
-      color: Colors.white,
+      color: Colors.transparent,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -315,13 +329,13 @@ class _ChatHubScreenState extends ChatScreenBaseState<ChatHubScreen> {
               splashColor: Colors.transparent,
               onTap: () => setState(() => isShowUserTag = !isShowUserTag),
               child: Container(
-                  color: Colors.white,
+                  color: Colors.transparent,
                   constraints: const BoxConstraints(minHeight: 30),
                   child: Icon(
                       isShowUserTag
                           ? Icons.remove_red_eye
                           : Icons.remove_red_eye_outlined,
-                      color: HexColor.fromHex('#0067AC'))),
+                      color: AppColors.primaryColor)),
             ),
           ),
         ],
@@ -338,9 +352,9 @@ class _ChatHubScreenState extends ChatScreenBaseState<ChatHubScreen> {
         decoration: BoxDecoration(
             color: HexColor.fromHex(
                 (e.color != null && e.color != 'null') ? e.color : '#0067AC'),
-            borderRadius: BorderRadius.circular(10.0)),
+            borderRadius: BorderRadius.circular(AppRadius.pill)),
         child: Padding(
-          padding: const EdgeInsets.only(top: 5.0, left: 5.0, right: 5.0),
+          padding: const EdgeInsets.only(top: 5.0, left: 10.0, right: 10.0),
           child: AutoSizeText(
             e.name ?? '',
             style: const TextStyle(color: Colors.white),

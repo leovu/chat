@@ -62,9 +62,7 @@ class _CustomAlertDialogState extends State<CustomAlertDialog> {
             //   AppSizes.avatarSize = constraints.maxWidth / 6;
             // }
             return Container(
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.all(Radius.circular(8.0))),
+                decoration: AppGlass.card(color: Colors.white),
                 margin: widget.iconCenter != null
                     ? EdgeInsets.all(20)
                     : EdgeInsets.all(0),
@@ -80,14 +78,15 @@ class _CustomAlertDialogState extends State<CustomAlertDialog> {
                       children: [
                         if (widget.enableCancel)
                           CustomIconButton(
-                            color: AppColors.dark,
+                            color: AppColors.textSecondaryColor,
                             onTap: () => CustomNavigator.pop(context),
                           ),
                         if (widget.titleHeader != null)
                           Expanded(
                             child: Text(
                               widget.titleHeader ?? "",
-                              style: AppTextStyles.style16BlackWeight700,
+                              style: AppTextStyles.style16BlackWeight700
+                                  .copyWith(color: AppColors.textTitleColor),
                               textAlign: TextAlign.center,
                             ),
                           ),
@@ -144,7 +143,8 @@ class _CustomAlertDialogState extends State<CustomAlertDialog> {
                               buttonItems: buttonItems,
                             );
                           },
-                          style: AppTextStyles.style16BlackWeight700,
+                          style: AppTextStyles.style16BlackWeight700
+                                  .copyWith(color: AppColors.textTitleColor),
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -190,7 +190,8 @@ class _CustomAlertDialogState extends State<CustomAlertDialog> {
                                     buttonItems: buttonItems,
                                   );
                                 },
-                                style: AppTextStyles.style15Grey600Normal,
+                                style: AppTextStyles.style15Grey600Normal
+                                  .copyWith(color: AppColors.textBodyColor),
                                 textAlign: TextAlign.center,
                               ),
                             ),
@@ -232,7 +233,8 @@ class _CustomAlertDialogState extends State<CustomAlertDialog> {
                               buttonItems: buttonItems,
                             );
                           },
-                          style: AppTextStyles.style15Grey600Normal,
+                          style: AppTextStyles.style15Grey600Normal
+                                  .copyWith(color: AppColors.textBodyColor),
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -246,11 +248,23 @@ class _CustomAlertDialogState extends State<CustomAlertDialog> {
                                       right: 10.0),
                                   child: CustomButton(
                                     text: widget.textSubSubmitted,
-                                    backgroundColor:
-                                    (widget.enableSubSubmitted ?? true)
-                                        ? AppColors.black50Color
-                                        : AppColors.black50Color
-                                        .withValues(alpha: 0.3),
+                                    backgroundColor: AppGlass.surface,
+                                    borderColor: AppColors.primaryColor
+                                        .withValues(
+                                            alpha: (widget.enableSubSubmitted ??
+                                                    true)
+                                                ? 0.4
+                                                : 0.15),
+                                    style: AppTextStyles.style15PrimaryNormal
+                                        .copyWith(
+                                            fontWeight: FontWeight.w600,
+                                            color: AppColors.primaryColor
+                                                .withValues(
+                                                    alpha: (widget
+                                                                .enableSubSubmitted ??
+                                                            true)
+                                                        ? 1.0
+                                                        : 0.4)),
                                     onTap: widget.onSubSubmitted ??
                                             () => CustomNavigator.pop(context),
                                   )),
@@ -260,8 +274,9 @@ class _CustomAlertDialogState extends State<CustomAlertDialog> {
                               text: widget.textSubmitted ??
                                   AppLocalizations.text(LangKey.confirm),
                               backgroundColor: (widget.enableSubmitted ?? true)
-                                  ? Colors.blue
-                                  : Colors.blue.withValues(alpha: 0.3),
+                                  ? null
+                                  : AppColors.primaryColor
+                                      .withValues(alpha: 0.3),
                               onTap: widget.onSubmitted ??
                                       () => CustomNavigator.pop(context),
                             ),

@@ -44,7 +44,7 @@ class CustomAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     bool canPop = CustomNavigator.canPop(context);
-    Color color = isPrimary ? AppColors.white : AppColors.black;
+    Color color = isPrimary ? AppColors.white : AppColors.textTitleColor;
     return Stack(fit: StackFit.expand, children: [
       Container(
         alignment: alignmentTitle,
@@ -57,7 +57,10 @@ class CustomAppBar extends StatelessWidget {
             : EdgeInsets.only(left: AppSizes.minPadding),
         child: Text(
           title ?? "",
-          style: textStyleTitle ?? AppTextStyles.style16BlackWeight500.copyWith(color: color),
+          style: textStyleTitle ??
+              AppTextStyles.style16BlackWeight500.copyWith(
+                  color: color,
+                  fontWeight: isPrimary ? FontWeight.w600 : FontWeight.w500),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),

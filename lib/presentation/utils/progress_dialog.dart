@@ -59,10 +59,17 @@ class ProgressDialog {
           return PopScope(
             canPop: false,
             child: Scaffold(
-              backgroundColor: Colors.black.withValues(alpha: 0.3),
+              backgroundColor:
+                  AppColors.textTitleColor.withValues(alpha: 0.25),
               body: SizedBox(
                 height: MediaQuery.sizeOf(context).height,
-                child: const Center(child: CircularProgressIndicator()
+                child: Center(
+                  child: Container(
+                    padding: const EdgeInsets.all(20.0),
+                    decoration: AppGlass.card(color: AppColors.white),
+                    child: const CircularProgressIndicator(
+                        color: AppColors.primaryColor),
+                  ),
                 ),
               ),
             ),

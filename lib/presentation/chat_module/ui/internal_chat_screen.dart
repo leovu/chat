@@ -2,6 +2,8 @@ import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/chat_screen/forward_screen.dart';
+import 'package:chat/common/theme.dart';
+import 'package:chat/common/widgets/glass_widgets.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/chat_ui/widgets/custom_room_avatar.dart';
 import 'package:chat/connection/http_connection.dart';
@@ -196,7 +198,7 @@ class _InternalChatScreenState extends ChatScreenBaseState<InternalChatScreen> {
   @override
   AppBar buildDefaultAppBar() {
     final isFav = _isFavorite();
-    return AppBar(
+    return glassAppBar(
         actions: <Widget>[
           IconButton(
             visualDensity:
@@ -204,7 +206,7 @@ class _InternalChatScreenState extends ChatScreenBaseState<InternalChatScreen> {
             padding: EdgeInsets.zero,
             icon: Icon(
               isFav ? Icons.star : Icons.star_border,
-              color: const Color(0xFFE5B80B),
+              color: isFav ? const Color(0xFFFFD60A) : Colors.white,
             ),
             onPressed: () async {
               bool result =
@@ -218,7 +220,7 @@ class _InternalChatScreenState extends ChatScreenBaseState<InternalChatScreen> {
             visualDensity:
                 const VisualDensity(horizontal: -4.0, vertical: -4.0),
             padding: EdgeInsets.zero,
-            icon: const Icon(Icons.format_list_bulleted, color: Colors.black),
+            icon: const Icon(Icons.format_list_bulleted, color: Colors.white),
             onPressed: () async {
               this.showLoading();
               Navigator.of(context).pop();
@@ -242,7 +244,7 @@ class _InternalChatScreenState extends ChatScreenBaseState<InternalChatScreen> {
               Padding(
                 padding: const EdgeInsets.only(left: 8.0),
                 child: InkWell(
-                  child: const Icon(Icons.arrow_back_ios, color: Colors.black),
+                  child: const Icon(Icons.arrow_back_ios, color: Colors.white),
                   onTap: () => Navigator.of(context).pop(),
                 ),
               ),
@@ -278,8 +280,8 @@ class _InternalChatScreenState extends ChatScreenBaseState<InternalChatScreen> {
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
                           style: const TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
                               fontSize: 16),
                         ),
                         if (widget.data.isGroup == true)
@@ -289,8 +291,9 @@ class _InternalChatScreenState extends ChatScreenBaseState<InternalChatScreen> {
                               '${data?.room?.people?.length ?? widget.data.people?.length ?? 0} '
                               '${AppLocalizations.text(LangKey.members).toLowerCase()}',
                               maxLines: 1,
-                              style: const TextStyle(
-                                  color: Colors.black, fontSize: 12),
+                              style: TextStyle(
+                                  color: AppColors.white.withValues(alpha: 0.9),
+                                  fontSize: 12),
                             ),
                           ),
                       ],
@@ -302,8 +305,6 @@ class _InternalChatScreenState extends ChatScreenBaseState<InternalChatScreen> {
           ),
         ),
         leading: Container(),
-        backgroundColor: Colors.white,
-        iconTheme: const IconThemeData(color: Colors.black),
         centerTitle: false,
         titleSpacing: 0,
         leadingWidth: 0);

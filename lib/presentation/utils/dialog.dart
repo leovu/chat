@@ -1,4 +1,5 @@
 import 'package:chat/common/custom_navigator.dart';
+import 'package:chat/common/theme.dart';
 import 'package:chat/common/widges/widget.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
@@ -16,13 +17,15 @@ Future<void> showInfoDialog(
     context: context,
     barrierDismissible: false,
     builder: (BuildContext context) {
-      final Color headerColor = isError ? Colors.red : Color(0xFF3398dc);
+      final Color headerColor =
+          isError ? AppColors.dangerColor : AppColors.primaryColor;
 
       return AlertDialog(
         backgroundColor: Colors.white,
         contentPadding: EdgeInsets.zero,
+        clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(AppRadius.card),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -32,14 +35,16 @@ Future<void> showInfoDialog(
               width: double.infinity,
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: headerColor,
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(10)),
+                color: isError ? headerColor : null,
+                gradient: isError ? null : AppGlass.headerGradient,
               ),
               child: Center(
                 child: Text(
                   title,
-                  style: const TextStyle(color: Colors.white, fontSize: 16),
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600),
                 ),
               ),
             ),
@@ -50,7 +55,8 @@ Future<void> showInfoDialog(
               padding: const EdgeInsets.all(16),
               child: Text(
                 content ?? '',
-                style: const TextStyle(color: Colors.black, fontSize: 14),
+                style: const TextStyle(
+                    color: AppColors.textBodyColor, fontSize: 14),
               ),
             ),
             // Actions
@@ -65,7 +71,8 @@ Future<void> showInfoDialog(
                     },
                     child: Text(
                       AppLocalizations.text(LangKey.cancel),
-                      style: const TextStyle(color: Colors.black),
+                      style:
+                          const TextStyle(color: AppColors.textSecondaryColor),
                     ),
                   ),
                 TextButton(
@@ -75,7 +82,8 @@ Future<void> showInfoDialog(
                   },
                   child: Text(
                     'OK',
-                    style: TextStyle(color: headerColor),
+                    style: TextStyle(
+                        color: headerColor, fontWeight: FontWeight.w600),
                   ),
                 ),
               ],
@@ -91,7 +99,7 @@ void showSnackBarError(String message, BuildContext context) {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
       content: Text(message),
-      backgroundColor: Colors.redAccent,
+      backgroundColor: AppColors.dangerColor,
       behavior: SnackBarBehavior.floating,
       duration: const Duration(seconds: 2),
     ),
@@ -112,7 +120,7 @@ class CustomDialogWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     // TODO: implement build
     return CustomScaffold(
-      backgroundColor: Colors.black.withValues(alpha: 0.3),
+      backgroundColor: AppColors.textTitleColor.withValues(alpha: 0.3),
       body: SingleChildScrollView(
         child: Container(
           height: MediaQuery.sizeOf(context).height,
@@ -156,17 +164,11 @@ class CustomPopupDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       child: isExpanded?Container(
-        decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.all(Radius.circular(20.0))
-        ),
+        decoration: AppGlass.card(color: Colors.white),
         height: MediaQuery.of(context).size.height * 0.5,
         child: child,
       ):Container(
-        decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.all(Radius.circular(20.0))
-        ),
+        decoration: AppGlass.card(color: Colors.white),
         child: child,
       ),
       onTap: () {

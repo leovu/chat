@@ -626,7 +626,7 @@ class _ChatState extends State<Chat> {
             child: Stack(
               children: [
                 Container(
-                  color: widget.theme.backgroundColor,
+                  decoration: AppGlass.background(),
                   child: Column(
                     children: [
                       !widget.canSend ? bannerCantSendOA() : Container(),
@@ -670,7 +670,7 @@ class _ChatState extends State<Chat> {
                           child: AutoSizeText(
                             widget.note!,
                             style: const TextStyle(
-                                color: Colors.green,
+                                color: AppColors.successColor,
                                 fontWeight: FontWeight.bold),
                           ),
                         ),
@@ -705,9 +705,9 @@ class _ChatState extends State<Chat> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.grey[100],
+        color: AppGlass.surface,
         border: Border(
-          top: BorderSide(color: Colors.grey[300]!, width: 1),
+          top: BorderSide(color: AppGlass.borderColor, width: 1),
         ),
       ),
       child: Column(
@@ -733,7 +733,7 @@ class _ChatState extends State<Chat> {
                 child: const Text(
                   'Clear All',
                   style: TextStyle(
-                    color: Colors.red,
+                    color: AppColors.dangerColor,
                     fontSize: 12,
                   ),
                 ),
@@ -754,7 +754,7 @@ class _ChatState extends State<Chat> {
                     child: Stack(
                       children: [
                         ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(AppRadius.sm),
                           child: Image.file(
                             File(image.path),
                             width: 80,
@@ -770,7 +770,7 @@ class _ChatState extends State<Chat> {
                             child: Container(
                               padding: const EdgeInsets.all(4),
                               decoration: const BoxDecoration(
-                                color: Colors.red,
+                                color: AppColors.dangerColor,
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(
@@ -826,7 +826,7 @@ class _ChatState extends State<Chat> {
                                           Text(
                                             'Video ready to send',
                                             style: TextStyle(
-                                              color: Colors.grey[400],
+                                              color: AppColors.textMutedColor,
                                               fontSize: 12,
                                             ),
                                           ),
@@ -849,8 +849,8 @@ class _ChatState extends State<Chat> {
                             width: 80,
                             height: 80,
                             decoration: BoxDecoration(
-                              color: Colors.black87,
-                              borderRadius: BorderRadius.circular(8),
+                              color: AppColors.textTitleColor,
+                              borderRadius: BorderRadius.circular(AppRadius.sm),
                             ),
                             child: const Column(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -880,7 +880,7 @@ class _ChatState extends State<Chat> {
                             child: Container(
                               padding: const EdgeInsets.all(4),
                               decoration: const BoxDecoration(
-                                color: Colors.red,
+                                color: AppColors.dangerColor,
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(
@@ -908,7 +908,7 @@ class _ChatState extends State<Chat> {
                           decoration: BoxDecoration(
                             color:
                                 const Color(0xFF9C27B0).withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(AppRadius.sm),
                             border: Border.all(
                               color: const Color(0xFF9C27B0),
                               width: 1,
@@ -946,7 +946,7 @@ class _ChatState extends State<Chat> {
                             child: Container(
                               padding: const EdgeInsets.all(4),
                               decoration: const BoxDecoration(
-                                color: Colors.red,
+                                color: AppColors.dangerColor,
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(
@@ -972,7 +972,7 @@ class _ChatState extends State<Chat> {
     return Container(
       padding: const EdgeInsets.all(10.0),
       width: MediaQuery.of(context).size.width,
-      color: AppColors.orange1.withValues(alpha: 0.5),
+      color: AppColors.warningColor.withValues(alpha: 0.18),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -982,7 +982,7 @@ class _ChatState extends State<Chat> {
             width: 20.0,
             child: Icon(
               Icons.warning_amber,
-              color: AppColors.orange1,
+              color: AppColors.warningColor,
             ),
           ),
           Expanded(
@@ -995,7 +995,9 @@ class _ChatState extends State<Chat> {
                 onTap: () => launchUrl(Uri.parse(httpPolicyOA)),
                 child: Text(
                   AppLocalizations.text(LangKey.watch_detail),
-                  style: TextStyle(color: AppColors.orange1),
+                  style: TextStyle(
+                      color: AppColors.primaryColor,
+                      fontWeight: FontWeight.w600),
                 ),
               )
             ],

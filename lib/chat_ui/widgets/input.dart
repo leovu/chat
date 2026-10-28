@@ -170,7 +170,7 @@ class _InputState extends State<Input> {
       targetMatches: [
         MatchTargetItem(
             style: TextStyle(
-                color: Colors.blueAccent, backgroundColor: Colors.grey[200]),
+                color: AppColors.primaryColor, backgroundColor: AppColors.primaryColorMix),
             regex: RegExp(regex))
       ],
       onMatch: (List<String> match) {},
@@ -399,7 +399,7 @@ class _InputState extends State<Input> {
       height: 300,
       decoration: BoxDecoration(
         // color: Colors.grey[50],
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadius.card)),
       ),
       child: Column(
         children: [
@@ -407,15 +407,9 @@ class _InputState extends State<Input> {
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: Colors.white,
-              // borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+              color: AppGlass.surface,
+              borderRadius: BorderRadius.circular(AppRadius.md),
+              border: Border.all(color: AppGlass.borderColor, width: 1.0),
             ),
             child: Row(
               children: [
@@ -423,15 +417,13 @@ class _InputState extends State<Input> {
                 Expanded(
                   child: InkWell(
                     onTap: () => setState(() => emojiIndex = 0),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(AppRadius.md),
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(AppRadius.md),
                         gradient: emojiIndex == 0
-                            ? const LinearGradient(
-                                colors: [Color(0xFF42A5F5), Color(0xFF1E88E5)],
-                              )
+                            ? AppGlass.activeGradient
                             : null,
                         color: emojiIndex == 0 ? null : Colors.transparent,
                       ),
@@ -443,7 +435,7 @@ class _InputState extends State<Input> {
                             size: 18,
                             color: emojiIndex == 0
                                 ? Colors.white
-                                : Colors.grey[600],
+                                : AppColors.textSecondaryColor,
                           ),
                           const SizedBox(width: 6),
                           Text(
@@ -453,7 +445,7 @@ class _InputState extends State<Input> {
                               fontWeight: FontWeight.w600,
                               color: emojiIndex == 0
                                   ? Colors.white
-                                  : Colors.grey[700],
+                                  : AppColors.textSecondaryColor,
                             ),
                           ),
                         ],
@@ -465,15 +457,13 @@ class _InputState extends State<Input> {
                 Expanded(
                   child: InkWell(
                     onTap: () => setState(() => emojiIndex = 1),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(AppRadius.sm),
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(AppRadius.md),
                         gradient: emojiIndex == 1
-                            ? const LinearGradient(
-                                colors: [Color(0xFFFF7043), Color(0xFFF4511E)],
-                              )
+                            ? AppGlass.activeGradient
                             : null,
                         color: emojiIndex == 1 ? null : Colors.transparent,
                       ),
@@ -485,7 +475,7 @@ class _InputState extends State<Input> {
                             size: 18,
                             color: emojiIndex == 1
                                 ? Colors.white
-                                : Colors.grey[600],
+                                : AppColors.textSecondaryColor,
                           ),
                           const SizedBox(width: 6),
                           Text(
@@ -495,7 +485,7 @@ class _InputState extends State<Input> {
                               fontWeight: FontWeight.w600,
                               color: emojiIndex == 1
                                   ? Colors.white
-                                  : Colors.grey[700],
+                                  : AppColors.textSecondaryColor,
                             ),
                           ),
                         ],
@@ -516,14 +506,14 @@ class _InputState extends State<Input> {
                     onBackspacePressed: _onBackspacePressed,
                     config: Config(
                       emojiViewConfig: EmojiViewConfig(
-                        backgroundColor: Colors.grey[50]!,
+                        backgroundColor: AppColors.surfaceColor,
                         columns: 7,
                         emojiSizeMax: 28,
                       ),
                       categoryViewConfig: CategoryViewConfig(
                         backgroundColor: Colors.white,
-                        iconColorSelected: const Color(0xFF1E88E5),
-                        indicatorColor: const Color(0xFF1E88E5),
+                        iconColorSelected: AppColors.primaryColor,
+                        indicatorColor: AppColors.primaryColor,
                       ),
                       searchViewConfig: SearchViewConfig(
                         backgroundColor: Colors.transparent,
@@ -648,7 +638,7 @@ class _InputState extends State<Input> {
   }) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(AppRadius.card),
       child: Container(
         width: 80,
         padding: const EdgeInsets.symmetric(vertical: 8),
@@ -673,7 +663,7 @@ class _InputState extends State<Input> {
               label,
               style: const TextStyle(
                 fontSize: 12,
-                color: Colors.black87,
+                color: AppColors.textTitleColor,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -699,7 +689,7 @@ class _InputState extends State<Input> {
               ),
               hintStyle:
                   InheritedChatTheme.of(context).theme.inputTextStyle.copyWith(
-                        color: Colors.black.withValues(alpha: 0.2),
+                        color: AppColors.textMutedColor,
                       ),
               hintText: AppLocalizations.text(LangKey.writeAMessage),
             ),
@@ -712,7 +702,7 @@ class _InputState extends State<Input> {
         },
         onTap: widget.onTextFieldTap,
         style: InheritedChatTheme.of(context).theme.inputTextStyle.copyWith(
-              color: Colors.black,
+              color: AppColors.textTitleColor,
             ),
         textCapitalization: TextCapitalization.sentences,
       ),
@@ -782,157 +772,180 @@ class _InputState extends State<Input> {
     return widget.canSend
         ? Focus(
             autofocus: true,
-            child: Material(
-              borderRadius:
-                  InheritedChatTheme.of(context).theme.inputBorderRadius,
-              color: Colors.white,
-              child: Container(
-                margin: EdgeInsets.only(
-                  bottom: AppSizes.maxPadding * 2,
-                  left: AppSizes.maxPadding,
-                  right: AppSizes.maxPadding,
-                ),
-                padding: EdgeInsets.only(bottom: AppSizes.maxPadding, top: 8),
-                decoration: InheritedChatTheme.of(context)
-                    .theme
-                    .inputContainerDecoration,
-                child: Column(
-                  children: [
-                    Visibility(
-                        visible: _taggingSuggestList != null,
-                        child: _taggingSuggestList != null
-                            ? Wrap(
-                                children: _arrayTaggingSuggestionList(
-                                    _taggingSuggestList!.length ==
-                                            widget.people!.length - 1 &&
-                                        widget.isGroup),
-                              )
-                            : Container()),
-                    if (InheritedRepliedMessage.of(context).repliedMessage !=
-                        null)
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
-                        child: RepliedMessage(
-                          isView: true,
-                          onCancelReplyPressed: widget.onCancelReplyPressed,
-                          repliedMessage: InheritedRepliedMessage.of(context)
-                              .repliedMessage,
-                          showUserNames: true,
-                          onMessageTap: widget.onMessageTap,
-                          people: widget.people,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                borderRadius:
+                    InheritedChatTheme.of(context).theme.inputBorderRadius,
+                gradient: AppGlass.reduceTransparency(context)
+                    ? null
+                    : AppGlass.cardGradient,
+                color: AppGlass.reduceTransparency(context)
+                    ? AppColors.white
+                    : null,
+                border: Border(
+                    top: BorderSide(color: AppGlass.borderColor, width: 1.0)),
+                boxShadow: [
+                  BoxShadow(
+                    offset: const Offset(0, -4),
+                    blurRadius: 16.0,
+                    color: AppColors.primaryDarkColor.withValues(alpha: 0.08),
+                  ),
+                ],
+              ),
+                child: Material(
+                borderRadius:
+                    InheritedChatTheme.of(context).theme.inputBorderRadius,
+                color: Colors.transparent,
+                child: Container(
+                  margin: EdgeInsets.only(
+                    bottom: AppSizes.maxPadding * 2,
+                    left: AppSizes.maxPadding,
+                    right: AppSizes.maxPadding,
+                  ),
+                  padding: EdgeInsets.only(bottom: AppSizes.maxPadding, top: 8),
+                  decoration: InheritedChatTheme.of(context)
+                      .theme
+                      .inputContainerDecoration,
+                  child: Column(
+                    children: [
+                      Visibility(
+                          visible: _taggingSuggestList != null,
+                          child: _taggingSuggestList != null
+                              ? Wrap(
+                                  children: _arrayTaggingSuggestionList(
+                                      _taggingSuggestList!.length ==
+                                              widget.people!.length - 1 &&
+                                          widget.isGroup),
+                                )
+                              : Container()),
+                      if (InheritedRepliedMessage.of(context).repliedMessage !=
+                          null)
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
+                          child: RepliedMessage(
+                            isView: true,
+                            onCancelReplyPressed: widget.onCancelReplyPressed,
+                            repliedMessage: InheritedRepliedMessage.of(context)
+                                .repliedMessage,
+                            showUserNames: true,
+                            onMessageTap: widget.onMessageTap,
+                            people: widget.people,
+                          ),
                         ),
-                      ),
-                    Container(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 0, 16)
-                          .add(_safeAreaInsets),
-                      child: Column(
-                        children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Expanded(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                      border: Border.all(
-                                          color: const Color(0xFFBCC5D7),
-                                          width: 1.0),
-                                      borderRadius: const BorderRadius.all(
-                                          Radius.circular(10.0))),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(3.0),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Visibility(
-                                          visible: _imageData != '',
-                                          child: Stack(
+                      Container(
+                        padding: const EdgeInsets.fromLTRB(16, 0, 0, 16)
+                            .add(_safeAreaInsets),
+                        child: Column(
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Expanded(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                        color: AppColors.white,
+                                        border: Border.all(
+                                            color: AppColors.primaryColorMix,
+                                            width: 1.0),
+                                        borderRadius: const BorderRadius.all(
+                                            Radius.circular(AppRadius.md))),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(3.0),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Visibility(
+                                            visible: _imageData != '',
+                                            child: Stack(
+                                              children: [
+                                                SizedBox(
+                                                  width: MediaQuery.of(context)
+                                                          .size
+                                                          .width /
+                                                      3,
+                                                  child: ClipRRect(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8.0),
+                                                    child: Image.memory(
+                                                      Uint8List.fromList(
+                                                          _imageData.codeUnits),
+                                                    ),
+                                                  ),
+                                                ),
+                                                Positioned(
+                                                  top: 5.0,
+                                                  right: 5.0,
+                                                  child: GestureDetector(
+                                                    onTap: _deleteImage,
+                                                    child: Container(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              4.0),
+                                                      decoration:
+                                                          const BoxDecoration(
+                                                        shape: BoxShape.circle,
+                                                        color: AppColors.dangerColor,
+                                                      ),
+                                                      child: const Icon(
+                                                        Icons.close,
+                                                        color: Colors.white,
+                                                        size: 16.0,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
                                             children: [
-                                              SizedBox(
-                                                width: MediaQuery.of(context)
-                                                        .size
-                                                        .width /
-                                                    3,
-                                                child: ClipRRect(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          8.0),
-                                                  child: Image.memory(
-                                                    Uint8List.fromList(
-                                                        _imageData.codeUnits),
-                                                  ),
+                                              // _buildEmojiButton(),
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 4.0),
+                                                child: AttachmentButton(
+                                                  onPressed:
+                                                      _showAttachmentOptions,
+                                                  // image:
+                                                  //     'assets/icon-chat-add.png',
+                                                  icon: Icon(
+                                                      Icons
+                                                          .add_circle_outline_outlined,
+                                                      color:
+                                                          AppColors.primaryColor,
+                                                      size: 25),
                                                 ),
                                               ),
-                                              Positioned(
-                                                top: 5.0,
-                                                right: 5.0,
-                                                child: GestureDetector(
-                                                  onTap: _deleteImage,
-                                                  child: Container(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            4.0),
-                                                    decoration:
-                                                        const BoxDecoration(
-                                                      shape: BoxShape.circle,
-                                                      color: Colors.red,
-                                                    ),
-                                                    child: const Icon(
-                                                      Icons.close,
-                                                      color: Colors.white,
-                                                      size: 16.0,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
+                                              _buildTextField(),
                                             ],
                                           ),
-                                        ),
-                                        Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            // _buildEmojiButton(),
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 4.0),
-                                              child: AttachmentButton(
-                                                onPressed:
-                                                    _showAttachmentOptions,
-                                                // image:
-                                                //     'assets/icon-chat-add.png',
-                                                icon: Icon(
-                                                    Icons
-                                                        .add_circle_outline_outlined,
-                                                    color: Colors.grey[700],
-                                                    size: 25),
-                                              ),
-                                            ),
-                                            _buildTextField(),
-                                          ],
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              _buildActionButtons(),
-                            ],
-                          ),
-                          Visibility(
-                            visible: _attachmentShowing,
-                            child: _buildAttachmentPicker(),
-                          ),
-                          Visibility(
-                            visible: _emojiShowing,
-                            child: _buildEmojiStickerPicker(),
-                          ),
-                        ],
-                      ),
-                    )
-                  ],
+                                _buildActionButtons(),
+                              ],
+                            ),
+                            Visibility(
+                              visible: _attachmentShowing,
+                              child: _buildAttachmentPicker(),
+                            ),
+                            Visibility(
+                              visible: _emojiShowing,
+                              child: _buildEmojiStickerPicker(),
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -945,13 +958,16 @@ class _InputState extends State<Input> {
         context: buildContext,
         builder: (buildContext) {
           return AlertDialog(
+            backgroundColor: AppColors.white,
             contentPadding: EdgeInsets.zero,
             shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(5.0))),
+                borderRadius:
+                    BorderRadius.all(Radius.circular(AppRadius.card))),
             content: Container(
                 decoration: BoxDecoration(
                     color: AppColors.white,
-                    borderRadius: new BorderRadius.all(Radius.circular(5))),
+                    borderRadius:
+                        BorderRadius.all(Radius.circular(AppRadius.card))),
                 height: MediaQuery.of(context).size.height * 0.5,
                 width: MediaQuery.of(context).size.width,
                 padding: EdgeInsets.symmetric(vertical: 16, horizontal: 27),
@@ -971,9 +987,7 @@ class _InputState extends State<Input> {
   Widget messageItem(String type) {
     return Expanded(
         child: Container(
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8.0),
-          color: AppColors.grayBackGround),
+      decoration: AppGlass.tile().copyWith(color: AppColors.surfaceColor),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1039,8 +1053,8 @@ class _InputState extends State<Input> {
                 margin: EdgeInsets.only(bottom: 5.0),
                 padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 3),
                 decoration: BoxDecoration(
-                    color: Colors.blue,
-                    borderRadius: BorderRadius.circular(6.0)),
+                    gradient: AppGlass.activeGradient,
+                    borderRadius: BorderRadius.circular(AppRadius.sm)),
                 child: Text(
                   AppLocalizations.text(LangKey.send_message_2),
                   style: TextStyle(color: AppColors.white),
@@ -1060,8 +1074,7 @@ class _InputState extends State<Input> {
         margin: EdgeInsets.only(bottom: 10.0),
         height: 40.0,
         width: MediaQuery.of(context).size.width / 2,
-        decoration: BoxDecoration(
-            color: Colors.blue, borderRadius: BorderRadius.circular(10.0)),
+        decoration: AppGlass.button(),
         child: Center(
           child: Text(
             AppLocalizations.text(LangKey.interaction_message),
@@ -1081,26 +1094,26 @@ class _InputState extends State<Input> {
           emojiIndex = index;
         });
       },
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(AppRadius.md),
       child: Container(
         width: 44,
         height: 44,
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           color: isSelected
-              ? const Color(0xFFF4511E).withValues(alpha: 0.15)
+              ? AppColors.primaryColorMix
               : Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppRadius.md),
           border: Border.all(
             color: isSelected
-                ? const Color(0xFFF4511E)
-                : Colors.grey.withValues(alpha: 0.2),
+                ? AppColors.primaryColor
+                : AppColors.primaryColorMix,
             width: 2,
           ),
         ),
         child: ImageIcon(
           AssetImage(icon, package: 'chat'),
-          color: isSelected ? const Color(0xFFF4511E) : Colors.grey.shade400,
+          color: isSelected ? AppColors.primaryColor : AppColors.textMutedColor,
           size: 24,
         ),
       ),
@@ -1137,7 +1150,7 @@ class _InputState extends State<Input> {
             children: [
               const Icon(
                 Icons.group,
-                color: Colors.grey,
+                color: AppColors.textSecondaryColor,
               ),
               Expanded(
                   child: Padding(
@@ -1212,7 +1225,7 @@ class _InputState extends State<Input> {
               padding: const EdgeInsets.only(bottom: 5.0),
               child: Container(
                 height: 1.0,
-                color: Colors.grey.shade200,
+                color: AppColors.primaryColorMix,
               )));
     }
     return _arr;
@@ -1283,7 +1296,7 @@ class _InputState extends State<Input> {
           backgroundColor: Colors.transparent,
           strokeWidth: 2.0,
           valueColor: AlwaysStoppedAnimation<Color>(
-            Colors.black,
+            AppColors.textTitleColor,
           ),
         ),
       );
@@ -1293,7 +1306,7 @@ class _InputState extends State<Input> {
           child: AttachmentButton(
             onPressed: widget.onCameraPressed,
             icon: Icon(Icons.camera_alt_outlined,
-                color: Colors.grey[700], size: 25),
+                color: AppColors.textBodyColor, size: 25),
           )
           // SizedBox(
           //   width: 35.0,
@@ -1441,6 +1454,9 @@ class _InputState extends State<Input> {
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppRadius.card)),
+            backgroundColor: AppColors.white,
             title: Text(AppLocalizations.text(LangKey.warning)),
             content: Text(AppLocalizations.text(LangKey.accept)),
             actions: [

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:ui';
 import 'package:chat/common/global.dart';
+import 'package:chat/common/theme.dart';
 import 'package:chat/common/shared_prefs/shared_prefs_key.dart';
 import 'package:chat/common/widgets/liquid_glass_tab_bar.dart';
 import 'package:chat/presentation/chat_module/ui/chat_screen.dart';
@@ -104,22 +105,24 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
   }
 
   Widget _buildChatHubTabBar() {
-    return ClipRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.12),
-            border: Border(
-              top: BorderSide(
-                  color: Colors.white.withValues(alpha: 0.4), width: 0.5),
-            ),
-          ),
-          child: SafeArea(
-            top: false,
-            child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
+    return SafeArea(
+      top: false,
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(12.0, 0.0, 12.0, 8.0),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(AppRadius.pill),
+          boxShadow: AppGlass.shadow,
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(AppRadius.pill),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+            child: Container(
+              decoration: AppGlass.pill(
+                  color: AppGlass.reduceTransparency(context)
+                      ? Colors.white
+                      : AppGlass.surface),
+              padding: const EdgeInsets.all(4.0),
               child: ValueListenableBuilder<String>(
                 valueListenable: ChatConnection.notificationNotifier,
                 builder: (context, notifValue, _) {
@@ -201,22 +204,24 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
   }
 
   Widget _buildChatTabBar() {
-    return ClipRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.12),
-            border: Border(
-              top: BorderSide(
-                  color: Colors.white.withValues(alpha: 0.4), width: 0.5),
-            ),
-          ),
-          child: SafeArea(
-            top: false,
-            child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
+    return SafeArea(
+      top: false,
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(12.0, 0.0, 12.0, 8.0),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(AppRadius.pill),
+          boxShadow: AppGlass.shadow,
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(AppRadius.pill),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+            child: Container(
+              decoration: AppGlass.pill(
+                  color: AppGlass.reduceTransparency(context)
+                      ? Colors.white
+                      : AppGlass.surface),
+              padding: const EdgeInsets.all(4.0),
               child: ValueListenableBuilder<String>(
                 valueListenable: ChatConnection.notificationNotifier,
                 builder: (context, notifValue, _) {

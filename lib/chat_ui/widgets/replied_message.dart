@@ -130,7 +130,7 @@ class RepliedMessage extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.only(left: 4.0),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(AppRadius.sm),
               child: Image.network(
                 _imageUri!,
                 fit: BoxFit.contain,
@@ -157,7 +157,7 @@ class RepliedMessage extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.only(left: 4.0),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(AppRadius.sm),
               child: Image.network(
                 _imageUri!,
                 fit: BoxFit.cover,
@@ -203,13 +203,13 @@ class RepliedMessage extends StatelessWidget {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: Colors.blue.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
+                color: AppColors.primaryColorMix,
+                borderRadius: BorderRadius.circular(AppRadius.sm),
               ),
               child: Icon(
                 Icons.insert_drive_file,
                 size: 24,
-                color: Colors.blueAccent,
+                color: AppColors.primaryColor,
               ),
             ),
             const SizedBox(width: 8),
@@ -225,7 +225,7 @@ class RepliedMessage extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
-                      color: Colors.black87,
+                      color: AppColors.textTitleColor,
                     ),
                   ),
                   if (fileSize.isNotEmpty)
@@ -235,7 +235,7 @@ class RepliedMessage extends StatelessWidget {
                         fileSize,
                         style: TextStyle(
                           fontSize: 11,
-                          color: Colors.grey.shade600,
+                          color: AppColors.textSecondaryColor,
                         ),
                       ),
                     ),
@@ -286,6 +286,9 @@ class RepliedMessage extends StatelessWidget {
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(AppRadius.card)),
+                    backgroundColor: AppColors.white,
                     content: Image.network(
                       stickerUrl,
                       fit: BoxFit.cover,
@@ -397,7 +400,7 @@ class RepliedMessage extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: Colors.black,
+                    color: AppColors.textTitleColor,
                   ),
                 ),
                 if (description.isNotEmpty) const SizedBox(height: 4),
@@ -493,7 +496,7 @@ class RepliedMessage extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 4),
           decoration: BoxDecoration(
             // color: Colors.blue.shade100,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(AppRadius.sm),
           ),
           child: Text(
             text,
@@ -501,7 +504,7 @@ class RepliedMessage extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(
               fontSize: 12,
-              color: Colors.blueAccent,
+              color: AppColors.primaryColor,
               fontWeight: FontWeight.bold,
             ),
             textAlign: TextAlign.start,
@@ -576,7 +579,7 @@ class RepliedMessage extends StatelessWidget {
                     ? '${AppLocalizations.text(LangKey.replying)} ${repliedMessage?.author.firstName ?? ''} ${repliedMessage?.author.lastName ?? ''}'
                     : '${repliedMessage?.author.firstName ?? ''} ${repliedMessage?.author.lastName ?? ''}',
                 style: const TextStyle(
-                  color: Colors.black,
+                  color: AppColors.textTitleColor,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   height: 1.5,
@@ -591,7 +594,7 @@ class RepliedMessage extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: Colors.grey.shade700,
+                    color: AppColors.textBodyColor,
                     fontSize: 13,
                     fontWeight: FontWeight.w400,
                     height: 1.4,
@@ -603,7 +606,7 @@ class RepliedMessage extends StatelessWidget {
                 padding: EdgeInsets.only(top: 1.0),
                 child: SizedBox(
                   height: 1.0,
-                  child: ColoredBox(color: Colors.grey),
+                  child: ColoredBox(color: AppColors.textSecondaryColor),
                 ),
               ),
           ],
@@ -620,8 +623,8 @@ class RepliedMessage extends StatelessWidget {
         child: Container(
           margin: margin,
           decoration: BoxDecoration(
-            color: Colors.grey.shade400,
-            borderRadius: BorderRadius.circular(12),
+            color: AppColors.textMutedColor,
+            borderRadius: BorderRadius.circular(AppRadius.md),
           ),
           height: 20,
           width: 20,
@@ -649,9 +652,8 @@ class RepliedMessage extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
           decoration: BoxDecoration(
             borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(10.0), bottom: Radius.circular(10.0)),
-            color: Colors.grey
-                .shade50, // _closable ? Colors.grey.shade50 : Colors.grey[50],
+                top: Radius.circular(AppRadius.md), bottom: Radius.circular(AppRadius.md)),
+            color: AppColors.surfaceColor, // _closable ? Colors.grey.shade50 : Colors.grey[50],
           ),
           child: Row(
             children: [
@@ -659,9 +661,9 @@ class RepliedMessage extends StatelessWidget {
                 child: Container(
                   padding: EdgeInsets.only(left: 8, right: 4, top: 4),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(AppRadius.sm),
                     border: BoxBorder.fromLTRB(
-                      left: BorderSide(color: Colors.amber, width: 3),
+                      left: BorderSide(color: AppColors.primaryColor, width: 3),
                     ),
                   ),
                   child: Column(

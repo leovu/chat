@@ -53,10 +53,11 @@ class CustomScaffold extends StatelessWidget {
   Widget _buildBody(BuildContext context) {
     return PopScope(
       child: Scaffold(
-          backgroundColor: backgroundColor ?? AppColors.white,
+          backgroundColor: backgroundColor ?? AppColors.surfaceColor,
           body: Container(
             width: double.infinity,
             height: double.infinity,
+            decoration: backgroundColor == null ? AppGlass.background() : null,
             child: Stack(
               alignment: Alignment.topCenter,
               children: [
@@ -89,25 +90,25 @@ class CustomScaffold extends StatelessWidget {
                                 ))),
                         if (!isBottomBar) Container(
                           height: AppSizes.bottomHeight,
-                          color: AppColors.white,
+                          color: Colors.transparent,
                         )
                       ],
                     )),
                 if (title != null) Container(
                   height: AppSizes.sizeAppBar +
                       (tabs != null ? AppSizes.tabBarHeight : 0),
-                  decoration: BoxDecoration(
-                      color: isPrimary
-                          ? AppColors.primaryColor
-                          : AppColors.white,
-                      // borderRadius: BorderRadius.vertical(bottom: Radius.circular(8.0)),
-                      // boxShadow: isShadow ? AppBoxShadow.boxShadow : null,
-                      border: Border(
-                          bottom: isBorder
-                              ? BorderSide(
-                              color: AppColors.colorLine,
-                              width: borderWidth)
-                              : BorderSide.none)),
+                  decoration: isPrimary
+                      ? AppGlass.header()
+                      : BoxDecoration(
+                          color: AppColors.white.withValues(alpha: 0.72),
+                          borderRadius: AppGlass.headerBorderRadius,
+                          boxShadow: isShadow ? AppGlass.shadow : null,
+                          border: Border(
+                              bottom: isBorder
+                                  ? BorderSide(
+                                      color: AppColors.primaryColorMix,
+                                      width: borderWidth)
+                                  : BorderSide.none)),
                   padding: EdgeInsets.only(top: AppSizes.statusBarHeight),
                   child: Column(
                     children: [

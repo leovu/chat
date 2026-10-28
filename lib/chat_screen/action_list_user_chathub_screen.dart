@@ -4,6 +4,7 @@ import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/data_model/customer_account.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
+import 'package:chat/common/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/data_model/room.dart' as r;
 
@@ -31,15 +32,20 @@ class _State extends State<ActionListUserChathubScreen> {
           title: AutoSizeText(
             AppLocalizations.text(LangKey.actions),
             style: const TextStyle(
-                color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
+                color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16),
           ),
           leading: InkWell(
-            child: Icon(Icons.arrow_back_ios, color: Colors.black),
+            child: Icon(Icons.arrow_back_ios, color: Colors.white),
             onTap: () => Navigator.of(context).pop(),
           ),
-          backgroundColor: Colors.white,
+          backgroundColor: Colors.transparent,
+          surfaceTintColor: Colors.transparent,
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          shape: AppGlass.headerShape,
+          flexibleSpace: AppGlass.headerBackground(),
           iconTheme: const IconThemeData(
-            color: Colors.black,
+            color: Colors.white,
           ),
         ),
         body: SafeArea(
@@ -154,8 +160,8 @@ class _State extends State<ActionListUserChathubScreen> {
       child: Center(
         child: Container(
           decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10.0),
-              border: Border.all(color: Colors.grey.shade400)),
+              borderRadius: BorderRadius.circular(AppRadius.md),
+              border: Border.all(color: AppColors.primaryColorMix)),
           height: 40.0,
           width: MediaQuery.of(context).size.width * 0.85,
           child: Row(
@@ -165,7 +171,7 @@ class _State extends State<ActionListUserChathubScreen> {
               ),
               Icon(
                 icon,
-                color: Colors.blue,
+                color: AppColors.primaryColor,
               ),
               Container(
                 width: 10.0,

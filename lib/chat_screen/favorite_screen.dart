@@ -13,6 +13,8 @@ import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/check_tag.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:chat/common/theme.dart';
+import 'package:chat/common/widgets/glass_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:auto_size_text/auto_size_text.dart';
@@ -107,12 +109,23 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen>
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
-        body: SafeArea(
+        backgroundColor: AppColors.surfaceColor,
+        body: GlassBackground(
+          child: SafeArea(
+          top: false,
           child: Column(
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Container(
+                    width: double.infinity,
+                    decoration: AppGlass.header(),
+                    padding: EdgeInsets.only(
+                        top: MediaQuery.paddingOf(context).top, bottom: 12.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                   Container(
                     height: 30.0,
                     margin: const EdgeInsets.symmetric(
@@ -129,7 +142,7 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen>
                               width: 30.0,
                               child: Icon(
                                   Icons.arrow_back_ios,
-                                  color: Colors.black)),
+                                  color: AppColors.white)),
                         ),
                       ],
                     ),
@@ -139,7 +152,12 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen>
                         bottom: 3.0, left: 10.0, right: 10.0),
                     child: Text(AppLocalizations.text(LangKey.favorites),
                         style: const TextStyle(
-                            fontSize: 25.0, color: Colors.black)),
+                            fontSize: 25.0,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.white)),
+                  ),
+                      ],
+                    ),
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(
@@ -147,9 +165,7 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen>
                     child: Container(
                       width: double.infinity,
                       height: 40,
-                      decoration: BoxDecoration(
-                          color: const Color(0xFFE7EAEF),
-                          borderRadius: BorderRadius.circular(5)),
+                      decoration: AppGlass.pill(),
                       child: Row(
                         children: [
                           const Padding(
@@ -157,6 +173,7 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen>
                             child: Center(
                               child: Icon(
                                 Icons.search,
+                                color: AppColors.textMutedColor,
                               ),
                             ),
                           ),
@@ -172,17 +189,20 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen>
                             decoration: InputDecoration.collapsed(
                               hintText: AppLocalizations.text(
                                   LangKey.searchFavorites),
+                              hintStyle: const TextStyle(
+                                  color: AppColors.textMutedColor),
                             ),
                           )),
                           Material(
                             color: Colors.transparent,
                             child: InkWell(
-                              borderRadius: BorderRadius.circular(5),
+                              borderRadius: BorderRadius.circular(AppRadius.pill),
                               child: const Padding(
                                 padding: EdgeInsets.symmetric(horizontal: 10),
                                 child: Center(
                                   child: Icon(
                                     Icons.close,
+                                    color: AppColors.textMutedColor,
                                   ),
                                 ),
                               ),
@@ -255,6 +275,7 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen>
               )
             ],
           ),
+        ),
         ),
       ),
     );
@@ -337,6 +358,7 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen>
                                         'Group ${info.firstName} ${info.lastName}',
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
+                                    color: AppColors.textTitleColor,
                                     fontWeight:
                                         findUnread(data.messagesReceived) != '0'
                                             ? FontWeight.bold
@@ -347,7 +369,7 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen>
                               data.lastMessage?.lastMessageDate() ??
                                   data.createdDate(),
                               style: const TextStyle(
-                                  fontSize: 11, color: Colors.grey),
+                                  fontSize: 11, color: AppColors.textSecondaryColor),
                             ),
                           ],
                         )),
@@ -375,6 +397,7 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen>
                             if (findUnread(data.messagesReceived) != '0')
                               CircleAvatar(
                                 radius: 18.0,
+                                backgroundColor: AppColors.primaryColor,
                                 child: Text(
                                   findUnread(data.messagesReceived),
                                   style: const TextStyle(
@@ -401,7 +424,7 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen>
                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
                 child: Container(
                   height: 1.0,
-                  color: Colors.grey.shade300,
+                  color: AppColors.primaryColorMix,
                 ),
               )
             : Container()

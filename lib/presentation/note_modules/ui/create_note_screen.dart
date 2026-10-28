@@ -46,39 +46,48 @@ class _ConversationFileScreenState extends State<CreateNoteScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.surfaceColor,
       appBar: AppBar(
         title: AutoSizeText(
           widget.note != null
               ? AppLocalizations.text(LangKey.update_note)
               : AppLocalizations.text(LangKey.create_note),
           style: const TextStyle(
-              color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
+              color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16),
         ),
         leading: InkWell(
           child: Icon(Icons.arrow_back_ios,
-              color: Colors.black),
+              color: Colors.white),
           onTap: () => Navigator.of(context).pop(),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        shape: AppGlass.headerShape,
+        flexibleSpace: AppGlass.headerBackground(),
         iconTheme: const IconThemeData(
-          color: Colors.black,
+          color: Colors.white,
         ),
       ),
-      body: SafeArea(
+      body: DecoratedBox(
+        decoration: AppGlass.background(),
+        child: SafeArea(
         child: Column(
           children: [
             Container(
               margin: EdgeInsets.all(20.0),
               padding: EdgeInsets.all(20.0),
-              decoration: BoxDecoration(
-                  color: AppColors.grayBackGround.withValues(alpha: 0.5),
-                  borderRadius: BorderRadius.circular(10.0)),
+              decoration: AppGlass.card(),
               child: TextField(
                 controller: _noteController,
                 focusNode: _noteNode,
                 maxLines: 8,
+                style: const TextStyle(color: AppColors.textTitleColor),
                 decoration: InputDecoration.collapsed(
-                    hintText: AppLocalizations.text(LangKey.input_note_hint)),
+                    hintText: AppLocalizations.text(LangKey.input_note_hint),
+                    hintStyle:
+                        const TextStyle(color: AppColors.textMutedColor)),
               ),
             ),
             Expanded(child: Container()),
@@ -90,15 +99,17 @@ class _ConversationFileScreenState extends State<CreateNoteScreen>
                 children: [
                   InkWell(
                     onTap: () => CustomNavigator.pop(context),
+                    borderRadius: BorderRadius.circular(AppRadius.md),
                     child: Container(
                         height: 40.0,
                         width: MediaQuery.of(context).size.width / 2 - 20.0,
-                        color: AppColors.grayBackGround,
+                        decoration: AppGlass.outlineButton(),
                         child: Center(
                             child: Text(
                           AppLocalizations.text(LangKey.cancel),
                           style: TextStyle(
-                              color: Colors.white, fontWeight: FontWeight.bold),
+                              color: AppColors.primaryColor,
+                              fontWeight: FontWeight.w600),
                         ))),
                   ),
                   // Container(width: 20,),
@@ -111,15 +122,16 @@ class _ConversationFileScreenState extends State<CreateNoteScreen>
                         _bloc.updateNote(context, widget.roomData.sId!,
                             _noteController.text.trim(), widget.note!.id!);
                     },
+                    borderRadius: BorderRadius.circular(AppRadius.md),
                     child: Container(
                         height: 40.0,
                         width: MediaQuery.of(context).size.width / 2 - 20.0,
-                        color: Colors.blue,
+                        decoration: AppGlass.button(),
                         child: Center(
                             child: Text(
                           AppLocalizations.text(LangKey.confirm),
                           style: TextStyle(
-                              color: Colors.white, fontWeight: FontWeight.bold),
+                              color: Colors.white, fontWeight: FontWeight.w600),
                         ))),
                   )
                 ],
@@ -130,6 +142,7 @@ class _ConversationFileScreenState extends State<CreateNoteScreen>
             )
           ],
         ),
+      ),
       ),
     );
   }

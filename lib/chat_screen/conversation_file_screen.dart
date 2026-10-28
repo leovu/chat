@@ -7,6 +7,8 @@ import 'package:chat/chat_screen/by_sender_screen.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:chat/common/theme.dart';
+import 'package:chat/common/widgets/glass_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/data_model/chat_message.dart' as c;
 import 'package:chat/data_model/room.dart' as r;
@@ -65,22 +67,28 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.surfaceColor,
       appBar: AppBar(
         title: AutoSizeText(
           AppLocalizations.text(LangKey.conversationFileTitle),
           style: const TextStyle(
-              color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
+              color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16),
         ),
         leading: InkWell(
-          child: Icon(Icons.arrow_back_ios, color: Colors.black),
+          child: Icon(Icons.arrow_back_ios, color: Colors.white),
           onTap: () => Navigator.of(context).pop(),
         ),
-        backgroundColor: Colors.white,
-        iconTheme: const IconThemeData(
-          color: Colors.black,
-        ),
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        shape: AppGlass.headerShape,
+        flexibleSpace: AppGlass.headerBackground(),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
-      body: SafeArea(
+      body: DecoratedBox(
+        decoration: AppGlass.background(),
+        child: SafeArea(
         child: Column(
           children: [
             Padding(
@@ -91,7 +99,7 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                   Expanded(
                     child: _buildSearchChip(
                         AppLocalizations.text(LangKey.bySender),
-                        const Icon(Icons.people, color: Colors.black), () {
+                        const Icon(Icons.people, color: AppColors.primaryColor), () {
                       Navigator.of(context).push(MaterialPageRoute(
                           builder: (context) => BySenderResultScreen(
                                 roomData: widget.roomData,
@@ -104,7 +112,7 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                   Expanded(
                     child: _buildSearchChip(
                         AppLocalizations.text(LangKey.byTimes),
-                        const Icon(Icons.timer, color: Colors.black), () {
+                        const Icon(Icons.timer, color: AppColors.primaryColor), () {
                       Navigator.of(context).push(MaterialPageRoute(
                           builder: (context) => ByTimeResultScreen(
                                 roomData: widget.roomData,
@@ -117,12 +125,14 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
               ),
             ),
             Container(
-              height: 3.0,
-              color: const Color(0xFFE5E5E5),
+              height: 1.0,
+              color: AppColors.primaryColorMix,
             ),
             TabBar(
-                unselectedLabelColor: Colors.grey,
-                labelColor: Colors.black,
+                unselectedLabelColor: AppColors.textSecondaryColor,
+                labelColor: AppColors.primaryColor,
+                dividerColor: Colors.transparent,
+                labelStyle: const TextStyle(fontWeight: FontWeight.w600),
                 tabs: const [
                   Tab(
                     text: 'IMAGE',
@@ -137,7 +147,7 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                 controller: _tabController,
                 isScrollable: true,
                 indicatorSize: TabBarIndicatorSize.tab,
-                indicatorColor: Colors.black),
+                indicatorColor: AppColors.primaryColor),
             Expanded(
               child: TabBarView(
                 controller: _tabController,
@@ -151,27 +161,18 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
           ],
         ),
       ),
+      ),
     );
   }
 
   Widget _buildSearchChip(String label, Icon icon, Function function) {
     return InkWell(
-      borderRadius: BorderRadius.circular(8.0),
+      borderRadius: BorderRadius.circular(AppRadius.pill),
       onTap: () => function(),
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(4.0),
-        decoration: BoxDecoration(
-          color: const Color(0xFFE5E5E5),
-          borderRadius: BorderRadius.circular(8.0),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey[60] ?? Colors.grey,
-              blurRadius: 6.0,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 7.0),
+        decoration: AppGlass.pill(),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -184,7 +185,9 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
-                  color: Colors.black,
+                  color: AppColors.textStrongColor,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
@@ -209,13 +212,17 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
               openImage(context,
                   '${HTTPConnection.domain}api/images/${_chatMessage?.room?.images?[position].content}/512/${ChatConnection.brandCode}');
             },
-            child: CachedNetworkImage(
-              imageUrl:
-                  '${HTTPConnection.domain}api/images/${_chatMessage?.room?.images?[position].content}/512/${ChatConnection.brandCode!}',
-              httpHeaders: {'brand-code': ChatConnection.brandCode!},
-              placeholder: (context, url) => const CupertinoActivityIndicator(),
-              fit: BoxFit.cover,
-              errorWidget: (context, url, error) => const Icon(Icons.error),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(AppRadius.md),
+              child: CachedNetworkImage(
+                imageUrl:
+                    '${HTTPConnection.domain}api/images/${_chatMessage?.room?.images?[position].content}/512/${ChatConnection.brandCode!}',
+                httpHeaders: {'brand-code': ChatConnection.brandCode!},
+                placeholder: (context, url) =>
+                    const CupertinoActivityIndicator(),
+                fit: BoxFit.cover,
+                errorWidget: (context, url, error) => const Icon(Icons.error),
+              ),
             ),
           );
         });
@@ -229,7 +236,14 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         itemCount: _chatMessage?.room?.files?.length ?? 0,
         itemBuilder: (BuildContext context, int position) {
-          return InkWell(
+          return Container(
+            margin: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 4.0),
+            decoration: AppGlass.card(),
+            child: Material(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(AppRadius.card),
+            child: InkWell(
+            borderRadius: BorderRadius.circular(AppRadius.card),
             onTap: () async {
               var message = _chatMessage?.room?.files?[position].file!;
               _showSnack(AppLocalizations.text(LangKey.downloading));
@@ -243,7 +257,9 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                     message.name ?? AppLocalizations.text(LangKey.file));
               }
             },
-            child: Column(
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
               children: [
                 Row(
                   children: [
@@ -251,8 +267,8 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                       width: 45.0,
                       height: 45.0,
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(5),
-                        color: Colors.blue,
+                        borderRadius: BorderRadius.circular(AppRadius.md),
+                        gradient: AppGlass.activeGradient,
                       ),
                       child: Image.asset(
                         'assets/icon-document.png',
@@ -272,6 +288,9 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                                   '',
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                  color: AppColors.textStrongColor,
+                                  fontWeight: FontWeight.w500),
                             )
                           ],
                         ),
@@ -279,14 +298,10 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                     ),
                   ],
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: Container(
-                    height: 1.0,
-                    color: Colors.grey.shade200,
-                  ),
-                )
               ],
+            ),
+            ),
+            ),
             ),
           );
         });
@@ -314,11 +329,18 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         itemCount: urls.length,
         itemBuilder: (BuildContext context, int position) {
-          return InkWell(
+          return Container(
+            margin: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 4.0),
+            decoration: AppGlass.card(),
+            child: Material(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(AppRadius.card),
+            child: InkWell(
+            borderRadius: BorderRadius.circular(AppRadius.card),
             onTap: () => _openLink(urls[position]),
             child: Padding(
               padding:
-                  const EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
+                  const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -326,8 +348,8 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                     width: 45.0,
                     height: 45.0,
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      color: Colors.blue,
+                      borderRadius: BorderRadius.circular(AppRadius.md),
+                      gradient: AppGlass.activeGradient,
                     ),
                     child: const Icon(Icons.link, color: Colors.white),
                   ),
@@ -338,13 +360,16 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        color: Colors.blue,
+                        color: AppColors.primaryColor,
                         decoration: TextDecoration.underline,
+                        decorationColor: AppColors.primaryColor,
                       ),
                     ),
                   ),
                 ],
               ),
+            ),
+            ),
             ),
           );
         });
@@ -391,16 +416,16 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
               child: type == 1
                   ? Icon(
                       Icons.people,
-                      color: Colors.grey.shade500,
+                      color: AppColors.textMutedColor,
                     )
                   : (type == 2
                       ? Icon(
                           Icons.access_alarm,
-                          color: Colors.grey.shade500,
+                          color: AppColors.textMutedColor,
                         )
                       : Icon(
                           Icons.video_call_outlined,
-                          color: Colors.grey.shade500,
+                          color: AppColors.textMutedColor,
                         )),
             ),
           Expanded(
@@ -415,13 +440,13 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                     style: TextStyle(
                         fontSize: 15.0,
                         fontWeight: FontWeight.normal,
-                        color: Colors.grey.shade400),
+                        color: AppColors.textStrongColor),
                   ),
                 ),
                 Container(
                   margin: const EdgeInsets.only(top: 16.0),
                   height: 1,
-                  color: Colors.grey.shade200,
+                  color: AppColors.primaryColorMix,
                 )
               ],
             ),
@@ -455,19 +480,14 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                   ),
                 ),
                 Container(
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(12.0),
-                      topRight: Radius.circular(12.0),
-                    ),
-                  ),
+                  decoration: AppGlass.sheet(),
                   child: SafeArea(
                     top: false,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        const Center(child: GlassGrabber()),
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
@@ -482,7 +502,7 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                                   padding: const EdgeInsets.only(
                                       left: 12.0, top: 12.0, bottom: 12.0),
                                   child: Icon(Icons.arrow_back_ios,
-                                      size: 18.0, color: Colors.grey.shade500),
+                                      size: 18.0, color: AppColors.textMutedColor),
                                 ),
                               ),
                             Expanded(
@@ -496,7 +516,7 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                                   style: const TextStyle(
                                       fontSize: 16.0,
                                       fontWeight: FontWeight.w600,
-                                      color: Colors.black),
+                                      color: AppColors.textTitleColor),
                                 ),
                               ),
                             ),
@@ -512,8 +532,8 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                                     AppLocalizations.text(LangKey.cancel),
                                     style: TextStyle(
                                         fontSize: 15.0,
-                                        fontWeight: FontWeight.w400,
-                                        color: Colors.grey.shade500),
+                                        fontWeight: FontWeight.w600,
+                                        color: AppColors.primaryColor),
                                   ),
                                 ))
                           ],

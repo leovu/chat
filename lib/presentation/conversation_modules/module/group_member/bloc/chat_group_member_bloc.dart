@@ -3,6 +3,7 @@ import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/data_model/response/group_member_response_model.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
+import 'package:chat/common/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -33,6 +34,9 @@ class ChatGroupMemberBloc extends BaseBloc {
       showDialog(
         context: context,
         builder: (cxt) => AlertDialog(
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadius.card)),
+          backgroundColor: AppColors.white,
           title: Text(AppLocalizations.text(LangKey.notifications)),
           content: Text(response?.message ?? ''),
         ),
@@ -47,6 +51,9 @@ class ChatGroupMemberBloc extends BaseBloc {
       showDialog(
         context: context,
         builder: (cxt) => AlertDialog(
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadius.card)),
+          backgroundColor: AppColors.white,
           title: Text(AppLocalizations.text(LangKey.notifications)),
           content: Text(response?.message ?? ''),
         ),

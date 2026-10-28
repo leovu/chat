@@ -25,6 +25,7 @@ import 'package:chat/presentation/conversation_modules/src/bloc/conversation_blo
 import 'package:chat/presentation/utils/media_query.dart';
 import 'package:chat/presentation/utils/ultility.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:chat/common/widgets/glass_widgets.dart';
 import 'package:flutter/material.dart';
 import '../../module/group_member/ui/chat_group_members_screen.dart';
 import '../../../../chat_screen/conversation_file_screen.dart';
@@ -74,6 +75,9 @@ class _ConversationInformationScreenState
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.card)),
+        backgroundColor: AppColors.white,
         title: Text(AppLocalizations.text(LangKey.warning)),
         content: Text(
             content ?? AppLocalizations.text(LangKey.changeGroupNameError)),
@@ -139,6 +143,9 @@ class _ConversationInformationScreenState
     showDialog(
       context: context,
       builder: (cxt) => AlertDialog(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.card)),
+        backgroundColor: AppColors.white,
         title: Text(AppLocalizations.text(LangKey.leaveConversation)),
         content: Text(AppLocalizations.text(LangKey.leaveConfirm)),
         actions: [
@@ -159,6 +166,9 @@ class _ConversationInformationScreenState
                   showDialog(
                     context: context,
                     builder: (cxxt) => AlertDialog(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.card)),
+        backgroundColor: AppColors.white,
                       title: Text(AppLocalizations.text(LangKey.warning)),
                       content: Text(AppLocalizations.text(LangKey.leaveError)),
                       actions: [
@@ -187,6 +197,9 @@ class _ConversationInformationScreenState
     showDialog(
       context: context,
       builder: (cxt) => AlertDialog(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.card)),
+        backgroundColor: AppColors.white,
         title: Text(AppLocalizations.text(LangKey.deleteConversation)),
         content: Text(AppLocalizations.text(LangKey.deleteConfirm)),
         actions: [
@@ -207,6 +220,9 @@ class _ConversationInformationScreenState
                     showDialog(
                       context: context,
                       builder: (cxxt) => AlertDialog(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.card)),
+        backgroundColor: AppColors.white,
                         title: Text(AppLocalizations.text(LangKey.warning)),
                         content:
                             Text(AppLocalizations.text(LangKey.deleteError)),
@@ -238,6 +254,9 @@ class _ConversationInformationScreenState
     showDialog(
       context: context,
       builder: (cxt) => AlertDialog(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.card)),
+        backgroundColor: AppColors.white,
         title: Text(AppLocalizations.text(LangKey.deleteConversation)),
         content: Text(AppLocalizations.text(LangKey.deleteConfirm)),
         actions: [
@@ -257,6 +276,9 @@ class _ConversationInformationScreenState
                     showDialog(
                       context: context,
                       builder: (cxxt) => AlertDialog(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.card)),
+        backgroundColor: AppColors.white,
                         title: Text(AppLocalizations.text(LangKey.warning)),
                         content:
                             Text(AppLocalizations.text(LangKey.deleteError)),
@@ -411,15 +433,15 @@ class _ConversationInformationScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surfaceColor,
       appBar: AppBar(
         title: AutoSizeText(
           AppLocalizations.text(LangKey.conversationInformation),
           style: const TextStyle(
-              color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
+              color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16),
         ),
         leading: InkWell(
-          child: Icon(Icons.arrow_back_ios, color: Colors.black),
+          child: Icon(Icons.arrow_back_ios, color: Colors.white),
           onTap: () => Navigator.of(context).pop(),
         ),
         actions: [
@@ -432,16 +454,19 @@ class _ConversationInformationScreenState
                 },
                 child: Icon(
                   Icons.delete_outline,
-                  color: Colors.red,
+                  color: AppColors.dangerColor,
                 ),
               ),
             ),
         ],
         centerTitle: true,
-        backgroundColor: Colors.white,
-        iconTheme: const IconThemeData(
-          color: Colors.black,
-        ),
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        shape: AppGlass.headerShape,
+        flexibleSpace: AppGlass.headerBackground(),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: SafeArea(
         child: Column(
@@ -480,8 +505,8 @@ class _ConversationInformationScreenState
                   },
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(10.0),
+                      color: AppColors.dangerColor,
+                      borderRadius: BorderRadius.circular(AppRadius.md),
                     ),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
@@ -555,7 +580,7 @@ class _ConversationInformationScreenState
             padding: const EdgeInsets.only(top: 10.0),
             child: Container(
               height: 1.0,
-              color: const Color(0xFFE5E5E5),
+              color: AppColors.primaryColorMix,
             ),
           ),
       ],
@@ -575,17 +600,14 @@ class _ConversationInformationScreenState
               children: [
                 AutoSizeText(
                   AppLocalizations.text(LangKey.unknownCustomer),
-                  style: const TextStyle(color: Colors.black),
+                  style: const TextStyle(color: AppColors.textTitleColor),
                 ),
                 Container(
                   height: 10.0,
                 ),
                 Center(
                   child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10.0),
-                      border: Border.all(color: Colors.grey.shade400),
-                    ),
+                    decoration: AppGlass.tile(),
                     height: 40.0,
                     width: MediaQuery.of(context).size.width * 0.85,
                     child: Row(
@@ -614,7 +636,7 @@ class _ConversationInformationScreenState
                             searchCustomer(_searchController.text);
                           },
                           child: const Icon(Icons.search_outlined,
-                              color: Colors.blue),
+                              color: AppColors.primaryColor),
                         ),
                         const SizedBox(width: 5.0),
                       ],
@@ -645,7 +667,7 @@ class _ConversationInformationScreenState
                       child: const Center(
                           child: Icon(
                         Icons.arrow_drop_down_outlined,
-                        color: Colors.grey,
+                        color: AppColors.textSecondaryColor,
                         size: 30.0,
                       )))
                 ],
@@ -675,7 +697,7 @@ class _ConversationInformationScreenState
           _section(
               const Icon(
                 Icons.folder,
-                color: Color(0xff5686E1),
+                color: AppColors.primaryColor,
                 size: 30,
               ),
               AppLocalizations.text(LangKey.file), () {
@@ -708,7 +730,7 @@ class _ConversationInformationScreenState
             _section(
                 const Icon(
                   Icons.group,
-                  color: Color(0xff5686E1),
+                  color: AppColors.primaryColor,
                   size: 30,
                 ),
                 AppLocalizations.text(LangKey.viewMembers), () async {
@@ -726,12 +748,12 @@ class _ConversationInformationScreenState
               _section(
                   const Icon(
                     Icons.remove_circle,
-                    color: Color(0xff5686E1),
+                    color: AppColors.primaryColor,
                     size: 30,
                   ),
                   AppLocalizations.text(LangKey.leaveConversation), () {
                 _leaveRoom(widget.roomData.sId!);
-              }, textColor: Colors.black),
+              }, textColor: AppColors.textTitleColor),
           if (!widget.roomData.isGroup! ||
               (widget.roomData.owner?.sId == ChatConnection.user!.id &&
                   widget.roomData.isGroup!))
@@ -744,14 +766,14 @@ class _ConversationInformationScreenState
             _section(
                 const Icon(
                   Icons.delete,
-                  color: Colors.red,
+                  color: AppColors.dangerColor,
                   size: 30,
                 ),
                 AppLocalizations.text(LangKey.deleteConversation), () {
               !widget.roomData.isGroup!
                   ? _removeLeaveRoom(widget.roomData.sId!)
                   : _removeRoom(widget.roomData.sId!);
-            }, textColor: Colors.red)
+            }, textColor: AppColors.dangerColor)
         ],
       ),
     );
@@ -773,9 +795,9 @@ class _ConversationInformationScreenState
               padding: const EdgeInsets.only(bottom: 10.0),
               child: Container(
                 decoration: BoxDecoration(
-                  color: const Color(0xFF28A17D),
-                  borderRadius: BorderRadius.circular(10.0),
-                  border: Border.all(color: Colors.grey),
+                  color: AppColors.successColor,
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                  border: Border.all(color: AppColors.successColor),
                 ),
                 child: Row(
                   children: [
@@ -784,8 +806,8 @@ class _ConversationInformationScreenState
                         decoration: const BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(10),
-                            bottomLeft: Radius.circular(10),
+                            topLeft: Radius.circular(AppRadius.md),
+                            bottomLeft: Radius.circular(AppRadius.md),
                           ),
                         ),
                         padding: const EdgeInsets.only(left: 10.0),
@@ -798,7 +820,7 @@ class _ConversationInformationScreenState
                                 const Padding(
                                   padding: EdgeInsets.only(right: 5.0),
                                   child: Icon(Icons.account_circle_rounded,
-                                      color: Colors.blueAccent),
+                                      color: AppColors.primaryColor),
                                 ),
                                 Expanded(
                                   child: AutoSizeText(e?.data?.fullName ?? ''),
@@ -813,7 +835,7 @@ class _ConversationInformationScreenState
                                   const Padding(
                                     padding: EdgeInsets.only(right: 5.0),
                                     child: Icon(Icons.code,
-                                        color: Colors.blueAccent),
+                                        color: AppColors.primaryColor),
                                   ),
                                   Expanded(
                                     child: AutoSizeText(
@@ -832,7 +854,7 @@ class _ConversationInformationScreenState
                                   const Padding(
                                     padding: EdgeInsets.only(right: 5.0),
                                     child: Icon(Icons.phone,
-                                        color: Colors.blueAccent),
+                                        color: AppColors.primaryColor),
                                   ),
                                   Expanded(
                                     child: AutoSizeText(e?.data?.phone ??
@@ -848,7 +870,7 @@ class _ConversationInformationScreenState
                                   const Padding(
                                     padding: EdgeInsets.only(right: 5.0),
                                     child: Icon(Icons.email,
-                                        color: Colors.blueAccent),
+                                        color: AppColors.primaryColor),
                                   ),
                                   Expanded(
                                     child: AutoSizeText(e?.data?.email ?? ''),
@@ -861,8 +883,8 @@ class _ConversationInformationScreenState
                                   const EdgeInsets.symmetric(horizontal: 5.0),
                               child: Container(
                                 decoration: BoxDecoration(
-                                  color: Colors.orangeAccent,
-                                  borderRadius: BorderRadius.circular(10.0),
+                                  color: AppColors.tertiaryColor,
+                                  borderRadius: BorderRadius.circular(AppRadius.md),
                                 ),
                                 padding: const EdgeInsets.symmetric(
                                     vertical: 3.0, horizontal: 8.0),
@@ -916,7 +938,7 @@ class _ConversationInformationScreenState
                       },
                       child: Container(
                         width: 70,
-                        color: const Color(0xFF28A17D),
+                        color: AppColors.successColor,
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8.0, vertical: 3.0),
                         child: const Icon(Icons.link_outlined,
@@ -1014,7 +1036,7 @@ class _ConversationInformationScreenState
           listCustomerSearch(),
           const Padding(
             padding: EdgeInsets.only(bottom: 5.0),
-            child: Divider(height: 1, color: Color(0xFFE5E5E5)),
+            child: Divider(height: 1, color: AppColors.primaryColorMix),
           ),
           Container(
             height: 40.0,
@@ -1023,7 +1045,7 @@ class _ConversationInformationScreenState
               labelColor: HexColor.fromHex('#0067AC'),
               dividerColor: Colors.white,
               dividerHeight: 0,
-              indicatorColor: Colors.blue,
+              indicatorColor: AppColors.primaryColor,
               tabs: [
                 Tab(
                   child: AutoSizeText(
@@ -1081,7 +1103,7 @@ class _ConversationInformationScreenState
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             _section(
-              const Icon(Icons.note_add, color: Color(0xff5686E1), size: 30),
+              const Icon(Icons.note_add, color: AppColors.primaryColor, size: 30),
               AppLocalizations.text(LangKey.create_note),
               () async {
                 await Navigator.of(context).push(MaterialPageRoute(
@@ -1106,8 +1128,8 @@ class _ConversationInformationScreenState
                           decoration: BoxDecoration(
                             color: HexColor.fromHex('#0067AC'),
                             borderRadius: const BorderRadius.only(
-                              topRight: Radius.circular(10),
-                              topLeft: Radius.circular(10),
+                              topRight: Radius.circular(AppRadius.md),
+                              topLeft: Radius.circular(AppRadius.md),
                             ),
                           ),
                           width: ScreenInfo.width! * 0.95,
@@ -1253,7 +1275,7 @@ class _ConversationInformationScreenState
               ),
               const SizedBox(width: 5),
               InkWell(
-                child: const Icon(Icons.delete_outline, color: Colors.red),
+                child: const Icon(Icons.delete_outline, color: AppColors.dangerColor),
                 onTap: () async {
                   await showInfoDialog(
                     context,
@@ -1277,8 +1299,8 @@ class _ConversationInformationScreenState
             alignment: Alignment.centerLeft,
             child: Container(
               decoration: BoxDecoration(
-                color: HexColor.fromHex('#E8EBFA'),
-                borderRadius: BorderRadius.circular(10),
+                color: AppColors.primaryColorMix,
+                borderRadius: BorderRadius.circular(AppRadius.md),
               ),
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               child: AutoSizeText(note.content ?? ''),
@@ -1294,7 +1316,7 @@ class _ConversationInformationScreenState
               return Container(
                 width: 12,
                 height: 0.5,
-                color: Colors.grey,
+                color: AppColors.textSecondaryColor,
               );
             }),
           ),
@@ -1367,18 +1389,18 @@ class _ConversationInformationScreenState
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
                     decoration: BoxDecoration(
-                      color: HexColor.fromHex('#F0F3FB'),
-                      borderRadius: BorderRadius.circular(12),
+                      color: AppColors.primaryColorMix,
+                      borderRadius: BorderRadius.circular(AppRadius.md),
                     ),
                     child: Column(
                       children: [
                         Text(
                           '${day['day'] ?? 'N/A'}',
-                          style: const TextStyle(color: Colors.black),
+                          style: const TextStyle(color: AppColors.textTitleColor),
                         ),
                         Text(
                           '${day['month'] ?? 'N/A'}',
-                          style: const TextStyle(color: Colors.black),
+                          style: const TextStyle(color: AppColors.textTitleColor),
                         ),
                       ],
                     ),
@@ -1386,7 +1408,7 @@ class _ConversationInformationScreenState
                   Container(
                     width: 2,
                     height: 30,
-                    color: HexColor.fromHex('#F0F3FB'),
+                    color: AppColors.primaryColorMix,
                   ),
                 ],
               ),
@@ -1411,8 +1433,8 @@ class _ConversationInformationScreenState
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
-                              color: Colors.grey[300],
-                              borderRadius: BorderRadius.circular(5),
+                              color: AppColors.primaryColorMix,
+                              borderRadius: BorderRadius.circular(AppRadius.xs),
                             ),
                             child: Row(
                               children: [
@@ -1470,7 +1492,7 @@ class _ConversationInformationScreenState
               child: Container(
                 height: 2,
                 width: MediaQuery.of(context).size.width * 0.7,
-                color: HexColor.fromHex('#F0F3FB'),
+                color: AppColors.primaryColorMix,
               ),
             ),
           ),
@@ -1502,7 +1524,7 @@ class _ConversationInformationScreenState
                 );
               },
               iconData: Icons.folder,
-              iconColor: const Color(0xff5686E1),
+              iconColor: AppColors.primaryColor,
               title: AppLocalizations.text(LangKey.file),
             ),
           ),
@@ -1522,7 +1544,7 @@ class _ConversationInformationScreenState
                   setState(() {});
                 },
                 iconData: Icons.group,
-                iconColor: const Color(0xff5686E1),
+                iconColor: AppColors.primaryColor,
                 title: AppLocalizations.text(LangKey.viewMembers),
               ),
             ),
@@ -1609,7 +1631,7 @@ class _ConversationInformationScreenState
     required VoidCallback onTap,
     required IconData iconData,
     required String title,
-    Color iconColor = Colors.blue,
+    Color iconColor = AppColors.primaryColor,
     Color? textColor,
   }) {
     return Column(
@@ -1618,10 +1640,7 @@ class _ConversationInformationScreenState
           onTap: onTap,
           child: Center(
             child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10.0),
-                border: Border.all(color: Colors.grey.shade400),
-              ),
+              decoration: AppGlass.tile(),
               height: 40.0,
               width: MediaQuery.of(context).size.width * 0.9,
               child: Row(
@@ -1660,7 +1679,7 @@ class _ConversationInformationScreenState
                     children: [
                       const Icon(
                         Icons.account_box,
-                        color: Colors.blueAccent,
+                        color: AppColors.primaryColor,
                       ),
                       Expanded(
                           child: Padding(
@@ -1692,7 +1711,7 @@ class _ConversationInformationScreenState
                     children: [
                       const Icon(
                         Icons.phone,
-                        color: Colors.blueAccent,
+                        color: AppColors.primaryColor,
                       ),
                       Expanded(
                           child: Padding(
@@ -1718,7 +1737,7 @@ class _ConversationInformationScreenState
                     children: [
                       const Icon(
                         Icons.email,
-                        color: Colors.blueAccent,
+                        color: AppColors.primaryColor,
                       ),
                       Expanded(
                           child: Padding(
@@ -1743,7 +1762,7 @@ class _ConversationInformationScreenState
                     children: [
                       const Icon(
                         Icons.location_pin,
-                        color: Colors.blueAccent,
+                        color: AppColors.primaryColor,
                       ),
                       Expanded(
                           child: Padding(
@@ -1775,7 +1794,7 @@ class _ConversationInformationScreenState
                           child: AutoSizeText(
                             AppLocalizations.text(LangKey.viewDetail),
                             style: const TextStyle(
-                                color: Colors.blue,
+                                color: AppColors.primaryColor,
                                 fontWeight: FontWeight.w600),
                           ))),
                 ),
@@ -1787,9 +1806,7 @@ class _ConversationInformationScreenState
   /// DEV
   Widget socialInformation() {
     return Container(
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10.0),
-          border: Border.all(color: Colors.grey.shade400)),
+      decoration: AppGlass.card(radius: AppRadius.md),
       padding: EdgeInsets.only(left: 5, right: 20),
       width: MediaQuery.of(context).size.width * 0.9,
       child: Column(
@@ -1808,7 +1825,7 @@ class _ConversationInformationScreenState
                 children: [
                   const Icon(
                     Icons.social_distance_outlined,
-                    color: Color(0xff5686E1),
+                    color: AppColors.primaryColor,
                   ),
                   Container(
                     width: 5,
@@ -1844,9 +1861,7 @@ class _ConversationInformationScreenState
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10.0),
       margin: EdgeInsets.symmetric(vertical: AppSizes.maxPadding),
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10.0),
-          border: Border.all(color: AppColors.lineColor)),
+      decoration: AppGlass.card(radius: AppRadius.md),
       child: Column(
         children: [
           Container(
@@ -1951,7 +1966,7 @@ class _ConversationInformationScreenState
                 child: const Padding(
                   padding: EdgeInsets.only(left: 8.0),
                   child:
-                      Icon(Icons.edit_outlined, color: Colors.grey, size: 20),
+                      Icon(Icons.edit_outlined, color: AppColors.textSecondaryColor, size: 20),
                 ),
               ),
           ],
@@ -1967,11 +1982,14 @@ class _ConversationInformationScreenState
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.transparent,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(AppRadius.sheet)),
       ),
-      builder: (ctx) => Padding(
+      builder: (ctx) => Container(
+        decoration: AppGlass.sheet(),
+        child: Padding(
         padding: EdgeInsets.only(
           left: 20,
           right: 20,
@@ -1981,18 +1999,14 @@ class _ConversationInformationScreenState
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade300,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(height: 16),
+            const GlassGrabber(),
+            const SizedBox(height: 8),
             const Text(
               'Đổi tên nhóm',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: AppColors.textTitleColor),
             ),
             const SizedBox(height: 20),
             TextField(
@@ -2001,19 +2015,17 @@ class _ConversationInformationScreenState
               style: const TextStyle(fontSize: 15),
               decoration: InputDecoration(
                 hintText: 'Nhập tên nhóm',
-                hintStyle: TextStyle(color: Colors.grey.shade400),
+                hintStyle: TextStyle(color: AppColors.textMutedColor),
                 filled: true,
-                fillColor: Colors.grey.shade100,
+                fillColor: AppGlass.surface,
                 contentPadding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
+                border: AppGlass.inputBorder(),
+                enabledBorder: AppGlass.inputBorder(),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(AppRadius.md),
                   borderSide:
-                      const BorderSide(color: Color(0xff5686E1), width: 1.5),
+                      const BorderSide(color: AppColors.primaryColor, width: 1.5),
                 ),
               ),
             ),
@@ -2036,10 +2048,10 @@ class _ConversationInformationScreenState
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xff5686E1),
+                  backgroundColor: AppColors.primaryColor,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                      borderRadius: BorderRadius.circular(AppRadius.md)),
                   elevation: 0,
                 ),
                 child: const Text('Lưu',
@@ -2049,6 +2061,7 @@ class _ConversationInformationScreenState
             ),
           ],
         ),
+      ),
       ),
     );
   }
@@ -2098,7 +2111,7 @@ class _ConversationInformationScreenState
                     padding: EdgeInsets.only(left: 10.0),
                     child: Icon(
                       Icons.edit_outlined,
-                      color: Colors.grey,
+                      color: AppColors.textSecondaryColor,
                       size: 20.0,
                     ),
                   )
@@ -2126,13 +2139,9 @@ class _ConversationInformationScreenState
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
       child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8.0),
-          border: Border.all(color: const Color(0xFFE5E5E5)),
-        ),
+        decoration: AppGlass.card(radius: AppRadius.md),
         child: InkWell(
-          borderRadius: BorderRadius.circular(8.0),
+          borderRadius: BorderRadius.circular(AppRadius.md),
           onTap: () {
             function();
           },
@@ -2155,7 +2164,7 @@ class _ConversationInformationScreenState
                           name,
                           maxLines: 1,
                           textScaleFactor: 1.2,
-                          style: TextStyle(color: textColor ?? Colors.black),
+                          style: TextStyle(color: textColor ?? AppColors.textTitleColor),
                         ),
                       ),
                     ),
@@ -2164,7 +2173,7 @@ class _ConversationInformationScreenState
                         padding: EdgeInsets.only(left: 5.0, right: 8.0),
                         child: Icon(
                           Icons.navigate_next_outlined,
-                          color: Color(0xFFE5E5E5),
+                          color: AppColors.textMutedColor,
                         ),
                       ),
                   ],
@@ -2230,7 +2239,7 @@ List<Widget> extractSummaryWidgetsFromHtml(String input) {
           maxFontSize: isTitle ? 20 : 16,
           style: TextStyle(
             fontWeight: isTitle ? FontWeight.bold : FontWeight.normal,
-            color: isTitle ? const Color(0xFF007BFF) : Colors.black,
+            color: isTitle ? AppColors.primaryColor : AppColors.textTitleColor,
           ),
         ),
       ),
@@ -2334,37 +2343,27 @@ class _ChatSessionBottomSheetState extends State<_ChatSessionBottomSheet>
     final msgCount = widget.session.messageIds?.length ?? 0;
     return Container(
       height: height,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
+      decoration: AppGlass.sheet(),
       child: Column(
         children: [
           // drag handle
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10),
-            child: Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ),
+          const GlassGrabber(),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             child: Text(
               AppLocalizations.text(LangKey.chat_session_info),
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: AppColors.textTitleColor),
             ),
           ),
-          const Divider(height: 1),
+          const Divider(height: 1, color: AppColors.primaryColorMix),
           TabBar(
             controller: _tabController,
-            labelColor: Colors.blue,
-            unselectedLabelColor: Colors.grey,
-            indicatorColor: Colors.blue,
+            labelColor: AppColors.primaryColor,
+            unselectedLabelColor: AppColors.textSecondaryColor,
+            indicatorColor: AppColors.primaryColor,
             tabs: [
               Tab(text: AppLocalizations.text(LangKey.summary)),
               Tab(text: 'Tin nhắn phiên chat ($msgCount)'),
@@ -2399,7 +2398,7 @@ class _ChatSessionBottomSheetState extends State<_ChatSessionBottomSheet>
                 padding: const EdgeInsets.symmetric(vertical: 20),
                 child: Text(
                   AppLocalizations.text(LangKey.no_chat_session),
-                  style: const TextStyle(color: Colors.grey),
+                  style: const TextStyle(color: AppColors.textSecondaryColor),
                 ),
               ),
             ),
@@ -2417,17 +2416,13 @@ class _ChatSessionBottomSheetState extends State<_ChatSessionBottomSheet>
                 }
               },
               child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: Colors.white,
-                  border: Border.all(color: Colors.blue),
-                ),
+                decoration: AppGlass.outlineButton(),
                 width: MediaQuery.of(context).size.width * 0.4,
                 height: 36,
                 child: Center(
                   child: Text(
                     AppLocalizations.text(LangKey.summary),
-                    style: const TextStyle(color: Colors.blue),
+                    style: const TextStyle(color: AppColors.primaryColor),
                   ),
                 ),
               ),
@@ -2449,7 +2444,7 @@ class _ChatSessionBottomSheetState extends State<_ChatSessionBottomSheet>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(AppLocalizations.text(LangKey.no_chat_session),
-                style: const TextStyle(color: Colors.grey)),
+                style: const TextStyle(color: AppColors.textSecondaryColor)),
             const SizedBox(height: 12),
             ElevatedButton(
               onPressed: _fetchMessages,
@@ -2505,7 +2500,7 @@ class _ChatSessionBottomSheetState extends State<_ChatSessionBottomSheet>
     return GestureDetector(
       onTap: () => openImage(context, uri),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppRadius.md),
         child: CachedNetworkImage(
           imageUrl: uri,
           width: w,
@@ -2521,7 +2516,7 @@ class _ChatSessionBottomSheetState extends State<_ChatSessionBottomSheet>
           errorWidget: (_, __, ___) => SizedBox(
               width: w,
               height: 120,
-              child: const Icon(Icons.broken_image, color: Colors.grey)),
+              child: const Icon(Icons.broken_image, color: AppColors.textSecondaryColor)),
         ),
       ),
     );

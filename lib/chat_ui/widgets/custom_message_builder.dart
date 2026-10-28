@@ -1,3 +1,4 @@
+import 'package:chat/common/theme.dart';
 import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/chat_ui/widgets/custom_message_file.dart';
@@ -93,7 +94,7 @@ Widget buildSystemMessageWidget(types.CustomMessage message) {
     child: Text(
       text,
       style: const TextStyle(
-          color: Colors.grey, fontStyle: FontStyle.italic, fontSize: 12),
+          color: AppColors.textSecondaryColor, fontStyle: FontStyle.italic, fontSize: 12),
       textAlign: TextAlign.center,
     ),
   );
@@ -114,6 +115,11 @@ Widget buildProductWidget(types.CustomMessage message, int messageWidth) {
 
         return Card(
           margin: const EdgeInsets.symmetric(vertical: 4),
+          color: AppColors.white,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadius.md),
+              side: const BorderSide(color: AppColors.primaryColorMix)),
           child: ListTile(
             leading: imageUrl != null
                 ? Image.network(imageUrl,
@@ -234,7 +240,7 @@ Widget buildZpListWidget(types.CustomMessage message, int messageWidth) {
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              color: Colors.black,
+              color: AppColors.textTitleColor,
             ),
           ),
           const SizedBox(height: 4),
@@ -257,7 +263,7 @@ Widget buildImageUrlWidget(types.CustomMessage message, int messageWidth) {
   final imageUrl = _ensureFullUrl(rawImageUrl);
 
   return ClipRRect(
-    borderRadius: BorderRadius.circular(12),
+    borderRadius: BorderRadius.circular(AppRadius.md),
     child: CachedNetworkImage(
       imageUrl: imageUrl,
       width: messageWidth.toDouble() * 0.7,
@@ -270,7 +276,7 @@ Widget buildImageUrlWidget(types.CustomMessage message, int messageWidth) {
       errorWidget: (_, __, ___) => Container(
         width: messageWidth.toDouble() * 0.7,
         height: 100,
-        child: const Icon(Icons.broken_image, size: 100, color: Colors.grey),
+        child: const Icon(Icons.broken_image, size: 100, color: AppColors.textSecondaryColor),
       ),
     ),
   );

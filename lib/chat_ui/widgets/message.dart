@@ -1,6 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/chat_ui/widgets/audio_message.dart';
+import 'package:chat/common/theme.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';
 import 'package:flutter/material.dart';
@@ -235,19 +236,32 @@ class Message extends StatelessWidget {
             ? _messageBuilder(color, currentUserIsAuthor)
             : Container(
                 key: key,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: isMedia
-                      ? Colors.transparent
-                      : (currentUserIsAuthor
-                          ? InheritedChatTheme.of(context).theme.primaryColor
-                          : InheritedChatTheme.of(context).theme.secondaryColor),
-                ),
+                decoration: isMedia
+                    ? const BoxDecoration(color: Colors.transparent)
+                    : _bubbleDecoration(currentUserIsAuthor),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(AppRadius.card),
                   child: _messageBuilder(color, currentUserIsAuthor),
                 ),
               );
+  }
+
+  BoxDecoration _bubbleDecoration(bool currentUserIsAuthor) {
+    return BoxDecoration(
+      borderRadius: BorderRadius.circular(AppRadius.card),
+      gradient: currentUserIsAuthor ? AppGlass.sentBubbleGradient : null,
+      color: currentUserIsAuthor
+          ? null
+          : AppColors.white.withValues(alpha: 0.92),
+      border: Border.all(color: AppGlass.borderColor, width: 1.0),
+      boxShadow: [
+        BoxShadow(
+          offset: const Offset(0, 2),
+          blurRadius: 6.0,
+          color: AppColors.primaryDarkColor.withValues(alpha: 0.08),
+        ),
+      ],
+    );
   }
 
   Widget _messageBuilder(Color color, bool currentUserIsAuthor) {
@@ -358,7 +372,7 @@ class Message extends StatelessWidget {
                     backgroundColor: Colors.transparent,
                     strokeWidth: 1.5,
                     valueColor: AlwaysStoppedAnimation<Color>(
-                      Colors.blue,
+                      AppColors.primaryColor,
                     ),
                   ),
                 ),
@@ -459,7 +473,7 @@ class Message extends StatelessWidget {
                               .theme
                               .receivedMessageDocumentIconColor
                               .withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(AppRadius.md),
                         ),
                         height: 24,
                         width: 24,
@@ -515,7 +529,7 @@ class Message extends StatelessWidget {
                       padding: EdgeInsets.only(right: 3.0, top: 20.0),
                       child: Icon(
                         Icons.edit_outlined,
-                        color: Colors.black,
+                        color: AppColors.textTitleColor,
                         size: 15.0,
                       ),
                     ),
@@ -543,7 +557,7 @@ class Message extends StatelessWidget {
                                 .trim(),
                             style: TextStyle(
                               fontSize: 12,
-                              color: Colors.grey.shade600,
+                              color: AppColors.textSecondaryColor,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -603,7 +617,7 @@ class Message extends StatelessWidget {
                       padding: EdgeInsets.only(right: 3.0, top: 20.0),
                       child: Icon(
                         Icons.edit_outlined,
-                        color: Colors.black,
+                        color: AppColors.textTitleColor,
                         size: 15.0,
                       ),
                     ),
@@ -625,9 +639,10 @@ class Message extends StatelessWidget {
                         : (30 * seenPeople!.length);
                     showModalBottomSheet(
                         context: context,
+                        backgroundColor: AppColors.surfaceColor,
                         shape: const RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.vertical(top: Radius.circular(25.0)),
+                          borderRadius: BorderRadius.vertical(
+                              top: Radius.circular(AppRadius.sheet)),
                         ),
                         builder: (BuildContext context) {
                           return SafeArea(
@@ -729,7 +744,7 @@ class Message extends StatelessWidget {
         if (seenPeople!.length > _arr.length) {
           _arr.add(Text(
             '+${seenPeople!.length - 3}',
-            style: const TextStyle(color: Colors.black, fontSize: 8),
+            style: const TextStyle(color: AppColors.textTitleColor, fontSize: 8),
           ));
         }
         break;

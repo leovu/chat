@@ -1,4 +1,5 @@
 
+import 'package:chat/common/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 
@@ -6,7 +7,7 @@ Map<String, Style> htmlTagStyles() {
   return {
     "*": Style(
       fontSize: FontSize(14.0),
-      color: Colors.black87,
+      color: AppColors.textTitleColor,
       margin: Margins.only(top: 0, bottom: 0),
       padding: HtmlPaddings.zero,
     ),
@@ -23,7 +24,7 @@ Map<String, Style> htmlTagStyles() {
     ),
     "u": Style(textDecoration: TextDecoration.underline),
     "a": Style(
-      color: Colors.blue,
+      color: AppColors.primaryColor,
       textDecoration: TextDecoration.underline,
     ),
     "h1": Style(fontSize: FontSize(22.0), fontWeight: FontWeight.bold),
@@ -33,13 +34,13 @@ Map<String, Style> htmlTagStyles() {
     "li": Style(margin: Margins.only(bottom: 4)),
     "blockquote": Style(
       fontStyle: FontStyle.italic,
-      backgroundColor: Colors.grey.shade100,
+      backgroundColor: AppColors.surfaceColor,
       padding: HtmlPaddings.all(8),
-      border: const Border(left: BorderSide(color: Colors.grey, width: 3)),
+      border: const Border(left: BorderSide(color: AppColors.textSecondaryColor, width: 3)),
     ),
     "code": Style(
       fontFamily: 'monospace',
-      backgroundColor: Colors.grey.shade200,
+      backgroundColor: AppColors.primaryColorMix,
       padding: HtmlPaddings.all(4),
     ),
   };

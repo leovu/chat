@@ -2,7 +2,7 @@
 * Created by: nguyenan
 * Created at: 2024/04/26 09:37
 */
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 class AppKeys {
   static const String keyHUD = "/HUD";
@@ -10,8 +10,24 @@ class AppKeys {
 }
 
 class AppColors {
-  static const primaryColor = Color(0xFFF37021);
-  static const primary50Color = Color(0xFFF9DECF);
+  static const primaryColor = Color(0xFF3398DC);
+  static const primaryGradiantColor = Color(0xFF5FAEE3);
+  static const primaryDarkColor = Color(0xFF1F7BBF);
+  static const primaryLightColor = Color(0xFF9CCFF0);
+  static const primaryColorMix = Color(0xFFE1F0FA);
+  static const secondaryColor = Color(0xFF1A6497);
+  static const secondaryColorMix = Color(0xFFD3E8F7);
+  static const tertiaryColor = Color(0xFFFF9F0A);
+  static const successColor = Color(0xFF34C759);
+  static const warningColor = Color(0xFFFFB020);
+  static const dangerColor = Color(0xFFFF3B30);
+  static const surfaceColor = Color(0xFFF2F7FB);
+  static const textTitleColor = Color(0xFF1E293B);
+  static const textStrongColor = Color(0xFF334155);
+  static const textBodyColor = Color(0xFF475569);
+  static const textSecondaryColor = Color(0xFF64748B);
+  static const textMutedColor = Color(0xFF94A3B8);
+  static const primary50Color = Color(0xFFD3E8F7);
   static const white = Color(0xFFFFFFFF);
   static const white50 = Color(0xFFFAFAFA);
   static const line2Color = Color(0xFFE7E8EA);
@@ -20,10 +36,10 @@ class AppColors {
   static const grey600 = Color(0xFF777777);
   static const dark = Color(0xFF040C21);
   static const grey200 = Color(0xFFD8D8D8);
-  static const lineColor = Color(0xFFEFF0F2);
+  static const lineColor = Color(0xFFE1F0FA);
   static const greenLightColor = Color(0xFFE5FAE6);
   static const greenBorderColor = Color(0xFFC1F0C1);
-  static const paginationColor = Color(0xFFF1E4DC);
+  static const paginationColor = Color(0xFFD3E8F7);
   static const tabActiveColor = Color(0xFF262B35);
   static const tabInActiveColor = Color(0xFF666D7C);
   static const promotionColor = Color(0xFFF3F4F6);
@@ -31,10 +47,10 @@ class AppColors {
   static const black50Color = Color(0xFF11192E);
   static const colorLine = Color(0xFFF1F1F1);
   static const colorLineImage = Color(0xFFE4E4E4);
-  static const headerColorBackground = Color(0xFFFF7421);
-  static const headerColorLinearTop = Color(0xFFFFF1D3);
-  static const headerColorLinearBottom = Color(0xFFFFE5D4);
-  static const colorSelectedService = Color(0xFFFFF5EB);
+  static const headerColorBackground = Color(0xFF3398DC);
+  static const headerColorLinearTop = Color(0xFFE3F0FA);
+  static const headerColorLinearBottom = Color(0xFFE1F0FA);
+  static const colorSelectedService = Color(0xFFE1F0FA);
   static const colorUnSelectedService = Color(0xFFF4F6F8);
   static const colorBorderUnSelectedService = Color(0xFFEAEEF1);
   static const redColor = Color(0xFFE22119);
@@ -79,8 +95,8 @@ class AppColors {
 
   static const bluePromotion = Color(0xFF0A6EF4);
   static const bluePrimary = Color(0xFF4564ED);
-  static const primaryUnselect = Color(0xFFFFEAD6);
-  static const filterSelectedColor = Color(0xFFFFF5EF);
+  static const primaryUnselect = Color(0xFFE1F0FA);
+  static const filterSelectedColor = Color(0xFFE1F0FA);
   static const backgroundRed = Color(0xFFFFF8F8);
   static const green = Color(0xFF4CD964);
   static const backgroundGrey = Color(0xFFF5F6F8);
@@ -93,6 +109,270 @@ class AppColors {
   static const orange2 = Color(0xFFFFE296);
   static const orange3 = Color(0xFFFFD7A9);
   static const grey = Color(0xFF464E5F);
+}
+
+class AppFonts {
+  static const font = "Inter";
+}
+
+
+class AppRadius {
+  static const double xs = 4;
+  static const double sm = 8;
+  static const double md = 12;
+  static const double card = 16;
+  static const double sheet = 26;
+  static const double pill = 100;
+}
+
+class AppGlass {
+  static const double radius = AppRadius.card;
+
+  static const double sheetRadius = AppRadius.sheet;
+
+  static const LinearGradient headerGradient = LinearGradient(
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+    colors: [AppColors.primaryColor, AppColors.primaryGradiantColor],
+  );
+
+  static const LinearGradient activeGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [AppColors.primaryGradiantColor, AppColors.primaryColor],
+  );
+
+  static const LinearGradient backgroundGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [Color(0xFFE3F0FA), AppColors.surfaceColor, Color(0xFFEDF3F8)],
+    stops: [0.0, 0.45, 1.0],
+  );
+
+  static LinearGradient get sheetGradient => LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [
+          const Color(0xFFFDFEFF),
+          Color.lerp(Colors.white, AppColors.primaryColor, 0.03)!,
+          AppColors.surfaceColor,
+        ],
+        stops: const [0.0, 0.3, 1.0],
+      );
+
+  static LinearGradient get sentBubbleGradient => LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          AppColors.primaryColorMix,
+          Color.lerp(AppColors.primaryColorMix, AppColors.primaryLightColor, 0.45)!,
+        ],
+      );
+
+  static Color get surface => Colors.white.withValues(alpha: 0.72);
+
+  static Color get surfaceLight => Colors.white.withValues(alpha: 0.55);
+
+  static Color get borderColor => Colors.white.withValues(alpha: 0.9);
+
+  static Color get headerIconBackground => Colors.white.withValues(alpha: 0.18);
+
+  static List<BoxShadow> get shadow => [
+        BoxShadow(
+          offset: const Offset(0.0, 8.0),
+          blurRadius: 22.0,
+          spreadRadius: -4.0,
+          color: AppColors.primaryDarkColor.withValues(alpha: 0.12),
+        ),
+        BoxShadow(
+          offset: const Offset(0.0, 1.0),
+          blurRadius: 3.0,
+          color: const Color(0xFF0F172A).withValues(alpha: 0.04),
+        ),
+      ];
+
+  static List<BoxShadow> get shadowPressed => [
+        BoxShadow(
+          offset: const Offset(0.0, 3.0),
+          blurRadius: 10.0,
+          spreadRadius: -2.0,
+          color: AppColors.primaryDarkColor.withValues(alpha: 0.16),
+        ),
+      ];
+
+  static List<BoxShadow> get headerShadow => [
+        BoxShadow(
+          offset: const Offset(0, 4),
+          blurRadius: 12.0,
+          color: AppColors.primaryColor.withValues(alpha: 0.2),
+        ),
+      ];
+
+  static List<BoxShadow> get buttonShadow => [
+        BoxShadow(
+          offset: const Offset(0, 4),
+          blurRadius: 12.0,
+          color: AppColors.primaryColor.withValues(alpha: 0.25),
+        ),
+      ];
+
+  static List<BoxShadow> get sheetShadow => [
+        BoxShadow(
+          offset: const Offset(0, -6),
+          blurRadius: 28.0,
+          color: AppColors.primaryDarkColor.withValues(alpha: 0.14),
+        ),
+      ];
+
+  static LinearGradient get cardGradient => LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          Colors.white.withValues(alpha: 0.92),
+          Color.lerp(Colors.white, AppColors.primaryColor, 0.05)!
+              .withValues(alpha: 0.74),
+        ],
+      );
+
+  static const BorderRadius headerBorderRadius = BorderRadius.only(
+    bottomLeft: Radius.circular(AppRadius.card),
+    bottomRight: Radius.circular(AppRadius.card),
+  );
+
+  static const ShapeBorder headerShape =
+      RoundedRectangleBorder(borderRadius: headerBorderRadius);
+
+  static BoxDecoration header({bool rounded = true}) {
+    return BoxDecoration(
+      gradient: headerGradient,
+      borderRadius: rounded ? headerBorderRadius : null,
+      boxShadow: headerShadow,
+    );
+  }
+
+  static Widget headerBackground({bool rounded = true}) {
+    return DecoratedBox(decoration: header(rounded: rounded));
+  }
+
+  static BoxDecoration card({double radius = AppGlass.radius, Color? color}) {
+    return BoxDecoration(
+      borderRadius: BorderRadius.circular(radius),
+      gradient: color != null ? null : cardGradient,
+      color: color,
+      border: Border.all(color: borderColor, width: 1.0),
+      boxShadow: shadow,
+    );
+  }
+
+  static BoxDecoration tile({double radius = AppRadius.md}) {
+    return BoxDecoration(
+      borderRadius: BorderRadius.circular(radius),
+      color: surfaceLight,
+      border: Border.all(color: borderColor, width: 1.0),
+    );
+  }
+
+  static BoxDecoration headerButton() {
+    return BoxDecoration(
+      color: headerIconBackground,
+      shape: BoxShape.circle,
+    );
+  }
+
+  static BoxDecoration pill({Color? color, Color? borderColor}) {
+    return BoxDecoration(
+      borderRadius: BorderRadius.circular(AppRadius.pill),
+      color: color ?? surface,
+      border: Border.all(
+          color: borderColor ?? AppGlass.borderColor, width: 1.0),
+    );
+  }
+
+  static BoxDecoration dialog() {
+    return BoxDecoration(
+      borderRadius: BorderRadius.circular(AppRadius.card),
+      gradient: sheetGradient,
+      border: Border.all(color: borderColor, width: 1.0),
+      boxShadow: shadow,
+    );
+  }
+
+  static BoxDecoration grabber() {
+    return BoxDecoration(
+      color: AppColors.primaryDarkColor.withValues(alpha: 0.18),
+      borderRadius: BorderRadius.circular(AppRadius.pill),
+    );
+  }
+
+  static BoxDecoration button({bool enable = true}) {
+    return BoxDecoration(
+      borderRadius: BorderRadius.circular(AppRadius.md),
+      gradient: enable ? activeGradient : null,
+      color: enable ? null : AppColors.primaryLightColor,
+      boxShadow: enable ? buttonShadow : null,
+    );
+  }
+
+  static BoxDecoration outlineButton() {
+    return BoxDecoration(
+      borderRadius: BorderRadius.circular(AppRadius.md),
+      color: surface,
+      border: Border.all(
+          color: AppColors.primaryColor.withValues(alpha: 0.4), width: 1.0),
+    );
+  }
+
+  static BoxDecoration sheet() {
+    return BoxDecoration(
+      borderRadius:
+          const BorderRadius.vertical(top: Radius.circular(AppRadius.sheet)),
+      gradient: sheetGradient,
+      border: const Border(top: BorderSide(color: Colors.white, width: 1.5)),
+      boxShadow: sheetShadow,
+    );
+  }
+
+  static BoxDecoration background() {
+    return const BoxDecoration(gradient: backgroundGradient);
+  }
+
+  static InputDecoration input(
+      {String? hintText,
+      Widget? prefixIcon,
+      Widget? suffixIcon,
+      EdgeInsetsGeometry? contentPadding,
+      double radius = AppRadius.md}) {
+    return InputDecoration(
+      hintText: hintText,
+      hintStyle: const TextStyle(color: AppColors.textMutedColor),
+      prefixIcon: prefixIcon,
+      suffixIcon: suffixIcon,
+      isDense: true,
+      filled: true,
+      fillColor: surface,
+      contentPadding: contentPadding ??
+          const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10.0),
+      border: inputBorder(radius: radius),
+      enabledBorder: inputBorder(radius: radius),
+      disabledBorder: inputBorder(radius: radius),
+      focusedBorder:
+          inputBorder(radius: radius, color: AppColors.primaryColor),
+    );
+  }
+
+  static OutlineInputBorder inputBorder(
+      {double radius = AppRadius.md, Color? color}) {
+    return OutlineInputBorder(
+      borderRadius: BorderRadius.circular(radius),
+      borderSide: BorderSide(color: color ?? borderColor, width: 1.0),
+    );
+  }
+
+  static bool reduceMotion(BuildContext context) =>
+      MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+
+  static bool reduceTransparency(BuildContext context) =>
+      MediaQuery.maybeHighContrastOf(context) ?? false;
 }
 
 class AppSizes {
@@ -208,11 +488,11 @@ class AppTextStyles {
       fontWeight: FontWeight.w700);
   static TextStyle style20BlackWeight400= TextStyle(
       fontSize: AppTextSizes.size20,
-      color: AppColors.black,
+      color: AppColors.textTitleColor,
       fontWeight: FontWeight.w400);
   static TextStyle style36BlackNormal = TextStyle(
       fontSize: AppTextSizes.size36,
-      color: AppColors.black,
+      color: AppColors.textTitleColor,
       fontWeight: FontWeight.normal);
   static TextStyle style25WhiteWeight800Italic = TextStyle(
     fontSize: AppTextSizes.size25,
@@ -221,27 +501,27 @@ class AppTextStyles {
     fontStyle: FontStyle.italic,);
   static TextStyle style26BlackBold = TextStyle(
       fontSize: AppTextSizes.size26,
-      color: AppColors.black,
+      color: AppColors.textTitleColor,
       fontWeight: FontWeight.bold);
   static TextStyle style25BlackWeight700 = TextStyle(
       fontSize: AppTextSizes.size25,
-      color: AppColors.black,
+      color: AppColors.textTitleColor,
       fontWeight: FontWeight.w700);
   static TextStyle style24BlackBold = TextStyle(
       fontSize: AppTextSizes.size24,
-      color: AppColors.black,
+      color: AppColors.textTitleColor,
       fontWeight: FontWeight.bold);
   static TextStyle style22BlackBold = TextStyle(
       fontSize: AppTextSizes.size22,
-      color: AppColors.black,
+      color: AppColors.textTitleColor,
       fontWeight: FontWeight.bold);
   static TextStyle style16BlackBold = TextStyle(
       fontSize: AppTextSizes.size16,
-      color: AppColors.black,
+      color: AppColors.textTitleColor,
       fontWeight: FontWeight.bold);
   static TextStyle style18BlackBold = TextStyle(
       fontSize: AppTextSizes.size18,
-      color: AppColors.black,
+      color: AppColors.textTitleColor,
       fontWeight: FontWeight.bold);
   static TextStyle style18PrimaryBold = TextStyle(
       fontSize: AppTextSizes.size18,
@@ -261,23 +541,23 @@ class AppTextStyles {
       fontWeight: FontWeight.normal);
   static TextStyle style15BlackNormal = TextStyle(
       fontSize: AppTextSizes.size15,
-      color: AppColors.black,
+      color: AppColors.textTitleColor,
       fontWeight: FontWeight.normal);
   static TextStyle style15BlackBold = TextStyle(
       fontSize: AppTextSizes.size15,
-      color: AppColors.black,
+      color: AppColors.textTitleColor,
       fontWeight: FontWeight.bold);
   static TextStyle style15Grey600Normal = TextStyle(
       fontSize: AppTextSizes.size15,
-      color: AppColors.grey600,
+      color: AppColors.textSecondaryColor,
       fontWeight: FontWeight.normal);
   static TextStyle style15Red600Normal = TextStyle(
       fontSize: AppTextSizes.size15,
-      color: AppColors.redColor,
+      color: AppColors.dangerColor,
       fontWeight: FontWeight.normal);
   static TextStyle style12Grey600Normal = TextStyle(
       fontSize: AppTextSizes.size12,
-      color: AppColors.grey600,
+      color: AppColors.textSecondaryColor,
       fontWeight: FontWeight.normal);
   static TextStyle style12Green600Normal = TextStyle(
       fontSize: AppTextSizes.size12,
@@ -285,15 +565,15 @@ class AppTextStyles {
       fontWeight: FontWeight.normal);
   static TextStyle style12RedNormal = TextStyle(
       fontSize: AppTextSizes.size12,
-      color: AppColors.redColor,
+      color: AppColors.dangerColor,
       fontWeight: FontWeight.normal);
   static TextStyle style12BlackW400 = TextStyle(
       fontSize: AppTextSizes.size12,
-      color: AppColors.black,
+      color: AppColors.textTitleColor,
       fontWeight: FontWeight.w400);
   static TextStyle style11BlackW700 = TextStyle(
       fontSize: AppTextSizes.size11,
-      color: AppColors.black,
+      color: AppColors.textTitleColor,
       fontWeight: FontWeight.w700);
   static TextStyle style11PrimaryW400 = TextStyle(
       fontSize: AppTextSizes.size11,
@@ -318,7 +598,7 @@ class AppTextStyles {
     fontStyle: FontStyle.italic,);
   static TextStyle style14Black50Weight400 = TextStyle(
       fontSize: AppTextSizes.size14,
-      color: AppColors.black50Color,
+      color: AppColors.textTitleColor,
       fontWeight: FontWeight.w400);
   static TextStyle style14BlueUnderlineWeight400 = TextStyle(
     fontSize: AppTextSizes.size14,
@@ -336,15 +616,15 @@ class AppTextStyles {
       fontWeight: FontWeight.w400);
   static TextStyle style14Grey500Weight400 = TextStyle(
       fontSize: AppTextSizes.size14,
-      color: AppColors.grey500Color,
+      color: AppColors.textMutedColor,
       fontWeight: FontWeight.w400);
   static TextStyle style14reyTabWeight400 = TextStyle(
       fontSize: AppTextSizes.size14,
-      color: AppColors.tabInActiveColor,
+      color: AppColors.textSecondaryColor,
       fontWeight: FontWeight.w400);
   static TextStyle style14reyTabWeight700 = TextStyle(
       fontSize: AppTextSizes.size14,
-      color: AppColors.tabInActiveColor,
+      color: AppColors.textSecondaryColor,
       fontWeight: FontWeight.w700);
   static TextStyle style14PrimaryWeight600 = TextStyle(
       fontSize: AppTextSizes.size14,
@@ -360,23 +640,23 @@ class AppTextStyles {
       fontWeight: FontWeight.w500);
   static TextStyle style14BlackWeight600 = TextStyle(
       fontSize: AppTextSizes.size14,
-      color: AppColors.black,
+      color: AppColors.textTitleColor,
       fontWeight: FontWeight.w600);
   static TextStyle style14BlackWeight500 = TextStyle(
       fontSize: AppTextSizes.size14,
-      color: AppColors.black,
+      color: AppColors.textTitleColor,
       fontWeight: FontWeight.w500);
   static TextStyle style14BlackWeight400 = TextStyle(
       fontSize: AppTextSizes.size14,
-      color: AppColors.black,
+      color: AppColors.textTitleColor,
       fontWeight: FontWeight.w400);
   static TextStyle style14BlackBold = TextStyle(
       fontSize: AppTextSizes.size14,
-      color: AppColors.black,
+      color: AppColors.textTitleColor,
       fontWeight: FontWeight.bold);
   static TextStyle style13Black50Weight400 = TextStyle(
       fontSize: AppTextSizes.size13,
-      color: AppColors.black50Color,
+      color: AppColors.textTitleColor,
       fontWeight: FontWeight.w400);
   static TextStyle style13BlueUnderlineWeight400 = TextStyle(
       fontSize: AppTextSizes.size13,
@@ -385,45 +665,45 @@ class AppTextStyles {
       fontWeight: FontWeight.w400);
   static TextStyle style13BlackBold = TextStyle(
       fontSize: AppTextSizes.size13,
-      color: AppColors.black,
+      color: AppColors.textTitleColor,
       fontWeight: FontWeight.bold);
   static TextStyle style13BlackWeight400 = TextStyle(
       fontSize: AppTextSizes.size13,
-      color: AppColors.black,
+      color: AppColors.textTitleColor,
       fontWeight: FontWeight.w400);
   static TextStyle style13BlackWeight500 = TextStyle(
       fontSize: AppTextSizes.size13,
-      color: AppColors.black,
+      color: AppColors.textTitleColor,
       fontWeight: FontWeight.w500);
   static TextStyle style13BlackWeight600 = TextStyle(
       fontSize: AppTextSizes.size13,
-      color: AppColors.black,
+      color: AppColors.textTitleColor,
       fontWeight: FontWeight.w600);
   static TextStyle style13Grey500Weight400 = TextStyle(
       fontSize: AppTextSizes.size13,
-      color: AppColors.grey500Color,
+      color: AppColors.textMutedColor,
       fontWeight: FontWeight.w400);
   static TextStyle style13BlackWeight700 = TextStyle(
       fontSize: AppTextSizes.size13,
-      color: AppColors.black,
+      color: AppColors.textTitleColor,
       fontWeight: FontWeight.w700);
   static TextStyle style13RedWeight700 = TextStyle(
       fontSize: AppTextSizes.size13,
-      color: AppColors.redColor,
+      color: AppColors.dangerColor,
       fontWeight: FontWeight.w700);
   static TextStyle style13RedWeight400 = TextStyle(
       fontSize: AppTextSizes.size13,
-      color: AppColors.redColor,
+      color: AppColors.dangerColor,
       fontWeight: FontWeight.w400);
   static TextStyle style14RedWeight400 = TextStyle(
       fontSize: AppTextSizes.size14,
-      color: AppColors.redColor,
+      color: AppColors.dangerColor,
       fontWeight: FontWeight.w400);
   static TextStyle style13Weight400 =
   TextStyle(fontSize: AppTextSizes.size13, fontWeight: FontWeight.w400);
   static TextStyle style13GrayWeight400 = TextStyle(
       fontSize: AppTextSizes.size13,
-      color: AppColors.tabInActiveColor,
+      color: AppColors.textSecondaryColor,
       fontWeight: FontWeight.w400);
   static TextStyle style13GreenWeight400 = TextStyle(
       fontSize: AppTextSizes.size13,
@@ -459,19 +739,19 @@ class AppTextStyles {
       fontWeight: FontWeight.w400);
   static TextStyle style12DartColorWeight500 = TextStyle(
       fontSize: AppTextSizes.size12,
-      color: AppColors.dark,
+      color: AppColors.textTitleColor,
       fontWeight: FontWeight.w500);
   static TextStyle style12DartColorWeight400 = TextStyle(
       fontSize: AppTextSizes.size12,
-      color: AppColors.dark,
+      color: AppColors.textTitleColor,
       fontWeight: FontWeight.w400);
   static TextStyle style12Grey500ColorWeight400 = TextStyle(
       fontSize: AppTextSizes.size12,
-      color: AppColors.grey500Color,
+      color: AppColors.textMutedColor,
       fontWeight: FontWeight.w400);
   static TextStyle style11Grey500ColorWeight400 = TextStyle(
       fontSize: AppTextSizes.size11,
-      color: AppColors.grey500Color,
+      color: AppColors.textMutedColor,
       fontWeight: FontWeight.w400);
   static TextStyle style11WhiteWeight500 = TextStyle(
       fontSize: AppTextSizes.size11,
@@ -483,15 +763,15 @@ class AppTextStyles {
       fontWeight: FontWeight.normal);
   static TextStyle style16BlackWeight700 = TextStyle(
       fontSize: AppTextSizes.size16,
-      color: AppColors.black,
+      color: AppColors.textTitleColor,
       fontWeight: FontWeight.w700);
   static TextStyle style16BlackWeight500 = TextStyle(
       fontSize: AppTextSizes.size16,
-      color: AppColors.black,
+      color: AppColors.textTitleColor,
       fontWeight: FontWeight.w500);
   static TextStyle style16BlackWeight600 = TextStyle(
       fontSize: AppTextSizes.size16,
-      color: AppColors.black,
+      color: AppColors.textTitleColor,
       fontWeight: FontWeight.w600);
   static TextStyle style16WhiteNormal = TextStyle(
       fontSize: AppTextSizes.size16,
@@ -511,11 +791,11 @@ class AppTextStyles {
       fontWeight: FontWeight.bold);
   static TextStyle style10DarkGrayBold = TextStyle(
       fontSize: AppTextSizes.size10,
-      color: AppColors.darkGray,
+      color: AppColors.textBodyColor,
       fontWeight: FontWeight.bold);
   static TextStyle style10DarkGrayNormal = TextStyle(
       fontSize: AppTextSizes.size10,
-      color: AppColors.darkGray,
+      color: AppColors.textBodyColor,
       fontWeight: FontWeight.normal);
   static TextStyle style10BlueNormal = TextStyle(
       fontSize: AppTextSizes.size10,
@@ -523,23 +803,23 @@ class AppTextStyles {
       fontWeight: FontWeight.normal);
   static TextStyle style12BlackWeight500 = TextStyle(
       fontSize: AppTextSizes.size12,
-      color: AppColors.black,
+      color: AppColors.textTitleColor,
       fontWeight: FontWeight.w500);
   static TextStyle style12Black50Weight500 = TextStyle(
       fontSize: AppTextSizes.size12,
-      color: AppColors.black50Color,
+      color: AppColors.textTitleColor,
       fontWeight: FontWeight.w500);
   static TextStyle style40Black50Weight600 = TextStyle(
       fontSize: AppTextSizes.size40,
-      color: AppColors.black50Color,
+      color: AppColors.textTitleColor,
       fontWeight: FontWeight.w600);
   static TextStyle style12BlackWeight400 = TextStyle(
       fontSize: AppTextSizes.size12,
-      color: AppColors.black,
+      color: AppColors.textTitleColor,
       fontWeight: FontWeight.w400);
   static TextStyle style15BlackWeight700 = TextStyle(
       fontSize: AppTextSizes.size15,
-      color: AppColors.black,
+      color: AppColors.textTitleColor,
       fontWeight: FontWeight.w700);
 }
 

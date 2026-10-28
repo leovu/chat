@@ -1,3 +1,4 @@
+import 'package:chat/common/theme.dart';
 import 'package:flutter/material.dart';
 
 
@@ -14,7 +15,7 @@ class StickyPageWrapper extends StatelessWidget {
         Container(
           height: 20.0,
           width: 20.0,
-          color: Colors.red,
+          color: AppColors.dangerColor,
         ),
         Positioned(
           left: 0,
@@ -22,7 +23,7 @@ class StickyPageWrapper extends StatelessWidget {
           child: Hero(
             tag: 'bottom_sheet',
             child: Container(
-              color: Colors.orange,
+              color: AppColors.tertiaryColor,
               height: size.height / 4,
               width: size.width,
             ),

@@ -1,3 +1,4 @@
+import 'package:chat/common/theme.dart';
 import 'package:flutter/material.dart';
 import 'inherited_chat_theme.dart';
 import 'inherited_l10n.dart';
@@ -13,15 +14,22 @@ class SendButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 24,
+      height: 36,
       // margin: InheritedChatTheme.of(context).theme.sendButtonMargin ??
       //     const EdgeInsets.only(left: 16),
-      width: 24,
+      width: 36,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: AppGlass.activeGradient,
+        boxShadow: AppGlass.buttonShadow,
+      ),
       child: IconButton(
         icon: InheritedChatTheme.of(context).theme.sendButtonIcon ??
             Image.asset(
               'assets/icon-send.png',
-              color: const Color(0xFF9012FE),
+              color: AppColors.white,
+              width: 18,
+              height: 18,
               package: 'chat',
             ),
         onPressed: onPressed,

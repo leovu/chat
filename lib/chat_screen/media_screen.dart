@@ -1,5 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:chat/chat_ui/widgets/audio_player.dart';
+import 'package:chat/common/theme.dart';
 import 'package:flutter/material.dart';
 
 class MediaScreen extends StatefulWidget {
@@ -44,23 +45,31 @@ class _MediaScreenState extends State<MediaScreen> with SingleTickerProviderStat
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.surfaceColor,
       appBar: AppBar(
         title: AutoSizeText(
           widget.title,
           style: const TextStyle(
-              color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
+              color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16),
         ),
         leading: InkWell(
           child: Icon(Icons.arrow_back_ios,
-              color: Colors.black),
+              color: Colors.white),
           onTap: () => Navigator.of(context).pop(),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        shape: AppGlass.headerShape,
+        flexibleSpace: AppGlass.headerBackground(),
         iconTheme: const IconThemeData(
-          color: Colors.black,
+          color: Colors.white,
         ),
       ),
-      body: SafeArea(
+      body: DecoratedBox(
+        decoration: AppGlass.background(),
+        child: SafeArea(
         child: Column(
           children: [
             Padding(
@@ -70,7 +79,7 @@ class _MediaScreenState extends State<MediaScreen> with SingleTickerProviderStat
               turns: _animation,
               child: const CircleAvatar(
                 radius: 100,
-                backgroundColor: Colors.black,
+                backgroundColor: AppColors.primaryColor,
                 child: Icon(
                   Icons.music_note,
                   color: Colors.white,
@@ -81,6 +90,7 @@ class _MediaScreenState extends State<MediaScreen> with SingleTickerProviderStat
             Center(child: PlayAudio(url: widget.filePath))
           ],
         ),
+      ),
       ),
     );
   }

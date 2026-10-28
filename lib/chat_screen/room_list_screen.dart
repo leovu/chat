@@ -19,6 +19,8 @@ import 'package:chat/localization/lang_key.dart';
 import 'package:chat/presentation/conversation_modules/src/bloc/chatbot_bloc.dart';
 import 'package:chat/presentation/utils/ultility.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:chat/common/theme.dart';
+import 'package:chat/common/widgets/glass_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -248,14 +250,25 @@ class _RoomListScreenState extends State<RoomListScreen>
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
-        backgroundColor: Colors.white,
-        body: SafeArea(
+        backgroundColor: AppColors.surfaceColor,
+        body: GlassBackground(
+          child: SafeArea(
+          top: ChatConnection.isChatHub,
           child: Column(
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (!ChatConnection.isChatHub)
+                    Container(
+                      width: double.infinity,
+                      decoration: AppGlass.header(),
+                      padding: EdgeInsets.only(
+                          top: MediaQuery.paddingOf(context).top,
+                          bottom: 12.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
                     Container(
                       height: 30.0,
                       margin: const EdgeInsets.symmetric(
@@ -271,12 +284,11 @@ class _RoomListScreenState extends State<RoomListScreen>
                             child: SizedBox(
                                 width: 30.0,
                                 child: Icon(Icons.arrow_back_ios,
-                                    color: Colors.black)),
+                                    color: AppColors.white)),
                           ),
                         ],
                       ),
                     ),
-                  if (!ChatConnection.isChatHub)
                     Row(
                       children: [
                         Padding(
@@ -284,29 +296,34 @@ class _RoomListScreenState extends State<RoomListScreen>
                               const EdgeInsets.only(bottom: 3.0, left: 10.0),
                           child: Text(AppLocalizations.text(LangKey.chats),
                               style: const TextStyle(
-                                  fontSize: 25.0, color: Colors.black)),
+                                  fontSize: 25.0,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.white)),
                         ),
                         Expanded(child: Container()),
                         if (!ChatConnection.isChatHub)
                           Padding(
                             padding:
                                 const EdgeInsets.symmetric(horizontal: 20.0),
-                            child: SizedBox(
-                                width: 30.0,
-                                height: 30.0,
-                                child: InkWell(
-                                  onTap: () async {
-                                    if (widget.openCreateChatRoom != null) {
-                                      widget.openCreateChatRoom?.call();
-                                    }
-                                  },
-                                  child: Image.asset(
-                                    'assets/icon-edit.png',
-                                    package: 'chat',
-                                  ),
-                                )),
+                            child: GlassHeaderIconButton(
+                              onTap: () async {
+                                if (widget.openCreateChatRoom != null) {
+                                  widget.openCreateChatRoom?.call();
+                                }
+                              },
+                              icon: Image.asset(
+                                'assets/icon-edit.png',
+                                package: 'chat',
+                                width: 18.0,
+                                height: 18.0,
+                                color: AppColors.white,
+                              ),
+                            ),
                           )
                       ],
+                    ),
+                        ],
+                      ),
                     ),
                   Padding(
                     padding: const EdgeInsets.symmetric(
@@ -314,9 +331,7 @@ class _RoomListScreenState extends State<RoomListScreen>
                     child: Container(
                       width: double.infinity,
                       height: 40,
-                      decoration: BoxDecoration(
-                          color: const Color(0xFFE7EAEF),
-                          borderRadius: BorderRadius.circular(5)),
+                      decoration: AppGlass.pill(),
                       child: Row(
                         children: [
                           const Padding(
@@ -324,6 +339,7 @@ class _RoomListScreenState extends State<RoomListScreen>
                             child: Center(
                               child: Icon(
                                 Icons.search,
+                                color: AppColors.textMutedColor,
                               ),
                             ),
                           ),
@@ -345,17 +361,20 @@ class _RoomListScreenState extends State<RoomListScreen>
                             decoration: InputDecoration.collapsed(
                               hintText:
                                   AppLocalizations.text(LangKey.searchChats),
+                              hintStyle: const TextStyle(
+                                  color: AppColors.textMutedColor),
                             ),
                           )),
                           Material(
                             color: Colors.transparent,
                             child: InkWell(
-                              borderRadius: BorderRadius.circular(5),
+                              borderRadius: BorderRadius.circular(AppRadius.pill),
                               child: const Padding(
                                 padding: EdgeInsets.symmetric(horizontal: 10),
                                 child: Center(
                                   child: Icon(
                                     Icons.close,
+                                    color: AppColors.textMutedColor,
                                   ),
                                 ),
                               ),
@@ -452,14 +471,16 @@ class _RoomListScreenState extends State<RoomListScreen>
             ],
           ),
         ),
+        ),
       ),
     );
   }
 
   Widget parseRoom(int position) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5.0),
+      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
       child: InkWell(
+          borderRadius: BorderRadius.circular(AppRadius.card),
           onTap: () async {
             final room = roomListVisible?.rooms?[position];
             if (room == null) return;
@@ -516,7 +537,7 @@ class _RoomListScreenState extends State<RoomListScreen>
                             : () {});
                       },
                       autoClose: true,
-                      backgroundColor: Colors.blue,
+                      backgroundColor: AppColors.primaryColor,
                       foregroundColor: Colors.white,
                       icon: Icons.remove_circle,
                       label: AppLocalizations.text(LangKey.leave),
@@ -563,7 +584,7 @@ class _RoomListScreenState extends State<RoomListScreen>
                                 : () {});
                       },
                       autoClose: true,
-                      backgroundColor: const Color(0xFFFE4A49),
+                      backgroundColor: AppColors.dangerColor,
                       foregroundColor: Colors.white,
                       icon: Icons.delete,
                       label: AppLocalizations.text(LangKey.delete),
@@ -573,8 +594,12 @@ class _RoomListScreenState extends State<RoomListScreen>
               child: () {
                 final room = roomListVisible?.rooms?[position];
                 if (room == null) return const SizedBox.shrink();
-                return _room(room,
-                    position == ((roomListVisible?.rooms?.length ?? 0) - 1));
+                return Container(
+                  padding: const EdgeInsets.symmetric(vertical: 10.0),
+                  decoration: AppGlass.card(),
+                  child: _room(room,
+                      position == ((roomListVisible?.rooms?.length ?? 0) - 1)),
+                );
               }())),
     );
   }
@@ -583,10 +608,19 @@ class _RoomListScreenState extends State<RoomListScreen>
     showDialog(
       context: context,
       builder: (cxt) => AlertDialog(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.card)),
+        backgroundColor: AppColors.white,
         title: Text(AppLocalizations.text(LangKey.leaveConversation)),
         content: Text(AppLocalizations.text(LangKey.leaveConfirm)),
         actions: [
           ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryColor,
+                  foregroundColor: AppColors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppRadius.md))),
               onPressed: () async {
                 bool value = await ChatConnection.leaveRoom(
                     roomId, ChatConnection.user?.id);
@@ -601,10 +635,19 @@ class _RoomListScreenState extends State<RoomListScreen>
                   showDialog(
                     context: context,
                     builder: (cxxt) => AlertDialog(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(AppRadius.card)),
+                      backgroundColor: AppColors.white,
                       title: Text(AppLocalizations.text(LangKey.warning)),
                       content: Text(AppLocalizations.text(LangKey.leaveError)),
                       actions: [
                         ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primaryColor,
+                                foregroundColor: AppColors.white,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(AppRadius.md))),
                             onPressed: () {
                               Navigator.pop(cxxt);
                             },
@@ -616,6 +659,12 @@ class _RoomListScreenState extends State<RoomListScreen>
               },
               child: Text(AppLocalizations.text(LangKey.leave))),
           ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryColor,
+                  foregroundColor: AppColors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppRadius.md))),
               onPressed: () {
                 Navigator.pop(cxt);
               },
@@ -629,10 +678,19 @@ class _RoomListScreenState extends State<RoomListScreen>
     showDialog(
       context: context,
       builder: (cxt) => AlertDialog(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.card)),
+        backgroundColor: AppColors.white,
         title: Text(AppLocalizations.text(LangKey.deleteConversation)),
         content: Text(AppLocalizations.text(LangKey.deleteConfirm)),
         actions: [
           ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryColor,
+                  foregroundColor: AppColors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppRadius.md))),
               onPressed: () {
                 ChatConnection.leaveRoom(roomId, ChatConnection.user?.id)
                     .then((value) {
@@ -643,11 +701,20 @@ class _RoomListScreenState extends State<RoomListScreen>
                     showDialog(
                       context: context,
                       builder: (cxxt) => AlertDialog(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(AppRadius.card)),
+                        backgroundColor: AppColors.white,
                         title: Text(AppLocalizations.text(LangKey.warning)),
                         content:
                             Text(AppLocalizations.text(LangKey.deleteError)),
                         actions: [
                           ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.primaryColor,
+                                  foregroundColor: AppColors.white,
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(AppRadius.md))),
                               onPressed: () {
                                 Navigator.pop(cxxt);
                               },
@@ -661,6 +728,12 @@ class _RoomListScreenState extends State<RoomListScreen>
               },
               child: Text(AppLocalizations.text(LangKey.delete))),
           ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryColor,
+                  foregroundColor: AppColors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppRadius.md))),
               onPressed: () {
                 Navigator.pop(cxt);
               },
@@ -674,10 +747,19 @@ class _RoomListScreenState extends State<RoomListScreen>
     showDialog(
       context: context,
       builder: (cxt) => AlertDialog(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.card)),
+        backgroundColor: AppColors.white,
         title: Text(AppLocalizations.text(LangKey.deleteConversation)),
         content: Text(AppLocalizations.text(LangKey.deleteConfirm)),
         actions: [
           ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryColor,
+                  foregroundColor: AppColors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppRadius.md))),
               onPressed: () {
                 ChatConnection.removeRoom(roomId).then((value) {
                   Navigator.of(cxt).pop();
@@ -687,11 +769,20 @@ class _RoomListScreenState extends State<RoomListScreen>
                     showDialog(
                       context: context,
                       builder: (cxxt) => AlertDialog(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(AppRadius.card)),
+                        backgroundColor: AppColors.white,
                         title: Text(AppLocalizations.text(LangKey.warning)),
                         content:
                             Text(AppLocalizations.text(LangKey.deleteError)),
                         actions: [
                           ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.primaryColor,
+                                  foregroundColor: AppColors.white,
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(AppRadius.md))),
                               onPressed: () {
                                 Navigator.pop(cxxt);
                               },
@@ -705,6 +796,12 @@ class _RoomListScreenState extends State<RoomListScreen>
               },
               child: Text(AppLocalizations.text(LangKey.delete))),
           ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryColor,
+                  foregroundColor: AppColors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppRadius.md))),
               onPressed: () {
                 Navigator.pop(cxt);
               },
@@ -715,7 +812,11 @@ class _RoomListScreenState extends State<RoomListScreen>
   }
 
   Widget _gptRoom(bool isLast) {
-    return Column(
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+      padding: const EdgeInsets.symmetric(vertical: 10.0),
+      decoration: AppGlass.card(),
+      child: Column(
       children: [
         SizedBox(
           child: SizedBox(
@@ -739,7 +840,8 @@ class _RoomListScreenState extends State<RoomListScreen>
                     child: const Text(
                       'ChatGPT',
                       style: TextStyle(
-                          fontWeight: FontWeight.bold, color: Colors.green),
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.successColor),
                     ),
                   ))
                 ],
@@ -747,21 +849,8 @@ class _RoomListScreenState extends State<RoomListScreen>
             ),
           ),
         ),
-        !isLast
-            ? Container(
-                height: 5.0,
-              )
-            : Container(),
-        !isLast
-            ? Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                child: Container(
-                  height: 1.0,
-                  color: Colors.grey.shade300,
-                ),
-              )
-            : Container()
       ],
+      ),
     );
   }
 
@@ -843,7 +932,7 @@ class _RoomListScreenState extends State<RoomListScreen>
                             width: 15,
                             height: 15,
                             decoration: BoxDecoration(
-                              color: Colors.green,
+                              color: AppColors.successColor,
                               shape: BoxShape.circle,
                               border: Border.all(color: Colors.white, width: 2),
                             ),
@@ -871,6 +960,7 @@ class _RoomListScreenState extends State<RoomListScreen>
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
                                 style: TextStyle(
+                                    color: AppColors.textTitleColor,
                                     fontWeight: findUnread(
                                                 data.messagesReceived,
                                                 data.messageUnSeen) !=
@@ -883,7 +973,8 @@ class _RoomListScreenState extends State<RoomListScreen>
                               data.lastMessage?.lastMessageDate() ??
                                   data.createdDate(),
                               style: const TextStyle(
-                                  fontSize: 11, color: Colors.grey),
+                                  fontSize: 11,
+                                  color: AppColors.textMutedColor),
                             ),
                           ],
                         )),
@@ -912,7 +1003,8 @@ class _RoomListScreenState extends State<RoomListScreen>
                                     data.messageUnSeen) !=
                                 '0')
                               CircleAvatar(
-                                radius: 18.0,
+                                radius: 12.0,
+                                backgroundColor: AppColors.primaryColor,
                                 child: Text(
                                   findUnread(data.messagesReceived,
                                       data.messageUnSeen),
@@ -930,20 +1022,6 @@ class _RoomListScreenState extends State<RoomListScreen>
             ),
           ),
         ),
-        !isLast
-            ? Container(
-                height: 5.0,
-              )
-            : Container(),
-        !isLast
-            ? Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                child: Container(
-                  height: 1.0,
-                  color: Colors.grey.shade300,
-                ),
-              )
-            : Container()
       ],
     );
   }
@@ -1096,12 +1174,13 @@ class _RoomListScreenState extends State<RoomListScreen>
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
             style: TextStyle(
+                color: AppColors.textTitleColor,
                 fontWeight: hasUnread ? FontWeight.bold : FontWeight.normal),
           ),
         ),
         AutoSizeText(
           data.lastMessage?.lastMessageDate() ?? data.createdDate(),
-          style: const TextStyle(fontSize: 11, color: Colors.grey),
+          style: const TextStyle(fontSize: 11, color: AppColors.textMutedColor),
         ),
       ],
     );
@@ -1125,12 +1204,13 @@ class _RoomListScreenState extends State<RoomListScreen>
         ),
         if (unread != '0')
           CircleAvatar(
-            radius: 18.0,
+            radius: 12.0,
+            backgroundColor: AppColors.primaryColor,
             child: Text(unread,
                 style: const TextStyle(color: Colors.white, fontSize: 12)),
           ),
         if (data.owner?.isBlocked == true)
-          const Icon(Icons.block, color: Colors.red),
+          const Icon(Icons.block, color: AppColors.dangerColor),
       ],
     );
   }
@@ -1146,7 +1226,7 @@ class _RoomListScreenState extends State<RoomListScreen>
         child: Container(
           decoration: BoxDecoration(
             color: colorAppName[data.channel?.nameApp ?? ''],
-            borderRadius: BorderRadius.circular(10.0),
+            borderRadius: BorderRadius.circular(AppRadius.pill),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
           child: AutoSizeText(
@@ -1208,13 +1288,6 @@ class _RoomListScreenState extends State<RoomListScreen>
             ),
           ),
         ),
-        if (!isLast) ...[
-          const SizedBox(height: 5.0),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10.0),
-            child: Container(height: 1.0, color: Colors.grey.shade300),
-          ),
-        ],
       ],
     );
   }

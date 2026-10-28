@@ -9,6 +9,8 @@ import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:chat/presentation/utils/ultility.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:chat/common/theme.dart';
+import 'package:chat/common/widgets/glass_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/data_model/room.dart' as r;
 import 'package:auto_size_text/auto_size_text.dart';
@@ -64,17 +66,26 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
   Widget build(BuildContext context) {
     // TODO: implement build
     return Container(
-      color: Colors.white,
+      color: AppColors.surfaceColor,
       child: GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: Scaffold(
-          body: SafeArea(
+          backgroundColor: AppColors.surfaceColor,
+          body: GlassBackground(
+            child: SafeArea(
+            top: false,
             child: Column(
               children: [
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Stack(
+                    Container(
+                      width: double.infinity,
+                      decoration: AppGlass.header(),
+                      padding: EdgeInsets.only(
+                          top: MediaQuery.paddingOf(context).top,
+                          bottom: 10.0),
+                      child: Stack(
                       children: [
                         Container(
                           height: 30.0,
@@ -91,7 +102,7 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                                 child: SizedBox(
                                     width: 30.0,
                                     child: Icon(Icons.arrow_back_ios,
-                                        color: Colors.black)),
+                                        color: AppColors.white)),
                               ),
                             ],
                           ),
@@ -103,10 +114,13 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                             child: Text(
                                 AppLocalizations.text(LangKey.addMember),
                                 style: const TextStyle(
-                                    fontSize: 22.0, color: Colors.black)),
+                                    fontSize: 22.0,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.white)),
                           ),
                         )
                       ],
+                    ),
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(
@@ -114,9 +128,7 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                       child: Container(
                         width: double.infinity,
                         height: 40,
-                        decoration: BoxDecoration(
-                            color: const Color(0xFFE7EAEF),
-                            borderRadius: BorderRadius.circular(5)),
+                        decoration: AppGlass.pill(),
                         child: Row(
                           children: [
                             const Padding(
@@ -124,6 +136,7 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                               child: Center(
                                 child: Icon(
                                   Icons.search,
+                                  color: AppColors.textMutedColor,
                                 ),
                               ),
                             ),
@@ -144,17 +157,20 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                               },
                               decoration: InputDecoration.collapsed(
                                 hintText: AppLocalizations.text(LangKey.search),
+                                hintStyle: const TextStyle(
+                                    color: AppColors.textMutedColor),
                               ),
                             )),
                             Material(
                               color: Colors.transparent,
                               child: InkWell(
-                                borderRadius: BorderRadius.circular(5),
+                                borderRadius: BorderRadius.circular(AppRadius.pill),
                                 child: const Padding(
                                   padding: EdgeInsets.symmetric(horizontal: 10),
                                   child: Center(
                                     child: Icon(
                                       Icons.close,
+                                      color: AppColors.textMutedColor,
                                     ),
                                   ),
                                 ),
@@ -323,8 +339,12 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                         child: SizedBox(
                           height: 49.0,
                           width: MediaQuery.of(context).size.width * 0.85,
-                          child: MaterialButton(
-                            color: const Color(0xFF5686E1),
+                          child: DecoratedBox(
+                            decoration: AppGlass.button(),
+                            child: MaterialButton(
+                            color: Colors.transparent,
+                            elevation: 0,
+                            highlightElevation: 0,
                             onPressed: () async {
                               if (ChatConnection.isChatHub &&
                                   roomSource == 'zalo') {
@@ -337,7 +357,7 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                               }
                             },
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10.0),
+                              borderRadius: BorderRadius.circular(AppRadius.md),
                             ),
                             child: Text(
                               AppLocalizations.text(LangKey.addMember),
@@ -347,11 +367,13 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                                   fontWeight: FontWeight.w600),
                             ),
                           ),
+                          ),
                         ),
                       )
                     : Container()
               ],
             ),
+          ),
           ),
         ),
       ),
@@ -484,6 +506,9 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.card)),
+        backgroundColor: AppColors.white,
           title: Text(AppLocalizations.text(LangKey.warning)),
           content: Text(AppLocalizations.text(LangKey.selectAtleastOneUser)),
           actions: [
@@ -507,6 +532,9 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.card)),
+        backgroundColor: AppColors.white,
             title: Text(AppLocalizations.text(LangKey.warning)),
             content: Text(result?.message ??
                 AppLocalizations.text(LangKey.addMemberFailed)),
@@ -582,6 +610,8 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                             child: AutoSizeText(
                               '${data.fullName}',
                               maxLines: 1,
+                              style: const TextStyle(
+                                  color: AppColors.textTitleColor, fontWeight: FontWeight.w600),
                             ),
                           ),
                           Container(
@@ -590,6 +620,7 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                           Expanded(
                               child: AutoSizeText(
                             '@${data.id}',
+                            style: const TextStyle(color: AppColors.textSecondaryColor),
                             overflow: TextOverflow.ellipsis,
                           ))
                         ],
@@ -600,9 +631,9 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                       width: 30.0,
                       child: data.isSelected
                           ? const Icon(Icons.radio_button_checked,
-                              size: 25.0, color: Color(0xff0021F5))
+                              size: 25.0, color: AppColors.primaryColor)
                           : const Icon(Icons.radio_button_off,
-                              size: 25.0, color: Color(0xff0021F5)),
+                              size: 25.0, color: AppColors.primaryColor),
                     )
                   ],
                 ),
@@ -619,7 +650,7 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 10.0),
                   child: Container(
                     height: 1.0,
-                    color: Colors.grey.shade300,
+                    color: AppColors.primaryColorMix,
                   ),
                 )
               : Container(),
@@ -642,6 +673,9 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.card)),
+        backgroundColor: AppColors.white,
           title: Text(AppLocalizations.text(LangKey.warning)),
           content: Text(AppLocalizations.text(LangKey.selectAtleastOneUser)),
           actions: [
@@ -674,6 +708,9 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.card)),
+        backgroundColor: AppColors.white,
             title: Text(AppLocalizations.text(LangKey.warning)),
             content: Text(result.message),
             actions: [
@@ -702,6 +739,9 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.card)),
+        backgroundColor: AppColors.white,
           title: Text(AppLocalizations.text(LangKey.warning)),
           content: Text(AppLocalizations.text(LangKey.selectAtleastOneUser)),
           actions: [
@@ -733,6 +773,9 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.card)),
+        backgroundColor: AppColors.white,
             title: Text(AppLocalizations.text(LangKey.warning)),
             content: Text(AppLocalizations.text(LangKey.addMemberFailed)),
             actions: [
@@ -807,6 +850,8 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                             child: AutoSizeText(
                               '${data.displayName}',
                               maxLines: 1,
+                              style: const TextStyle(
+                                  color: AppColors.textTitleColor, fontWeight: FontWeight.w600),
                             ),
                           ),
                           Container(
@@ -815,6 +860,7 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                           Expanded(
                               child: AutoSizeText(
                             '@${data.username}',
+                            style: const TextStyle(color: AppColors.textSecondaryColor),
                             overflow: TextOverflow.ellipsis,
                           ))
                         ],
@@ -825,9 +871,9 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                       width: 30.0,
                       child: data.isSelected != null && data.isSelected!
                           ? const Icon(Icons.radio_button_checked,
-                              size: 25.0, color: Color(0xff0021F5))
+                              size: 25.0, color: AppColors.primaryColor)
                           : const Icon(Icons.radio_button_off,
-                              size: 25.0, color: Color(0xff0021F5)),
+                              size: 25.0, color: AppColors.primaryColor),
                     )
                   ],
                 ),
@@ -844,7 +890,7 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 10.0),
                   child: Container(
                     height: 1.0,
-                    color: Colors.grey.shade300,
+                    color: AppColors.primaryColorMix,
                   ),
                 )
               : Container(),
@@ -897,6 +943,8 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                             child: AutoSizeText(
                               '${data.firstName} ${data.lastName}',
                               maxLines: 1,
+                              style: const TextStyle(
+                                  color: AppColors.textTitleColor, fontWeight: FontWeight.w600),
                             ),
                           ),
                           Container(
@@ -905,6 +953,7 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                           Expanded(
                               child: AutoSizeText(
                             '@${data.username}',
+                            style: const TextStyle(color: AppColors.textSecondaryColor),
                             overflow: TextOverflow.ellipsis,
                           ))
                         ],
@@ -915,9 +964,9 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                       width: 30.0,
                       child: data.isSelected != null && data.isSelected!
                           ? const Icon(Icons.radio_button_checked,
-                              size: 25.0, color: Color(0xff0021F5))
+                              size: 25.0, color: AppColors.primaryColor)
                           : const Icon(Icons.radio_button_off,
-                              size: 25.0, color: Color(0xff0021F5)),
+                              size: 25.0, color: AppColors.primaryColor),
                     )
                   ],
                 ),
@@ -934,7 +983,7 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 10.0),
                   child: Container(
                     height: 1.0,
-                    color: Colors.grey.shade300,
+                    color: AppColors.primaryColorMix,
                   ),
                 )
               : Container(),

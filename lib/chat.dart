@@ -12,6 +12,7 @@ import 'package:chat/presentation/utils/media_query.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:chat/common/theme.dart';
 import 'package:flutter/material.dart';
 
 import 'data_model/room.dart' as r;
@@ -220,6 +221,9 @@ class Chat {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.card)),
+        backgroundColor: AppColors.white,
         title: Text(AppLocalizations.text(LangKey.warning)),
         content: Text(AppLocalizations.text(LangKey.accountLoginError)),
         actions: [

@@ -13,6 +13,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:chat/common/theme.dart';
 import 'package:flutter/material.dart';
 
 import '../data_model/response/group_info_response.dart';
@@ -72,7 +73,7 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surfaceColor,
       appBar: _buildAppBar(context),
       body: SafeArea(
         child: Column(
@@ -90,13 +91,18 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
-      backgroundColor: Colors.white,
-      iconTheme: const IconThemeData(color: Colors.black),
+      backgroundColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      shape: AppGlass.headerShape,
+      flexibleSpace: AppGlass.headerBackground(),
+      iconTheme: const IconThemeData(color: Colors.white),
       title: AutoSizeText(
         AppLocalizations.text(LangKey.members),
         style: const TextStyle(
-          color: Colors.black,
-          fontWeight: FontWeight.bold,
+          color: Colors.white,
+          fontWeight: FontWeight.w600,
           fontSize: 16,
         ),
       ),
@@ -104,7 +110,7 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
         onTap: () => Navigator.of(context).pop(),
         child: Icon(
           Icons.arrow_back_ios,
-          color: Colors.black,
+          color: Colors.white,
         ),
       ),
       actions: [
@@ -242,6 +248,9 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
       showDialog(
         context: context,
         builder: (cxxt) => AlertDialog(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.card)),
+        backgroundColor: AppColors.white,
           title: Text(AppLocalizations.text(LangKey.notifications)),
           content: Text(AppLocalizations.text(LangKey.leaveError)),
           actions: [
@@ -392,7 +401,7 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 10.0),
                   child: Container(
                     height: 1.0,
-                    color: Colors.grey.shade300,
+                    color: AppColors.primaryColorMix,
                   ),
                 )
               : Container(),
@@ -507,7 +516,7 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
                       },
                       child: Icon(
                         Icons.delete_outline,
-                        color: Colors.red,
+                        color: AppColors.dangerColor,
                       ),
                     )
                   ],
@@ -519,7 +528,7 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
             const SizedBox(height: 5.0),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10.0),
-              child: Container(height: 1.0, color: Colors.grey.shade300),
+              child: Container(height: 1.0, color: AppColors.primaryColorMix),
             ),
           ],
         ],

@@ -9,6 +9,7 @@ import 'package:chat/data_model/tag.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:chat/common/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/data_model/room.dart' as r;
 
@@ -27,7 +28,7 @@ class _State extends State<TagListScreen> {
   bool isInitScreen = true;
 
   Tag? tagByUser;
-  Color color = Colors.red;
+  Color color = AppColors.dangerColor;
   final TextEditingController _controller = TextEditingController();
   @override
   void initState() {
@@ -56,17 +57,22 @@ class _State extends State<TagListScreen> {
           title: AutoSizeText(
             AppLocalizations.text(LangKey.addLabel),
             style: const TextStyle(
-                color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
+                color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16),
           ),
           leading: InkWell(
             child: Icon(
                 Icons.arrow_back_ios,
-                color: Colors.black),
+                color: Colors.white),
             onTap: () => Navigator.of(context).pop(),
           ),
-          backgroundColor: Colors.white,
+          backgroundColor: Colors.transparent,
+          surfaceTintColor: Colors.transparent,
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          shape: AppGlass.headerShape,
+          flexibleSpace: AppGlass.headerBackground(),
           iconTheme: const IconThemeData(
-            color: Colors.black,
+            color: Colors.white,
           ),
         ),
         body: SafeArea(
@@ -85,9 +91,9 @@ class _State extends State<TagListScreen> {
                               child: Container(
                             height: 37.0,
                             decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10.0),
+                                borderRadius: BorderRadius.circular(AppRadius.md),
                                 border:
-                                    Border.all(color: Colors.grey.shade400)),
+                                    Border.all(color: AppColors.primaryColorMix)),
                             child: Row(
                               children: [
                                 InkWell(
@@ -119,13 +125,13 @@ class _State extends State<TagListScreen> {
                                             decoration: BoxDecoration(
                                                 color: color,
                                                 borderRadius:
-                                                    BorderRadius.circular(5.0)),
+                                                    BorderRadius.circular(AppRadius.xs)),
                                             height: 10.0,
                                             width: 10.0,
                                           )),
                                       Container(
                                         width: 1.0,
-                                        color: Colors.grey,
+                                        color: AppColors.textSecondaryColor,
                                       ),
                                     ],
                                   ),
@@ -165,14 +171,14 @@ class _State extends State<TagListScreen> {
                               style: TextStyle(
                                   color: _controller.value.text != ''
                                       ? Colors.white
-                                      : Colors.black),
+                                      : AppColors.textTitleColor),
                             ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: _controller.value.text != ''
-                                  ? const Color(0xFF5686E1)
-                                  : Colors.grey,
+                                  ? AppColors.primaryColor
+                                  : AppColors.textSecondaryColor,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
+                                borderRadius: BorderRadius.circular(AppRadius.md),
                               ),
                             ),
                           )
@@ -184,7 +190,7 @@ class _State extends State<TagListScreen> {
                           left: 15.0, right: 15.0, bottom: 5.0),
                       child: Container(
                         height: 1.0,
-                        color: Colors.grey.shade400,
+                        color: AppColors.textMutedColor,
                       ),
                     ),
                     if (tagByUser?.data != null)
@@ -212,7 +218,7 @@ class _State extends State<TagListScreen> {
                                                 color: HexColor.fromHex(
                                                     e.color ?? ''),
                                                 borderRadius:
-                                                    BorderRadius.circular(5.0)),
+                                                    BorderRadius.circular(AppRadius.xs)),
                                             height: 10.0,
                                             width: 10.0,
                                           ),
@@ -258,7 +264,7 @@ class _State extends State<TagListScreen> {
                                     ),
                                     Container(
                                       height: 1.0,
-                                      color: Colors.grey.shade400,
+                                      color: AppColors.textMutedColor,
                                     )
                                   ],
                                 ))
@@ -268,7 +274,7 @@ class _State extends State<TagListScreen> {
                       height: 49.0,
                       width: MediaQuery.of(context).size.width * 0.85,
                       child: MaterialButton(
-                        color: const Color(0xFF5686E1),
+                        color: AppColors.primaryColor,
                         onPressed: () async {
                           List<String> arr = [];
                           if (tagByUser?.data != null) {
@@ -292,7 +298,7 @@ class _State extends State<TagListScreen> {
                           }
                         },
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
+                          borderRadius: BorderRadius.circular(AppRadius.md),
                         ),
                         child: Text(
                           AppLocalizations.text(LangKey.saveLabel),

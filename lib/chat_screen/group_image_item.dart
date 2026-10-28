@@ -1,3 +1,4 @@
+import 'package:chat/common/theme.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/http_connection.dart';
@@ -24,10 +25,7 @@ class GroupImageItem extends StatelessWidget {
       },
       child: Container(
         margin: const EdgeInsets.only(left: 8.0, bottom: 8.0),
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.withValues(alpha: 0.6)),
-          borderRadius: BorderRadius.circular(8.0)
-        ),
+        decoration: AppGlass.card(),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -36,14 +34,14 @@ class GroupImageItem extends StatelessWidget {
               width: MediaQuery.of(context).size.width / 2 - 16.0,
               height: MediaQuery.of(context).size.width / 4,
               decoration: const BoxDecoration(
-                color: Color(0xff9012FE),
+                color: AppColors.primaryColorMix,
                   borderRadius: BorderRadius.only(
-                    topRight: Radius.circular(8.0),
-                    topLeft: Radius.circular(8.0),
+                    topRight: Radius.circular(AppRadius.card),
+                    topLeft: Radius.circular(AppRadius.card),
                   )),
               child:
               people.picture == null ? Center(child: AutoSizeText(people.getAvatarName(),
-                style: const TextStyle(color: Colors.black,fontWeight: FontWeight.bold),
+                style: const TextStyle(color: AppColors.primaryColor,fontWeight: FontWeight.bold),
               textScaleFactor: 2.5,)) :
               CachedNetworkImage(
                 imageUrl:
@@ -58,7 +56,7 @@ class GroupImageItem extends StatelessWidget {
               margin: const EdgeInsets.all(8.0),
               child: Text(
                 '${people.firstName} ${people.lastName}',
-                style: const TextStyle(fontSize: 15.0, color: Colors.black, fontWeight: FontWeight.w400),
+                style: const TextStyle(fontSize: 15.0, color: AppColors.textTitleColor, fontWeight: FontWeight.w400),
               ),
             ),
             Container(
@@ -69,7 +67,7 @@ class GroupImageItem extends StatelessWidget {
                     AppLocalizations.text(LangKey.photos) :
                 tabbarIndex == 1 ? AppLocalizations.text(LangKey.file) : 'Links'
                 }',
-                style: TextStyle(fontSize: 14.0, color: Colors.grey.shade600, fontWeight: FontWeight.normal),
+                style: TextStyle(fontSize: 14.0, color: AppColors.textSecondaryColor, fontWeight: FontWeight.normal),
               ),
             ),
           ],

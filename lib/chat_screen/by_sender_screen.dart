@@ -2,6 +2,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:chat/chat_screen/group_image_item.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
+import 'package:chat/common/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/data_model/chat_message.dart' as c;
 import 'package:chat/data_model/room.dart' as r;
@@ -41,8 +42,8 @@ class _State extends State<BySenderResultScreen>
         width: double.infinity,
         height: 40,
         decoration: BoxDecoration(
-            color: const Color(0xFFE7EAEF),
-            borderRadius: BorderRadius.circular(5)),
+            color: AppColors.primaryColorMix,
+            borderRadius: BorderRadius.circular(AppRadius.xs)),
         child: Row(
           children: [
             const Padding(
@@ -64,7 +65,7 @@ class _State extends State<BySenderResultScreen>
             Material(
               color: Colors.transparent,
               child: InkWell(
-                borderRadius: BorderRadius.circular(5),
+                borderRadius: BorderRadius.circular(AppRadius.xs),
                 child: const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 10),
                   child: Center(child: Icon(Icons.close)),
@@ -140,7 +141,7 @@ class _State extends State<BySenderResultScreen>
             (senders?.length ?? 0) > 1 ?
             '${senders!.length} ${AppLocalizations.text(LangKey.senders)}' :
             '${senders?.length ?? 0} ${AppLocalizations.text(LangKey.sender)}',
-            style: TextStyle(fontSize: 15.0, color: Colors.grey.shade600, fontWeight: FontWeight.w500)
+            style: TextStyle(fontSize: 15.0, color: AppColors.textSecondaryColor, fontWeight: FontWeight.w500)
         ),
       ),
     );
@@ -153,16 +154,21 @@ class _State extends State<BySenderResultScreen>
         title: AutoSizeText(
           AppLocalizations.text(LangKey.bySenders),
           style: const TextStyle(
-              color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
+              color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16),
         ),
         leading: InkWell(
           child: Icon(Icons.arrow_back_ios,
-              color: Colors.black),
+              color: Colors.white),
           onTap: () => Navigator.of(context).pop(),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        shape: AppGlass.headerShape,
+        flexibleSpace: AppGlass.headerBackground(),
         iconTheme: const IconThemeData(
-          color: Colors.black,
+          color: Colors.white,
         ),
       ),
       body: SafeArea(

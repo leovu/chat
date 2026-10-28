@@ -55,7 +55,7 @@ class CustomRowInformation extends StatelessWidget {
             width: AppSizes.iconSize,
             child: Image.asset(
               icon!,
-              color: AppColors.black,
+              color: AppColors.textTitleColor,
             ),
           ),
           Expanded(

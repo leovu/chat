@@ -1,3 +1,4 @@
+import 'package:chat/common/theme.dart';
 import 'package:chat/common/chat_format.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/material.dart';
@@ -52,7 +53,7 @@ class _TemplateCardState extends State<TemplateCard> {
           onTap: () => Navigator.pop(context),
           child: InteractiveViewer(
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(AppRadius.md),
               child: Image.network(imageUrl, fit: BoxFit.contain),
             ),
           ),
@@ -70,9 +71,9 @@ class _TemplateCardState extends State<TemplateCard> {
       child: Container(
         width: MediaQuery.of(context).size.width * 0.8,
         decoration: BoxDecoration(
-          color: hasUrl ? Colors.white : Colors.grey.shade50,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.shade300, width: 1),
+          color: hasUrl ? Colors.white : AppColors.surfaceColor,
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          border: Border.all(color: AppColors.primaryColorMix, width: 1),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -83,7 +84,7 @@ class _TemplateCardState extends State<TemplateCard> {
                 child: GestureDetector(
                   onTap: () => _showImagePopup(imageUrl),
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(AppRadius.sm),
                     child: Image.network(
                       imageUrl,
                       width: double.infinity,
@@ -94,7 +95,7 @@ class _TemplateCardState extends State<TemplateCard> {
                         if (loadingProgress == null) return child;
                         return Container(
                           height: 150,
-                          color: Colors.grey.shade200,
+                          color: AppColors.primaryColorMix,
                           child: Center(
                             child: CircularProgressIndicator(
                               value: loadingProgress.expectedTotalBytes != null
@@ -122,7 +123,7 @@ class _TemplateCardState extends State<TemplateCard> {
                 style: const TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 16,
-                  color: Colors.blue,
+                  color: AppColors.primaryColor,
                 ),
               ),
             ),
@@ -236,7 +237,7 @@ class _ReplyMessageCardState extends State<ReplyMessageCard> {
           onTap: () => Navigator.pop(context),
           child: InteractiveViewer(
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(AppRadius.md),
               child: Image.network(imageUrl, fit: BoxFit.contain),
             ),
           ),
@@ -256,9 +257,9 @@ class _ReplyMessageCardState extends State<ReplyMessageCard> {
         width: MediaQuery.of(context).size.width * 0.8,
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: hasUrl ? Colors.white : Colors.grey.shade50,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.shade300, width: 1),
+          color: hasUrl ? Colors.white : AppColors.surfaceColor,
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          border: Border.all(color: AppColors.primaryColorMix, width: 1),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -268,7 +269,7 @@ class _ReplyMessageCardState extends State<ReplyMessageCard> {
               GestureDetector(
                 onTap: () => _showImagePopup(imageUrl),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(AppRadius.sm),
                   child: Image.network(
                     imageUrl,
                     width: 80,
@@ -293,7 +294,7 @@ class _ReplyMessageCardState extends State<ReplyMessageCard> {
                       style: const TextStyle(
                         fontWeight: FontWeight.w700,
                         fontSize: 14,
-                        color: Colors.blue,
+                        color: AppColors.primaryColor,
                       ),
                     ),
                     const SizedBox(height: 4),

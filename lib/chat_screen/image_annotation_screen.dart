@@ -6,6 +6,7 @@ import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/connection/download.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
+import 'package:chat/common/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:path_provider/path_provider.dart';
@@ -247,7 +248,12 @@ class _ImageAnnotationScreenState extends State<ImageAnnotationScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        shape: AppGlass.headerShape,
+        flexibleSpace: AppGlass.headerBackground(),
         leading: const CloseButton(color: Colors.white),
         iconTheme: const IconThemeData(color: Colors.white),
         title: Text(
@@ -367,7 +373,7 @@ class _ImageAnnotationScreenState extends State<ImageAnnotationScreen> {
                         style: const TextStyle(color: Colors.white),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
+                        backgroundColor: AppColors.primaryColor,
                         padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
                     ),
@@ -385,12 +391,12 @@ class _ImageAnnotationScreenState extends State<ImageAnnotationScreen> {
     final selected = _tool == tool;
     return InkWell(
       onTap: () => setState(() => _tool = tool),
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(AppRadius.sm),
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           color: selected ? Colors.white24 : Colors.transparent,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(AppRadius.sm),
           border: Border.all(
               color: selected ? Colors.white : Colors.white38, width: 1),
         ),

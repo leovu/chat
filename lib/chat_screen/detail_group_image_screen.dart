@@ -9,6 +9,7 @@ import 'package:chat/data_model/chat_message.dart';
 import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:chat/common/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/data_model/room.dart' as r;
 
@@ -31,24 +32,30 @@ class _State extends State<DetailGroupImageScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.surfaceColor,
       appBar: AppBar(
         title: AutoSizeText(
           '${widget.people.firstName} ${widget.people.lastName}',
           style: const TextStyle(
-              color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
+              color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16),
         ),
         leading: InkWell(
-          child: Icon(Icons.arrow_back_ios,
-              color: Colors.black),
+          child: Icon(Icons.arrow_back_ios, color: Colors.white),
           onTap: () => Navigator.of(context).pop(),
         ),
-        backgroundColor: Colors.white,
-        iconTheme: const IconThemeData(
-          color: Colors.black,
-        ),
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        shape: AppGlass.headerShape,
+        flexibleSpace: AppGlass.headerBackground(),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
-      body: SafeArea(
-        child: widget.tabbarIndex == 0 ? _images() : widget.tabbarIndex == 1 ? _files() : _links(),
+      body: DecoratedBox(
+        decoration: AppGlass.background(),
+        child: SafeArea(
+          child: widget.tabbarIndex == 0 ? _images() : widget.tabbarIndex == 1 ? _files() : _links(),
+        ),
       ),
     );
   }
@@ -66,13 +73,16 @@ class _State extends State<DetailGroupImageScreen>
             onTap: () async {
               openImage(context,'${HTTPConnection.domain}api/images/${widget.images?[position].content}/512');
             },
-            child: CachedNetworkImage(
-              imageUrl:
-              '${HTTPConnection.domain}api/images/${widget.images?[position].content}/512/${ChatConnection.brandCode!}',
-              httpHeaders: {'brand-code':ChatConnection.brandCode!},
-              placeholder: (context, url) => const CupertinoActivityIndicator(),
-              errorWidget: (context, url, error) => const Icon(Icons.error),
-              fit: BoxFit.cover,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(AppRadius.md),
+              child: CachedNetworkImage(
+                imageUrl:
+                '${HTTPConnection.domain}api/images/${widget.images?[position].content}/512/${ChatConnection.brandCode!}',
+                httpHeaders: {'brand-code':ChatConnection.brandCode!},
+                placeholder: (context, url) => const CupertinoActivityIndicator(),
+                errorWidget: (context, url, error) => const Icon(Icons.error),
+                fit: BoxFit.cover,
+              ),
             ),
           );
         });
@@ -85,7 +95,14 @@ class _State extends State<DetailGroupImageScreen>
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         itemCount: widget.images?.length ?? 0,
         itemBuilder: (BuildContext context, int position) {
-          return InkWell(
+          return Container(
+            margin: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 4.0),
+            decoration: AppGlass.card(),
+            child: Material(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(AppRadius.card),
+            child: InkWell(
+            borderRadius: BorderRadius.circular(AppRadius.card),
             onTap: () async {
               showLoading();
               var message = widget.images?[position].file!;
@@ -93,7 +110,9 @@ class _State extends State<DetailGroupImageScreen>
               Navigator.of(context).pop();
               openFile(result,context,message.name ?? AppLocalizations.text(LangKey.file));
             },
-            child: Column(
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
               children: [
                 Row(
                   children: [
@@ -101,8 +120,8 @@ class _State extends State<DetailGroupImageScreen>
                       width: 45.0,
                       height: 45.0,
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(5),
-                        color: Colors.blue,
+                        borderRadius: BorderRadius.circular(AppRadius.md),
+                        gradient: AppGlass.activeGradient,
                       ),
                       child: Image.asset(
                         'assets/icon-document.png',
@@ -114,17 +133,19 @@ class _State extends State<DetailGroupImageScreen>
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
                       child: Column(
                         children: [
-                          AutoSizeText(widget.images?[position].file?.name ?? '')
+                          AutoSizeText(widget.images?[position].file?.name ?? '',
+                              style: const TextStyle(
+                                  color: AppColors.textStrongColor,
+                                  fontWeight: FontWeight.w500))
                         ],
                       ),
                     ),
                   ],
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: Container(height: 1.0,color: Colors.grey.shade200,),
-                )
               ],
+            ),
+            ),
+            ),
             ),
           );
         });

@@ -88,7 +88,7 @@ class ConversationBloc extends BaseBloc {
     await Clipboard.setData(ClipboardData(text: text));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-          backgroundColor: AppColors.grey,
+          backgroundColor: AppColors.textTitleColor,
           content: Text(AppLocalizations.text(LangKey.copyAlert))),
     );
   }

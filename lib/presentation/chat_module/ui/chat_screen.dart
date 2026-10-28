@@ -5,6 +5,8 @@ import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/chat_ui/flutter_chat_ui.dart';
+import 'package:chat/common/theme.dart';
+import 'package:chat/common/widgets/glass_widgets.dart';
 import 'package:chat/connection/app_lifecycle.dart';
 import 'package:chat/connection/chat_connection.dart';
 import 'package:chat/services/notification_service.dart';
@@ -196,6 +198,7 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
               )
             : null,
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        backgroundColor: AppColors.surfaceColor,
         appBar: _buildAppBarWithPinned(),
         body: SafeArea(
           bottom: false,
@@ -423,6 +426,9 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadius.card)),
+          backgroundColor: AppColors.white,
           title: Text(AppLocalizations.text(LangKey.warning)),
           content: Text(AppLocalizations.text(LangKey.limitSizeUpload)),
           actions: [
@@ -825,11 +831,12 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
       required Widget caption}) {
     return Builder(
       builder: (context) {
-        final theme = InheritedChatTheme.of(context).theme;
         return Container(
           decoration: BoxDecoration(
-            color: isMe ? theme.primaryColor : theme.secondaryColor,
-            borderRadius: BorderRadius.circular(12),
+            gradient: isMe ? AppGlass.sentBubbleGradient : null,
+            color: isMe ? null : AppColors.white.withValues(alpha: 0.92),
+            borderRadius: BorderRadius.circular(AppRadius.card),
+            border: Border.all(color: AppGlass.borderColor, width: 1.0),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -864,7 +871,7 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
     Widget imageWidget;
     if (isLocalFile) {
       imageWidget = ClipRRect(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppRadius.md),
         child: Image.file(
           File(message.uri),
           width: messageWidth.toDouble() * 0.7,
@@ -873,7 +880,7 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
             width: messageWidth.toDouble() * 0.7,
             height: 100,
             child:
-                const Icon(Icons.broken_image, size: 100, color: Colors.grey),
+                const Icon(Icons.broken_image, size: 100, color: AppColors.textSecondaryColor),
           ),
         ),
       );
@@ -885,7 +892,7 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
       }
 
       imageWidget = ClipRRect(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppRadius.md),
         child: CachedNetworkImage(
           imageUrl: ensureFullUrl(message.uri),
           width: messageWidth.toDouble() * 0.7,
@@ -903,7 +910,7 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
             width: messageWidth.toDouble() * 0.7,
             height: 100,
             child:
-                const Icon(Icons.broken_image, size: 100, color: Colors.grey),
+                const Icon(Icons.broken_image, size: 100, color: AppColors.textSecondaryColor),
           ),
         ),
       );
@@ -956,7 +963,7 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
               errorBuilder: (_, __, ___) => Container(
                 width: imageSize,
                 height: imageSize,
-                child: const Icon(Icons.broken_image, color: Colors.grey),
+                child: const Icon(Icons.broken_image, color: AppColors.textSecondaryColor),
               ),
             );
           } else {
@@ -977,7 +984,7 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
               errorWidget: (context, url, error) => Container(
                 width: imageSize,
                 height: imageSize,
-                child: const Icon(Icons.broken_image, color: Colors.grey),
+                child: const Icon(Icons.broken_image, color: AppColors.textSecondaryColor),
               ),
             );
           }
@@ -986,7 +993,7 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
             onTap: () => openImages(context, imageUrls,
                 initialIndex: index, onResend: _resendEditedImage),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(AppRadius.sm),
               child: imageWidget,
             ),
           );
@@ -1216,15 +1223,10 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
       padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.12),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          color: AppColors.white.withValues(alpha: 0.95),
+          borderRadius: BorderRadius.circular(AppRadius.card),
+          border: Border.all(color: AppGlass.borderColor, width: 1.0),
+          boxShadow: AppGlass.shadow,
           // border:
           //     Border(bottom: BorderSide(color: Colors.grey.shade300, width: 2)),
         ),
@@ -1234,7 +1236,8 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
             children: [
               const Padding(
                 padding: EdgeInsets.only(right: 8.0),
-                child: Icon(Icons.chat_outlined, color: Color(0xff5686E1)),
+                child:
+                    Icon(Icons.chat_outlined, color: AppColors.primaryColor),
               ),
               Expanded(
                 child: InkWell(
@@ -1257,7 +1260,7 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
                         '${pin.author?.firstName} ${pin.author?.lastName}',
                         style: const TextStyle(
                             fontWeight: FontWeight.w600,
-                            color: Color(0xff5686E1)),
+                            color: AppColors.primaryColor),
                       ),
                       if (pin.type == 'image')
                         SizedBox(
@@ -1289,7 +1292,8 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
                 height: 30,
                 width: 30,
                 child: IconButton(
-                  icon: const Icon(Icons.close, color: Colors.grey, size: 20.0),
+                  icon: const Icon(Icons.close,
+                      color: AppColors.textMutedColor, size: 20.0),
                   onPressed: () async {
                     setState(() => data?.room?.pinMessage = null);
                     await ChatConnection.pinMessage(null, data?.room);
@@ -1375,11 +1379,11 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
     return Visibility(
         visible: _isSearchMessage,
         child: Container(
-          color: Colors.grey.shade200,
+          color: AppColors.primaryColorMix,
           child: Padding(
-            padding: const EdgeInsets.only(top: 2.0),
+            padding: const EdgeInsets.only(top: 1.0),
             child: Container(
-              color: Colors.white,
+              color: AppColors.white.withValues(alpha: 0.92),
               child: Padding(
                 padding: const EdgeInsets.only(
                     bottom: 15.0, left: 10.0, right: 10.0),
@@ -1401,8 +1405,8 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
                           child: Icon(Icons.arrow_drop_down,
                               color: _listIdSearch.isNotEmpty &&
                                       currentIndexSearch > 0
-                                  ? Colors.blue
-                                  : Colors.grey)),
+                                  ? AppColors.primaryColor
+                                  : AppColors.textMutedColor)),
                     ),
                     Expanded(
                       child: Center(
@@ -1411,7 +1415,8 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
                               ? '0/0'
                               : '${currentIndexSearch + 1}/${_listIdSearch.length}',
                           style: const TextStyle(
-                              color: Colors.grey, fontSize: 13.0),
+                              color: AppColors.textSecondaryColor,
+                              fontSize: 13.0),
                         ),
                       ),
                     ),
@@ -1430,8 +1435,8 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
                               color: _listIdSearch.isNotEmpty &&
                                       currentIndexSearch <
                                           _listIdSearch.length - 1
-                                  ? Colors.blue
-                                  : Colors.grey)),
+                                  ? AppColors.primaryColor
+                                  : AppColors.textMutedColor)),
                     ),
                   ],
                 ),
@@ -1442,7 +1447,7 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
   }
 
   AppBar _searchAppBar() {
-    return AppBar(
+    return glassAppBar(
         actions: <Widget>[
           Padding(
             padding: const EdgeInsets.only(right: 10.0),
@@ -1456,23 +1461,24 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
                 });
               },
               child: const Text('Cancel',
-                  style: TextStyle(color: Color(0xFF787878))),
+                  style: TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.w600)),
             ),
           ),
         ],
-        backgroundColor: Colors.white,
         title: Container(
           width: double.infinity,
           height: 40,
           decoration: BoxDecoration(
-              color: const Color(0xFFE7EAEF),
-              borderRadius: BorderRadius.circular(5)),
+              color: AppColors.white.withValues(alpha: 0.92),
+              border: Border.all(color: AppGlass.borderColor, width: 1.0),
+              borderRadius: BorderRadius.circular(AppRadius.md)),
           child: Row(
             children: [
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 10),
                 child:
-                    Center(child: Icon(Icons.search, color: Color(0xFF787878))),
+                    Center(child: Icon(Icons.search, color: AppColors.textMutedColor)),
               ),
               Expanded(
                   child: TextField(
@@ -1493,17 +1499,21 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
                     });
                   }
                 },
+                style: const TextStyle(color: AppColors.textTitleColor),
                 decoration: InputDecoration.collapsed(
-                    hintText: AppLocalizations.text(LangKey.findInChat)),
+                    hintText: AppLocalizations.text(LangKey.findInChat),
+                    hintStyle:
+                        const TextStyle(color: AppColors.textMutedColor)),
               )),
               Material(
                 color: Colors.transparent,
                 child: InkWell(
-                  borderRadius: BorderRadius.circular(5),
+                  borderRadius: BorderRadius.circular(AppRadius.md),
                   child: const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 10),
                     child: Center(
-                        child: Icon(Icons.close, color: Color(0xFF787878))),
+                        child: Icon(Icons.close,
+                            color: AppColors.textMutedColor)),
                   ),
                   onTap: () {
                     _controllerSearch.text = '';
@@ -1587,16 +1597,16 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
         arr.add(TextSpan(
             text: '$element$suffix',
             style: const TextStyle(
-                color: Colors.black, fontWeight: FontWeight.bold)));
+                color: AppColors.textTitleColor, fontWeight: FontWeight.bold)));
       } else if (element.startsWith('http://') ||
           element.startsWith('https://')) {
         final url = element;
         arr.add(TextSpan(
           text: '$url$suffix',
           style: const TextStyle(
-              color: Color(0xff5686E1),
+              color: AppColors.primaryColor,
               decoration: TextDecoration.underline,
-              decorationColor: Color(0xff5686E1)),
+              decorationColor: AppColors.primaryColor),
           recognizer: TapGestureRecognizer()
             ..onTap = () async {
               final uri = Uri.tryParse(url);
@@ -1617,19 +1627,19 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
             arr.add(TextSpan(
                 text: '$element$suffix',
                 style: const TextStyle(
-                    color: Colors.black, fontWeight: FontWeight.bold)));
+                    color: AppColors.textTitleColor, fontWeight: FontWeight.bold)));
           } else {
             arr.add(TextSpan(
                 text: '$element$suffix',
                 style: TextStyle(
-                    color: Colors.grey.shade700,
+                    color: AppColors.textBodyColor,
                     fontWeight: FontWeight.normal)));
           }
         } catch (_) {
           arr.add(TextSpan(
               text: '$element$suffix',
               style: TextStyle(
-                  color: Colors.grey.shade700, fontWeight: FontWeight.normal)));
+                  color: AppColors.textBodyColor, fontWeight: FontWeight.normal)));
         }
       }
     }

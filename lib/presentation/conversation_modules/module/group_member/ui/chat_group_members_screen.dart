@@ -16,6 +16,7 @@ import 'package:chat/localization/lang_key.dart';
 import 'package:chat/presentation/conversation_modules/module/group_member/bloc/chat_group_member_bloc.dart';
 import 'package:chat/presentation/utils/ultility.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:chat/common/theme.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../../chat_ui/vietnamese_text.dart';
@@ -133,7 +134,7 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surfaceColor,
       appBar: _buildAppBar(context),
       body: SafeArea(
         child: isInitScreen
@@ -179,8 +180,8 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
       child: Container(
         height: 40,
         decoration: BoxDecoration(
-          color: const Color(0xFFE7EAEF),
-          borderRadius: BorderRadius.circular(5),
+          color: AppColors.primaryColorMix,
+          borderRadius: BorderRadius.circular(AppRadius.xs),
         ),
         child: Row(
           children: [
@@ -200,7 +201,7 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
             Material(
               color: Colors.transparent,
               child: InkWell(
-                borderRadius: BorderRadius.circular(5),
+                borderRadius: BorderRadius.circular(AppRadius.xs),
                 onTap: () {
                   _searchController.clear();
                   _filterMembers('');
@@ -220,13 +221,18 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
-      backgroundColor: Colors.white,
-      iconTheme: const IconThemeData(color: Colors.black),
+      backgroundColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      shape: AppGlass.headerShape,
+      flexibleSpace: AppGlass.headerBackground(),
+      iconTheme: const IconThemeData(color: Colors.white),
       title: AutoSizeText(
         '${AppLocalizations.text(LangKey.members)} ($lengthPeople)',
         style: const TextStyle(
-          color: Colors.black,
-          fontWeight: FontWeight.bold,
+          color: Colors.white,
+          fontWeight: FontWeight.w600,
           fontSize: 16,
         ),
       ),
@@ -234,7 +240,7 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
         onTap: () => Navigator.of(context).pop(),
         child: Icon(
           Icons.arrow_back_ios,
-          color: Colors.black,
+          color: Colors.white,
         ),
       ),
       actions: [
@@ -427,6 +433,9 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
       showDialog(
         context: context,
         builder: (cxxt) => AlertDialog(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.card)),
+        backgroundColor: AppColors.white,
           title: Text(AppLocalizations.text(LangKey.notifications)),
           content: Text(AppLocalizations.text(LangKey.leaveError)),
           actions: [
@@ -464,13 +473,10 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8),
           child: Card(
-            color: Colors.white,
+            color: Colors.transparent,
+            elevation: 0,
             child: Container(
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: Colors.grey.shade300,
-                  )),
+              decoration: AppGlass.card(radius: AppRadius.md),
               child: buildMemberZItem(
                   context, item!, !(index == itemCount), index,
                   isPending: true),
@@ -588,7 +594,7 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
                         },
                         child: const Padding(
                           padding: EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Icon(Icons.close, color: Colors.red, size: 22),
+                          child: Icon(Icons.close, color: AppColors.dangerColor, size: 22),
                         ),
                       ),
                   ],
@@ -602,7 +608,7 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 10.0),
                   child: Container(
                     height: 1.0,
-                    color: Colors.grey.shade300,
+                    color: AppColors.primaryColorMix,
                   ),
                 )
               : Container(),
@@ -727,7 +733,7 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
                         },
                         child: Icon(
                           Icons.delete_outline,
-                          color: Colors.red,
+                          color: AppColors.dangerColor,
                         ),
                       ),
                     ],
@@ -766,7 +772,7 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
             const SizedBox(height: 5.0),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10.0),
-              child: Container(height: 1.0, color: Colors.grey.shade300),
+              child: Container(height: 1.0, color: AppColors.primaryColorMix),
             ),
           ],
         ],
@@ -784,8 +790,8 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 8, vertical: 5),
           decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(5),
-              color: isAccept ? Color(0xff5686E1) : Colors.redAccent),
+              borderRadius: BorderRadius.circular(AppRadius.xs),
+              color: isAccept ? AppColors.primaryColor : AppColors.dangerColor),
           child: Row(
             children: [
               Icon(

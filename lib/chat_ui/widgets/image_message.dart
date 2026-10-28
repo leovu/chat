@@ -1,3 +1,4 @@
+import 'package:chat/common/theme.dart';
 import 'package:chat/chat_ui/widgets/replied_message.dart';
 import 'package:chat/data_model/room.dart';
 import 'package:flutter/material.dart';
@@ -185,7 +186,7 @@ class _ImageMessageState extends State<ImageMessage> {
                   ),
                   width: 100,
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(AppRadius.sm),
                     child: Image(
                       fit: BoxFit.cover,
                       image: _image!,
@@ -280,7 +281,7 @@ class _ImageMessageState extends State<ImageMessage> {
                       _repliedMessageBuilder(_user),
                     Flexible(
                         child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(AppRadius.sm),
                       child: Image(
                         fit: BoxFit.cover,
                         image: _image!,

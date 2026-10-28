@@ -1,3 +1,4 @@
+import 'package:chat/common/theme.dart';
 import 'dart:convert';
 
 import 'package:chat/localization/app_localizations.dart';
@@ -21,7 +22,7 @@ Widget buildHtmlTemplateWidget(types.CustomMessage message) {
       child: Text(
         '[${AppLocalizations.text(LangKey.content_not_displayed)}]',
         style:
-            TextStyle(color: Colors.grey.shade600, fontStyle: FontStyle.italic),
+            TextStyle(color: AppColors.textSecondaryColor, fontStyle: FontStyle.italic),
       ),
     );
   }
@@ -119,11 +120,11 @@ Widget _buildBeautifulOaTemplateWidget(Map<String, dynamic> templateData) {
     constraints: const BoxConstraints(maxWidth: 320),
     decoration: BoxDecoration(
       color: Colors.white,
-      borderRadius: BorderRadius.circular(12),
-      border: Border.all(color: Colors.grey.shade200),
+      borderRadius: BorderRadius.circular(AppRadius.md),
+      border: Border.all(color: AppColors.primaryColorMix),
     ),
     child: ClipRRect(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(AppRadius.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -148,7 +149,7 @@ Widget _buildBeautifulOaTemplateWidget(Map<String, dynamic> templateData) {
                   style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black87),
+                      color: AppColors.textTitleColor),
                 ),
                 const SizedBox(height: 12),
                 ..._buildDetails(templateData['details']),
@@ -160,7 +161,7 @@ Widget _buildBeautifulOaTemplateWidget(Map<String, dynamic> templateData) {
                       templateData['description'],
                       style: TextStyle(
                           fontSize: 14,
-                          color: Colors.grey.shade700,
+                          color: AppColors.textBodyColor,
                           height: 1.4),
                     ),
                   ),
@@ -180,9 +181,9 @@ Widget _buildTag(String text, String iconUrl) {
   return Container(
     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
     decoration: BoxDecoration(
-      color: Colors.grey.shade100,
-      borderRadius: BorderRadius.circular(4),
-      border: Border.all(color: Colors.grey.shade300, width: 0.5),
+      color: AppColors.surfaceColor,
+      borderRadius: BorderRadius.circular(AppRadius.xs),
+      border: Border.all(color: AppColors.primaryColorMix, width: 0.5),
     ),
     child: Row(
       mainAxisSize: MainAxisSize.min,
@@ -197,7 +198,7 @@ Widget _buildTag(String text, String iconUrl) {
         Text(
           text,
           style: const TextStyle(
-              fontSize: 11, fontWeight: FontWeight.w500, color: Colors.black87),
+              fontSize: 11, fontWeight: FontWeight.w500, color: AppColors.textTitleColor),
         ),
       ],
     ),
@@ -217,7 +218,7 @@ List<Widget> _buildDetails(List<dynamic> details) {
             width: 105,
             child: Text(
               detail['key']!,
-              style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+              style: TextStyle(fontSize: 14, color: AppColors.textSecondaryColor),
             ),
           ),
           const SizedBox(width: 8),
@@ -226,7 +227,7 @@ List<Widget> _buildDetails(List<dynamic> details) {
               detail['value']!,
               style: const TextStyle(
                   fontSize: 14,
-                  color: Colors.black87,
+                  color: AppColors.textTitleColor,
                   fontWeight: FontWeight.w500),
             ),
           ),
@@ -279,7 +280,7 @@ Widget _buildButton(Map<String, dynamic> buttonData) {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
           border:
-              Border(top: BorderSide(color: Colors.grey.shade200, width: 1)),
+              Border(top: BorderSide(color: AppColors.primaryColorMix, width: 1)),
         ),
         child: Row(
           children: [
@@ -293,7 +294,7 @@ Widget _buildButton(Map<String, dynamic> buttonData) {
                 buttonData['text']!,
                 style: const TextStyle(
                     fontSize: 14,
-                    color: Colors.black87,
+                    color: AppColors.textTitleColor,
                     fontWeight: FontWeight.w500),
               ),
             ),
