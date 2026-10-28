@@ -251,7 +251,8 @@ class AppGlass {
   }
 
   static Widget headerBackground({bool rounded = true}) {
-    return DecoratedBox(decoration: header(rounded: rounded));
+    return SizedBox.expand(
+        child: DecoratedBox(decoration: header(rounded: rounded)));
   }
 
   static BoxDecoration card({double radius = AppGlass.radius, Color? color}) {

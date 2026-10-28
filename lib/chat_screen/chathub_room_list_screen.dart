@@ -124,7 +124,10 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen>
             ],
           ),
           Expanded(
-            child: Scaffold(
+            child: MediaQuery.removePadding(
+              context: context,
+              removeTop: true,
+              child: Scaffold(
               backgroundColor: Colors.transparent,
               appBar: PreferredSize(
                 preferredSize: const Size.fromHeight(48),
@@ -446,6 +449,7 @@ class _RoomListChathubScreenState extends State<RoomListChathubScreen>
                     const SizedBox(height: 3.0),
                 ],
               ),
+            ),
             ),
           )
         ])),
