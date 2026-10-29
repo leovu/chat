@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:chat/data_model/chat_message.dart' as c;
 import 'package:chat/data_model/room.dart' as r;
 import 'package:intl/intl.dart';
+import 'package:chat/common/widgets/glass_widgets.dart';
 
 class ByTimeResultScreen extends StatefulWidget {
   final c.ChatMessage? chatMessage;
@@ -48,18 +49,16 @@ class _State extends State<ByTimeResultScreen>
           widget.title ?? AppLocalizations.text(LangKey.byTime),
           style: AppGlass.headerTitleStyle,
         ),
-        leading: InkWell(
-          child: Icon(Icons.arrow_back_ios, color: Colors.white),
-          onTap: () => Navigator.of(context).pop(),
-        ),
+        leading: GlassBackButton(onTap: () => Navigator.of(context).pop()),
         backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
         shape: AppGlass.headerShape,
         flexibleSpace: AppGlass.headerBackground(),
+        systemOverlayStyle: AppGlass.headerOverlay,
         iconTheme: const IconThemeData(
-          color: Colors.white,
+          color: AppGlass.headerForeground,
         ),
       ),
       body: SafeArea(
@@ -93,7 +92,10 @@ class _State extends State<ByTimeResultScreen>
               if (dt.isBetween(
                   format2.parse(listDates[0]),
                   format2.parse(listDates[1]).add(const Duration(
-                      hours: 23, minutes: 59, seconds: 59, milliseconds: 999)))) {
+                      hours: 23,
+                      minutes: 59,
+                      seconds: 59,
+                      milliseconds: 999)))) {
                 if (values.containsKey(formattedDate)) {
                   values[formattedDate]!.add(widgetCacheImage(e.content!));
                 } else {
@@ -136,7 +138,10 @@ class _State extends State<ByTimeResultScreen>
               if (dt.isBetween(
                   format2.parse(listDates[0]),
                   format2.parse(listDates[1]).add(const Duration(
-                      hours: 23, minutes: 59, seconds: 59, milliseconds: 999)))) {
+                      hours: 23,
+                      minutes: 59,
+                      seconds: 59,
+                      milliseconds: 999)))) {
                 if (values.containsKey(formattedDate)) {
                   values[formattedDate]!.add(widgetCacheFile(e));
                 } else {
@@ -181,7 +186,10 @@ class _State extends State<ByTimeResultScreen>
               if (dt.isBetween(
                   format2.parse(listDates[0]),
                   format2.parse(listDates[1]).add(const Duration(
-                      hours: 23, minutes: 59, seconds: 59, milliseconds: 999)))) {
+                      hours: 23,
+                      minutes: 59,
+                      seconds: 59,
+                      milliseconds: 999)))) {
                 if (values.containsKey(formattedDate)) {
                   List<String> urls = [];
                   final urlMatches = urlRegExp.allMatches(e.content ?? '');

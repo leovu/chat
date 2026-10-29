@@ -6,13 +6,20 @@ import 'package:chat/common/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/data_model/chat_message.dart' as c;
 import 'package:chat/data_model/room.dart' as r;
+import 'package:chat/common/widgets/glass_widgets.dart';
 
 class BySenderResultScreen extends StatefulWidget {
   final c.ChatMessage? chatMessage;
   final r.Rooms roomData;
   final String? search;
   final int tabbarIndex;
-  const BySenderResultScreen({Key? key, required this.roomData, required this.chatMessage, this.search, required this.tabbarIndex}) : super(key: key);
+  const BySenderResultScreen(
+      {Key? key,
+      required this.roomData,
+      required this.chatMessage,
+      this.search,
+      required this.tabbarIndex})
+      : super(key: key);
   @override
   _State createState() => _State();
 }
@@ -85,52 +92,62 @@ class _State extends State<BySenderResultScreen>
     );
   }
 
-  Widget totalText(){
+  Widget totalText() {
     List<r.People?>? senders = widget.roomData.people?.map((e) {
-      try{
-        if(widget.tabbarIndex == 0) {
-          if(_search != '') {
-            var tmp = widget.chatMessage?.room?.images?.firstWhere((element) => element.author?.sId == e.sId && '${e.firstName} ${e.lastName}'.toLowerCase().contains(_search.toLowerCase()));
-            if(tmp != null) {
+      try {
+        if (widget.tabbarIndex == 0) {
+          if (_search != '') {
+            var tmp = widget.chatMessage?.room?.images?.firstWhere((element) =>
+                element.author?.sId == e.sId &&
+                '${e.firstName} ${e.lastName}'
+                    .toLowerCase()
+                    .contains(_search.toLowerCase()));
+            if (tmp != null) {
+              return e;
+            }
+          } else {
+            var tmp = widget.chatMessage?.room?.images
+                ?.firstWhere((element) => element.author?.sId == e.sId);
+            if (tmp != null) {
               return e;
             }
           }
-          else {
-            var tmp = widget.chatMessage?.room?.images?.firstWhere((element) => element.author?.sId == e.sId);
-            if(tmp != null) {
+        } else if (widget.tabbarIndex == 1) {
+          if (_search != '') {
+            var tmp = widget.chatMessage?.room?.files?.firstWhere((element) =>
+                element.author?.sId == e.sId &&
+                '${e.firstName} ${e.lastName}'
+                    .toLowerCase()
+                    .contains(_search.toLowerCase()));
+            if (tmp != null) {
+              return e;
+            }
+          } else {
+            var tmp = widget.chatMessage?.room?.files
+                ?.firstWhere((element) => element.author?.sId == e.sId);
+            if (tmp != null) {
+              return e;
+            }
+          }
+        } else {
+          if (_search != '') {
+            var tmp = widget.chatMessage?.room?.links?.firstWhere((element) =>
+                element.author?.sId == e.sId &&
+                '${e.firstName} ${e.lastName}'
+                    .toLowerCase()
+                    .contains(_search.toLowerCase()));
+            if (tmp != null) {
+              return e;
+            }
+          } else {
+            var tmp = widget.chatMessage?.room?.links
+                ?.firstWhere((element) => element.author?.sId == e.sId);
+            if (tmp != null) {
               return e;
             }
           }
         }
-        else if(widget.tabbarIndex == 1) {
-          if(_search != '') {
-            var tmp = widget.chatMessage?.room?.files?.firstWhere((element) => element.author?.sId == e.sId && '${e.firstName} ${e.lastName}'.toLowerCase().contains(_search.toLowerCase()));
-            if(tmp != null) {
-              return e;
-            }
-          }
-          else {
-            var tmp = widget.chatMessage?.room?.files?.firstWhere((element) => element.author?.sId == e.sId);
-            if(tmp != null) {
-              return e;
-            }
-          }
-        }
-        else {
-          if(_search != '') {
-            var tmp = widget.chatMessage?.room?.links?.firstWhere((element) => element.author?.sId == e.sId && '${e.firstName} ${e.lastName}'.toLowerCase().contains(_search.toLowerCase()));
-            if(tmp != null) {
-              return e;
-            }
-          }
-          else {
-            var tmp = widget.chatMessage?.room?.links?.firstWhere((element) => element.author?.sId == e.sId);
-            if(tmp != null) {
-              return e;
-            }
-          }
-        }
-      }catch(_){}
+      } catch (_) {}
     }).toList();
     senders?.remove(null);
     return Container(
@@ -138,11 +155,13 @@ class _State extends State<BySenderResultScreen>
       margin: const EdgeInsets.only(top: 8.0),
       child: Center(
         child: Text(
-            (senders?.length ?? 0) > 1 ?
-            '${senders!.length} ${AppLocalizations.text(LangKey.senders)}' :
-            '${senders?.length ?? 0} ${AppLocalizations.text(LangKey.sender)}',
-            style: TextStyle(fontSize: 15.0, color: AppColors.textSecondaryColor, fontWeight: FontWeight.w500)
-        ),
+            (senders?.length ?? 0) > 1
+                ? '${senders!.length} ${AppLocalizations.text(LangKey.senders)}'
+                : '${senders?.length ?? 0} ${AppLocalizations.text(LangKey.sender)}',
+            style: TextStyle(
+                fontSize: 15.0,
+                color: AppColors.textSecondaryColor,
+                fontWeight: FontWeight.w500)),
       ),
     );
   }
@@ -156,19 +175,16 @@ class _State extends State<BySenderResultScreen>
           AppLocalizations.text(LangKey.bySenders),
           style: AppGlass.headerTitleStyle,
         ),
-        leading: InkWell(
-          child: Icon(Icons.arrow_back_ios,
-              color: Colors.white),
-          onTap: () => Navigator.of(context).pop(),
-        ),
+        leading: GlassBackButton(onTap: () => Navigator.of(context).pop()),
         backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
         shape: AppGlass.headerShape,
         flexibleSpace: AppGlass.headerBackground(),
+        systemOverlayStyle: AppGlass.headerOverlay,
         iconTheme: const IconThemeData(
-          color: Colors.white,
+          color: AppGlass.headerForeground,
         ),
       ),
       body: SafeArea(
@@ -196,26 +212,35 @@ class _State extends State<BySenderResultScreen>
       ),
     );
   }
+
   List<Widget> _list() {
     List<r.People?>? listPeople;
-    List<c.Images>? listImages = widget.tabbarIndex == 0 ?
-        widget.chatMessage?.room?.images : widget.tabbarIndex == 1 ?
-    widget.chatMessage?.room?.files : widget.chatMessage?.room?.links;
-    if(_search != '') {
+    List<c.Images>? listImages = widget.tabbarIndex == 0
+        ? widget.chatMessage?.room?.images
+        : widget.tabbarIndex == 1
+            ? widget.chatMessage?.room?.files
+            : widget.chatMessage?.room?.links;
+    if (_search != '') {
       listPeople = [];
-      for(var e in widget.roomData.people!) {
-        if('${e.firstName} ${e.lastName}'.toLowerCase().contains(_search.toLowerCase())){
+      for (var e in widget.roomData.people!) {
+        if ('${e.firstName} ${e.lastName}'
+            .toLowerCase()
+            .contains(_search.toLowerCase())) {
           listPeople.add(e);
         }
       }
-    }
-    else {
+    } else {
       listPeople = widget.roomData.people;
     }
-    List<GroupImageItem>? widgets = listPeople?.map((e) =>  GroupImageItem(people: e!,
-      tabbarIndex: widget.tabbarIndex,images:
-    listImages?.where((element) => element.author?.sId == e.sId).toList()
-      ,)).toList();
+    List<GroupImageItem>? widgets = listPeople
+        ?.map((e) => GroupImageItem(
+              people: e!,
+              tabbarIndex: widget.tabbarIndex,
+              images: listImages
+                  ?.where((element) => element.author?.sId == e.sId)
+                  .toList(),
+            ))
+        .toList();
     return widgets ?? [];
   }
 }

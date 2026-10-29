@@ -12,6 +12,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:chat/common/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/data_model/room.dart' as r;
+import 'package:chat/common/widgets/glass_widgets.dart';
 
 class TagListScreen extends StatefulWidget {
   final r.People data;
@@ -59,20 +60,16 @@ class _State extends State<TagListScreen> {
             AppLocalizations.text(LangKey.addLabel),
             style: AppGlass.headerTitleStyle,
           ),
-          leading: InkWell(
-            child: Icon(
-                Icons.arrow_back_ios,
-                color: Colors.white),
-            onTap: () => Navigator.of(context).pop(),
-          ),
+          leading: GlassBackButton(onTap: () => Navigator.of(context).pop()),
           backgroundColor: Colors.transparent,
           surfaceTintColor: Colors.transparent,
           elevation: 0,
           scrolledUnderElevation: 0,
           shape: AppGlass.headerShape,
           flexibleSpace: AppGlass.headerBackground(),
+          systemOverlayStyle: AppGlass.headerOverlay,
           iconTheme: const IconThemeData(
-            color: Colors.white,
+            color: AppGlass.headerForeground,
           ),
         ),
         body: SafeArea(
@@ -91,9 +88,10 @@ class _State extends State<TagListScreen> {
                               child: Container(
                             height: 37.0,
                             decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(AppRadius.md),
-                                border:
-                                    Border.all(color: AppColors.primaryColorMix)),
+                                borderRadius:
+                                    BorderRadius.circular(AppRadius.md),
+                                border: Border.all(
+                                    color: AppColors.primaryColorMix)),
                             child: Row(
                               children: [
                                 InkWell(
@@ -125,7 +123,8 @@ class _State extends State<TagListScreen> {
                                             decoration: BoxDecoration(
                                                 color: color,
                                                 borderRadius:
-                                                    BorderRadius.circular(AppRadius.xs)),
+                                                    BorderRadius.circular(
+                                                        AppRadius.xs)),
                                             height: 10.0,
                                             width: 10.0,
                                           )),
@@ -178,7 +177,8 @@ class _State extends State<TagListScreen> {
                                   ? AppColors.primaryColor
                                   : AppColors.textSecondaryColor,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(AppRadius.md),
+                                borderRadius:
+                                    BorderRadius.circular(AppRadius.md),
                               ),
                             ),
                           )
@@ -218,7 +218,8 @@ class _State extends State<TagListScreen> {
                                                 color: HexColor.fromHex(
                                                     e.color ?? ''),
                                                 borderRadius:
-                                                    BorderRadius.circular(AppRadius.xs)),
+                                                    BorderRadius.circular(
+                                                        AppRadius.xs)),
                                             height: 10.0,
                                             width: 10.0,
                                           ),

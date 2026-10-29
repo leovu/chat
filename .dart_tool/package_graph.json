@@ -32,6 +32,7 @@
         "intl",
         "jwt_decode",
         "keyboard_actions",
+        "liquid_glass_widgets",
         "mime",
         "open_filex",
         "overlay_support",
@@ -442,6 +443,13 @@
         "equatable",
         "json_annotation",
         "meta"
+      ]
+    },
+    {
+      "name": "liquid_glass_widgets",
+      "version": "1.16.0",
+      "dependencies": [
+        "flutter"
       ]
     },
     {

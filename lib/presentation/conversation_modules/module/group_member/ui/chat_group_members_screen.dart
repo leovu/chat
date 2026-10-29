@@ -23,6 +23,7 @@ import '../../../../../chat_ui/vietnamese_text.dart';
 import '../../../../../data_model/response/group_info_response.dart';
 import '../../../../../data_model/response/whatsapp_contact_response_model.dart';
 import '../../../../utils/dialog.dart';
+import 'package:chat/common/widgets/glass_widgets.dart';
 
 class ChatGroupMembersScreen extends StatefulWidget {
   // final r.Rooms roomData;
@@ -81,7 +82,9 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
     } else {
       final val = query.toLowerCase().removeAccents();
       _filteredMembers = all.where((p) {
-        final name = '${p.firstName ?? ''} ${p.lastName ?? ''}'.toLowerCase().removeAccents();
+        final name = '${p.firstName ?? ''} ${p.lastName ?? ''}'
+            .toLowerCase()
+            .removeAccents();
         final username = (p.username ?? '').toLowerCase();
         return name.contains(val) || username.contains(val);
       }).toList();
@@ -228,18 +231,13 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
       scrolledUnderElevation: 0,
       shape: AppGlass.headerShape,
       flexibleSpace: AppGlass.headerBackground(),
-      iconTheme: const IconThemeData(color: Colors.white),
+      systemOverlayStyle: AppGlass.headerOverlay,
+      iconTheme: const IconThemeData(color: AppGlass.headerForeground),
       title: AutoSizeText(
         '${AppLocalizations.text(LangKey.members)} ($lengthPeople)',
         style: AppGlass.headerTitleStyle,
       ),
-      leading: InkWell(
-        onTap: () => Navigator.of(context).pop(),
-        child: Icon(
-          Icons.arrow_back_ios,
-          color: Colors.white,
-        ),
-      ),
+      leading: GlassBackButton(onTap: () => Navigator.of(context).pop()),
       actions: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -262,7 +260,8 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
                 if (ChatConnection.isChatHub) {
                   onGetInfoOnOpen();
                 } else {
-                  _filteredMembers = List.from(widget.chatMessage.room?.people ?? []);
+                  _filteredMembers =
+                      List.from(widget.chatMessage.room?.people ?? []);
                   lengthPeople = _filteredMembers.length;
                   _searchController.clear();
                   setState(() {});
@@ -430,9 +429,9 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
       showDialog(
         context: context,
         builder: (cxxt) => AlertDialog(
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.card)),
-        backgroundColor: AppColors.white,
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadius.card)),
+          backgroundColor: AppColors.white,
           title: Text(AppLocalizations.text(LangKey.notifications)),
           content: Text(AppLocalizations.text(LangKey.leaveError)),
           actions: [
@@ -486,8 +485,8 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
 
   String _avatarNameFromDisplay(String displayName) {
     final parts = displayName.trim().split(RegExp(r'\s+'));
-    return getAvatarName(
-        parts.isNotEmpty ? parts.first : '', parts.length > 1 ? parts.last : '');
+    return getAvatarName(parts.isNotEmpty ? parts.first : '',
+        parts.length > 1 ? parts.last : '');
   }
 
   Widget _buildPeopleAvatar(r.People? data) {
@@ -535,7 +534,8 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
     final data = _filteredMembers[index];
     bool isLast = index == _filteredMembers.length - 1;
     final currentUserId = ChatConnection.user!.id;
-    final ownerSId = widget.chatMessage.room?.owner?.sId ?? widget.chatMessage.room?.ownerId;
+    final ownerSId =
+        widget.chatMessage.room?.owner?.sId ?? widget.chatMessage.room?.ownerId;
     final isOwner = ownerSId == currentUserId;
     final isCurrentUser = data.sId == ChatConnection.user!.id;
     return Padding(
@@ -578,11 +578,14 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
                         ],
                       ),
                     )),
-                    if (isOwner && !isCurrentUser && widget.chatMessage.room?.isGroup == true)
+                    if (isOwner &&
+                        !isCurrentUser &&
+                        widget.chatMessage.room?.isGroup == true)
                       InkWell(
                         onTap: () async {
                           await showInfoDialog(
-                            content: AppLocalizations.text(LangKey.removeFroumGroup),
+                            content:
+                                AppLocalizations.text(LangKey.removeFroumGroup),
                             context,
                             AppLocalizations.text(LangKey.notifications),
                             () => removeMemberChat(data),
@@ -591,7 +594,8 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
                         },
                         child: const Padding(
                           padding: EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Icon(Icons.close, color: AppColors.dangerColor, size: 22),
+                          child: Icon(Icons.close,
+                              color: AppColors.dangerColor, size: 22),
                         ),
                       ),
                   ],

@@ -452,6 +452,12 @@
       "languageVersion": "2.14"
     },
     {
+      "name": "liquid_glass_widgets",
+      "rootUri": "file:///Users/mwang/.pub-cache/hosted/pub.dev/liquid_glass_widgets-1.16.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.5"
+    },
+    {
       "name": "list_counter",
       "rootUri": "file:///Users/mwang/.pub-cache/hosted/pub.dev/list_counter-1.0.2",
       "packageUri": "lib/",
@@ -923,7 +929,7 @@
       "name": "chat",
       "rootUri": "../",
       "packageUri": "lib/",
-      "languageVersion": "2.19"
+      "languageVersion": "3.5"
     }
   ],
   "generator": "pub",

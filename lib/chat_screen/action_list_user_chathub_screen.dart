@@ -7,6 +7,7 @@ import 'package:chat/localization/lang_key.dart';
 import 'package:chat/common/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/data_model/room.dart' as r;
+import 'package:chat/common/widgets/glass_widgets.dart';
 
 class ActionListUserChathubScreen extends StatefulWidget {
   final r.People data;
@@ -34,18 +35,16 @@ class _State extends State<ActionListUserChathubScreen> {
             AppLocalizations.text(LangKey.actions),
             style: AppGlass.headerTitleStyle,
           ),
-          leading: InkWell(
-            child: Icon(Icons.arrow_back_ios, color: Colors.white),
-            onTap: () => Navigator.of(context).pop(),
-          ),
+          leading: GlassBackButton(onTap: () => Navigator.of(context).pop()),
           backgroundColor: Colors.transparent,
           surfaceTintColor: Colors.transparent,
           elevation: 0,
           scrolledUnderElevation: 0,
           shape: AppGlass.headerShape,
           flexibleSpace: AppGlass.headerBackground(),
+          systemOverlayStyle: AppGlass.headerOverlay,
           iconTheme: const IconThemeData(
-            color: Colors.white,
+            color: AppGlass.headerForeground,
           ),
         ),
         body: SafeArea(

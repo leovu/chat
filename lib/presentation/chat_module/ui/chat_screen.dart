@@ -879,8 +879,8 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
           errorBuilder: (_, __, ___) => Container(
             width: messageWidth.toDouble() * 0.7,
             height: 100,
-            child:
-                const Icon(Icons.broken_image, size: 100, color: AppColors.textSecondaryColor),
+            child: const Icon(Icons.broken_image,
+                size: 100, color: AppColors.textSecondaryColor),
           ),
         ),
       );
@@ -909,8 +909,8 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
           errorWidget: (context, url, error) => Container(
             width: messageWidth.toDouble() * 0.7,
             height: 100,
-            child:
-                const Icon(Icons.broken_image, size: 100, color: AppColors.textSecondaryColor),
+            child: const Icon(Icons.broken_image,
+                size: 100, color: AppColors.textSecondaryColor),
           ),
         ),
       );
@@ -963,7 +963,8 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
               errorBuilder: (_, __, ___) => Container(
                 width: imageSize,
                 height: imageSize,
-                child: const Icon(Icons.broken_image, color: AppColors.textSecondaryColor),
+                child: const Icon(Icons.broken_image,
+                    color: AppColors.textSecondaryColor),
               ),
             );
           } else {
@@ -984,7 +985,8 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
               errorWidget: (context, url, error) => Container(
                 width: imageSize,
                 height: imageSize,
-                child: const Icon(Icons.broken_image, color: AppColors.textSecondaryColor),
+                child: const Icon(Icons.broken_image,
+                    color: AppColors.textSecondaryColor),
               ),
             );
           }
@@ -1236,8 +1238,7 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
             children: [
               const Padding(
                 padding: EdgeInsets.only(right: 8.0),
-                child:
-                    Icon(Icons.chat_outlined, color: AppColors.primaryColor),
+                child: Icon(Icons.chat_outlined, color: AppColors.primaryColor),
               ),
               Expanded(
                 child: InkWell(
@@ -1462,7 +1463,8 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
               },
               child: const Text('Cancel',
                   style: TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.w600)),
+                      color: AppGlass.headerForeground,
+                      fontWeight: FontWeight.w600)),
             ),
           ),
         ],
@@ -1477,8 +1479,8 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
             children: [
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 10),
-                child:
-                    Center(child: Icon(Icons.search, color: AppColors.textMutedColor)),
+                child: Center(
+                    child: Icon(Icons.search, color: AppColors.textMutedColor)),
               ),
               Expanded(
                   child: TextField(
@@ -1512,8 +1514,8 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
                   child: const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 10),
                     child: Center(
-                        child: Icon(Icons.close,
-                            color: AppColors.textMutedColor)),
+                        child:
+                            Icon(Icons.close, color: AppColors.textMutedColor)),
                   ),
                   onTap: () {
                     _controllerSearch.text = '';
@@ -1627,7 +1629,8 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
             arr.add(TextSpan(
                 text: '$element$suffix',
                 style: const TextStyle(
-                    color: AppColors.textTitleColor, fontWeight: FontWeight.bold)));
+                    color: AppColors.textTitleColor,
+                    fontWeight: FontWeight.bold)));
           } else {
             arr.add(TextSpan(
                 text: '$element$suffix',
@@ -1639,7 +1642,8 @@ abstract class ChatScreenBaseState<T extends ChatScreenBase>
           arr.add(TextSpan(
               text: '$element$suffix',
               style: TextStyle(
-                  color: AppColors.textBodyColor, fontWeight: FontWeight.normal)));
+                  color: AppColors.textBodyColor,
+                  fontWeight: FontWeight.normal)));
         }
       }
     }

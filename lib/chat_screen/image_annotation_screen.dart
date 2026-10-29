@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:chat/connection/chat_connection.dart';
@@ -8,6 +7,7 @@ import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:chat/common/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/rendering.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -255,11 +255,12 @@ class _ImageAnnotationScreenState extends State<ImageAnnotationScreen> {
         scrolledUnderElevation: 0,
         shape: AppGlass.headerShape,
         flexibleSpace: AppGlass.headerBackground(),
+        systemOverlayStyle: SystemUiOverlayStyle.light,
         leading: const CloseButton(color: Colors.white),
         iconTheme: const IconThemeData(color: Colors.white),
         title: Text(
           AppLocalizations.text(LangKey.edit),
-          style: AppGlass.headerTitleStyle,
+          style: AppGlass.headerTitleStyle.copyWith(color: Colors.white),
         ),
         actions: [
           IconButton(
@@ -344,8 +345,8 @@ class _ImageAnnotationScreenState extends State<ImageAnnotationScreen> {
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: _exporting ? null : _download,
-                    icon: const Icon(Icons.download_rounded,
-                        color: Colors.white),
+                    icon:
+                        const Icon(Icons.download_rounded, color: Colors.white),
                     label: Text(
                       AppLocalizations.text(LangKey.download),
                       style: const TextStyle(color: Colors.white),

@@ -166,9 +166,9 @@ class _ConversationInformationScreenState
                   showDialog(
                     context: context,
                     builder: (cxxt) => AlertDialog(
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.card)),
-        backgroundColor: AppColors.white,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(AppRadius.card)),
+                      backgroundColor: AppColors.white,
                       title: Text(AppLocalizations.text(LangKey.warning)),
                       content: Text(AppLocalizations.text(LangKey.leaveError)),
                       actions: [
@@ -220,9 +220,10 @@ class _ConversationInformationScreenState
                     showDialog(
                       context: context,
                       builder: (cxxt) => AlertDialog(
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.card)),
-        backgroundColor: AppColors.white,
+                        shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(AppRadius.card)),
+                        backgroundColor: AppColors.white,
                         title: Text(AppLocalizations.text(LangKey.warning)),
                         content:
                             Text(AppLocalizations.text(LangKey.deleteError)),
@@ -276,9 +277,10 @@ class _ConversationInformationScreenState
                     showDialog(
                       context: context,
                       builder: (cxxt) => AlertDialog(
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.card)),
-        backgroundColor: AppColors.white,
+                        shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(AppRadius.card)),
+                        backgroundColor: AppColors.white,
                         title: Text(AppLocalizations.text(LangKey.warning)),
                         content:
                             Text(AppLocalizations.text(LangKey.deleteError)),
@@ -439,10 +441,7 @@ class _ConversationInformationScreenState
           AppLocalizations.text(LangKey.conversationInformation),
           style: AppGlass.headerTitleStyle,
         ),
-        leading: InkWell(
-          child: Icon(Icons.arrow_back_ios, color: Colors.white),
-          onTap: () => Navigator.of(context).pop(),
-        ),
+        leading: GlassBackButton(onTap: () => Navigator.of(context).pop()),
         actions: [
           if (ChatConnection.isChatHub)
             Padding(
@@ -465,7 +464,8 @@ class _ConversationInformationScreenState
         scrolledUnderElevation: 0,
         shape: AppGlass.headerShape,
         flexibleSpace: AppGlass.headerBackground(),
-        iconTheme: const IconThemeData(color: Colors.white),
+        systemOverlayStyle: AppGlass.headerOverlay,
+        iconTheme: const IconThemeData(color: AppGlass.headerForeground),
       ),
       body: SafeArea(
         child: Column(
@@ -883,7 +883,8 @@ class _ConversationInformationScreenState
                               child: Container(
                                 decoration: BoxDecoration(
                                   color: AppColors.tertiaryColor,
-                                  borderRadius: BorderRadius.circular(AppRadius.md),
+                                  borderRadius:
+                                      BorderRadius.circular(AppRadius.md),
                                 ),
                                 padding: const EdgeInsets.symmetric(
                                     vertical: 3.0, horizontal: 8.0),
@@ -1102,7 +1103,8 @@ class _ConversationInformationScreenState
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             _section(
-              const Icon(Icons.note_add, color: AppColors.primaryColor, size: 30),
+              const Icon(Icons.note_add,
+                  color: AppColors.primaryColor, size: 30),
               AppLocalizations.text(LangKey.create_note),
               () async {
                 await Navigator.of(context).push(MaterialPageRoute(
@@ -1274,7 +1276,8 @@ class _ConversationInformationScreenState
               ),
               const SizedBox(width: 5),
               InkWell(
-                child: const Icon(Icons.delete_outline, color: AppColors.dangerColor),
+                child: const Icon(Icons.delete_outline,
+                    color: AppColors.dangerColor),
                 onTap: () async {
                   await showInfoDialog(
                     context,
@@ -1395,11 +1398,13 @@ class _ConversationInformationScreenState
                       children: [
                         Text(
                           '${day['day'] ?? 'N/A'}',
-                          style: const TextStyle(color: AppColors.textTitleColor),
+                          style:
+                              const TextStyle(color: AppColors.textTitleColor),
                         ),
                         Text(
                           '${day['month'] ?? 'N/A'}',
-                          style: const TextStyle(color: AppColors.textTitleColor),
+                          style:
+                              const TextStyle(color: AppColors.textTitleColor),
                         ),
                       ],
                     ),
@@ -1964,8 +1969,8 @@ class _ConversationInformationScreenState
                 onTap: _showRenameGroupBottomSheet,
                 child: const Padding(
                   padding: EdgeInsets.only(left: 8.0),
-                  child:
-                      Icon(Icons.edit_outlined, color: AppColors.textSecondaryColor, size: 20),
+                  child: Icon(Icons.edit_outlined,
+                      color: AppColors.textSecondaryColor, size: 20),
                 ),
               ),
           ],
@@ -1986,81 +1991,82 @@ class _ConversationInformationScreenState
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(AppRadius.sheet)),
       ),
-      builder: (ctx) => Container(
-        decoration: AppGlass.sheet(),
+      builder: (ctx) => GlassSurface(
+        radius: AppRadius.sheet + 8.0,
+        margin: GlassSurface.sheetMargin(ctx),
         child: Padding(
-        padding: EdgeInsets.only(
-          left: 20,
-          right: 20,
-          top: 20,
-          bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const GlassGrabber(),
-            const SizedBox(height: 8),
-            const Text(
-              'Đổi tên nhóm',
-              style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  color: AppColors.textTitleColor),
-            ),
-            const SizedBox(height: 20),
-            TextField(
-              controller: controller,
-              autofocus: true,
-              style: const TextStyle(fontSize: 15),
-              decoration: InputDecoration(
-                hintText: 'Nhập tên nhóm',
-                hintStyle: TextStyle(color: AppColors.textMutedColor),
-                filled: true,
-                fillColor: AppGlass.surface,
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                border: AppGlass.inputBorder(),
-                enabledBorder: AppGlass.inputBorder(),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppRadius.md),
-                  borderSide:
-                      const BorderSide(color: AppColors.primaryColor, width: 1.5),
+          padding: EdgeInsets.only(
+            left: 20,
+            right: 20,
+            top: 20,
+            bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const GlassGrabber(),
+              const SizedBox(height: 8),
+              const Text(
+                'Đổi tên nhóm',
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: AppColors.textTitleColor),
+              ),
+              const SizedBox(height: 20),
+              TextField(
+                controller: controller,
+                autofocus: true,
+                style: const TextStyle(fontSize: 15),
+                decoration: InputDecoration(
+                  hintText: 'Nhập tên nhóm',
+                  hintStyle: TextStyle(color: AppColors.textMutedColor),
+                  filled: true,
+                  fillColor: AppGlass.surface,
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  border: AppGlass.inputBorder(),
+                  enabledBorder: AppGlass.inputBorder(),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppRadius.md),
+                    borderSide: const BorderSide(
+                        color: AppColors.primaryColor, width: 1.5),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: ElevatedButton(
-                onPressed: () async {
-                  final newName = controller.text.trim();
-                  if (newName.isEmpty) return;
-                  Navigator.of(ctx).pop();
-                  final result = await ChatConnection.updateRoomName(
-                      widget.roomData.sId!, newName);
-                  if (result && mounted) {
-                    setState(() {
-                      widget.roomData.title = newName;
-                      widget.roomData.room_name = newName;
-                    });
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryColor,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppRadius.md)),
-                  elevation: 0,
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    final newName = controller.text.trim();
+                    if (newName.isEmpty) return;
+                    Navigator.of(ctx).pop();
+                    final result = await ChatConnection.updateRoomName(
+                        widget.roomData.sId!, newName);
+                    if (result && mounted) {
+                      setState(() {
+                        widget.roomData.title = newName;
+                        widget.roomData.room_name = newName;
+                      });
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryColor,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(AppRadius.md)),
+                    elevation: 0,
+                  ),
+                  child: const Text('Lưu',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
                 ),
-                child: const Text('Lưu',
-                    style:
-                        TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
       ),
     );
   }
@@ -2163,7 +2169,8 @@ class _ConversationInformationScreenState
                           name,
                           maxLines: 1,
                           textScaleFactor: 1.2,
-                          style: TextStyle(color: textColor ?? AppColors.textTitleColor),
+                          style: TextStyle(
+                              color: textColor ?? AppColors.textTitleColor),
                         ),
                       ),
                     ),
@@ -2340,9 +2347,10 @@ class _ChatSessionBottomSheetState extends State<_ChatSessionBottomSheet>
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height * 0.85;
     final msgCount = widget.session.messageIds?.length ?? 0;
-    return Container(
+    return GlassSurface(
       height: height,
-      decoration: AppGlass.sheet(),
+      radius: AppRadius.sheet + 8.0,
+      margin: GlassSurface.sheetMargin(context),
       child: Column(
         children: [
           // drag handle
@@ -2515,7 +2523,8 @@ class _ChatSessionBottomSheetState extends State<_ChatSessionBottomSheet>
           errorWidget: (_, __, ___) => SizedBox(
               width: w,
               height: 120,
-              child: const Icon(Icons.broken_image, color: AppColors.textSecondaryColor)),
+              child: const Icon(Icons.broken_image,
+                  color: AppColors.textSecondaryColor)),
         ),
       ),
     );

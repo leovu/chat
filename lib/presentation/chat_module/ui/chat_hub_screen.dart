@@ -110,33 +110,16 @@ class _ChatHubScreenState extends ChatScreenBaseState<ChatHubScreen> {
   AppBar buildDefaultAppBar() {
     return glassAppBar(
         actions: <Widget>[
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 5),
-            child: InkWell(
-              customBorder: const CircleBorder(),
-              child: Container(
-                padding: const EdgeInsets.all(6.0),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: isBlock == false
-                      ? AppGlass.headerIconBackground
-                      : AppColors.white,
-                ),
-                child: Icon(Icons.block,
-                    size: 20.0,
-                    color: isBlock == false
-                        ? AppColors.white
-                        : AppColors.dangerColor),
-              ),
-              onTap: () => _handleBlockUser(),
-            ),
+          GlassHeaderIconButton(
+            icon: Icon(Icons.block,
+                color: isBlock == false
+                    ? AppGlass.headerForeground
+                    : AppColors.dangerColor),
+            onTap: () => _handleBlockUser(),
           ),
-          IconButton(
-            visualDensity:
-                const VisualDensity(horizontal: -4.0, vertical: -4.0),
-            padding: EdgeInsets.zero,
-            icon: const Icon(Icons.format_list_bulleted, color: Colors.white),
-            onPressed: () async {
+          GlassHeaderIconButton(
+            icon: const Icon(Icons.format_list_bulleted),
+            onTap: () async {
               this.showLoading();
               Navigator.of(context).pop();
               await Navigator.of(context).push(MaterialPageRoute(
@@ -151,7 +134,8 @@ class _ChatHubScreenState extends ChatScreenBaseState<ChatHubScreen> {
               await _getTagList();
               setState(() {});
             },
-          )
+          ),
+          const SizedBox(width: 6.0),
         ],
         title: SizedBox(
           height: 50.0,
@@ -159,10 +143,8 @@ class _ChatHubScreenState extends ChatScreenBaseState<ChatHubScreen> {
             children: [
               Padding(
                 padding: const EdgeInsets.only(left: 8.0),
-                child: InkWell(
-                  child: const Icon(Icons.arrow_back_ios, color: Colors.white),
-                  onTap: () => Navigator.of(context).pop(),
-                ),
+                child:
+                    GlassBackButton(onTap: () => Navigator.of(context).pop()),
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
@@ -198,7 +180,8 @@ class _ChatHubScreenState extends ChatScreenBaseState<ChatHubScreen> {
                               '${AppLocalizations.text(LangKey.members).toLowerCase()}',
                               maxLines: 1,
                               style: TextStyle(
-                                  color: AppColors.white.withValues(alpha: 0.9),
+                                  color: AppGlass.headerForeground
+                                      .withValues(alpha: 0.6),
                                   fontSize: 12),
                             ),
                           ),

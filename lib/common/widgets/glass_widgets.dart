@@ -1,6 +1,8 @@
 import 'package:chat/common/theme.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lg;
 
 AppBar glassAppBar({
   Widget? title,
@@ -30,10 +32,10 @@ AppBar glassAppBar({
     shadowColor: Colors.transparent,
     elevation: 0,
     scrolledUnderElevation: 0,
-    foregroundColor: Colors.white,
-    iconTheme: const IconThemeData(color: Colors.white),
-    actionsIconTheme: const IconThemeData(color: Colors.white),
-    systemOverlayStyle: SystemUiOverlayStyle.light,
+    foregroundColor: AppGlass.headerForeground,
+    iconTheme: const IconThemeData(color: AppGlass.headerForeground),
+    actionsIconTheme: const IconThemeData(color: AppGlass.headerForeground),
+    systemOverlayStyle: SystemUiOverlayStyle.dark,
     shape: rounded ? AppGlass.headerShape : null,
     flexibleSpace: AppGlass.headerBackground(rounded: rounded),
     titleTextStyle: titleTextStyle ?? AppGlass.headerTitleStyle,
@@ -130,6 +132,27 @@ class GlassTile extends StatelessWidget {
   }
 }
 
+class GlassBackButton extends StatelessWidget {
+  final VoidCallback? onTap;
+  final IconData icon;
+
+  const GlassBackButton(
+      {super.key, this.onTap, this.icon = CupertinoIcons.back});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      widthFactor: 1.0,
+      child: lg.GlassIconButton(
+        useOwnLayer: true,
+        size: 38.0,
+        icon: Icon(icon, color: AppGlass.headerForeground, size: 22.0),
+        onPressed: onTap ?? () => Navigator.of(context).maybePop(),
+      ),
+    );
+  }
+}
+
 class GlassHeader extends StatelessWidget {
   final String title;
   final VoidCallback? onBack;
@@ -140,35 +163,31 @@ class GlassHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      decoration: AppGlass.header(),
-      padding: EdgeInsets.only(top: MediaQuery.paddingOf(context).top),
-      child: SizedBox(
-        height: kToolbarHeight,
-        child: NavigationToolbar(
-          middleSpacing: 8.0,
-          leading: Padding(
-            padding: const EdgeInsets.only(left: 10.0),
-            child: InkWell(
-              onTap: onBack ?? () => Navigator.of(context).pop(),
-              child: const SizedBox(
-                  width: 36.0,
-                  child: Icon(Icons.arrow_back_ios, color: AppColors.white)),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.dark,
+      child: Padding(
+        padding: EdgeInsets.only(top: MediaQuery.paddingOf(context).top),
+        child: SizedBox(
+          height: kToolbarHeight,
+          child: NavigationToolbar(
+            middleSpacing: 8.0,
+            leading: Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: GlassBackButton(onTap: onBack),
             ),
+            middle: Text(title,
+                maxLines: 1,
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+                style: AppGlass.headerTitleStyle),
+            trailing: (actions ?? []).isEmpty
+                ? null
+                : Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child:
+                        Row(mainAxisSize: MainAxisSize.min, children: actions!),
+                  ),
           ),
-          middle: Text(title,
-              maxLines: 1,
-              textAlign: TextAlign.center,
-              overflow: TextOverflow.ellipsis,
-              style: AppGlass.headerTitleStyle),
-          trailing: (actions ?? []).isEmpty
-              ? null
-              : Padding(
-                  padding: const EdgeInsets.only(right: 10.0),
-                  child:
-                      Row(mainAxisSize: MainAxisSize.min, children: actions!),
-                ),
         ),
       ),
     );
@@ -181,25 +200,20 @@ class GlassHeaderIconButton extends StatelessWidget {
   final double size;
 
   const GlassHeaderIconButton(
-      {super.key, required this.icon, this.onTap, this.size = 36.0});
+      {super.key, required this.icon, this.onTap, this.size = 38.0});
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: AppGlass.headerIconBackground,
-      shape: const CircleBorder(),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: SizedBox(
-          width: size,
-          height: size,
-          child: Center(
-            child: IconTheme(
-              data: const IconThemeData(color: Colors.white, size: 20.0),
-              child: icon,
-            ),
-          ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 2.0),
+      child: lg.GlassIconButton(
+        useOwnLayer: true,
+        size: size,
+        onPressed: onTap,
+        icon: IconTheme(
+          data:
+              const IconThemeData(color: AppGlass.headerForeground, size: 20.0),
+          child: icon,
         ),
       ),
     );
@@ -223,6 +237,39 @@ class GlassGrabber extends StatelessWidget {
   }
 }
 
+class GlassSurface extends StatelessWidget {
+  final Widget child;
+  final double radius;
+  final EdgeInsetsGeometry? margin;
+  final EdgeInsetsGeometry? padding;
+  final double? height;
+
+  const GlassSurface(
+      {super.key,
+      required this.child,
+      this.radius = AppRadius.card + 6.0,
+      this.margin,
+      this.padding,
+      this.height});
+
+  static EdgeInsets sheetMargin(BuildContext context) => EdgeInsets.fromLTRB(
+      8.0, 0.0, 8.0, 8.0 + MediaQuery.paddingOf(context).bottom);
+
+  @override
+  Widget build(BuildContext context) {
+    return lg.GlassContainer(
+      useOwnLayer: true,
+      settings: AppGlass.sheetSettings,
+      shape: lg.LiquidRoundedSuperellipse(borderRadius: radius),
+      clipBehavior: Clip.antiAlias,
+      margin: margin,
+      padding: padding,
+      height: height,
+      child: Material(type: MaterialType.transparency, child: child),
+    );
+  }
+}
+
 class GlassSheet extends StatelessWidget {
   final Widget child;
   final bool showGrabber;
@@ -231,8 +278,9 @@ class GlassSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: AppGlass.sheet(),
+    return GlassSurface(
+      radius: AppRadius.sheet + 8.0,
+      margin: GlassSurface.sheetMargin(context),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

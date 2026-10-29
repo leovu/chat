@@ -5,6 +5,7 @@ import 'package:chat/localization/app_localizations.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -13,20 +14,25 @@ Future<void> main() async {
   await SharedPreferences.getInstance().then((event) async {
     Globals.prefs = SharedPrefs(event);
   });
-  runApp(const OverlaySupport.global(
-    child: MaterialApp(
-      supportedLocales: [Locale('en', 'US')],
-      locale: Locale('en', 'US'),
-      localizationsDelegates: <LocalizationsDelegate<dynamic>>[
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      title: 'Navigation Basics',
-      debugShowCheckedModeBanner: false,
-      home: MyApp(),
-    ),
-  ));
+  await LiquidGlassWidgets.initialize();
+  runApp(LiquidGlassWidgets.wrap(
+      adaptiveQuality: true,
+      brightnessResolver: Theme.maybeBrightnessOf,
+      theme: GlassThemeData.simple(brightness: Brightness.light),
+      child: const OverlaySupport.global(
+        child: MaterialApp(
+          supportedLocales: [Locale('en', 'US')],
+          locale: Locale('en', 'US'),
+          localizationsDelegates: <LocalizationsDelegate<dynamic>>[
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          title: 'Navigation Basics',
+          debugShowCheckedModeBanner: false,
+          home: MyApp(),
+        ),
+      )));
 }
 
 class MyApp extends StatefulWidget {
@@ -147,7 +153,8 @@ class _MyAppState extends State<MyApp> {
                       domain: 'https://chathub.epoints.vn/',
                       brandCode: 'sale',
                       isChatHub: true,
-                      token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyZmQwMjA0ZDcwMzNlMjRkYTc5YzYwNiIsInVpZCI6MSwic2lkIjoiYWRtaW4iLCJlbWFpbCI6InZ1QHBpb2FwcHMudm4iLCJsZXZlbCI6InJvb3QiLCJmaXJzdE5hbWUiOiJBZG1pbiIsImxhc3ROYW1lIjoiVXNlciIsInVzZXJuYW1lIjoiYWRtaW4iLCJicmFuZF9jb2RlIjoic2FsZSIsImlhdCI6MTc5MzIzNjI0NCwiZXhwIjoxNzk4NDIwMjQ0fQ.M44ynYg3YOOEg07RuVnMa77mRgFLUMDeBNjAyuo4flI"
+                      token:
+                          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyZmQwMjA0ZDcwMzNlMjRkYTc5YzYwNiIsInVpZCI6MSwic2lkIjoiYWRtaW4iLCJlbWFpbCI6InZ1QHBpb2FwcHMudm4iLCJsZXZlbCI6InJvb3QiLCJmaXJzdE5hbWUiOiJBZG1pbiIsImxhc3ROYW1lIjoiVXNlciIsInVzZXJuYW1lIjoiYWRtaW4iLCJicmFuZF9jb2RlIjoic2FsZSIsImlhdCI6MTc5MzIzNjI0NCwiZXhwIjoxNzk4NDIwMjQ0fQ.M44ynYg3YOOEg07RuVnMa77mRgFLUMDeBNjAyuo4flI"
                       // token:
                       //     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ZmNjMjM1ZDAwYzZjMDAxMjVlZmViNSIsInNpZCI6ImFkbWluQHBpb2FwcHMudm4iLCJlbWFpbCI6ImFkbWluQHBpb2FwcHMudm4iLCJsZXZlbCI6InN0YW5kYXJkIiwiZmlyc3ROYW1lIjoiQWRtaW4iLCJsYXN0TmFtZSI6IiIsInVzZXJuYW1lIjoiYWRtaW5AcGlvYXBwcy52biIsImJyYW5kIjoic2FsZSIsImlhdCI6MTc4NzcwODc0MiwiZXhwIjoxNzkyODkyNzQyfQ.c303lCDhLiPDnIUste4DiCSY3TueQSIX2oSGrpfUTrI'
 
@@ -187,4 +194,3 @@ class _MyAppState extends State<MyApp> {
     );
   }
 }
-

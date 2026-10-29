@@ -150,250 +150,251 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
-          backgroundColor: AppColors.surfaceColor,
-          appBar: glassAppBar(
-            title: AutoSizeText(
-              AppLocalizations.text(LangKey.filter),
-              style: AppGlass.headerTitleStyle,
-            ),
-            leading: InkWell(
-              child: Icon(Icons.arrow_back_ios, color: AppColors.white),
-              onTap: () => Navigator.of(context).pop(),
-            ),
+        backgroundColor: AppColors.surfaceColor,
+        appBar: glassAppBar(
+          title: AutoSizeText(
+            AppLocalizations.text(LangKey.filter),
+            style: AppGlass.headerTitleStyle,
           ),
-          body: GlassBackground(
+          leading: GlassBackButton(onTap: () => Navigator.of(context).pop()),
+        ),
+        body: GlassBackground(
             child: SafeArea(
-              child: isInitScreen
-                  ? Center(
-                      child: Platform.isAndroid
-                          ? const CircularProgressIndicator()
-                          : const CupertinoActivityIndicator())
-                  : Column(
-                      children: [
-                        Expanded(
-                          child: ListView(
-                            physics: const ClampingScrollPhysics(),
-                            padding: const EdgeInsets.all(10.0),
-                            children: [
-                              /// Lọc theo ngày
-                              SizedBox(
-                                  height: 30,
+                child: isInitScreen
+                    ? Center(
+                        child: Platform.isAndroid
+                            ? const CircularProgressIndicator()
+                            : const CupertinoActivityIndicator())
+                    : Column(
+                        children: [
+                          Expanded(
+                            child: ListView(
+                              physics: const ClampingScrollPhysics(),
+                              padding: const EdgeInsets.all(10.0),
+                              children: [
+                                /// Lọc theo ngày
+                                SizedBox(
+                                    height: 30,
+                                    width:
+                                        MediaQuery.sizeOf(context).width * 0.95,
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        datePickerDropdown(
+                                          hintText: AppLocalizations.text(
+                                              LangKey.startDay),
+                                          context: context,
+                                          selectedDate: _startDay,
+                                          onDatePicked: (newDate) {
+                                            setState(() {
+                                              _startDay = newDate;
+                                            });
+                                          },
+                                        ),
+                                        Container(
+                                          width: 16,
+                                          height: 2,
+                                          color: AppColors.textMutedColor,
+                                        ),
+                                        datePickerDropdown(
+                                          hintText: AppLocalizations.text(
+                                              LangKey.endDay),
+                                          context: context,
+                                          selectedDate: _endDay,
+                                          onDatePicked: (newDate) {
+                                            setState(() {
+                                              _endDay = newDate;
+                                            });
+                                          },
+                                        ),
+                                      ],
+                                    )),
+
+                                ///Lọc theo nhóm
+                                SizedBox(
+                                  height: 41.0,
                                   width:
-                                      MediaQuery.sizeOf(context).width * 0.95,
+                                      MediaQuery.of(context).size.width * 0.95,
                                   child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
                                     children: [
-                                      datePickerDropdown(
-                                        hintText: AppLocalizations.text(
-                                            LangKey.startDay),
-                                        context: context,
-                                        selectedDate: _startDay,
-                                        onDatePicked: (newDate) {
-                                          setState(() {
-                                            _startDay = newDate;
-                                          });
-                                        },
+                                      AutoSizeText(
+                                        AppLocalizations.text(LangKey.byGroup),
+                                        style: const TextStyle(
+                                            color: AppColors.textTitleColor,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 16),
                                       ),
-                                      Container(
-                                        width: 16,
-                                        height: 2,
-                                        color: AppColors.textMutedColor,
-                                      ),
-                                      datePickerDropdown(
-                                        hintText: AppLocalizations.text(
-                                            LangKey.endDay),
-                                        context: context,
-                                        selectedDate: _endDay,
-                                        onDatePicked: (newDate) {
+                                      Checkbox(
+                                        activeColor: AppColors.primaryColor,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                                AppRadius.xs)),
+                                        value: _isGroup,
+                                        onChanged: (bool? value) {
                                           setState(() {
-                                            _endDay = newDate;
+                                            _isGroup = value!;
                                           });
                                         },
                                       ),
                                     ],
-                                  )),
-
-                              ///Lọc theo nhóm
-                              SizedBox(
-                                height: 41.0,
-                                width: MediaQuery.of(context).size.width * 0.95,
-                                child: Row(
-                                  children: [
-                                    AutoSizeText(
-                                      AppLocalizations.text(LangKey.byGroup),
-                                      style: const TextStyle(
-                                          color: AppColors.textTitleColor,
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 16),
-                                    ),
-                                    Checkbox(
-                                      activeColor: AppColors.primaryColor,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                              AppRadius.xs)),
-                                      value: _isGroup,
-                                      onChanged: (bool? value) {
-                                        setState(() {
-                                          _isGroup = value!;
-                                        });
-                                      },
-                                    ),
-                                  ],
+                                  ),
                                 ),
-                              ),
-                              Container(
-                                height: 15.0,
-                              ),
+                                Container(
+                                  height: 15.0,
+                                ),
 
-                              ///Lọc theo kênh
-                              AutoSizeText(
-                                AppLocalizations.text(LangKey.byChannel),
-                                style: const TextStyle(
-                                    color: AppColors.textTitleColor,
-                                    fontWeight: FontWeight.w600),
-                                textScaleFactor: 1.15,
-                              ),
-                              Container(
-                                height: 15.0,
-                              ),
-                              Wrap(
-                                children: channels?.channels == null
-                                    ? []
-                                    : _listChannelWidget(),
-                              ),
-                              Container(
-                                height: 30.0,
-                              ),
+                                ///Lọc theo kênh
+                                AutoSizeText(
+                                  AppLocalizations.text(LangKey.byChannel),
+                                  style: const TextStyle(
+                                      color: AppColors.textTitleColor,
+                                      fontWeight: FontWeight.w600),
+                                  textScaleFactor: 1.15,
+                                ),
+                                Container(
+                                  height: 15.0,
+                                ),
+                                Wrap(
+                                  children: channels?.channels == null
+                                      ? []
+                                      : _listChannelWidget(),
+                                ),
+                                Container(
+                                  height: 30.0,
+                                ),
 
-                              ///Lọc theo trạng thái
-                              AutoSizeText(
-                                AppLocalizations.text(LangKey.byStatus),
-                                style: const TextStyle(
-                                    color: AppColors.textTitleColor,
-                                    fontWeight: FontWeight.w600),
-                                textScaleFactor: 1.15,
-                              ),
-                              Container(
-                                height: 15.0,
-                              ),
-                              Wrap(
-                                children: channels?.channels == null
-                                    ? []
-                                    : _listStatusWidget(),
-                              ),
-                              Container(
-                                height: 30.0,
-                              ),
+                                ///Lọc theo trạng thái
+                                AutoSizeText(
+                                  AppLocalizations.text(LangKey.byStatus),
+                                  style: const TextStyle(
+                                      color: AppColors.textTitleColor,
+                                      fontWeight: FontWeight.w600),
+                                  textScaleFactor: 1.15,
+                                ),
+                                Container(
+                                  height: 15.0,
+                                ),
+                                Wrap(
+                                  children: channels?.channels == null
+                                      ? []
+                                      : _listStatusWidget(),
+                                ),
+                                Container(
+                                  height: 30.0,
+                                ),
 
-                              ///Lọc theo nhãn
-                              AutoSizeText(
-                                AppLocalizations.text(LangKey.byLabel),
-                                style: const TextStyle(
-                                    color: AppColors.textTitleColor,
-                                    fontWeight: FontWeight.w600),
-                                textScaleFactor: 1.15,
-                              ),
-                              Container(
-                                height: 15.0,
-                              ),
-                              Wrap(
-                                children:
-                                    tag?.data == null ? [] : _listLabelWidget(),
-                              ),
-                              Container(
-                                height: 30.0,
-                              ),
+                                ///Lọc theo nhãn
+                                AutoSizeText(
+                                  AppLocalizations.text(LangKey.byLabel),
+                                  style: const TextStyle(
+                                      color: AppColors.textTitleColor,
+                                      fontWeight: FontWeight.w600),
+                                  textScaleFactor: 1.15,
+                                ),
+                                Container(
+                                  height: 15.0,
+                                ),
+                                Wrap(
+                                  children: tag?.data == null
+                                      ? []
+                                      : _listLabelWidget(),
+                                ),
+                                Container(
+                                  height: 30.0,
+                                ),
 
-                              ///Lọc theo trạng thái liên kết
-                              AutoSizeText(
-                                AppLocalizations.text(LangKey.byLinkStatus),
-                                style: const TextStyle(
-                                    color: AppColors.textTitleColor,
-                                    fontWeight: FontWeight.w600),
-                                textScaleFactor: 1.15,
-                              ),
-                              Container(
-                                height: 15.0,
-                              ),
-                              Wrap(
-                                children: tag?.data == null
-                                    ? []
-                                    : _list_Link_Status_Widget(),
-                              ),
-                            ],
+                                ///Lọc theo trạng thái liên kết
+                                AutoSizeText(
+                                  AppLocalizations.text(LangKey.byLinkStatus),
+                                  style: const TextStyle(
+                                      color: AppColors.textTitleColor,
+                                      fontWeight: FontWeight.w600),
+                                  textScaleFactor: 1.15,
+                                ),
+                                Container(
+                                  height: 15.0,
+                                ),
+                                Wrap(
+                                  children: tag?.data == null
+                                      ? []
+                                      : _list_Link_Status_Widget(),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 15.0, top: 15.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              SizedBox(
-                                height: 41.0,
-                                width: MediaQuery.of(context).size.width * 0.45,
-                                child: MaterialButton(
-                                  color: AppGlass.surface,
-                                  elevation: 0,
-                                  highlightElevation: 0,
-                                  onPressed: () {
-                                    setState(() {
-                                      status = null;
-                                      channel = null;
-                                      link_status = null;
-                                      _startDay = null;
-                                      _endDay = null;
-                                      _isGroup = false;
-                                      arrLabel.clear();
-                                    });
-                                    _submitFilter();
-                                  },
-                                  shape: RoundedRectangleBorder(
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(bottom: 15.0, top: 15.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                SizedBox(
+                                  height: 41.0,
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.45,
+                                  child: MaterialButton(
+                                    color: AppGlass.surface,
+                                    elevation: 0,
+                                    highlightElevation: 0,
+                                    onPressed: () {
+                                      setState(() {
+                                        status = null;
+                                        channel = null;
+                                        link_status = null;
+                                        _startDay = null;
+                                        _endDay = null;
+                                        _isGroup = false;
+                                        arrLabel.clear();
+                                      });
+                                      _submitFilter();
+                                    },
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(AppRadius.md),
+                                        side: BorderSide(
+                                            color: AppColors.primaryColor
+                                                .withValues(alpha: 0.4))),
+                                    child: Text(
+                                      AppLocalizations.text(LangKey.delete),
+                                      style: const TextStyle(
+                                          color: AppColors.primaryColor,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  height: 41.0,
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.45,
+                                  decoration: AppGlass.button(),
+                                  child: MaterialButton(
+                                    color: Colors.transparent,
+                                    elevation: 0,
+                                    highlightElevation: 0,
+                                    onPressed: () {
+                                      _handleDateValidation(context);
+                                    },
+                                    shape: RoundedRectangleBorder(
                                       borderRadius:
                                           BorderRadius.circular(AppRadius.md),
-                                      side: BorderSide(
-                                          color: AppColors.primaryColor
-                                              .withValues(alpha: 0.4))),
-                                  child: Text(
-                                    AppLocalizations.text(LangKey.delete),
-                                    style: const TextStyle(
-                                        color: AppColors.primaryColor,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600),
+                                    ),
+                                    child: Text(
+                                      AppLocalizations.text(LangKey.accept),
+                                      style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600),
+                                    ),
                                   ),
                                 ),
-                              ),
-                              Container(
-                                height: 41.0,
-                                width: MediaQuery.of(context).size.width * 0.45,
-                                decoration: AppGlass.button(),
-                                child: MaterialButton(
-                                  color: Colors.transparent,
-                                  elevation: 0,
-                                  highlightElevation: 0,
-                                  onPressed: () {
-                                    _handleDateValidation(context);
-                                  },
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius:
-                                        BorderRadius.circular(AppRadius.md),
-                                  ),
-                                  child: Text(
-                                    AppLocalizations.text(LangKey.accept),
-                                    style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                      ],
-                    ))),
-          ),
+                              ],
+                            ),
+                          )
+                        ],
+                      ))),
+      ),
     );
   }
 
@@ -429,7 +430,8 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
                 arrLabel.clear();
               });
             },
-            child: _chipWidget(AppLocalizations.text(LangKey.all), arrLabel.isEmpty),
+            child: _chipWidget(
+                AppLocalizations.text(LangKey.all), arrLabel.isEmpty),
           ),
         ));
     return arr;
@@ -464,7 +466,8 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
                 status = null;
               });
             },
-            child: _chipWidget(AppLocalizations.text(LangKey.all), status == null),
+            child:
+                _chipWidget(AppLocalizations.text(LangKey.all), status == null),
           ),
         ));
     return arr;
@@ -517,7 +520,8 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
                 channel = null;
               });
             },
-            child: _chipWidget(AppLocalizations.text(LangKey.all), channel == null),
+            child: _chipWidget(
+                AppLocalizations.text(LangKey.all), channel == null),
           ),
         ));
     return arr;
@@ -564,9 +568,10 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
         DateTime tempDate = parseDate(selectedDate) ?? DateTime.now();
         showCupertinoModalPopup(
           context: context,
-          builder: (_) => Container(
+          builder: (_) => GlassSurface(
             height: 280,
-            decoration: AppGlass.sheet(),
+            radius: AppRadius.sheet + 8.0,
+            margin: GlassSurface.sheetMargin(context),
             child: Column(
               children: [
                 const GlassGrabber(),
@@ -632,8 +637,7 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
                     ? AppColors.primaryColor
                     : AppColors.textMutedColor,
                 fontSize: 14,
-                fontWeight:
-                    selectedDate != null ? FontWeight.w600 : null),
+                fontWeight: selectedDate != null ? FontWeight.w600 : null),
           ),
         ),
       ),

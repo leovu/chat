@@ -206,7 +206,8 @@ class _InternalChatScreenState extends ChatScreenBaseState<InternalChatScreen> {
             padding: EdgeInsets.zero,
             icon: Icon(
               isFav ? Icons.star : Icons.star_border,
-              color: isFav ? const Color(0xFFFFD60A) : Colors.white,
+              color:
+                  isFav ? const Color(0xFFFFD60A) : AppGlass.headerForeground,
             ),
             onPressed: () async {
               bool result =
@@ -220,7 +221,8 @@ class _InternalChatScreenState extends ChatScreenBaseState<InternalChatScreen> {
             visualDensity:
                 const VisualDensity(horizontal: -4.0, vertical: -4.0),
             padding: EdgeInsets.zero,
-            icon: const Icon(Icons.format_list_bulleted, color: Colors.white),
+            icon: const Icon(Icons.format_list_bulleted,
+                color: AppGlass.headerForeground),
             onPressed: () async {
               this.showLoading();
               Navigator.of(context).pop();
@@ -243,10 +245,8 @@ class _InternalChatScreenState extends ChatScreenBaseState<InternalChatScreen> {
             children: [
               Padding(
                 padding: const EdgeInsets.only(left: 8.0),
-                child: InkWell(
-                  child: const Icon(Icons.arrow_back_ios, color: Colors.white),
-                  onTap: () => Navigator.of(context).pop(),
-                ),
+                child:
+                    GlassBackButton(onTap: () => Navigator.of(context).pop()),
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
@@ -289,7 +289,8 @@ class _InternalChatScreenState extends ChatScreenBaseState<InternalChatScreen> {
                               '${AppLocalizations.text(LangKey.members).toLowerCase()}',
                               maxLines: 1,
                               style: TextStyle(
-                                  color: AppColors.white.withValues(alpha: 0.9),
+                                  color: AppGlass.headerForeground
+                                      .withValues(alpha: 0.6),
                                   fontSize: 12),
                             ),
                           ),

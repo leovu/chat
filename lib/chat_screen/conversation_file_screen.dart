@@ -74,93 +74,93 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
           AppLocalizations.text(LangKey.conversationFileTitle),
           style: AppGlass.headerTitleStyle,
         ),
-        leading: InkWell(
-          child: Icon(Icons.arrow_back_ios, color: Colors.white),
-          onTap: () => Navigator.of(context).pop(),
-        ),
+        leading: GlassBackButton(onTap: () => Navigator.of(context).pop()),
         backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
         shape: AppGlass.headerShape,
         flexibleSpace: AppGlass.headerBackground(),
-        iconTheme: const IconThemeData(color: Colors.white),
+        systemOverlayStyle: AppGlass.headerOverlay,
+        iconTheme: const IconThemeData(color: AppGlass.headerForeground),
       ),
       body: DecoratedBox(
         decoration: AppGlass.background(),
         child: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: _buildSearchChip(
-                        AppLocalizations.text(LangKey.bySender),
-                        const Icon(Icons.people, color: AppColors.primaryColor), () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => BySenderResultScreen(
-                                roomData: widget.roomData,
-                                chatMessage: _chatMessage,
-                                tabbarIndex: _activeTabIndex,
-                              )));
-                    }),
-                  ),
-                  const SizedBox(width: 8.0),
-                  Expanded(
-                    child: _buildSearchChip(
-                        AppLocalizations.text(LangKey.byTimes),
-                        const Icon(Icons.timer, color: AppColors.primaryColor), () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => ByTimeResultScreen(
-                                roomData: widget.roomData,
-                                chatMessage: _chatMessage,
-                                tabbarIndex: _activeTabIndex,
-                              )));
-                    }),
-                  ),
-                ],
+          child: Column(
+            children: [
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _buildSearchChip(
+                          AppLocalizations.text(LangKey.bySender),
+                          const Icon(Icons.people,
+                              color: AppColors.primaryColor), () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => BySenderResultScreen(
+                                  roomData: widget.roomData,
+                                  chatMessage: _chatMessage,
+                                  tabbarIndex: _activeTabIndex,
+                                )));
+                      }),
+                    ),
+                    const SizedBox(width: 8.0),
+                    Expanded(
+                      child: _buildSearchChip(
+                          AppLocalizations.text(LangKey.byTimes),
+                          const Icon(Icons.timer,
+                              color: AppColors.primaryColor), () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => ByTimeResultScreen(
+                                  roomData: widget.roomData,
+                                  chatMessage: _chatMessage,
+                                  tabbarIndex: _activeTabIndex,
+                                )));
+                      }),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            Container(
-              height: 1.0,
-              color: AppColors.primaryColorMix,
-            ),
-            TabBar(
-                unselectedLabelColor: AppColors.textSecondaryColor,
-                labelColor: AppColors.primaryColor,
-                dividerColor: Colors.transparent,
-                labelStyle: const TextStyle(fontWeight: FontWeight.w600),
-                tabs: const [
-                  Tab(
-                    text: 'IMAGE',
-                  ),
-                  Tab(
-                    text: 'FILE',
-                  ),
-                  Tab(
-                    text: 'LINK',
-                  )
-                ],
-                controller: _tabController,
-                isScrollable: true,
-                indicatorSize: TabBarIndicatorSize.tab,
-                indicatorColor: AppColors.primaryColor),
-            Expanded(
-              child: TabBarView(
-                controller: _tabController,
-                children: [
-                  _images(),
-                  _files(),
-                  _links(),
-                ],
+              Container(
+                height: 1.0,
+                color: AppColors.primaryColorMix,
               ),
-            ),
-          ],
+              TabBar(
+                  unselectedLabelColor: AppColors.textSecondaryColor,
+                  labelColor: AppColors.primaryColor,
+                  dividerColor: Colors.transparent,
+                  labelStyle: const TextStyle(fontWeight: FontWeight.w600),
+                  tabs: const [
+                    Tab(
+                      text: 'IMAGE',
+                    ),
+                    Tab(
+                      text: 'FILE',
+                    ),
+                    Tab(
+                      text: 'LINK',
+                    )
+                  ],
+                  controller: _tabController,
+                  isScrollable: true,
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  indicatorColor: AppColors.primaryColor),
+              Expanded(
+                child: TabBarView(
+                  controller: _tabController,
+                  children: [
+                    _images(),
+                    _files(),
+                    _links(),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
       ),
     );
   }
@@ -240,68 +240,69 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
             margin: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 4.0),
             decoration: AppGlass.card(),
             child: Material(
-            color: Colors.transparent,
-            borderRadius: BorderRadius.circular(AppRadius.card),
-            child: InkWell(
-            borderRadius: BorderRadius.circular(AppRadius.card),
-            onTap: () async {
-              var message = _chatMessage?.room?.files?[position].file!;
-              _showSnack(AppLocalizations.text(LangKey.downloading));
-              String? result = await download(
-                  context,
-                  '${HTTPConnection.domain}api/files/${message!.shieldedID}/${ChatConnection.brandCode}',
-                  '${_chatMessage?.room?.files?[position].date}_${message.name}');
-              if (result != null) {
-                _showSnack(AppLocalizations.text(LangKey.downloadSuccess));
-                openFile(result, context,
-                    message.name ?? AppLocalizations.text(LangKey.file));
-              }
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Column(
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      width: 45.0,
-                      height: 45.0,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(AppRadius.md),
-                        gradient: AppGlass.activeGradient,
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(AppRadius.card),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(AppRadius.card),
+                onTap: () async {
+                  var message = _chatMessage?.room?.files?[position].file!;
+                  _showSnack(AppLocalizations.text(LangKey.downloading));
+                  String? result = await download(
+                      context,
+                      '${HTTPConnection.domain}api/files/${message!.shieldedID}/${ChatConnection.brandCode}',
+                      '${_chatMessage?.room?.files?[position].date}_${message.name}');
+                  if (result != null) {
+                    _showSnack(AppLocalizations.text(LangKey.downloadSuccess));
+                    openFile(result, context,
+                        message.name ?? AppLocalizations.text(LangKey.file));
+                  }
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            width: 45.0,
+                            height: 45.0,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(AppRadius.md),
+                              gradient: AppGlass.activeGradient,
+                            ),
+                            child: Image.asset(
+                              'assets/icon-document.png',
+                              color: Colors.white,
+                              package: 'chat',
+                            ),
+                          ),
+                          Expanded(
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  AutoSizeText(
+                                    _chatMessage?.room?.files?[position].file
+                                            ?.name ??
+                                        '',
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                        color: AppColors.textStrongColor,
+                                        fontWeight: FontWeight.w500),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                      child: Image.asset(
-                        'assets/icon-document.png',
-                        color: Colors.white,
-                        package: 'chat',
-                      ),
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            AutoSizeText(
-                              _chatMessage?.room?.files?[position].file
-                                      ?.name ??
-                                  '',
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                  color: AppColors.textStrongColor,
-                                  fontWeight: FontWeight.w500),
-                            )
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ],
-            ),
-            ),
-            ),
+              ),
             ),
           );
         });
@@ -333,43 +334,43 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
             margin: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 4.0),
             decoration: AppGlass.card(),
             child: Material(
-            color: Colors.transparent,
-            borderRadius: BorderRadius.circular(AppRadius.card),
-            child: InkWell(
-            borderRadius: BorderRadius.circular(AppRadius.card),
-            onTap: () => _openLink(urls[position]),
-            child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: 45.0,
-                    height: 45.0,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(AppRadius.md),
-                      gradient: AppGlass.activeGradient,
-                    ),
-                    child: const Icon(Icons.link, color: Colors.white),
-                  ),
-                  const SizedBox(width: 8.0),
-                  Expanded(
-                    child: Text(
-                      urls[position],
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: AppColors.primaryColor,
-                        decoration: TextDecoration.underline,
-                        decorationColor: AppColors.primaryColor,
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(AppRadius.card),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(AppRadius.card),
+                onTap: () => _openLink(urls[position]),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 10.0, vertical: 10.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 45.0,
+                        height: 45.0,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(AppRadius.md),
+                          gradient: AppGlass.activeGradient,
+                        ),
+                        child: const Icon(Icons.link, color: Colors.white),
                       ),
-                    ),
+                      const SizedBox(width: 8.0),
+                      Expanded(
+                        child: Text(
+                          urls[position],
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: AppColors.primaryColor,
+                            decoration: TextDecoration.underline,
+                            decorationColor: AppColors.primaryColor,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ),
-            ),
             ),
           );
         });
@@ -479,8 +480,9 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                     child: Container(color: Colors.transparent),
                   ),
                 ),
-                Container(
-                  decoration: AppGlass.sheet(),
+                GlassSurface(
+                  radius: AppRadius.sheet + 8.0,
+                  margin: GlassSurface.sheetMargin(context),
                   child: SafeArea(
                     top: false,
                     child: Column(
@@ -502,7 +504,8 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
                                   padding: const EdgeInsets.only(
                                       left: 12.0, top: 12.0, bottom: 12.0),
                                   child: Icon(Icons.arrow_back_ios,
-                                      size: 18.0, color: AppColors.textMutedColor),
+                                      size: 18.0,
+                                      color: AppColors.textMutedColor),
                                 ),
                               ),
                             Expanded(

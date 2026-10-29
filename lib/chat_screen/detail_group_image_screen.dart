@@ -12,12 +12,18 @@ import 'package:flutter/cupertino.dart';
 import 'package:chat/common/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/data_model/room.dart' as r;
+import 'package:chat/common/widgets/glass_widgets.dart';
 
 class DetailGroupImageScreen extends StatefulWidget {
   final r.People people;
   final List<Images>? images;
   final int tabbarIndex;
-  const DetailGroupImageScreen({Key? key, required this.people, required this.images, required this.tabbarIndex}) : super(key: key);
+  const DetailGroupImageScreen(
+      {Key? key,
+      required this.people,
+      required this.images,
+      required this.tabbarIndex})
+      : super(key: key);
   @override
   _State createState() => _State();
 }
@@ -39,26 +45,29 @@ class _State extends State<DetailGroupImageScreen>
           '${widget.people.firstName} ${widget.people.lastName}',
           style: AppGlass.headerNameStyle,
         ),
-        leading: InkWell(
-          child: Icon(Icons.arrow_back_ios, color: Colors.white),
-          onTap: () => Navigator.of(context).pop(),
-        ),
+        leading: GlassBackButton(onTap: () => Navigator.of(context).pop()),
         backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
         shape: AppGlass.headerShape,
         flexibleSpace: AppGlass.headerBackground(),
-        iconTheme: const IconThemeData(color: Colors.white),
+        systemOverlayStyle: AppGlass.headerOverlay,
+        iconTheme: const IconThemeData(color: AppGlass.headerForeground),
       ),
       body: DecoratedBox(
         decoration: AppGlass.background(),
         child: SafeArea(
-          child: widget.tabbarIndex == 0 ? _images() : widget.tabbarIndex == 1 ? _files() : _links(),
+          child: widget.tabbarIndex == 0
+              ? _images()
+              : widget.tabbarIndex == 1
+                  ? _files()
+                  : _links(),
         ),
       ),
     );
   }
+
   Widget _images() {
     return GridView.builder(
         padding: const EdgeInsets.fromLTRB(5, 5, 5, 5),
@@ -71,15 +80,17 @@ class _State extends State<DetailGroupImageScreen>
         itemBuilder: (BuildContext context, int position) {
           return InkWell(
             onTap: () async {
-              openImage(context,'${HTTPConnection.domain}api/images/${widget.images?[position].content}/512');
+              openImage(context,
+                  '${HTTPConnection.domain}api/images/${widget.images?[position].content}/512');
             },
             child: ClipRRect(
               borderRadius: BorderRadius.circular(AppRadius.md),
               child: CachedNetworkImage(
                 imageUrl:
-                '${HTTPConnection.domain}api/images/${widget.images?[position].content}/512/${ChatConnection.brandCode!}',
-                httpHeaders: {'brand-code':ChatConnection.brandCode!},
-                placeholder: (context, url) => const CupertinoActivityIndicator(),
+                    '${HTTPConnection.domain}api/images/${widget.images?[position].content}/512/${ChatConnection.brandCode!}',
+                httpHeaders: {'brand-code': ChatConnection.brandCode!},
+                placeholder: (context, url) =>
+                    const CupertinoActivityIndicator(),
                 errorWidget: (context, url, error) => const Icon(Icons.error),
                 fit: BoxFit.cover,
               ),
@@ -87,6 +98,7 @@ class _State extends State<DetailGroupImageScreen>
           );
         });
   }
+
   Widget _files() {
     return ListView.builder(
         padding: const EdgeInsets.fromLTRB(5, 15, 5, 5),
@@ -99,65 +111,73 @@ class _State extends State<DetailGroupImageScreen>
             margin: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 4.0),
             decoration: AppGlass.card(),
             child: Material(
-            color: Colors.transparent,
-            borderRadius: BorderRadius.circular(AppRadius.card),
-            child: InkWell(
-            borderRadius: BorderRadius.circular(AppRadius.card),
-            onTap: () async {
-              showLoading();
-              var message = widget.images?[position].file!;
-              String? result = await download(context,'${HTTPConnection.domain}api/files/${message!.shieldedID}','${widget.images?[position].date}_${message.name}');
-              Navigator.of(context).pop();
-              openFile(result,context,message.name ?? AppLocalizations.text(LangKey.file));
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Column(
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      width: 45.0,
-                      height: 45.0,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(AppRadius.md),
-                        gradient: AppGlass.activeGradient,
-                      ),
-                      child: Image.asset(
-                        'assets/icon-document.png',
-                        color: Colors.white,
-                        package: 'chat',
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Column(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(AppRadius.card),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(AppRadius.card),
+                onTap: () async {
+                  showLoading();
+                  var message = widget.images?[position].file!;
+                  String? result = await download(
+                      context,
+                      '${HTTPConnection.domain}api/files/${message!.shieldedID}',
+                      '${widget.images?[position].date}_${message.name}');
+                  Navigator.of(context).pop();
+                  openFile(result, context,
+                      message.name ?? AppLocalizations.text(LangKey.file));
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Column(
+                    children: [
+                      Row(
                         children: [
-                          AutoSizeText(widget.images?[position].file?.name ?? '',
-                              style: const TextStyle(
-                                  color: AppColors.textStrongColor,
-                                  fontWeight: FontWeight.w500))
+                          Container(
+                            width: 45.0,
+                            height: 45.0,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(AppRadius.md),
+                              gradient: AppGlass.activeGradient,
+                            ),
+                            child: Image.asset(
+                              'assets/icon-document.png',
+                              color: Colors.white,
+                              package: 'chat',
+                            ),
+                          ),
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 8.0),
+                            child: Column(
+                              children: [
+                                AutoSizeText(
+                                    widget.images?[position].file?.name ?? '',
+                                    style: const TextStyle(
+                                        color: AppColors.textStrongColor,
+                                        fontWeight: FontWeight.w500))
+                              ],
+                            ),
+                          ),
                         ],
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ],
-            ),
-            ),
-            ),
+              ),
             ),
           );
         });
   }
+
   Widget _links() {
     final urlRegExp = RegExp(
         r"((https?:www\.)|(https?:\/\/)|(www\.))[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9]{1,6}(\/[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)?");
     List<String> urls = [];
-    for(var e in widget.images ?? <Images>[] ) {
+    for (var e in widget.images ?? <Images>[]) {
       final urlMatches = urlRegExp.allMatches(e.content ?? '');
-      List<String> url = urlMatches.map(
-              (urlMatch) => (e.content ?? '').substring(urlMatch.start, urlMatch.end))
+      List<String> url = urlMatches
+          .map((urlMatch) =>
+              (e.content ?? '').substring(urlMatch.start, urlMatch.end))
           .toList();
       urls.addAll(url);
     }
@@ -176,6 +196,7 @@ class _State extends State<DetailGroupImageScreen>
           );
         });
   }
+
   Future showLoading() async {
     return await showDialog(
         context: context,
@@ -186,7 +207,9 @@ class _State extends State<DetailGroupImageScreen>
             backgroundColor: Colors.transparent,
             children: <Widget>[
               Center(
-                child: Platform.isAndroid ? const CircularProgressIndicator() : const CupertinoActivityIndicator(),
+                child: Platform.isAndroid
+                    ? const CircularProgressIndicator()
+                    : const CupertinoActivityIndicator(),
               )
             ],
           );

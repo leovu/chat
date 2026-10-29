@@ -1,5 +1,6 @@
 import 'package:chat/common/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
 import 'package:url_launcher/url_launcher.dart'; // Import thư viện để mở link
 
@@ -50,13 +51,15 @@ class VideoMessageWidget extends StatelessWidget {
                       errorBuilder: (context, error, stackTrace) => Container(
                         height: 150,
                         color: AppColors.textBodyColor,
-                        child: const Icon(Icons.video_camera_back, color: Colors.white, size: 50),
+                        child: const Icon(Icons.video_camera_back,
+                            color: Colors.white, size: 50),
                       ),
                     )
                   : Container(
                       height: 150,
                       color: AppColors.textBodyColor,
-                      child: const Icon(Icons.video_camera_back, color: Colors.white, size: 50),
+                      child: const Icon(Icons.video_camera_back,
+                          color: Colors.white, size: 50),
                     ),
             ),
             Container(
@@ -99,7 +102,8 @@ class VideoMessageWidget extends StatelessWidget {
 class FullScreenVideoViewer extends StatefulWidget {
   final String videoUrl;
 
-  const FullScreenVideoViewer({Key? key, required this.videoUrl}) : super(key: key);
+  const FullScreenVideoViewer({Key? key, required this.videoUrl})
+      : super(key: key);
 
   @override
   _FullScreenVideoViewerState createState() => _FullScreenVideoViewerState();
@@ -148,6 +152,7 @@ class _FullScreenVideoViewerState extends State<FullScreenVideoViewer> {
         scrolledUnderElevation: 0,
         shape: AppGlass.headerShape,
         flexibleSpace: AppGlass.headerBackground(),
+        systemOverlayStyle: SystemUiOverlayStyle.light,
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           // *** THAY ĐỔI Ở ĐÂY: Nút bấm luôn là icon download và gọi hàm _openInBrowser ***

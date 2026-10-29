@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:chat/data_model/chat_message.dart' as c;
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:chat/data_model/room.dart';
+import 'package:chat/common/widgets/glass_widgets.dart';
 
 class ForwardScreen extends StatefulWidget {
   final types.Message message;
@@ -106,11 +107,9 @@ class ForwardScreenState extends State<ForwardScreen> {
           scrolledUnderElevation: 0,
           shape: AppGlass.headerShape,
           flexibleSpace: AppGlass.headerBackground(),
-          leading: IconButton(
-            icon:
-                const Icon(Icons.arrow_back_ios, color: Colors.white, size: 20),
-            onPressed: () => Navigator.of(context).pop(_isSentCurrentChatRoom),
-          ),
+          systemOverlayStyle: AppGlass.headerOverlay,
+          leading: GlassBackButton(
+              onTap: () => Navigator.of(context).pop(_isSentCurrentChatRoom)),
           title: Text(
             AppLocalizations.text(LangKey.forwardMessage),
             style: AppGlass.headerTitleStyle,
@@ -152,7 +151,8 @@ class ForwardScreenState extends State<ForwardScreen> {
               style: const TextStyle(fontSize: 14),
               decoration: InputDecoration.collapsed(
                 hintText: AppLocalizations.text(LangKey.inputMessageOptional),
-                hintStyle: const TextStyle(color: AppColors.textSecondaryColor, fontSize: 14),
+                hintStyle: const TextStyle(
+                    color: AppColors.textSecondaryColor, fontSize: 14),
               ),
             ),
           ),
@@ -211,8 +211,8 @@ class ForwardScreenState extends State<ForwardScreen> {
                 height: 72,
                 fit: BoxFit.cover,
                 placeholder: (_, __) => const CupertinoActivityIndicator(),
-                errorWidget: (_, __, ___) =>
-                    const Icon(Icons.broken_image, color: AppColors.textSecondaryColor),
+                errorWidget: (_, __, ___) => const Icon(Icons.broken_image,
+                    color: AppColors.textSecondaryColor),
               ),
             ),
           ],
@@ -247,7 +247,8 @@ class ForwardScreenState extends State<ForwardScreen> {
                 const SizedBox(height: 2),
                 Text(
                   formatBytes(msg.size.truncate()),
-                  style: const TextStyle(color: AppColors.textSecondaryColor, fontSize: 12),
+                  style: const TextStyle(
+                      color: AppColors.textSecondaryColor, fontSize: 12),
                 ),
               ],
             ),
@@ -268,7 +269,8 @@ class ForwardScreenState extends State<ForwardScreen> {
           children: [
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 10),
-              child: Icon(Icons.search, color: AppColors.textSecondaryColor, size: 20),
+              child: Icon(Icons.search,
+                  color: AppColors.textSecondaryColor, size: 20),
             ),
             Expanded(
               child: TextField(
@@ -278,7 +280,8 @@ class ForwardScreenState extends State<ForwardScreen> {
                 onChanged: (_) => setState(() => _getRoomVisible()),
                 decoration: InputDecoration.collapsed(
                   hintText: AppLocalizations.text(LangKey.searchUserAndGroup),
-                  hintStyle: const TextStyle(color: AppColors.textSecondaryColor, fontSize: 14),
+                  hintStyle: const TextStyle(
+                      color: AppColors.textSecondaryColor, fontSize: 14),
                 ),
               ),
             ),
@@ -291,7 +294,8 @@ class ForwardScreenState extends State<ForwardScreen> {
                 },
                 child: const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 10),
-                  child: Icon(Icons.close, color: AppColors.textSecondaryColor, size: 18),
+                  child: Icon(Icons.close,
+                      color: AppColors.textSecondaryColor, size: 18),
                 ),
               ),
           ],
@@ -416,14 +420,15 @@ class ForwardScreenState extends State<ForwardScreen> {
                 }
               },
         style: OutlinedButton.styleFrom(
-          foregroundColor: sent ? AppColors.textSecondaryColor : AppColors.primaryColor,
+          foregroundColor:
+              sent ? AppColors.textSecondaryColor : AppColors.primaryColor,
           side: BorderSide(
             color: sent ? AppColors.primaryColorMix : AppColors.primaryColor,
           ),
           backgroundColor: sent ? AppColors.surfaceColor : AppGlass.surface,
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.pill)),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadius.pill)),
           textStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
         ),
         child: Text(

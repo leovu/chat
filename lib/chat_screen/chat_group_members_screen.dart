@@ -18,6 +18,7 @@ import 'package:flutter/material.dart';
 
 import '../data_model/response/group_info_response.dart';
 import '../presentation/utils/dialog.dart';
+import 'package:chat/common/widgets/glass_widgets.dart';
 
 class ChatGroupMembersScreen extends StatefulWidget {
   final r.Rooms roomData;
@@ -98,18 +99,13 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
       scrolledUnderElevation: 0,
       shape: AppGlass.headerShape,
       flexibleSpace: AppGlass.headerBackground(),
-      iconTheme: const IconThemeData(color: Colors.white),
+      systemOverlayStyle: AppGlass.headerOverlay,
+      iconTheme: const IconThemeData(color: AppGlass.headerForeground),
       title: AutoSizeText(
         AppLocalizations.text(LangKey.members),
         style: AppGlass.headerTitleStyle,
       ),
-      leading: InkWell(
-        onTap: () => Navigator.of(context).pop(),
-        child: Icon(
-          Icons.arrow_back_ios,
-          color: Colors.white,
-        ),
-      ),
+      leading: GlassBackButton(onTap: () => Navigator.of(context).pop()),
       actions: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -245,9 +241,9 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
       showDialog(
         context: context,
         builder: (cxxt) => AlertDialog(
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.card)),
-        backgroundColor: AppColors.white,
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadius.card)),
+          backgroundColor: AppColors.white,
           title: Text(AppLocalizations.text(LangKey.notifications)),
           content: Text(AppLocalizations.text(LangKey.leaveError)),
           actions: [

@@ -2,6 +2,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:chat/chat_ui/widgets/audio_player.dart';
 import 'package:chat/common/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:chat/common/widgets/glass_widgets.dart';
 
 class MediaScreen extends StatefulWidget {
   final String filePath;
@@ -17,8 +18,8 @@ class MediaScreen extends StatefulWidget {
   _MediaScreenState createState() => _MediaScreenState();
 }
 
-class _MediaScreenState extends State<MediaScreen> with SingleTickerProviderStateMixin {
-
+class _MediaScreenState extends State<MediaScreen>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(
     duration: const Duration(seconds: 2),
     vsync: this,
@@ -52,45 +53,43 @@ class _MediaScreenState extends State<MediaScreen> with SingleTickerProviderStat
           widget.title,
           style: AppGlass.headerTitleStyle,
         ),
-        leading: InkWell(
-          child: Icon(Icons.arrow_back_ios,
-              color: Colors.white),
-          onTap: () => Navigator.of(context).pop(),
-        ),
+        leading: GlassBackButton(onTap: () => Navigator.of(context).pop()),
         backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
         shape: AppGlass.headerShape,
         flexibleSpace: AppGlass.headerBackground(),
+        systemOverlayStyle: AppGlass.headerOverlay,
         iconTheme: const IconThemeData(
-          color: Colors.white,
+          color: AppGlass.headerForeground,
         ),
       ),
       body: DecoratedBox(
         decoration: AppGlass.background(),
         child: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: EdgeInsets.only(top: MediaQuery.of(context).size.height*0.05,
-                  bottom: MediaQuery.of(context).size.height*0.05),
-            child: RotationTransition(
-              turns: _animation,
-              child: const CircleAvatar(
-                radius: 100,
-                backgroundColor: AppColors.primaryColor,
-                child: Icon(
-                  Icons.music_note,
-                  color: Colors.white,
-                  size: 100.0,
-                ),
-              ),
-            )),
-            Center(child: PlayAudio(url: widget.filePath))
-          ],
+          child: Column(
+            children: [
+              Padding(
+                  padding: EdgeInsets.only(
+                      top: MediaQuery.of(context).size.height * 0.05,
+                      bottom: MediaQuery.of(context).size.height * 0.05),
+                  child: RotationTransition(
+                    turns: _animation,
+                    child: const CircleAvatar(
+                      radius: 100,
+                      backgroundColor: AppColors.primaryColor,
+                      child: Icon(
+                        Icons.music_note,
+                        color: Colors.white,
+                        size: 100.0,
+                      ),
+                    ),
+                  )),
+              Center(child: PlayAudio(url: widget.filePath))
+            ],
+          ),
         ),
-      ),
       ),
     );
   }
