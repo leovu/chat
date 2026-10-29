@@ -95,6 +95,10 @@ class AppColors {
   static const grey = Color(0xFF464E5F);
 }
 
+class AppFonts {
+  static const font = "Inter";
+}
+
 class AppSizes {
   static double maxWidth = 0.0;
   static double maxWidthPopup= 0.0;
