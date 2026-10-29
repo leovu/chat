@@ -54,10 +54,10 @@ class _State extends State<TagListScreen> {
     // TODO: implement build
     return Scaffold(
         appBar: AppBar(
+          centerTitle: true,
           title: AutoSizeText(
             AppLocalizations.text(LangKey.addLabel),
-            style: const TextStyle(
-                color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16),
+            style: AppGlass.headerTitleStyle,
           ),
           leading: InkWell(
             child: Icon(

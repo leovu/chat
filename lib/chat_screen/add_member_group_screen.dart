@@ -79,49 +79,8 @@ class _AddMemberGroupScreenState extends AppLifeCycle<AddMemberGroupScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      width: double.infinity,
-                      decoration: AppGlass.header(),
-                      padding: EdgeInsets.only(
-                          top: MediaQuery.paddingOf(context).top,
-                          bottom: 10.0),
-                      child: Stack(
-                      children: [
-                        Container(
-                          height: 30.0,
-                          margin: const EdgeInsets.symmetric(
-                              horizontal: 10.0, vertical: 5.0),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              InkWell(
-                                onTap: () {
-                                  Navigator.of(context).pop();
-                                },
-                                child: SizedBox(
-                                    width: 30.0,
-                                    child: Icon(Icons.arrow_back_ios,
-                                        color: AppColors.white)),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Center(
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                                bottom: 3.0, left: 10.0, right: 10.0, top: 2.0),
-                            child: Text(
-                                AppLocalizations.text(LangKey.addMember),
-                                style: const TextStyle(
-                                    fontSize: 22.0,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.white)),
-                          ),
-                        )
-                      ],
-                    ),
-                    ),
+                    GlassHeader(
+                        title: AppLocalizations.text(LangKey.addMember)),
                     Padding(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10.0, vertical: 10.0),

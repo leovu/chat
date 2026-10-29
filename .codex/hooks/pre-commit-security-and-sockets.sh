@@ -8,7 +8,7 @@
 
 set -euo pipefail
 
-REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || echo "/Users/mwang/WAO/Epoints/chat")"
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || echo "/Users/mwang/WAO/Mobile/Epoints/chat")"
 LIB="$REPO_ROOT/lib"
 
 # Files allowed to contain epoints.vn URLs (the canonical config locations)

@@ -119,46 +119,9 @@ class _FavoriteScreenScreenState extends State<FavoriteScreen>
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    width: double.infinity,
-                    decoration: AppGlass.header(),
-                    padding: EdgeInsets.only(
-                        top: MediaQuery.paddingOf(context).top, bottom: 12.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                  Container(
-                    height: 30.0,
-                    margin: const EdgeInsets.symmetric(
-                        horizontal: 10.0, vertical: 5.0),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        InkWell(
-                          onTap: () {
-                            Navigator.of(ChatConnection.buildContext).pop();
-                          },
-                          child: SizedBox(
-                              width: 30.0,
-                              child: Icon(
-                                  Icons.arrow_back_ios,
-                                  color: AppColors.white)),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(
-                        bottom: 3.0, left: 10.0, right: 10.0),
-                    child: Text(AppLocalizations.text(LangKey.favorites),
-                        style: const TextStyle(
-                            fontSize: 25.0,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.white)),
-                  ),
-                      ],
-                    ),
+                  GlassHeader(
+                    title: AppLocalizations.text(LangKey.favorites),
+                    onBack: () => Navigator.of(ChatConnection.buildContext).pop(),
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(

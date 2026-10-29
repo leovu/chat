@@ -99,6 +99,7 @@ class ForwardScreenState extends State<ForwardScreen> {
       child: Scaffold(
         backgroundColor: AppColors.surfaceColor,
         appBar: AppBar(
+          centerTitle: true,
           backgroundColor: Colors.transparent,
           surfaceTintColor: Colors.transparent,
           elevation: 0,
@@ -112,11 +113,7 @@ class ForwardScreenState extends State<ForwardScreen> {
           ),
           title: Text(
             AppLocalizations.text(LangKey.forwardMessage),
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w600,
-              fontSize: 17,
-            ),
+            style: AppGlass.headerTitleStyle,
           ),
           bottom: PreferredSize(
             preferredSize: const Size.fromHeight(1),

@@ -6,15 +6,15 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash '/Users/mwang/WAO/Epoints/chat/.codex/hooks/dart-format.sh'"
+            "command": "bash '/Users/mwang/WAO/Mobile/Epoints/chat/.codex/hooks/dart-format.sh'"
           },
           {
             "type": "command",
-            "command": "bash '/Users/mwang/WAO/Epoints/chat/.codex/hooks/flutter-analyze.sh'"
+            "command": "bash '/Users/mwang/WAO/Mobile/Epoints/chat/.codex/hooks/flutter-analyze.sh'"
           },
           {
             "type": "command",
-            "command": "bash '/Users/mwang/WAO/Epoints/chat/.codex/hooks/flutter-test.sh'"
+            "command": "bash '/Users/mwang/WAO/Mobile/Epoints/chat/.codex/hooks/flutter-test.sh'"
           }
         ]
       }

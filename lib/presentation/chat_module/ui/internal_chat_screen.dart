@@ -279,10 +279,7 @@ class _InternalChatScreenState extends ChatScreenBaseState<InternalChatScreen> {
                                       .trim(),
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
-                          style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 16),
+                          style: AppGlass.headerNameStyle,
                         ),
                         if (widget.data.isGroup == true)
                           Padding(

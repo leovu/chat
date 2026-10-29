@@ -34,10 +34,10 @@ class _State extends State<DetailGroupImageScreen>
     return Scaffold(
       backgroundColor: AppColors.surfaceColor,
       appBar: AppBar(
+        centerTitle: true,
         title: AutoSizeText(
           '${widget.people.firstName} ${widget.people.lastName}',
-          style: const TextStyle(
-              color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16),
+          style: AppGlass.headerNameStyle,
         ),
         leading: InkWell(
           child: Icon(Icons.arrow_back_ios, color: Colors.white),

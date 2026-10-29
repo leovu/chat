@@ -43,10 +43,10 @@ class _State extends State<ByTimeResultScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: AutoSizeText(
           widget.title ?? AppLocalizations.text(LangKey.byTime),
-          style: const TextStyle(
-              color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16),
+          style: AppGlass.headerTitleStyle,
         ),
         leading: InkWell(
           child: Icon(Icons.arrow_back_ios, color: Colors.white),

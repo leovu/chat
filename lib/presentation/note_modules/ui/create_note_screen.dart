@@ -48,12 +48,12 @@ class _ConversationFileScreenState extends State<CreateNoteScreen>
     return Scaffold(
       backgroundColor: AppColors.surfaceColor,
       appBar: AppBar(
+        centerTitle: true,
         title: AutoSizeText(
           widget.note != null
               ? AppLocalizations.text(LangKey.update_note)
               : AppLocalizations.text(LangKey.create_note),
-          style: const TextStyle(
-              color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16),
+          style: AppGlass.headerTitleStyle,
         ),
         leading: InkWell(
           child: Icon(Icons.arrow_back_ios,

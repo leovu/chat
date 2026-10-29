@@ -188,10 +188,7 @@ class _ChatHubScreenState extends ChatScreenBaseState<ChatHubScreen> {
                               : widget.data.title ?? data?.room?.roomName ?? '',
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
-                          style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 16),
+                          style: AppGlass.headerNameStyle,
                         ),
                         if (widget.data.isGroup!)
                           Padding(

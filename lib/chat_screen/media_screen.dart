@@ -47,10 +47,10 @@ class _MediaScreenState extends State<MediaScreen> with SingleTickerProviderStat
     return Scaffold(
       backgroundColor: AppColors.surfaceColor,
       appBar: AppBar(
+        centerTitle: true,
         title: AutoSizeText(
           widget.title,
-          style: const TextStyle(
-              color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16),
+          style: AppGlass.headerTitleStyle,
         ),
         leading: InkWell(
           child: Icon(Icons.arrow_back_ios,

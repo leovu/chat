@@ -248,6 +248,7 @@ class _ImageAnnotationScreenState extends State<ImageAnnotationScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
+        centerTitle: true,
         backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
@@ -258,7 +259,7 @@ class _ImageAnnotationScreenState extends State<ImageAnnotationScreen> {
         iconTheme: const IconThemeData(color: Colors.white),
         title: Text(
           AppLocalizations.text(LangKey.edit),
-          style: const TextStyle(color: Colors.white, fontSize: 16),
+          style: AppGlass.headerTitleStyle,
         ),
         actions: [
           IconButton(

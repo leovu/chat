@@ -151,10 +151,10 @@ class _State extends State<BySenderResultScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: AutoSizeText(
           AppLocalizations.text(LangKey.bySenders),
-          style: const TextStyle(
-              color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16),
+          style: AppGlass.headerTitleStyle,
         ),
         leading: InkWell(
           child: Icon(Icons.arrow_back_ios,

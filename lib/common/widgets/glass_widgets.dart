@@ -36,9 +36,7 @@ AppBar glassAppBar({
     systemOverlayStyle: SystemUiOverlayStyle.light,
     shape: rounded ? AppGlass.headerShape : null,
     flexibleSpace: AppGlass.headerBackground(rounded: rounded),
-    titleTextStyle: titleTextStyle ??
-        const TextStyle(
-            color: Colors.white, fontSize: 17.0, fontWeight: FontWeight.w600),
+    titleTextStyle: titleTextStyle ?? AppGlass.headerTitleStyle,
   );
 }
 
@@ -126,6 +124,51 @@ class GlassTile extends StatelessWidget {
           borderRadius: borderRadius,
           onTap: onTap,
           child: Padding(padding: padding, child: child),
+        ),
+      ),
+    );
+  }
+}
+
+class GlassHeader extends StatelessWidget {
+  final String title;
+  final VoidCallback? onBack;
+  final List<Widget>? actions;
+
+  const GlassHeader(
+      {super.key, required this.title, this.onBack, this.actions});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      decoration: AppGlass.header(),
+      padding: EdgeInsets.only(top: MediaQuery.paddingOf(context).top),
+      child: SizedBox(
+        height: kToolbarHeight,
+        child: NavigationToolbar(
+          middleSpacing: 8.0,
+          leading: Padding(
+            padding: const EdgeInsets.only(left: 10.0),
+            child: InkWell(
+              onTap: onBack ?? () => Navigator.of(context).pop(),
+              child: const SizedBox(
+                  width: 36.0,
+                  child: Icon(Icons.arrow_back_ios, color: AppColors.white)),
+            ),
+          ),
+          middle: Text(title,
+              maxLines: 1,
+              textAlign: TextAlign.center,
+              overflow: TextOverflow.ellipsis,
+              style: AppGlass.headerTitleStyle),
+          trailing: (actions ?? []).isEmpty
+              ? null
+              : Padding(
+                  padding: const EdgeInsets.only(right: 10.0),
+                  child:
+                      Row(mainAxisSize: MainAxisSize.min, children: actions!),
+                ),
         ),
       ),
     );

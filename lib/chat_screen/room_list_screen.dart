@@ -38,6 +38,9 @@ class RoomListScreen extends StatefulWidget {
   final Function? openCreateChatRoom;
   final String? source;
   final Function? refreshTabNoti;
+  final double headerInset;
+
+  static const double searchExtent = 56.0;
 
   const RoomListScreen(
       {Key? key,
@@ -47,6 +50,7 @@ class RoomListScreen extends StatefulWidget {
       this.source,
       this.chatHubBuilder,
       this.refreshTabNoti,
+      this.headerInset = 0.0,
       this.filterCall})
       : super(key: key);
 
@@ -55,8 +59,9 @@ class RoomListScreen extends StatefulWidget {
 }
 
 class _RoomListScreenState extends State<RoomListScreen>
-    with AutomaticKeepAliveClientMixin {
+    with AutomaticKeepAliveClientMixin, TickerProviderStateMixin {
   final _focusSearch = FocusNode();
+  final _searchHeaderKey = GlobalKey();
   final _controllerSearch = TextEditingController();
   String? channel;
   String? status;
@@ -79,15 +84,18 @@ class _RoomListScreenState extends State<RoomListScreen>
   @override
   void initState() {
     super.initState();
+    _listViewController = ScrollController()..addListener(_scrollListener);
+    ScrollHideController.register(
+        this, () => revealScrollHideHeader(_searchHeaderKey));
     WidgetsBinding.instance.addPostFrameCallback((_) {
       checkUserToken();
       _getRooms();
-      _listViewController = ScrollController()..addListener(_scrollListener);
     });
   }
 
   @override
   void dispose() {
+    ScrollHideController.unregister(this);
     _debounce?.cancel();
     _controllerSearch.dispose();
     _focusSearch.dispose();
@@ -262,217 +270,202 @@ class _RoomListScreenState extends State<RoomListScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (!ChatConnection.isChatHub)
-                      Container(
-                        width: double.infinity,
-                        height: 44.0 + MediaQuery.paddingOf(context).top + 10.0,
-                        decoration: AppGlass.header(),
-                        padding: EdgeInsets.fromLTRB(10.0,
-                            MediaQuery.paddingOf(context).top + 5.0, 10.0, 5.0),
-                        child: Row(
-                          children: [
-                            InkWell(
-                              onTap: () {
-                                Navigator.of(ChatConnection.buildContext).pop();
-                              },
-                              child: const SizedBox(
-                                  width: 36.0,
-                                  child: Icon(Icons.arrow_back_ios,
-                                      color: AppColors.white)),
+                      GlassHeader(
+                        title: AppLocalizations.text(LangKey.chats),
+                        onBack: () =>
+                            Navigator.of(ChatConnection.buildContext).pop(),
+                        actions: [
+                          GlassHeaderIconButton(
+                            onTap: () async {
+                              if (widget.openCreateChatRoom != null) {
+                                widget.openCreateChatRoom?.call();
+                              }
+                            },
+                            icon: Image.asset(
+                              'assets/icon-edit.png',
+                              package: 'chat',
+                              width: 18.0,
+                              height: 18.0,
+                              color: AppColors.white,
                             ),
-                            Expanded(
-                              child: Text(AppLocalizations.text(LangKey.chats),
-                                  maxLines: 1,
-                                  textAlign: TextAlign.center,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                      color: AppColors.white,
-                                      fontSize: 17.0,
-                                      fontWeight: FontWeight.w600)),
-                            ),
-                            GlassHeaderIconButton(
-                              onTap: () async {
-                                if (widget.openCreateChatRoom != null) {
-                                  widget.openCreateChatRoom?.call();
-                                }
-                              },
-                              icon: Image.asset(
-                                'assets/icon-edit.png',
-                                package: 'chat',
-                                width: 18.0,
-                                height: 18.0,
-                                color: AppColors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ScrollHideCollapse(
-                      child: Padding(
-                        padding:
-                            const EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 6.0),
-                        child: Container(
-                          width: double.infinity,
-                          height: 40,
-                          decoration: AppGlass.pill(),
-                          child: Row(
-                            children: [
-                              const Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 10),
-                                child: Center(
-                                  child: Icon(
-                                    Icons.search,
-                                    color: AppColors.textMutedColor,
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                  child: TextField(
-                                focusNode: _focusSearch,
-                                controller: _controllerSearch,
-                                onChanged: (_) {
-                                  if (_debounce?.isActive ?? false)
-                                    _debounce?.cancel();
-                                  _debounce = Timer(
-                                      const Duration(milliseconds: 300), () {
-                                    setState(() {
-                                      isInitScreen = true;
-                                      _getRoomVisible();
-                                    });
-                                  });
-                                },
-                                decoration: InputDecoration.collapsed(
-                                  hintText: AppLocalizations.text(
-                                      LangKey.searchChats),
-                                  hintStyle: const TextStyle(
-                                      color: AppColors.textMutedColor),
-                                ),
-                              )),
-                              Material(
-                                color: Colors.transparent,
-                                child: InkWell(
-                                  borderRadius:
-                                      BorderRadius.circular(AppRadius.pill),
-                                  child: const Padding(
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 10),
-                                    child: Center(
-                                      child: Icon(
-                                        Icons.close,
-                                        color: AppColors.textMutedColor,
-                                      ),
-                                    ),
-                                  ),
-                                  onTap: () {
-                                    _controllerSearch.text = '';
-                                    FocusManager.instance.primaryFocus
-                                        ?.unfocus();
-                                    setState(() {
-                                      isInitScreen = true;
-                                      _getRoomVisible();
-                                    });
-                                  },
-                                ),
-                              )
-                            ],
                           ),
-                        ),
+                        ],
                       ),
-                    )
                   ],
                 ),
                 Expanded(
-                  child: isInitScreen
-                      ? Center(
-                          child: Platform.isAndroid
-                              ? const CircularProgressIndicator()
-                              : const CupertinoActivityIndicator())
-                      : roomListVisible?.rooms != null
-                          ? SmartRefresher(
-                              enablePullDown: true,
-                              enablePullUp: true,
-                              controller: _refreshController,
-                              onRefresh: _onRefresh,
-                              onLoading: _onLoading,
-                              header: const WaterDropHeader(),
-                              footer: CustomFooter(
-                                builder:
-                                    (BuildContext context, LoadStatus? mode) {
-                                  Widget body;
-                                  if (mode == LoadStatus.failed) {
-                                    body = const Text(LangKey.load_more_failed);
-                                  } else if (mode == LoadStatus.noMore ||
-                                      mode == LoadStatus.idle) {
-                                    body = const SizedBox.shrink();
-                                  } else {
-                                    body = Platform.isAndroid
-                                        ? const SizedBox(
-                                            width: 24,
-                                            height: 24,
-                                            child: CircularProgressIndicator(
-                                                strokeWidth: 3),
-                                          )
-                                        : const CupertinoActivityIndicator();
-                                  }
-                                  return SizedBox(
-                                    height: 60,
-                                    child: Center(child: body),
-                                  );
-                                },
+                  child: SmartRefresher(
+                    enablePullDown: true,
+                    enablePullUp: true,
+                    controller: _refreshController,
+                    onRefresh: _onRefresh,
+                    onLoading: _onLoading,
+                    header: const WaterDropHeader(),
+                    footer: CustomFooter(
+                      builder: (BuildContext context, LoadStatus? mode) {
+                        Widget body;
+                        if (mode == LoadStatus.failed) {
+                          body = const Text(LangKey.load_more_failed);
+                        } else if (mode == LoadStatus.noMore ||
+                            mode == LoadStatus.idle) {
+                          body = const SizedBox.shrink();
+                        } else {
+                          body = Platform.isAndroid
+                              ? const SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child:
+                                      CircularProgressIndicator(strokeWidth: 3),
+                                )
+                              : const CupertinoActivityIndicator();
+                        }
+                        return SizedBox(
+                          height: 60,
+                          child: Center(child: body),
+                        );
+                      },
+                    ),
+                    child: ValueListenableBuilder<int>(
+                      valueListenable: ChatConnection.onlineUsersNotifier,
+                      builder: (context, _, __) => CustomScrollView(
+                        controller: _listViewController,
+                        keyboardDismissBehavior:
+                            ScrollViewKeyboardDismissBehavior.onDrag,
+                        slivers: [
+                          SliverPersistentHeader(
+                            floating: true,
+                            delegate: ScrollHideHeaderDelegate(
+                              owner: widget.source ?? '',
+                              extent: widget.headerInset +
+                                  RoomListScreen.searchExtent,
+                              background: AppColors.surfaceColor
+                                  .withValues(alpha: 0.96),
+                              vsync: this,
+                              child: Padding(
+                                padding:
+                                    EdgeInsets.only(top: widget.headerInset),
+                                child: _buildSearchBar(),
                               ),
-                              child:
-                                  NotificationListener<UserScrollNotification>(
-                                onNotification:
-                                    ScrollHideController.onNotification,
-                                child: ValueListenableBuilder<int>(
-                                  valueListenable:
-                                      ChatConnection.onlineUsersNotifier,
-                                  builder: (context, _, __) => ListView.builder(
-                                    controller: _listViewController,
-                                    padding: EdgeInsets.only(
-                                        top: 2.0,
-                                        bottom: MediaQuery.paddingOf(context)
-                                                .bottom +
-                                            12.0),
-                                    keyboardDismissBehavior:
-                                        ScrollViewKeyboardDismissBehavior
-                                            .onDrag,
-                                    itemCount: (ChatConnection.openChatGPT !=
-                                            null)
-                                        ? (roomListVisible?.rooms?.length ??
-                                                0) +
-                                            1
-                                        : (roomListVisible?.rooms?.length ?? 0),
-                                    itemBuilder:
-                                        (BuildContext context, int index) {
-                                      int position =
-                                          (ChatConnection.openChatGPT != null)
-                                              ? index - 1
-                                              : index;
-                                      if (ChatConnection.openChatGPT != null &&
-                                          index == 0) {
-                                        return InkWell(
-                                          onTap: () {
-                                            ChatConnection.openChatGPT?.call();
-                                          },
-                                          child: _gptRoom(
-                                              !(roomListVisible?.rooms !=
-                                                      null &&
-                                                  (roomListVisible
-                                                          ?.rooms?.isNotEmpty ??
-                                                      false))),
-                                        );
-                                      }
-                                      return parseRoom(position);
-                                    },
-                                  ),
+                            ),
+                          ),
+                          if (isInitScreen)
+                            SliverFillRemaining(
+                              hasScrollBody: false,
+                              child: Center(
+                                  child: Platform.isAndroid
+                                      ? const CircularProgressIndicator()
+                                      : const CupertinoActivityIndicator()),
+                            )
+                          else if (roomListVisible?.rooms != null)
+                            SliverPadding(
+                              padding: EdgeInsets.only(
+                                  top: 2.0,
+                                  bottom: MediaQuery.paddingOf(context).bottom +
+                                      12.0),
+                              sliver: SliverList(
+                                delegate: SliverChildBuilderDelegate(
+                                  (BuildContext context, int index) {
+                                    int position =
+                                        (ChatConnection.openChatGPT != null)
+                                            ? index - 1
+                                            : index;
+                                    if (ChatConnection.openChatGPT != null &&
+                                        index == 0) {
+                                      return InkWell(
+                                        onTap: () {
+                                          ChatConnection.openChatGPT?.call();
+                                        },
+                                        child: _gptRoom(
+                                            !(roomListVisible?.rooms != null &&
+                                                (roomListVisible
+                                                        ?.rooms?.isNotEmpty ??
+                                                    false))),
+                                      );
+                                    }
+                                    return parseRoom(position);
+                                  },
+                                  childCount: (ChatConnection.openChatGPT !=
+                                          null)
+                                      ? (roomListVisible?.rooms?.length ?? 0) +
+                                          1
+                                      : (roomListVisible?.rooms?.length ?? 0),
                                 ),
                               ),
-                            )
-                          : Container(),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSearchBar() {
+    return Padding(
+      key: _searchHeaderKey,
+      padding: const EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 6.0),
+      child: Container(
+        width: double.infinity,
+        height: 40,
+        decoration: AppGlass.pill(),
+        child: Row(
+          children: [
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              child: Center(
+                child: Icon(
+                  Icons.search,
+                  color: AppColors.textMutedColor,
+                ),
+              ),
+            ),
+            Expanded(
+                child: TextField(
+              focusNode: _focusSearch,
+              controller: _controllerSearch,
+              onChanged: (_) {
+                if (_debounce?.isActive ?? false) _debounce?.cancel();
+                _debounce = Timer(const Duration(milliseconds: 300), () {
+                  setState(() {
+                    isInitScreen = true;
+                    _getRoomVisible();
+                  });
+                });
+              },
+              decoration: InputDecoration.collapsed(
+                hintText: AppLocalizations.text(LangKey.searchChats),
+                hintStyle: const TextStyle(color: AppColors.textMutedColor),
+              ),
+            )),
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(AppRadius.pill),
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  child: Center(
+                    child: Icon(
+                      Icons.close,
+                      color: AppColors.textMutedColor,
+                    ),
+                  ),
+                ),
+                onTap: () {
+                  _controllerSearch.text = '';
+                  FocusManager.instance.primaryFocus?.unfocus();
+                  setState(() {
+                    isInitScreen = true;
+                    _getRoomVisible();
+                  });
+                },
+              ),
+            )
+          ],
         ),
       ),
     );

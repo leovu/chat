@@ -169,6 +169,12 @@ class AppGlass {
         ],
       );
 
+  static const TextStyle headerTitleStyle = TextStyle(
+      color: Colors.white, fontSize: 18.0, fontWeight: FontWeight.w600);
+
+  static const TextStyle headerNameStyle = TextStyle(
+      color: Colors.white, fontSize: 17.0, fontWeight: FontWeight.w600);
+
   static Color get surface => Colors.white.withValues(alpha: 0.72);
 
   static Color get surfaceLight => Colors.white.withValues(alpha: 0.55);

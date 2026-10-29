@@ -154,10 +154,7 @@ class _FilterChathubScreenState extends State<FilterChathubScreen> {
           appBar: glassAppBar(
             title: AutoSizeText(
               AppLocalizations.text(LangKey.filter),
-              style: const TextStyle(
-                  color: AppColors.white,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16),
+              style: AppGlass.headerTitleStyle,
             ),
             leading: InkWell(
               child: Icon(Icons.arrow_back_ios, color: AppColors.white),

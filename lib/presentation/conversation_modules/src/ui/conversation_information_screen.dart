@@ -437,8 +437,7 @@ class _ConversationInformationScreenState
       appBar: AppBar(
         title: AutoSizeText(
           AppLocalizations.text(LangKey.conversationInformation),
-          style: const TextStyle(
-              color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16),
+          style: AppGlass.headerTitleStyle,
         ),
         leading: InkWell(
           child: Icon(Icons.arrow_back_ios, color: Colors.white),

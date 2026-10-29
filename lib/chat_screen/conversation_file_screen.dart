@@ -69,10 +69,10 @@ class _ConversationFileScreenState extends State<ConversationFileScreen>
     return Scaffold(
       backgroundColor: AppColors.surfaceColor,
       appBar: AppBar(
+        centerTitle: true,
         title: AutoSizeText(
           AppLocalizations.text(LangKey.conversationFileTitle),
-          style: const TextStyle(
-              color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16),
+          style: AppGlass.headerTitleStyle,
         ),
         leading: InkWell(
           child: Icon(Icons.arrow_back_ios, color: Colors.white),

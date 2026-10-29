@@ -91,6 +91,7 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
+      centerTitle: true,
       backgroundColor: Colors.transparent,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
@@ -100,11 +101,7 @@ class _ChatGroupMembersScreenState extends State<ChatGroupMembersScreen> {
       iconTheme: const IconThemeData(color: Colors.white),
       title: AutoSizeText(
         AppLocalizations.text(LangKey.members),
-        style: const TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.w600,
-          fontSize: 16,
-        ),
+        style: AppGlass.headerTitleStyle,
       ),
       leading: InkWell(
         onTap: () => Navigator.of(context).pop(),
