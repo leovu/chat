@@ -143,11 +143,14 @@ class GlassBackButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       widthFactor: 1.0,
-      child: lg.GlassIconButton(
-        useOwnLayer: true,
-        size: 38.0,
-        icon: Icon(icon, color: AppGlass.headerForeground, size: 22.0),
-        onPressed: onTap ?? () => Navigator.of(context).maybePop(),
+      child: SizedBox.square(
+        dimension: 38.0,
+        child: lg.GlassIconButton(
+          useOwnLayer: true,
+          size: 38.0,
+          icon: Icon(icon, color: AppGlass.headerForeground, size: 22.0),
+          onPressed: onTap ?? () => Navigator.of(context).maybePop(),
+        ),
       ),
     );
   }
@@ -206,14 +209,20 @@ class GlassHeaderIconButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 2.0),
-      child: lg.GlassIconButton(
-        useOwnLayer: true,
-        size: size,
-        onPressed: onTap,
-        icon: IconTheme(
-          data:
-              const IconThemeData(color: AppGlass.headerForeground, size: 20.0),
-          child: icon,
+      child: Center(
+        widthFactor: 1.0,
+        child: SizedBox.square(
+          dimension: size,
+          child: lg.GlassIconButton(
+            useOwnLayer: true,
+            size: size,
+            onPressed: onTap,
+            icon: IconTheme(
+              data: const IconThemeData(
+                  color: AppGlass.headerForeground, size: 20.0),
+              child: icon,
+            ),
+          ),
         ),
       ),
     );

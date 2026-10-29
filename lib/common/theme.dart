@@ -182,6 +182,13 @@ class AppGlass {
 
   static const Color hairlineColor = Color(0xFFE6EAF0);
 
+  static const lg.LiquidGlassSettings barSettings = lg.LiquidGlassSettings(
+    glassColor: Color(0x8CF7F9FC),
+    blur: 18.0,
+    thickness: 30.0,
+    saturation: 1.6,
+  );
+
   static const lg.LiquidGlassSettings sheetSettings = lg.LiquidGlassSettings(
     glassColor: Color(0xD9F7F9FC),
     blur: 24.0,

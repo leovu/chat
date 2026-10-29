@@ -200,16 +200,13 @@ class _InternalChatScreenState extends ChatScreenBaseState<InternalChatScreen> {
     final isFav = _isFavorite();
     return glassAppBar(
         actions: <Widget>[
-          IconButton(
-            visualDensity:
-                const VisualDensity(horizontal: -4.0, vertical: -4.0),
-            padding: EdgeInsets.zero,
+          GlassHeaderIconButton(
             icon: Icon(
               isFav ? Icons.star : Icons.star_border,
               color:
                   isFav ? const Color(0xFFFFD60A) : AppGlass.headerForeground,
             ),
-            onPressed: () async {
+            onTap: () async {
               bool result =
                   await ChatConnection.toggleFavorites(widget.data.sId);
               if (result && mounted) {
@@ -217,13 +214,9 @@ class _InternalChatScreenState extends ChatScreenBaseState<InternalChatScreen> {
               }
             },
           ),
-          IconButton(
-            visualDensity:
-                const VisualDensity(horizontal: -4.0, vertical: -4.0),
-            padding: EdgeInsets.zero,
-            icon: const Icon(Icons.format_list_bulleted,
-                color: AppGlass.headerForeground),
-            onPressed: () async {
+          GlassHeaderIconButton(
+            icon: const Icon(Icons.format_list_bulleted),
+            onTap: () async {
               this.showLoading();
               Navigator.of(context).pop();
               await Navigator.of(context).push(MaterialPageRoute(
@@ -237,7 +230,8 @@ class _InternalChatScreenState extends ChatScreenBaseState<InternalChatScreen> {
               loadMessages();
               setState(() {});
             },
-          )
+          ),
+          const SizedBox(width: 6.0),
         ],
         title: SizedBox(
           height: 50.0,

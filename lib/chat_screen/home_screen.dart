@@ -1,9 +1,7 @@
 import 'dart:convert';
-import 'dart:ui';
 import 'package:chat/common/global.dart';
 import 'package:chat/common/theme.dart';
 import 'package:chat/common/shared_prefs/shared_prefs_key.dart';
-import 'package:chat/common/widgets/liquid_glass_tab_bar.dart';
 import 'package:chat/common/widgets/scroll_hide.dart';
 import 'package:chat/presentation/chat_module/ui/chat_screen.dart';
 import 'package:chat/chat_screen/chathub_room_list_screen.dart';
@@ -19,6 +17,7 @@ import 'package:chat/localization/check_tag.dart';
 import 'package:chat/localization/lang_key.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lg;
 import 'package:chat/data_model/room.dart' as r;
 import 'package:chat/connection/app_lifecycle.dart';
 
@@ -107,59 +106,29 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
   }
 
   Widget _buildChatHubTabBar() {
-    return SafeArea(
-      top: false,
-      child: Container(
-        margin: const EdgeInsets.fromLTRB(12.0, 0.0, 12.0, 8.0),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(AppRadius.pill),
-          boxShadow: AppGlass.shadow,
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(AppRadius.pill),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-            child: Container(
-              decoration: AppGlass.pill(
-                  color: AppGlass.reduceTransparency(context)
-                      ? Colors.white
-                      : AppGlass.surface),
-              padding: const EdgeInsets.all(4.0),
-              child: ValueListenableBuilder<String>(
-                valueListenable: ChatConnection.notificationNotifier,
-                builder: (context, notifValue, _) {
-                  final notifCount = int.tryParse(notifValue) ?? 0;
-                  return LiquidGlassTabBar(
-                    selectedIndex: _chatHubTabIndex,
-                    expandItems: true,
-                    equalWidth: true,
-                    onTabChanged: (index, item) {
-                      if (index == 1) {
-                        try {
-                          ChatConnection.refreshNotifications.call();
-                        } catch (_) {}
-                      }
-                      ScrollHideController.show();
-                      setState(() => _chatHubTabIndex = index);
-                    },
-                    items: [
-                      LiquidGlassTabItem(
-                        iconData: Icons.chat,
-                        title: AppLocalizations.text(LangKey.chats),
-                      ),
-                      LiquidGlassTabItem(
-                        iconData: Icons.notifications,
-                        title: AppLocalizations.text(LangKey.notifications),
-                        badgeCount: notifCount,
-                      ),
-                    ],
-                  );
-                },
-              ),
-            ),
-          ),
-        ),
-      ),
+    return ValueListenableBuilder<String>(
+      valueListenable: ChatConnection.notificationNotifier,
+      builder: (context, notifValue, _) {
+        final notifCount = int.tryParse(notifValue) ?? 0;
+        return _buildGlassTabBar(
+          selectedIndex: _chatHubTabIndex,
+          onTabSelected: (index) {
+            if (index == 1) {
+              try {
+                ChatConnection.refreshNotifications.call();
+              } catch (_) {}
+            }
+            ScrollHideController.show();
+            setState(() => _chatHubTabIndex = index);
+          },
+          tabs: [
+            _buildGlassTab(Icons.chat, AppLocalizations.text(LangKey.chats)),
+            _buildGlassTab(Icons.notifications,
+                AppLocalizations.text(LangKey.notifications),
+                badge: notifCount),
+          ],
+        );
+      },
     );
   }
 
@@ -207,66 +176,93 @@ class _HomeScreenState extends AppLifeCycle<HomeScreen> {
   }
 
   Widget _buildChatTabBar() {
+    return ValueListenableBuilder<String>(
+      valueListenable: ChatConnection.notificationNotifier,
+      builder: (context, notifValue, _) {
+        final notifCount = int.tryParse(notifValue) ?? 0;
+        return _buildGlassTabBar(
+          selectedIndex: _chatTabIndex,
+          onTabSelected: (index) {
+            if (index == 3) {
+              try {
+                ChatConnection.refreshNotifications.call();
+              } catch (_) {}
+            }
+            ScrollHideController.show();
+            setState(() => _chatTabIndex = index);
+          },
+          tabs: [
+            _buildGlassTab(Icons.chat, AppLocalizations.text(LangKey.chats)),
+            _buildGlassTab(
+                Icons.contact_mail, AppLocalizations.text(LangKey.contacts)),
+            _buildGlassTab(
+                Icons.star_border, AppLocalizations.text(LangKey.favorites)),
+            _buildGlassTab(Icons.notifications,
+                AppLocalizations.text(LangKey.notifications),
+                badge: notifCount),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildGlassTabBar(
+      {required int selectedIndex,
+      required ValueChanged<int> onTabSelected,
+      required List<lg.GlassTab> tabs}) {
     return SafeArea(
       top: false,
-      child: Container(
-        margin: const EdgeInsets.fromLTRB(12.0, 0.0, 12.0, 8.0),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(AppRadius.pill),
-          boxShadow: AppGlass.shadow,
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(AppRadius.pill),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-            child: Container(
-              decoration: AppGlass.pill(
-                  color: AppGlass.reduceTransparency(context)
-                      ? Colors.white
-                      : AppGlass.surface),
-              padding: const EdgeInsets.all(4.0),
-              child: ValueListenableBuilder<String>(
-                valueListenable: ChatConnection.notificationNotifier,
-                builder: (context, notifValue, _) {
-                  final notifCount = int.tryParse(notifValue) ?? 0;
-                  return LiquidGlassTabBar(
-                    selectedIndex: _chatTabIndex,
-                    expandItems: true,
-                    onTabChanged: (index, item) {
-                      if (index == 3) {
-                        try {
-                          ChatConnection.refreshNotifications.call();
-                        } catch (_) {}
-                      }
-                      ScrollHideController.show();
-                      setState(() => _chatTabIndex = index);
-                    },
-                    items: [
-                      LiquidGlassTabItem(
-                        iconData: Icons.chat,
-                        title: AppLocalizations.text(LangKey.chats),
-                      ),
-                      LiquidGlassTabItem(
-                        iconData: Icons.contact_mail,
-                        title: AppLocalizations.text(LangKey.contacts),
-                      ),
-                      LiquidGlassTabItem(
-                        iconData: Icons.star_border,
-                        title: AppLocalizations.text(LangKey.favorites),
-                      ),
-                      LiquidGlassTabItem(
-                        iconData: Icons.notifications,
-                        title: AppLocalizations.text(LangKey.notifications),
-                        badgeCount: notifCount,
-                      ),
-                    ],
-                  );
-                },
-              ),
+      child: lg.GlassTabBar.bottom(
+        selectedIndex: selectedIndex,
+        onTabSelected: onTabSelected,
+        barHeight: 60.0,
+        horizontalPadding: 12.0,
+        verticalPadding: 6.0,
+        settings: AppGlass.barSettings,
+        selectedIconColor: AppColors.primaryColor,
+        unselectedIconColor: AppColors.textSecondaryColor,
+        selectedLabelColor: AppColors.primaryColor,
+        unselectedLabelColor: AppColors.textSecondaryColor,
+        tabs: tabs,
+      ),
+    );
+  }
+
+  lg.GlassTab _buildGlassTab(IconData icon, String label, {int badge = 0}) {
+    return lg.GlassTab(
+      icon: _buildBadgeIcon(icon, badge),
+      label: label,
+    );
+  }
+
+  Widget _buildBadgeIcon(IconData icon, int badge) {
+    if (badge <= 0) {
+      return Icon(icon);
+    }
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Icon(icon),
+        Positioned(
+          right: -10.0,
+          top: -6.0,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 1.0),
+            decoration: BoxDecoration(
+              color: AppColors.dangerColor,
+              borderRadius: BorderRadius.circular(AppRadius.pill),
+              border: Border.all(color: AppColors.white, width: 1.0),
+            ),
+            child: Text(
+              badge > 999 ? '999+' : '$badge',
+              style: const TextStyle(
+                  fontSize: 10.0,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500),
             ),
           ),
         ),
-      ),
+      ],
     );
   }
 
